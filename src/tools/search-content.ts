@@ -256,6 +256,12 @@ export function searchContentHandler(config: Config) {
 
         const prepared = prepareSearchTokens(query);
         if (prepared.contentTokens.length === 0) {
+          if (prepared.strippedStopwords) {
+            return err(
+              'query contains only stopwords; add at least one content keyword',
+              'invalid_query',
+            );
+          }
           return err('query must contain at least one non-whitespace token', 'invalid_query');
         }
 

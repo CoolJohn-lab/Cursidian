@@ -13,7 +13,7 @@ export function registerSearch(server: McpServer, config: Config): void {
     'search',
     {
       description:
-        'Find notes. action=content (default): full-text search, prefer 2-3 keywords, token-AND with OR fallback and typo correction, format=compact for index-only results. action=by_tags: frontmatter tag filter (AND). action=list: enumerate notes by folder. action=recent: newest first. action=tags: tag vocabulary with counts.',
+        'Find notes. action=content (default): full-text search, prefer 2-3 keywords, token-AND with OR fallback and typo correction, format=compact for index-only results. action=by_tags: frontmatter tag filter (AND). action=list: enumerate notes by folder (missing folder → not_found). action=recent: newest first. action=tags: tag vocabulary with counts. list/recent/content exclude index/log/hot/_raw/_archives unless includeOperational=true.',
       inputSchema: {
         action: z
           .enum(['content', 'by_tags', 'list', 'recent', 'tags'])
@@ -36,7 +36,10 @@ export function registerSearch(server: McpServer, config: Config): void {
           .describe('Max results for content/by_tags/recent'),
         caseSensitive: z.boolean().optional().describe('Case-sensitive content search'),
         verbose: z.boolean().optional().describe('Include matchReasons and snippet match text'),
-        includeOperational: z.boolean().optional().describe('Include index/log/hot/_raw/_archives'),
+        includeOperational: z
+          .boolean()
+          .optional()
+          .describe('Include index/log/hot/_raw/_archives (content, list, recent)'),
         format: z
           .enum(['full', 'compact'])
           .optional()
@@ -80,9 +83,9 @@ export function registerSearch(server: McpServer, config: Config): void {
           }
           return searchByTagsHandler(config)({ tags, limit });
         case 'list':
-          return listNotesHandler(config)({ folder, recursive });
+          return listNotesHandler(config)({ folder, recursive, includeOperational });
         case 'recent':
-          return listRecentHandler(config)({ limit, folder });
+          return listRecentHandler(config)({ limit, folder, includeOperational });
         case 'tags':
           return listTagsHandler(config)();
         default:

@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { registerSearch } from '../../src/tools/search.js';
-import { createTestVault, seedVault, cleanupVault, callTool, parseResult } from './helpers.js';
+import {
+  createTestVault,
+  seedVault,
+  cleanupVault,
+  callTool,
+  parseResult,
+  writeNote,
+} from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;
@@ -8,6 +15,10 @@ let ctx: TestContext;
 beforeAll(async () => {
   ctx = await createTestVault();
   await seedVault(ctx.vault);
+  // Write operational files last so they are newest by mtime
+  await writeNote(ctx.vault, 'log.md', '# Log\n');
+  await writeNote(ctx.vault, 'hot.md', '# Hot\n');
+  await writeNote(ctx.vault, 'index.md', '# Index\n');
   registerSearch(ctx.server, ctx.config);
 });
 
@@ -25,6 +36,32 @@ describe('search (recent)', () => {
         new Date(data.notes[i].mtime).getTime(),
       );
     }
+  });
+
+  it('excludes operational files by default even when newest', async () => {
+    const result = await callTool(ctx.server, 'search', {
+      action: 'recent',
+      includeOperational: false,
+      limit: 20,
+    });
+    const data = parseResult(result) as { notes: Array<{ path: string }> };
+    const paths = data.notes.map((n) => n.path.replace(/\\/g, '/'));
+    expect(paths).not.toContain('index.md');
+    expect(paths).not.toContain('log.md');
+    expect(paths).not.toContain('hot.md');
+  });
+
+  it('includes operational files when includeOperational is true', async () => {
+    const result = await callTool(ctx.server, 'search', {
+      action: 'recent',
+      includeOperational: true,
+      limit: 20,
+    });
+    const data = parseResult(result) as { notes: Array<{ path: string }> };
+    const paths = data.notes.map((n) => n.path.replace(/\\/g, '/'));
+    expect(paths).toContain('index.md');
+    expect(paths).toContain('log.md');
+    expect(paths).toContain('hot.md');
   });
 
   it('respects limit', async () => {

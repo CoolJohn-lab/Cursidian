@@ -78,6 +78,22 @@ describe('vault (folders)', () => {
     expect(result.content[0].text).toContain('confirm');
   });
 
+  it('returns folder_not_empty when deleting a non-empty folder', async () => {
+    await callTool(ctx.server, 'vault', { action: 'create_folder', path: 'NotEmpty' });
+    const { writeFile, mkdir } = await import('node:fs/promises');
+    const { join } = await import('node:path');
+    await mkdir(join(ctx.vault, 'NotEmpty'), { recursive: true });
+    await writeFile(join(ctx.vault, 'NotEmpty', 'note.md'), '# hi\n', 'utf-8');
+    const result = await callTool(ctx.server, 'vault', {
+      action: 'delete_folder',
+      path: 'NotEmpty',
+      confirm: true,
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string };
+    expect(data.error).toBe('folder_not_empty');
+  });
+
   it('rejects path traversal', async () => {
     const result = await callTool(ctx.server, 'vault', {
       action: 'create_folder',

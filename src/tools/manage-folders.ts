@@ -56,6 +56,7 @@ export function manageFoldersHandler(config: Config) {
       if (contents.length > 0) {
         return err(
           `Folder "${folderPath}" is not empty (${contents.length} items). Remove all contents first before deleting the folder.`,
+          'folder_not_empty',
         );
       }
 

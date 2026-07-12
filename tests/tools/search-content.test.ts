@@ -259,6 +259,17 @@ describe('search (content)', () => {
     expect(data.results.some((r) => r.path.replace(/\\/g, '/').includes('tunnel-ports'))).toBe(true);
   });
 
+  it('rejects stopword-only queries with invalid_query', async () => {
+    const result = await callTool(ctx.server, 'search', {
+      action: 'content',
+      query: 'the and of',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_query');
+    expect(data.message).toContain('stopwords');
+  });
+
   it('matches morphological variants via Porter stemming', async () => {
     await writeNote(
       ctx.vault,

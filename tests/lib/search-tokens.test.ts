@@ -65,10 +65,11 @@ describe('search-tokens', () => {
     expect(stripSearchStopwords(['how', 'port', 'forward'])).toEqual(['port', 'forward']);
   });
 
-  it('keeps raw tokens when the query is only stopwords', () => {
+  it('returns empty contentTokens when the query is only stopwords', () => {
     const prepared = prepareSearchTokens('how do I');
-    expect(prepared.contentTokens).toEqual(['how', 'do', 'I']);
-    expect(prepared.strippedStopwords).toBe(false);
+    expect(prepared.rawTokens).toEqual(['how', 'do', 'I']);
+    expect(prepared.contentTokens).toEqual([]);
+    expect(prepared.strippedStopwords).toBe(true);
   });
 
   it('counts matching tokens and computes OR thresholds', () => {

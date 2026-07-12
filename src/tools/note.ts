@@ -41,7 +41,7 @@ export function registerNote(server: McpServer, config: Config): void {
           .string()
           .optional()
           .describe(
-            'Section heading for replace_section. Plain text matches any level; with # markers (e.g. "## Details") the ATX level must match too',
+            'Section heading for replace_section. Plain text matches any level; with # markers (e.g. "## Details") the ATX level must match too. Replaces body until the next same-or-higher heading (nested subsections included)',
           ),
         expectedHash: z.string().optional().describe('contentHash from read for concurrency check'),
         force: z.boolean().optional().describe('Bypass replace size guard'),

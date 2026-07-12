@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.5.1] - 2026-07-12
+
+### Fixed
+
+- `search` `list` / `recent` exclude operational paths by default and honor `includeOperational` (same set as content search)
+- `search` `list` returns `not_found` for a nonexistent folder (empty existing folders still return count 0)
+- Stopword-only content queries return `invalid_query` instead of ranking noise
+- `vault` `delete_folder` on a non-empty folder returns `folder_not_empty` (not generic `error`)
+
+### Changed
+
+- Wiki docs clarify `replace_section` includes nested subsections, and that `list`/`recent` share content operational exclusion (`vault health` noteCount also excludes `_meta/`)
+
 ## [2.5.0] - 2026-07-12
 
 ### Fixed

@@ -141,13 +141,19 @@ export function stripSearchStopwords(tokens: string[]): string[] {
 }
 
 /**
- * Prepares query tokens for vault search: strip stopwords, keep raw if only stopwords remain.
+ * Prepares query tokens for vault search: strip stopwords.
+ * When the query is only stopwords, contentTokens is empty and strippedStopwords is true
+ * so callers can reject with invalid_query.
  */
 export function prepareSearchTokens(query: string): PreparedSearchTokens {
   const rawTokens = tokeniseRawQuery(query);
   const stripped = stripSearchStopwords(rawTokens);
   if (stripped.length === 0) {
-    return { rawTokens, contentTokens: rawTokens, strippedStopwords: false };
+    return {
+      rawTokens,
+      contentTokens: [],
+      strippedStopwords: rawTokens.length > 0,
+    };
   }
   return {
     rawTokens,

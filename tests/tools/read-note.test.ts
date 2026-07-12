@@ -24,10 +24,12 @@ describe('note (read)', () => {
       frontmatter: Record<string, unknown>;
       content: string;
       contentHash: string;
+      revisionHash: string;
     };
     expect(data.frontmatter.title).toBe('Vault Index');
     expect(data.content).toContain('My Vault');
     expect(data.contentHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(data.revisionHash).toMatch(/^[a-f0-9]{64}$/);
   });
 
   it('accepts path with .md extension', async () => {

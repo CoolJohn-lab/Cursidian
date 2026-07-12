@@ -8,7 +8,7 @@ import {
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { computeContentHash } from '../lib/content-hash.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
-import { atomicReplace } from '../lib/vault-io.js';
+import { withPathLocks, atomicReplaceLocked } from '../lib/vault-io.js';
 import { backupNoteIfExists } from '../lib/backup.js';
 import { MAX_LOG_LINE_LENGTH } from '../lib/limits.js';
 import { logger } from '../lib/logger.js';
@@ -94,80 +94,85 @@ export function touchWikiMetaHandler(config: Config) {
       const hotResolved = resolvePath(config.vaultPath, HOT_PATH);
       await assertSafePathAsync(config.vaultPath, logResolved);
 
-      const logRaw = await readFileBounded(logResolved, config.maxFileSize);
-      const { data: logData, content: logBody } = parseFrontmatter(logRaw);
-      const logHash = computeContentHash(logBody);
-      if (expectedLogHash && expectedLogHash !== logHash) {
-        return toolError({
-          error: 'hash_mismatch',
-          message:
-            'log.md content has changed since read (hash mismatch). Re-read and retry with the latest contentHash.',
-          path: LOG_PATH,
-          hint: 'Call note with action read on log.md, then pass the fresh contentHash as expectedLogHash.',
-        });
-      }
+      const touchHot = hotActivity !== undefined && hotActivity.trim() !== '';
+      const lockPaths = touchHot ? [logResolved, hotResolved] : [logResolved];
 
-      const updatedLogBody = `${logBody.trimEnd()}\n${normalisedLog}\n`;
-      const logOutput = stringifyFrontmatter(logData, updatedLogBody);
-
-      let hotOutput: string | undefined;
-      let updatedHotBody: string | undefined;
-
-      if (hotActivity !== undefined && hotActivity.trim() !== '') {
-        await assertSafePathAsync(config.vaultPath, hotResolved);
-        const hotRaw = await readFileBounded(hotResolved, config.maxFileSize);
-        const { data: hotData, content: hotBody } = parseFrontmatter(hotRaw);
-        const hotHash = computeContentHash(hotBody);
-        if (expectedHotHash && expectedHotHash !== hotHash) {
+      return await withPathLocks(lockPaths, async () => {
+        const logRaw = await readFileBounded(logResolved, config.maxFileSize);
+        const { data: logData, content: logBody } = parseFrontmatter(logRaw);
+        const logHash = computeContentHash(logBody);
+        if (expectedLogHash && expectedLogHash !== logHash) {
           return toolError({
             error: 'hash_mismatch',
             message:
-              'hot.md content has changed since read (hash mismatch). Re-read and retry with the latest contentHash.',
-            path: HOT_PATH,
-            hint: 'Call note with action read on hot.md, then pass the fresh contentHash as expectedHotHash.',
+              'log.md content has changed since read (hash mismatch). Re-read and retry with the latest contentHash.',
+            path: LOG_PATH,
+            hint: 'Call note with action read on log.md, then pass the fresh contentHash as expectedLogHash.',
           });
         }
 
-        updatedHotBody = insertHotActivity(hotBody, hotActivity, timestamp);
-        const updatedHotData = bumpHotUpdated(hotData, timestamp);
-        hotOutput = stringifyFrontmatter(updatedHotData, updatedHotBody);
-      }
+        let hotOutput: string | undefined;
+        let updatedHotBody: string | undefined;
 
-      if (config.backupEnabled) {
-        await backupNoteIfExists(config.vaultPath, logResolved);
-        if (hotOutput) {
-          await backupNoteIfExists(config.vaultPath, hotResolved);
+        if (touchHot) {
+          await assertSafePathAsync(config.vaultPath, hotResolved);
+          const hotRaw = await readFileBounded(hotResolved, config.maxFileSize);
+          const { data: hotData, content: hotBody } = parseFrontmatter(hotRaw);
+          const hotHash = computeContentHash(hotBody);
+          if (expectedHotHash && expectedHotHash !== hotHash) {
+            return toolError({
+              error: 'hash_mismatch',
+              message:
+                'hot.md content has changed since read (hash mismatch). Re-read and retry with the latest contentHash.',
+              path: HOT_PATH,
+              hint: 'Call note with action read on hot.md, then pass the fresh contentHash as expectedHotHash.',
+            });
+          }
+
+          updatedHotBody = insertHotActivity(hotBody, hotActivity as string, timestamp);
+          const updatedHotData = bumpHotUpdated(hotData, timestamp);
+          hotOutput = stringifyFrontmatter(updatedHotData, updatedHotBody);
         }
-      }
 
-      await atomicReplace(config.vaultPath, logResolved, logOutput, config.maxFileSize);
+        const updatedLogBody = `${logBody.trimEnd()}\n${normalisedLog}\n`;
+        const logOutput = stringifyFrontmatter(logData, updatedLogBody);
 
-      const result: {
-        log: { path: string; contentHash: string; line: string };
-        hot?: { path: string; contentHash: string };
-      } = {
-        log: {
-          path: LOG_PATH,
-          contentHash: computeContentHash(updatedLogBody),
-          line: normalisedLog,
-        },
-      };
+        if (config.backupEnabled) {
+          await backupNoteIfExists(config.vaultPath, logResolved);
+          if (hotOutput) {
+            await backupNoteIfExists(config.vaultPath, hotResolved);
+          }
+        }
 
-      if (hotOutput && updatedHotBody) {
-        await atomicReplace(config.vaultPath, hotResolved, hotOutput, config.maxFileSize);
-        result.hot = {
-          path: HOT_PATH,
-          contentHash: computeContentHash(updatedHotBody),
+        await atomicReplaceLocked(config.vaultPath, logResolved, logOutput, config.maxFileSize);
+
+        const result: {
+          log: { path: string; contentHash: string; line: string };
+          hot?: { path: string; contentHash: string };
+        } = {
+          log: {
+            path: LOG_PATH,
+            contentHash: computeContentHash(updatedLogBody),
+            line: normalisedLog,
+          },
         };
-      }
 
-      clearAllSearchCaches();
-      logger.info('Wiki meta touched', {
-        log: true,
-        hot: Boolean(result.hot),
+        if (hotOutput && updatedHotBody) {
+          await atomicReplaceLocked(config.vaultPath, hotResolved, hotOutput, config.maxFileSize);
+          result.hot = {
+            path: HOT_PATH,
+            contentHash: computeContentHash(updatedHotBody),
+          };
+        }
+
+        clearAllSearchCaches();
+        logger.info('Wiki meta touched', {
+          log: true,
+          hot: Boolean(result.hot),
+        });
+
+        return ok(result);
       });
-
-      return ok(result);
     } catch (e) {
       return mapToolError(e);
     }

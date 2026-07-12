@@ -5,14 +5,14 @@ import {
   readFileBounded,
 } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter, mergeFrontmatter } from '../lib/frontmatter.js';
-import { computeContentHash } from '../lib/content-hash.js';
+import { computeContentHash, computeRevisionHash, checkRevisionConcurrency } from '../lib/content-hash.js';
 import { withUpdatedTimestampUnlessProvided } from '../lib/timestamps.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
-import { atomicReplace } from '../lib/vault-io.js';
+import { withPathLock, atomicReplaceLocked } from '../lib/vault-io.js';
 import { backupNoteIfExists } from '../lib/backup.js';
 import { MAX_FRONTMATTER_KEYS } from '../lib/limits.js';
 import { logger } from '../lib/logger.js';
-import { ok, err, toolError, mapToolError } from '../types/index.js';
+import { ok, invalidArgsError, toolError, mapToolError } from '../types/index.js';
 
 export function validateFrontmatterOperation(
   operation: 'set' | 'merge' | 'delete',
@@ -52,6 +52,7 @@ export function manageFrontmatterHandler(config: Config) {
     data,
     keys,
     replaceAll,
+    expectedRevision,
     expectedHash,
   }: {
     path: string;
@@ -59,6 +60,7 @@ export function manageFrontmatterHandler(config: Config) {
     data?: Record<string, unknown>;
     keys?: string[];
     replaceAll?: boolean;
+    expectedRevision?: string;
     expectedHash?: string;
   }) => {
     try {
@@ -68,58 +70,111 @@ export function manageFrontmatterHandler(config: Config) {
 
       const validationError = validateFrontmatterOperation(operation, data, keys, replaceAll);
       if (validationError) {
-        return err(validationError, 'invalid_args', { path: notePath });
-      }
-
-      const raw = await readFileBounded(resolved, config.maxFileSize);
-      const { data: existing, content } = parseFrontmatter(raw);
-
-      const currentHash = computeContentHash(content);
-      if (expectedHash && expectedHash !== currentHash) {
-        return toolError({
-          error: 'hash_mismatch',
-          message:
-            'Note content has changed since read (hash mismatch). Re-read the note and retry with the latest contentHash.',
+        const required =
+          operation === 'set'
+            ? ['path', 'fmOperation', 'frontmatter', 'replaceAll']
+            : operation === 'merge'
+              ? ['path', 'fmOperation', 'frontmatter']
+              : ['path', 'fmOperation', 'keys'];
+        const missing = [
+          ...(data === undefined && operation !== 'delete' ? ['frontmatter'] : []),
+          ...(operation === 'set' && replaceAll !== true ? ['replaceAll'] : []),
+          ...(operation === 'delete' && (!keys || keys.length === 0) ? ['keys'] : []),
+        ];
+        const rejected =
+          data && Object.keys(data).length > MAX_FRONTMATTER_KEYS ? ['frontmatter'] : [];
+        return invalidArgsError({
+          tool: 'note',
+          action: 'frontmatter',
+          message: validationError,
+          required,
+          missing,
+          rejected,
           path: notePath,
-          hint: 'Call note with action read again, then pass the fresh contentHash as expectedHash.',
+          arguments: {
+            action: 'frontmatter',
+            path: notePath,
+            fmOperation: operation,
+            ...(operation === 'delete'
+              ? { keys: keys ?? ['<key>'] }
+              : { frontmatter: data ?? { '<key>': '<value>' } }),
+            ...(operation === 'set' ? { replaceAll: true } : {}),
+          },
         });
       }
 
-      let updated: Record<string, unknown>;
+      return await withPathLock(resolved, async () => {
+        const raw = await readFileBounded(resolved, config.maxFileSize);
+        const { data: existing, content } = parseFrontmatter(raw);
 
-      if (operation === 'set') {
-        updated = data as Record<string, unknown>;
-      } else if (operation === 'merge') {
-        updated = mergeFrontmatter(existing, data as Record<string, unknown>);
-      } else {
-        updated = { ...existing };
-        for (const key of keys as string[]) {
-          delete updated[key];
+        const revisionCheck = checkRevisionConcurrency({
+          raw,
+          body: content,
+          expectedRevision,
+          expectedHash,
+        });
+        if (!revisionCheck.ok) {
+          return toolError({
+            error: 'hash_mismatch',
+            message: revisionCheck.message,
+            action: 'frontmatter',
+            retryable: true,
+            sideEffects: 'none',
+            path: notePath,
+            details: { check: expectedRevision ? 'revision' : 'content_hash' },
+            recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
+            hint: revisionCheck.hint,
+          });
         }
-      }
 
-      updated = withUpdatedTimestampUnlessProvided(updated, data, undefined);
+        let updated: Record<string, unknown>;
 
-      const newContent = stringifyFrontmatter(updated, content);
+        if (operation === 'set') {
+          updated = data as Record<string, unknown>;
+        } else if (operation === 'merge') {
+          updated = mergeFrontmatter(existing, data as Record<string, unknown>);
+        } else {
+          updated = { ...existing };
+          for (const key of keys as string[]) {
+            delete updated[key];
+          }
+        }
 
-      if (config.backupEnabled) {
-        await backupNoteIfExists(config.vaultPath, resolved);
-      }
+        updated = withUpdatedTimestampUnlessProvided(updated, data, undefined);
 
-      await atomicReplace(config.vaultPath, resolved, newContent, config.maxFileSize);
+        const newContent = stringifyFrontmatter(updated, content);
 
-      const relative = toRelativePath(config.vaultPath, resolved);
-      clearAllSearchCaches();
-      logger.info('Frontmatter updated', { path: relative, operation });
+        if (config.backupEnabled) {
+          await backupNoteIfExists(config.vaultPath, resolved);
+        }
 
-      return ok({
-        path: relative,
-        operation,
-        frontmatter: updated,
-        contentHash: computeContentHash(content),
+        await atomicReplaceLocked(config.vaultPath, resolved, newContent, config.maxFileSize);
+
+        const relative = toRelativePath(config.vaultPath, resolved);
+        clearAllSearchCaches();
+        logger.info('Frontmatter updated', { path: relative, operation });
+
+        return ok({
+          path: relative,
+          operation,
+          frontmatter: updated,
+          contentHash: computeContentHash(content),
+          revisionHash: computeRevisionHash(newContent),
+          ...(revisionCheck.warnings ? { warnings: revisionCheck.warnings } : {}),
+        }, {
+          action: 'frontmatter',
+          changed: true,
+          paths: [relative],
+          warnings: revisionCheck.warnings,
+        });
       });
     } catch (e) {
-      return mapToolError(e, { path: notePath });
+      return mapToolError(e, {
+        tool: 'note',
+        action: 'frontmatter',
+        path: notePath,
+        arguments: { action: 'read', path: notePath },
+      });
     }
   };
 }

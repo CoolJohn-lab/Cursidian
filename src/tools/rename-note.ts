@@ -4,18 +4,13 @@ import { type Config } from '../config.js';
 import { resolvePath, toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
+import { computeContentHash, checkRevisionConcurrency } from '../lib/content-hash.js';
 import { getVaultIndex, clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { findBacklinks } from '../lib/backlinks.js';
 import { rewriteWikilinksForRename } from '../lib/wikilinks.js';
-import { atomicReplace, PartialUpdateError } from '../lib/vault-io.js';
+import { withPathLocks, atomicReplaceLocked, PartialUpdateError } from '../lib/vault-io.js';
 import { backupNoteIfExists } from '../lib/backup.js';
-import { ok, err, mapToolError } from '../types/index.js';
-
-interface PendingRewrite {
-  absolutePath: string;
-  body: string;
-  backup?: boolean;
-}
+import { ok, toolError, mapToolError } from '../types/index.js';
 
 export function renameNoteHandler(config: Config) {
   return async ({
@@ -23,11 +18,15 @@ export function renameNoteHandler(config: Config) {
     to: toPath,
     updateBacklinks,
     updateIndex,
+    expectedRevision,
+    expectedHash,
   }: {
     from: string;
     to: string;
     updateBacklinks?: boolean;
     updateIndex?: boolean;
+    expectedRevision?: string;
+    expectedHash?: string;
   }) => {
     const completed: string[] = [];
     try {
@@ -44,19 +43,12 @@ export function renameNoteHandler(config: Config) {
       const fromRelative = toRelativePath(config.vaultPath, fromResolved);
       const toRelative = toRelativePath(config.vaultPath, toResolved);
 
-      try {
-        await fs.access(toResolved);
-        return err(`Destination already exists: ${toPath}`, 'already_exists', { path: toPath });
-      } catch {
-        // destination free
-      }
-
       const index = await getVaultIndex(config.vaultPath);
       const backlinksBeforeRename = effectiveUpdateBacklinks
         ? await findBacklinks(config.vaultPath, fromRelative, index, config.maxFileSize)
         : [];
 
-      const pending: PendingRewrite[] = [];
+      const rewriteCandidates: string[] = [];
 
       if (effectiveUpdateBacklinks) {
         for (const backlink of backlinksBeforeRename) {
@@ -66,73 +58,123 @@ export function renameNoteHandler(config: Config) {
           }
           const backlinkResolved = resolvePath(config.vaultPath, backlink.path);
           await assertSafePathAsync(config.vaultPath, backlinkResolved);
-          const raw = await readFileBounded(backlinkResolved, config.maxFileSize);
-          const { data, content } = parseFrontmatter(raw);
-          const rewritten = rewriteWikilinksForRename(content, fromRelative, toRelative);
-          if (rewritten !== content) {
-            pending.push({
-              absolutePath: backlinkResolved,
-              body: stringifyFrontmatter(data, rewritten),
-              backup: true,
-            });
-          }
+          rewriteCandidates.push(backlinkResolved);
         }
       }
 
       if (effectiveUpdateIndex) {
         const indexResolved = resolvePath(config.vaultPath, 'index.md');
         await assertSafePathAsync(config.vaultPath, indexResolved);
+        rewriteCandidates.push(indexResolved);
+      }
+
+      const lockPaths = [fromResolved, toResolved, ...rewriteCandidates];
+
+      return await withPathLocks(lockPaths, async () => {
         try {
-          const raw = await readFileBounded(indexResolved, config.maxFileSize);
+          await fs.access(toResolved);
+          return toolError({
+            error: 'already_exists',
+            message: `Destination already exists: ${toPath}`,
+            action: 'rename',
+            retryable: true,
+            sideEffects: 'none',
+            path: toPath,
+            details: { existingPath: toPath },
+            recovery: { tool: 'note', arguments: { action: 'read', path: toPath } },
+            hint: 'Read the destination note, then choose a different destination path.',
+          });
+        } catch {
+          // destination free
+        }
+
+        const sourceRaw = await readFileBounded(fromResolved, config.maxFileSize);
+        const { content: sourceBody } = parseFrontmatter(sourceRaw);
+        const revisionCheck = checkRevisionConcurrency({
+          raw: sourceRaw,
+          body: sourceBody,
+          expectedRevision,
+          expectedHash,
+        });
+        if (!revisionCheck.ok) {
+          return toolError({
+            error: 'hash_mismatch',
+            message: revisionCheck.message,
+            action: 'rename',
+            retryable: true,
+            sideEffects: 'none',
+            path: fromPath,
+            details: { check: expectedRevision ? 'revision' : 'content_hash' },
+            recovery: { tool: 'note', arguments: { action: 'read', path: fromPath } },
+            hint: revisionCheck.hint,
+          });
+        }
+
+        let backlinksUpdated = 0;
+        let indexUpdated = false;
+
+        for (const backlinkResolved of rewriteCandidates) {
+          let raw: string;
+          try {
+            raw = await readFileBounded(backlinkResolved, config.maxFileSize);
+          } catch {
+            continue;
+          }
           const { data, content } = parseFrontmatter(raw);
           const rewritten = rewriteWikilinksForRename(content, fromRelative, toRelative);
-          if (rewritten !== content) {
-            pending.push({
-              absolutePath: indexResolved,
-              body: stringifyFrontmatter(data, rewritten),
-              backup: true,
-            });
+          if (rewritten === content) {
+            continue;
           }
-        } catch {
-          // no index.md
+
+          if (config.backupEnabled) {
+            await backupNoteIfExists(config.vaultPath, backlinkResolved);
+          }
+          const body = stringifyFrontmatter(data, rewritten);
+          await atomicReplaceLocked(config.vaultPath, backlinkResolved, body, config.maxFileSize);
+          const rel = toRelativePath(config.vaultPath, backlinkResolved);
+          completed.push(rel);
+          if (rel === 'index.md') {
+            indexUpdated = true;
+          } else {
+            backlinksUpdated += 1;
+          }
         }
-      }
 
-      let backlinksUpdated = 0;
-      let indexUpdated = false;
+        await fs.mkdir(path.dirname(toResolved), { recursive: true });
+        await assertSafePathAsync(config.vaultPath, toResolved);
+        await fs.rename(fromResolved, toResolved);
+        completed.push(toRelative);
 
-      for (const item of pending) {
-        if (config.backupEnabled && item.backup) {
-          await backupNoteIfExists(config.vaultPath, item.absolutePath);
-        }
-        await atomicReplace(config.vaultPath, item.absolutePath, item.body, config.maxFileSize);
-        const rel = toRelativePath(config.vaultPath, item.absolutePath);
-        completed.push(rel);
-        if (rel === 'index.md') {
-          indexUpdated = true;
-        } else {
-          backlinksUpdated += 1;
-        }
-      }
+        clearAllSearchCaches();
 
-      await fs.mkdir(path.dirname(toResolved), { recursive: true });
-      await assertSafePathAsync(config.vaultPath, toResolved);
-      await fs.rename(fromResolved, toResolved);
-      completed.push(toRelative);
-
-      clearAllSearchCaches();
-
-      return ok({
-        from: fromRelative,
-        to: toRelative,
-        backlinksUpdated,
-        indexUpdated,
+        return ok({
+          from: fromRelative,
+          to: toRelative,
+          backlinksUpdated,
+          indexUpdated,
+          ...(revisionCheck.warnings ? { warnings: revisionCheck.warnings } : {}),
+        }, {
+          action: 'rename',
+          changed: true,
+          paths: [...new Set([fromRelative, ...completed])],
+          warnings: revisionCheck.warnings,
+        });
       });
     } catch (e) {
       if (e instanceof PartialUpdateError) {
-        return mapToolError(e, { path: fromPath });
+        return mapToolError(e, {
+          tool: 'note',
+          action: 'rename',
+          path: fromPath,
+          arguments: { action: 'read', path: fromPath },
+        });
       }
-      return mapToolError(e, { path: fromPath });
+      return mapToolError(e, {
+        tool: 'note',
+        action: 'rename',
+        path: fromPath,
+        arguments: { action: 'rename', path: fromPath, newPath: toPath },
+      });
     }
   };
 }

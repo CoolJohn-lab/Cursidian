@@ -5,7 +5,7 @@ import { vaultHealthHandler } from './vault-health.js';
 import { syncIndexHandler } from './sync-index.js';
 import { manageFoldersHandler } from './manage-folders.js';
 import { touchWikiMetaHandler } from './touch-wiki-meta.js';
-import { err } from '../types/index.js';
+import { invalidArgsError, validateActionArguments } from '../types/index.js';
 import { MAX_LOG_LINE_LENGTH } from '../lib/limits.js';
 
 export function registerVault(server: McpServer, config: Config): void {
@@ -17,23 +17,47 @@ export function registerVault(server: McpServer, config: Config): void {
       inputSchema: {
         action: z
           .enum(['health', 'sync_index', 'create_folder', 'list_folders', 'delete_folder', 'log'])
-          .describe('Vault maintenance operation'),
-        path: z.string().optional().describe('Folder path for folder actions'),
+          .describe('Selects a vault maintenance action'),
+        path: z.string().optional().describe('Used by create_folder, list_folders, and delete_folder actions'),
         staleDays: z
           .number()
           .int()
           .min(1)
           .optional()
-          .describe('Stale threshold in days for health report'),
-        dryRun: z.boolean().optional().describe('Preview sync_index without writing'),
-        confirm: z.boolean().optional().describe('Must be true for delete_folder'),
-        logLine: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Log entry for action=log'),
-        hotActivity: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Optional hot.md Recent Activity bullet'),
-        expectedLogHash: z.string().optional().describe('contentHash from read on log.md'),
-        expectedHotHash: z.string().optional().describe('contentHash from read on hot.md'),
+          .describe('Used by health action only'),
+        dryRun: z.boolean().optional().describe('Used by sync_index action only'),
+        confirm: z.boolean().optional().describe('Used by delete_folder action only; must be true'),
+        logLine: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Used by log action only'),
+        hotActivity: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Used by log action only'),
+        expectedLogHash: z.string().optional().describe('Used by log action only'),
+        expectedHotHash: z.string().optional().describe('Used by log action only'),
       },
     },
     async (args) => {
+      const specs: Record<string, { allowed: string[]; required?: string[] }> = {
+        health: { allowed: ['staleDays'] },
+        sync_index: { allowed: ['dryRun'] },
+        create_folder: { allowed: ['path'], required: ['path'] },
+        list_folders: { allowed: ['path'] },
+        delete_folder: { allowed: ['path', 'confirm'], required: ['path', 'confirm'] },
+        log: {
+          allowed: ['logLine', 'hotActivity', 'expectedLogHash', 'expectedHotHash'],
+          required: ['logLine'],
+        },
+      };
+      const spec = specs[args.action];
+      const validation = validateActionArguments({
+        tool: 'vault',
+        action: args.action,
+        args,
+        allowed: spec.allowed,
+        required: spec.required,
+        path: args.path,
+      });
+      if (validation) {
+        return validation;
+      }
+
       const {
         action,
         path,
@@ -52,32 +76,38 @@ export function registerVault(server: McpServer, config: Config): void {
         case 'sync_index':
           return syncIndexHandler(config)({ dryRun });
         case 'create_folder':
-          if (!path) {
-            return err('action "create_folder" requires path', 'invalid_args');
-          }
-          return manageFoldersHandler(config)({ operation: 'create', path });
+          return manageFoldersHandler(config)({ operation: 'create', path: path as string });
         case 'list_folders':
           return manageFoldersHandler(config)({ operation: 'list', path: path ?? '' });
         case 'delete_folder':
-          if (!path) {
-            return err('action "delete_folder" requires path', 'invalid_args');
-          }
           if (confirm !== true) {
-            return err('delete_folder requires confirm: true', 'invalid_args', { path });
+            return invalidArgsError({
+              tool: 'vault',
+              action,
+              message: 'delete_folder requires confirm: true',
+              required: ['path', 'confirm'],
+              missing: [],
+              rejected: [],
+              path,
+              arguments: { action: 'delete_folder', path, confirm: true },
+            });
           }
-          return manageFoldersHandler(config)({ operation: 'delete', path, confirm: true });
+          return manageFoldersHandler(config)({ operation: 'delete', path: path as string, confirm: true });
         case 'log':
-          if (!logLine) {
-            return err('action "log" requires logLine', 'invalid_args');
-          }
           return touchWikiMetaHandler(config)({
-            logLine,
+            logLine: logLine as string,
             hotActivity,
             expectedLogHash,
             expectedHotHash,
           });
         default:
-          return err(`Unknown action: ${action as string}`, 'invalid_args');
+          return invalidArgsError({
+            tool: 'vault',
+            action: action as string,
+            message: `Unknown action: ${action as string}`,
+            rejected: ['action'],
+            arguments: { action: 'health' },
+          });
       }
     },
   );

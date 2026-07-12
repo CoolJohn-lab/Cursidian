@@ -6,14 +6,14 @@ import {
   readFileBounded,
 } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
-import { computeContentHash } from '../lib/content-hash.js';
+import { computeContentHash, computeRevisionHash, checkRevisionConcurrency } from '../lib/content-hash.js';
 import { applyPatch, assertReplaceSizeGuard, replaceSection } from '../lib/section-edit.js';
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
-import { atomicReplace } from '../lib/vault-io.js';
+import { withPathLock, atomicReplaceLocked } from '../lib/vault-io.js';
 import { backupNoteIfExists } from '../lib/backup.js';
 import { logger } from '../lib/logger.js';
-import { ok, err, toolError, mapToolError } from '../types/index.js';
+import { ok, invalidArgsError, toolError, mapToolError } from '../types/index.js';
 
 type UpdateMode = 'replace' | 'append' | 'prepend' | 'patch' | 'replace_section';
 
@@ -41,6 +41,7 @@ export function updateNoteHandler(config: Config) {
     old_string,
     new_string,
     heading,
+    expectedRevision,
     expectedHash,
     force,
   }: {
@@ -50,83 +51,139 @@ export function updateNoteHandler(config: Config) {
     old_string?: string;
     new_string?: string;
     heading?: string;
+    expectedRevision?: string;
     expectedHash?: string;
     force?: boolean;
   }) => {
+    const invalidUpdate = (message: string, required: string[], missing: string[]) =>
+      invalidArgsError({
+        tool: 'note',
+        action: 'update',
+        message,
+        required,
+        missing,
+        rejected: [],
+        path: notePath,
+        arguments: {
+          action: 'update',
+          path: notePath,
+          mode: mode ?? 'replace',
+          ...Object.fromEntries(required.filter((name) => name !== 'path').map((name) => [name, `<${name}>`])),
+        },
+      });
     try {
       assertNotReadOnly(config.readOnly);
 
       const resolved = await resolveExistingNotePath(config.vaultPath, notePath);
       await assertSafePathAsync(config.vaultPath, resolved);
 
-      const raw = await readFileBounded(resolved, config.maxFileSize);
-      const { data, content: existingContent } = parseFrontmatter(raw);
+      return await withPathLock(resolved, async () => {
+        const raw = await readFileBounded(resolved, config.maxFileSize);
+        const { data, content: existingContent } = parseFrontmatter(raw);
 
-      const currentHash = computeContentHash(existingContent);
-      if (expectedHash && expectedHash !== currentHash) {
-        return toolError({
-          error: 'hash_mismatch',
-          message:
-            'Note content has changed since read (hash mismatch). Re-read the note and retry with the latest contentHash.',
-          path: notePath,
-          hint: 'Call note with action read again, then pass the fresh contentHash as expectedHash.',
+        const revisionCheck = checkRevisionConcurrency({
+          raw,
+          body: existingContent,
+          expectedRevision,
+          expectedHash,
         });
-      }
-
-      const effectiveMode = resolveEffectiveUpdateMode(mode, old_string, new_string);
-      let updatedBody: string;
-
-      if (effectiveMode === 'patch') {
-        if (old_string === undefined || new_string === undefined) {
-          return err('mode "patch" requires old_string and new_string', 'invalid_args', { path: notePath });
+        if (!revisionCheck.ok) {
+          return toolError({
+            error: 'hash_mismatch',
+            message: revisionCheck.message,
+            action: 'update',
+            retryable: true,
+            sideEffects: 'none',
+            path: notePath,
+            details: { check: expectedRevision ? 'revision' : 'content_hash' },
+            recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
+            hint: revisionCheck.hint,
+          });
         }
-        updatedBody = applyPatch(existingContent, old_string, new_string);
-      } else if (effectiveMode === 'replace_section') {
-        if (!heading) {
-          return err('mode "replace_section" requires heading', 'invalid_args', { path: notePath });
-        }
-        if (content === undefined) {
-          return err('mode "replace_section" requires content', 'invalid_args', { path: notePath });
-        }
-        updatedBody = replaceSection(existingContent, heading, content);
-      } else if (effectiveMode === 'replace') {
-        if (content === undefined) {
-          return err('mode "replace" requires content', 'invalid_args', { path: notePath });
-        }
-        assertReplaceSizeGuard(existingContent, content, force ?? false);
-        updatedBody = content;
-      } else if (effectiveMode === 'append') {
-        if (content === undefined) {
-          return err('mode "append" requires content', 'invalid_args', { path: notePath });
-        }
-        updatedBody = `${existingContent}\n${content}`;
-      } else {
-        if (content === undefined) {
-          return err('mode "prepend" requires content', 'invalid_args', { path: notePath });
-        }
-        updatedBody = `${content}\n${existingContent}`;
-      }
 
-      const newBody = stringifyFrontmatter(withUpdatedTimestamp(data), updatedBody);
+        const effectiveMode = resolveEffectiveUpdateMode(mode, old_string, new_string);
+        let updatedBody: string;
 
-      if (config.backupEnabled) {
-        await backupNoteIfExists(config.vaultPath, resolved);
-      }
+        if (effectiveMode === 'patch') {
+          if (old_string === undefined || new_string === undefined) {
+            const missing = [
+              ...(old_string === undefined ? ['old_string'] : []),
+              ...(new_string === undefined ? ['new_string'] : []),
+            ];
+            return invalidUpdate(
+              'mode "patch" requires old_string and new_string',
+              ['path', 'old_string', 'new_string'],
+              missing,
+            );
+          }
+          updatedBody = applyPatch(existingContent, old_string, new_string);
+        } else if (effectiveMode === 'replace_section') {
+          if (!heading) {
+            return invalidUpdate(
+              'mode "replace_section" requires heading',
+              ['path', 'heading', 'content'],
+              ['heading'],
+            );
+          }
+          if (content === undefined) {
+            return invalidUpdate(
+              'mode "replace_section" requires content',
+              ['path', 'heading', 'content'],
+              ['content'],
+            );
+          }
+          updatedBody = replaceSection(existingContent, heading, content);
+        } else if (effectiveMode === 'replace') {
+          if (content === undefined) {
+            return invalidUpdate('mode "replace" requires content', ['path', 'content'], ['content']);
+          }
+          assertReplaceSizeGuard(existingContent, content, force ?? false);
+          updatedBody = content;
+        } else if (effectiveMode === 'append') {
+          if (content === undefined) {
+            return invalidUpdate('mode "append" requires content', ['path', 'content'], ['content']);
+          }
+          updatedBody = `${existingContent}\n${content}`;
+        } else {
+          if (content === undefined) {
+            return invalidUpdate('mode "prepend" requires content', ['path', 'content'], ['content']);
+          }
+          updatedBody = `${content}\n${existingContent}`;
+        }
 
-      await atomicReplace(config.vaultPath, resolved, newBody, config.maxFileSize);
+        const newBody = stringifyFrontmatter(withUpdatedTimestamp(data), updatedBody);
 
-      const relative = toRelativePath(config.vaultPath, resolved);
-      clearAllSearchCaches();
-      logger.info('Note updated', { path: relative, mode: effectiveMode });
+        if (config.backupEnabled) {
+          await backupNoteIfExists(config.vaultPath, resolved);
+        }
 
-      return ok({
-        updated: relative,
-        mode: effectiveMode,
-        inferredMode: effectiveMode !== (mode ?? 'replace') ? effectiveMode : undefined,
-        contentHash: computeContentHash(updatedBody),
+        await atomicReplaceLocked(config.vaultPath, resolved, newBody, config.maxFileSize);
+
+        const relative = toRelativePath(config.vaultPath, resolved);
+        clearAllSearchCaches();
+        logger.info('Note updated', { path: relative, mode: effectiveMode });
+
+        return ok({
+          updated: relative,
+          mode: effectiveMode,
+          inferredMode: effectiveMode !== (mode ?? 'replace') ? effectiveMode : undefined,
+          contentHash: computeContentHash(updatedBody),
+          revisionHash: computeRevisionHash(newBody),
+          ...(revisionCheck.warnings ? { warnings: revisionCheck.warnings } : {}),
+        }, {
+          action: 'update',
+          changed: true,
+          paths: [relative],
+          warnings: revisionCheck.warnings,
+        });
       });
     } catch (e) {
-      return mapToolError(e, { path: notePath });
+      return mapToolError(e, {
+        tool: 'note',
+        action: 'update',
+        path: notePath,
+        arguments: { action: 'read', path: notePath },
+      });
     }
   };
 }

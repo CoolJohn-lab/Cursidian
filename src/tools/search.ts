@@ -6,7 +6,7 @@ import { searchByTagsHandler } from './search-by-tags.js';
 import { listNotesHandler } from './list-notes.js';
 import { listRecentHandler } from './list-recent.js';
 import { listTagsHandler } from './list-tags.js';
-import { err } from '../types/index.js';
+import { invalidArgsError, validateActionArguments } from '../types/index.js';
 import { DEFAULT_LIST_LIMIT, MAX_LIST_LIMIT, MAX_QUERY_LENGTH, MAX_RECENT_LIMIT } from '../lib/limits.js';
 
 export function registerSearch(server: McpServer, config: Config): void {
@@ -20,37 +20,59 @@ export function registerSearch(server: McpServer, config: Config): void {
           .enum(['content', 'by_tags', 'list', 'recent', 'tags'])
           .optional()
           .default('content')
-          .describe('Search mode; defaults to content'),
-        query: z.string().max(MAX_QUERY_LENGTH).optional().describe('Keywords for content search'),
+          .describe('Selects content, by_tags, list, recent, or tags action; defaults to content'),
+        query: z.string().max(MAX_QUERY_LENGTH).optional().describe('Used by content action only'),
         tags: z
           .array(z.string().min(1))
           .optional()
-          .describe('Required for by_tags; optional AND-filter for content'),
-        folder: z.string().max(500).optional().describe('Subfolder filter for list/recent'),
-        recursive: z.boolean().optional().describe('Include subfolders for list'),
+          .describe('Used by by_tags and content actions'),
+        folder: z.string().max(500).optional().describe('Used by list and recent actions'),
+        recursive: z.boolean().optional().describe('Used by list action only'),
         limit: z
           .number()
           .int()
           .min(1)
           .max(MAX_LIST_LIMIT)
           .optional()
-          .describe('Max results for content/by_tags/list'),
-        cursor: z.string().optional().describe('Pagination cursor from a prior list response (nextCursor)'),
-        caseSensitive: z.boolean().optional().describe('Case-sensitive content search'),
-        verbose: z.boolean().optional().describe('Include matchReasons and snippet match text'),
+          .describe('Used by content, by_tags, list, and recent actions'),
+        cursor: z.string().optional().describe('Used by list action only'),
+        caseSensitive: z.boolean().optional().describe('Used by content action only'),
+        verbose: z.boolean().optional().describe('Used by content action only'),
         includeOperational: z
           .boolean()
           .optional()
-          .describe('Include index/log/hot/_raw/_archives (content, list, recent)'),
+          .describe('Used by content, list, and recent actions'),
         format: z
           .enum(['full', 'compact'])
           .optional()
-          .describe('full=snippets; compact=metadata only'),
+          .describe('Used by content action only'),
       },
     },
     async (args) => {
+      const action = args.action ?? 'content';
+      const specs: Record<string, { allowed: string[]; required?: string[] }> = {
+        content: {
+          allowed: ['query', 'tags', 'limit', 'caseSensitive', 'verbose', 'includeOperational', 'format'],
+          required: ['query'],
+        },
+        by_tags: { allowed: ['tags', 'limit'], required: ['tags'] },
+        list: { allowed: ['folder', 'recursive', 'limit', 'cursor', 'includeOperational'] },
+        recent: { allowed: ['folder', 'limit', 'includeOperational'] },
+        tags: { allowed: [] },
+      };
+      const spec = specs[action];
+      const validation = validateActionArguments({
+        tool: 'search',
+        action,
+        args: { ...args, action },
+        allowed: spec.allowed,
+        required: spec.required,
+      });
+      if (validation) {
+        return validation;
+      }
+
       const {
-        action = 'content',
         query,
         tags,
         folder,
@@ -65,11 +87,8 @@ export function registerSearch(server: McpServer, config: Config): void {
 
       switch (action) {
         case 'content':
-          if (!query) {
-            return err('action "content" requires query', 'invalid_args');
-          }
           return searchContentHandler(config)({
-            query,
+            query: query as string,
             caseSensitive,
             limit,
             tags,
@@ -79,10 +98,26 @@ export function registerSearch(server: McpServer, config: Config): void {
           });
         case 'by_tags':
           if (!tags || tags.length === 0) {
-            return err('action "by_tags" requires a non-empty tags array', 'invalid_args');
+            return invalidArgsError({
+              tool: 'search',
+              action,
+              message: 'action "by_tags" requires a non-empty tags array',
+              required: ['tags'],
+              missing: ['tags'],
+              rejected: [],
+              arguments: { action: 'by_tags', tags: ['<tag>'] },
+            });
           }
           if (tags.some((t) => t.trim().length === 0)) {
-            return err('tags must not contain empty or whitespace-only strings', 'invalid_args');
+            return invalidArgsError({
+              tool: 'search',
+              action,
+              message: 'tags must not contain empty or whitespace-only strings',
+              required: ['tags'],
+              missing: [],
+              rejected: ['tags'],
+              arguments: { action: 'by_tags', tags: tags.filter((tag) => tag.trim().length > 0) },
+            });
           }
           return searchByTagsHandler(config)({ tags, limit });
         case 'list':
@@ -100,7 +135,13 @@ export function registerSearch(server: McpServer, config: Config): void {
         case 'tags':
           return listTagsHandler(config)();
         default:
-          return err(`Unknown action: ${action as string}`, 'invalid_args');
+          return invalidArgsError({
+            tool: 'search',
+            action: action as string,
+            message: `Unknown action: ${action as string}`,
+            rejected: ['action'],
+            arguments: { action: 'content', query: '<query>' },
+          });
       }
     },
   );

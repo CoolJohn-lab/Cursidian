@@ -3,7 +3,7 @@ import { type Config } from '../config.js';
 import { toRelativePath } from '../lib/vault.js';
 import { readFileBounded } from '../lib/security.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
-import { computeContentHash } from '../lib/content-hash.js';
+import { computeContentHash, computeRevisionHash } from '../lib/content-hash.js';
 import { getVaultIndex, resolveExistingNotePath } from '../lib/vault-index.js';
 import { resolveOutgoingLinks } from '../lib/wikilink-resolve.js';
 import { ok, mapToolError } from '../types/index.js';
@@ -19,19 +19,26 @@ export function readNoteHandler(config: Config) {
       const index = await getVaultIndex(config.vaultPath);
       const outgoingLinks = resolveOutgoingLinks(content, index);
 
+      const relative = toRelativePath(config.vaultPath, resolved);
       return ok({
-        path: toRelativePath(config.vaultPath, resolved),
+        path: relative,
         frontmatter: data,
         content,
         contentHash: computeContentHash(content),
+        revisionHash: computeRevisionHash(raw),
         outgoingLinks,
         metadata: {
           size: stat.size,
           mtime: stat.mtime.toISOString(),
         },
-      });
+      }, { action: 'read', changed: false, paths: [relative] });
     } catch (e) {
-      return mapToolError(e, { path: notePath });
+      return mapToolError(e, {
+        tool: 'note',
+        action: 'read',
+        path: notePath,
+        arguments: { action: 'read', path: notePath },
+      });
     }
   };
 }

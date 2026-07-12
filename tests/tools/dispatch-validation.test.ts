@@ -132,6 +132,20 @@ describe('dispatch validation', () => {
     expectInvalidArgs(result, { rejected: ['path'], recoveryTool: 'vault' });
   });
 
+  it('vault manifest read rejects sourceKey argument', async () => {
+    const result = await callTool(ctx.client, 'vault', {
+      action: 'manifest',
+      manifestOperation: 'read',
+      sourceKey: 'ignored',
+    });
+    expectInvalidArgs(result, { rejected: ['sourceKey'], recoveryTool: 'vault' });
+  });
+
+  it('vault manifest without manifestOperation returns invalid_args', async () => {
+    const result = await callTool(ctx.client, 'vault', { action: 'manifest' });
+    expectInvalidArgs(result, { missing: ['manifestOperation'], recoveryTool: 'vault' });
+  });
+
   it('hash_mismatch includes structured recovery to re-read', async () => {
     await callTool(ctx.client, 'note', {
       action: 'create',

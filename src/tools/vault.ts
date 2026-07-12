@@ -7,6 +7,7 @@ import { manageFoldersHandler } from './manage-folders.js';
 import { touchWikiMetaHandler } from './touch-wiki-meta.js';
 import { operationHistoryHandler } from './operation-history.js';
 import { undoOperationHandler } from './undo-operation.js';
+import { manageManifestHandler } from './manage-manifest.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
 import { MAX_LOG_LINE_LENGTH } from '../lib/limits.js';
 
@@ -15,7 +16,7 @@ export function registerVault(server: McpServer, config: Config): void {
     'vault',
     {
       description:
-        'Vault maintenance. action=health: structured report (orphans, broken links, index drift, stale pages). action=sync_index: regenerate index.md from frontmatter. action=create_folder/list_folders/delete_folder: folder ops (delete requires confirm, empty folders only). action=log: append to log.md and optionally hot.md (wiki bookkeeping). action=history: list journaled operations. action=undo: reverse a journaled operation (requires confirm: true).',
+        'Vault maintenance. action=health: structured report (orphans, broken links, index drift, stale pages). action=sync_index: regenerate index.md from frontmatter. action=create_folder/list_folders/delete_folder: folder ops (delete requires confirm, empty folders only). action=log: append to log.md and optionally hot.md (wiki bookkeeping). action=history: list journaled operations. action=undo: reverse a journaled operation (requires confirm: true). action=manifest: typed read/upsert/remove for _meta/manifest.md ingest ledger.',
       inputSchema: {
         action: z
           .enum([
@@ -27,8 +28,27 @@ export function registerVault(server: McpServer, config: Config): void {
             'log',
             'history',
             'undo',
+            'manifest',
           ])
           .describe('Selects a vault maintenance action'),
+        manifestOperation: z
+          .enum(['read', 'upsert_source', 'upsert_project', 'remove'])
+          .optional()
+          .describe('Used by manifest action only'),
+        sourceKey: z.string().optional().describe('Used by manifest upsert_source and remove (source)'),
+        sourceIngested: z.string().optional().describe('Used by manifest upsert_source only'),
+        sourceMtime: z.string().optional().describe('Used by manifest upsert_source only'),
+        sourcePages: z.array(z.string()).optional().describe('Used by manifest upsert_source only'),
+        projectName: z.string().optional().describe('Used by manifest upsert_project and remove (project)'),
+        projectCwd: z.string().optional().describe('Used by manifest upsert_project only'),
+        projectLastCommit: z.string().optional().describe('Used by manifest upsert_project only'),
+        projectSynced: z.string().optional().describe('Used by manifest upsert_project only'),
+        removeKind: z
+          .enum(['source', 'project'])
+          .optional()
+          .describe('Used by manifest remove only'),
+        removeKey: z.string().optional().describe('Used by manifest remove only'),
+        expectedRevision: z.string().optional().describe('Used by manifest mutations only'),
         path: z.string().optional().describe('Used by create_folder, list_folders, and delete_folder actions'),
         staleDays: z
           .number()
@@ -70,17 +90,83 @@ export function registerVault(server: McpServer, config: Config): void {
           required: ['operationId', 'confirm'],
         },
       };
-      const spec = specs[args.action];
-      const validation = validateActionArguments({
-        tool: 'vault',
-        action: args.action,
-        args,
-        allowed: spec.allowed,
-        required: spec.required,
-        path: args.path,
-      });
-      if (validation) {
-        return validation;
+      const manifestSpecs: Record<string, { allowed: string[]; required?: string[] }> = {
+        read: { allowed: ['manifestOperation'] },
+        upsert_source: {
+          allowed: [
+            'manifestOperation',
+            'expectedRevision',
+            'sourceKey',
+            'sourceIngested',
+            'sourceMtime',
+            'sourcePages',
+          ],
+          required: ['manifestOperation', 'sourceKey', 'sourceIngested'],
+        },
+        upsert_project: {
+          allowed: [
+            'manifestOperation',
+            'expectedRevision',
+            'projectName',
+            'projectCwd',
+            'projectLastCommit',
+            'projectSynced',
+          ],
+          required: ['manifestOperation', 'projectName', 'projectCwd'],
+        },
+        remove: {
+          allowed: ['manifestOperation', 'expectedRevision', 'removeKind', 'removeKey'],
+          required: ['manifestOperation', 'removeKind', 'removeKey'],
+        },
+      };
+
+      if (args.action === 'manifest') {
+        if (!args.manifestOperation) {
+          return invalidArgsError({
+            tool: 'vault',
+            action: 'manifest',
+            message: 'manifest requires manifestOperation',
+            required: ['manifestOperation'],
+            missing: ['manifestOperation'],
+            rejected: [],
+            arguments: { action: 'manifest', manifestOperation: 'read' },
+          });
+        }
+        const manifestSpec = manifestSpecs[args.manifestOperation];
+        if (!manifestSpec) {
+          return invalidArgsError({
+            tool: 'vault',
+            action: 'manifest',
+            message: `Unknown manifestOperation: ${args.manifestOperation}`,
+            required: ['manifestOperation'],
+            missing: [],
+            rejected: ['manifestOperation'],
+            arguments: { action: 'manifest', manifestOperation: 'read' },
+          });
+        }
+        const manifestValidation = validateActionArguments({
+          tool: 'vault',
+          action: 'manifest',
+          args,
+          allowed: manifestSpec.allowed,
+          required: manifestSpec.required,
+        });
+        if (manifestValidation) {
+          return manifestValidation;
+        }
+      } else {
+        const spec = specs[args.action];
+        const validation = validateActionArguments({
+          tool: 'vault',
+          action: args.action,
+          args,
+          allowed: spec.allowed,
+          required: spec.required,
+          path: args.path,
+        });
+        if (validation) {
+          return validation;
+        }
       }
 
       const {
@@ -96,6 +182,18 @@ export function registerVault(server: McpServer, config: Config): void {
         operationId,
         force,
         limit,
+        manifestOperation,
+        sourceKey,
+        sourceIngested,
+        sourceMtime,
+        sourcePages,
+        projectName,
+        projectCwd,
+        projectLastCommit,
+        projectSynced,
+        removeKind,
+        removeKey,
+        expectedRevision,
       } = args;
 
       switch (action) {
@@ -145,6 +243,21 @@ export function registerVault(server: McpServer, config: Config): void {
           return undoOperationHandler(config)({
             operationId: operationId as string,
             force,
+          });
+        case 'manifest':
+          return manageManifestHandler(config)({
+            manifestOperation: manifestOperation as 'read' | 'upsert_source' | 'upsert_project' | 'remove',
+            expectedRevision,
+            sourceKey,
+            sourceIngested,
+            sourceMtime,
+            sourcePages,
+            projectName,
+            projectCwd,
+            projectLastCommit,
+            projectSynced,
+            removeKind,
+            removeKey,
           });
         default:
           return invalidArgsError({

@@ -28,7 +28,7 @@ After changing files under `skills/wiki/`, or when Cursor agents still call reti
 npm run skills:install
 ```
 
-That **removes then copies** the 8 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills. Details: `skills/wiki/INSTALL.md`.
+That **removes then copies** the 9 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills. Details: `skills/wiki/INSTALL.md`. Use the **wiki-slop** skill for deslop / `slop:check` / `slop:fix` / wiki vault cleanup.
 
 ## Version bumps
 

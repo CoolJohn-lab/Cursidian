@@ -58,6 +58,13 @@ For every golden path below, also verify:
 1. Run status against the fixture.
 2. Expect: `note` action `read` on `_meta/manifest.md`, `search` actions `list` and `recent`; optional `hot.md` refresh via MCP.
 
+### wiki-slop
+
+1. From the Cursidian repo: `npm run slop:check` (expect clean or actionable findings).
+2. `npm run slop:fix` then `slop:check` again (chars/emoji cleared; phrases may remain).
+3. With vault configured: `npm run slop:check:wiki` / `slop:fix:wiki` (only when user asked to clean the vault).
+4. Confirm `npm run build` fails if repo slop is reintroduced (prebuild gate).
+
 ## Manual dogfood
 
 Against a live personal vault: run query + lint + status after MCP changes. Never copy private notes into this repository.

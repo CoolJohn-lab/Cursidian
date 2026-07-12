@@ -61,7 +61,9 @@ npm run skills:install
 npm run skills:install:dry
 ```
 
-This deletes each of the 8 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates or legacy tool names (`read_note`, `search_content`, ...).
+This deletes each of the 9 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates or legacy tool names (`read_note`, `search_content`, ...).
+
+Installed skills: `llm-wiki`, `wiki-query`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`.
 
 ### Manual (Windows PowerShell)
 
@@ -71,7 +73,7 @@ $dst = "$env:USERPROFILE\.cursor\skills"
 New-Item -ItemType Directory -Force -Path $dst | Out-Null
 foreach ($name in @(
   'llm-wiki','wiki-query','wiki-lint','wiki-setup',
-  'wiki-ingest','wiki-capture','wiki-update','wiki-status'
+  'wiki-ingest','wiki-capture','wiki-update','wiki-status','wiki-slop'
 )) {
   Remove-Item -Recurse -Force "$dst\$name" -ErrorAction SilentlyContinue
   Copy-Item -Recurse -Force "$src\$name" "$dst\$name"
@@ -84,7 +86,7 @@ foreach ($name in @(
 SRC=/path/to/Cursidian/skills/wiki
 DST="$HOME/.cursor/skills"
 mkdir -p "$DST"
-for name in llm-wiki wiki-query wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status; do
+for name in llm-wiki wiki-query wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status wiki-slop; do
   rm -rf "$DST/$name"
   cp -R "$SRC/$name" "$DST/$name"
 done

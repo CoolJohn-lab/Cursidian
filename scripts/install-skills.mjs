@@ -25,6 +25,7 @@ const SKILL_NAMES = [
   'wiki-capture',
   'wiki-update',
   'wiki-status',
+  'wiki-slop',
 ];
 
 /** Legacy MCP tool names that must not appear in installed skills. */
@@ -154,7 +155,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log('\nInstalled 8 wiki skills. Verification passed (no nested duplicates, no legacy tool names).');
+  console.log(`\nInstalled ${SKILL_NAMES.length} wiki skills. Verification passed (no nested duplicates, no legacy tool names).`);
   console.log('Reload Cursor (or start a new agent chat) so skills are re-discovered.');
 }
 

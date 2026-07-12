@@ -40,10 +40,19 @@ describe('replaceSection', () => {
     expect(result).toContain('keep me');
   });
 
-  it('accepts headings with leading # markers', () => {
+  it('accepts headings with leading # markers at the matching level', () => {
     const result = replaceSection(body, '## Section A', 'hashed heading body');
     expect(result).toContain('hashed heading body');
     expect(result).not.toContain('old line');
+  });
+
+  it('does not match a different ATX level when # markers are provided', () => {
+    expect(() => replaceSection(body, '### Section A', 'x')).toThrow(SectionEditError);
+    try {
+      replaceSection(body, '### Section A', 'x');
+    } catch (e) {
+      expect((e as SectionEditError).code).toBe('not_found');
+    }
   });
 
   it('throws when heading is not found', () => {

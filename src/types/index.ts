@@ -129,6 +129,22 @@ export function mapToolError(e: unknown, context?: { path?: string }): ToolResul
         path: pathHint,
       });
     }
+
+    if (name === 'PathResolveError') {
+      const paths =
+        'paths' in e && Array.isArray((e as { paths: unknown }).paths)
+          ? ((e as { paths: string[] }).paths)
+          : [];
+      return toolError({
+        error: 'invalid_args',
+        message,
+        path: pathHint,
+        hint:
+          paths.length > 0
+            ? `Disambiguate with a vault-relative path. Candidates: ${paths.join(', ')}`
+            : 'Disambiguate with a vault-relative path.',
+      });
+    }
   }
 
   if (e && typeof e === 'object' && 'code' in e && (e as { code: unknown }).code === 'ENOENT') {

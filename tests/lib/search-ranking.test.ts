@@ -254,7 +254,7 @@ describe('rankSearchResults', () => {
     }
   });
 
-  it('reports basename segment not full query token for partial matches', () => {
+  it('does not claim basename:wiki for a longer query token wikilink', () => {
     const ranked = rankSearchResults(
       [
         {
@@ -269,7 +269,27 @@ describe('rankSearchResults', () => {
       index,
     );
 
-    expect(ranked[0].matchReasons.some((r) => r === 'basename:wiki')).toBe(true);
-    expect(ranked[0].matchReasons.some((r) => r === 'basename:wikilink')).toBe(false);
+    expect(ranked[0].matchReasons.some((r) => r === 'basename:wiki')).toBe(false);
+    expect(ranked[0].matchReasons.some((r) => r.startsWith('basename:'))).toBe(false);
+    expect(ranked[0].matchReasons.some((r) => r.startsWith('compound-basename'))).toBe(false);
+    expect(ranked[0].matchReasons).not.toContain('title-word-match');
+  });
+
+  it('reports basename segment when the query token honestly matches', () => {
+    const ranked = rankSearchResults(
+      [
+        {
+          path: 'projects/demo/concepts/deployment-pipeline.md',
+          content: '---\ntitle: Deployment Pipeline\n---\n\nBody about deployment.',
+          matchCount: 1,
+          snippets: [{ lineNumber: 3, line: 'Body about deployment.', match: 'deployment' }],
+        },
+      ],
+      'deployment',
+      false,
+      index,
+    );
+
+    expect(ranked[0].matchReasons.some((r) => r === 'basename:deployment')).toBe(true);
   });
 });

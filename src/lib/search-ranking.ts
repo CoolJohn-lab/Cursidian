@@ -36,6 +36,7 @@ interface RankContext {
 
 /**
  * Returns the basename segment or substring that matched a query token.
+ * Query → text only: never treat a shorter basename segment as a hit for a longer query token.
  */
 function basenameMatchLabel(primary: string, basenameNorm: string, segments: string[]): string {
   const exact = segments.find(
@@ -50,7 +51,7 @@ function basenameMatchLabel(primary: string, basenameNorm: string, segments: str
   }
 
   const partial = segments
-    .filter((seg) => seg.length >= 3 && (primary.includes(seg) || seg.includes(primary)))
+    .filter((seg) => seg.length >= 3 && seg.includes(primary))
     .sort((a, b) => b.length - a.length)[0];
   return partial ?? primary;
 }
@@ -79,7 +80,8 @@ function splitSegments(value: string): string[] {
 }
 
 /**
- * Returns true when a query token morphologically matches a segment or is a substring.
+ * Returns true when a query token matches a text segment (morphology or query⊆segment).
+ * Never matches solely because the segment is a substring of a longer query token.
  */
 function tokenMatchesSegment(token: string, segment: string): boolean {
   const tok = normaliseKey(token);
@@ -87,7 +89,7 @@ function tokenMatchesSegment(token: string, segment: string): boolean {
   if (tokensMorphologicallyMatch(tok, seg)) {
     return true;
   }
-  if (seg.includes(tok) || tok.includes(seg)) {
+  if (seg.includes(tok)) {
     return true;
   }
   return false;
@@ -334,7 +336,7 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
         seg === primary ||
         tokensMorphologicallyMatch(primary, seg) ||
         basenameNorm.includes(primary) ||
-        (seg.length >= 3 && (primary.includes(seg) || seg.includes(primary))),
+        (seg.length >= 3 && seg.includes(primary)),
     );
     const basenameHit = matchingSegment !== undefined;
     if (!basenameHit) {

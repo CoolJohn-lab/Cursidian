@@ -109,17 +109,14 @@ async function main() {
       if (typeof sn.match === 'string' && sn.match.trim() && sn.line) {
         const claimed = sn.match.toLowerCase();
         const line = sn.line.toLowerCase();
-        if (claimed.includes(' ') && !line.includes(claimed.split(/\s+/)[0])) {
-          record('fail', 'verbose match echoes multi-token query on unrelated line', {
+        const tokens = claimed.split(/\s+/).filter(Boolean);
+        const missing = tokens.filter((t) => !line.includes(t));
+        if (missing.length > 0) {
+          record('fail', 'verbose match token(s) absent from snippet line', {
             path: data.results[0].path,
             line: sn.line,
             match: sn.match,
-          });
-        } else if (!claimed.includes(' ') && !line.includes(claimed)) {
-          record('fail', 'verbose match token absent from snippet line', {
-            path: data.results[0].path,
-            line: sn.line,
-            match: sn.match,
+            missing,
           });
         } else {
           record('ok', 'verbose snippet match present on line', {
@@ -128,15 +125,6 @@ async function main() {
             line: sn.line?.slice(0, 80),
           });
         }
-      }
-      // Check basename reasons
-      const reasons = data.results[0].matchReasons ?? [];
-      const bad = reasons.filter((x) => typeof x === 'string' && x.startsWith('basename:wikilink'));
-      if (bad.length && !data.results[0].path.toLowerCase().includes('wikilink')) {
-        record('warn', 'matchReasons basename:wikilink on non-wikilink path', {
-          path: data.results[0].path,
-          reasons: bad,
-        });
       }
     }
   }

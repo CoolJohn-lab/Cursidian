@@ -20,13 +20,37 @@ export interface VaultNoteEntry {
 
 export type VaultIndex = Map<string, VaultNoteEntry>;
 
+/** Normalised key → vault-relative paths that claim it (size ≥ 2 means ambiguous). */
+export type VaultIndexCollisions = Map<string, string[]>;
+
+/**
+ * Thrown when a path/title/alias key matches more than one note.
+ * Callers must use an unambiguous vault-relative path.
+ */
+export class PathResolveError extends Error {
+  readonly code = 'invalid_args';
+  readonly paths: string[];
+
+  constructor(userPath: string, paths: string[]) {
+    const listed = paths.join(', ');
+    super(
+      `Path "${userPath}" is ambiguous (matches ${paths.length} notes); use a vault-relative path. Candidates: ${listed}`,
+    );
+    this.name = 'PathResolveError';
+    this.paths = paths;
+  }
+}
+
 interface VaultIndexCacheEntry {
   builtAt: number;
   signature: string;
   index: VaultIndex;
+  collisions: VaultIndexCollisions;
 }
 
 const indexCache = new Map<string, VaultIndexCacheEntry>();
+/** Collisions keyed by the index Map instance returned to callers. */
+const collisionsByIndex = new WeakMap<VaultIndex, VaultIndexCollisions>();
 const CACHE_TTL_MS = 60_000;
 
 /**
@@ -44,6 +68,13 @@ export function clearAllSearchCaches(): void {
   indexCache.clear();
   clearVaultSearchStateCache();
   clearSearchResultCache();
+}
+
+/**
+ * Returns collision map for a vault index (empty when none / unknown).
+ */
+export function getIndexKeyCollisions(index: VaultIndex): VaultIndexCollisions {
+  return collisionsByIndex.get(index) ?? new Map();
 }
 
 async function listVaultMarkdownPaths(vaultPath: string): Promise<string[]> {
@@ -72,8 +103,9 @@ export async function getVaultIndex(vaultPath: string): Promise<VaultIndex> {
     return cached.index;
   }
 
-  const index = await buildVaultIndexFromPaths(vaultPath, currentPaths);
-  indexCache.set(vaultPath, { builtAt: Date.now(), signature, index });
+  const { index, collisions } = await buildVaultIndexFromPaths(vaultPath, currentPaths);
+  collisionsByIndex.set(index, collisions);
+  indexCache.set(vaultPath, { builtAt: Date.now(), signature, index, collisions });
   return index;
 }
 
@@ -108,14 +140,29 @@ function registerProjectAliases(relativePath: string, keys: Set<string>): void {
  */
 export async function buildVaultIndex(vaultPath: string): Promise<VaultIndex> {
   const files = await listVaultMarkdownPaths(vaultPath);
-  return buildVaultIndexFromPaths(vaultPath, files);
+  const { index, collisions } = await buildVaultIndexFromPaths(vaultPath, files);
+  collisionsByIndex.set(index, collisions);
+  return index;
 }
 
 async function buildVaultIndexFromPaths(
   vaultPath: string,
   files: string[],
-): Promise<VaultIndex> {
+): Promise<{ index: VaultIndex; collisions: VaultIndexCollisions }> {
   const index: VaultIndex = new Map();
+  const claimants = new Map<string, Set<string>>();
+
+  const registerKey = (key: string, entry: VaultNoteEntry): void => {
+    let paths = claimants.get(key);
+    if (!paths) {
+      paths = new Set();
+      claimants.set(key, paths);
+    }
+    paths.add(entry.path);
+    if (!index.has(key)) {
+      index.set(key, entry);
+    }
+  };
 
   for (const file of files) {
     const relativePath = path.relative(vaultPath, file).split(path.sep).join('/');
@@ -152,37 +199,57 @@ async function buildVaultIndexFromPaths(
     registerProjectAliases(relativePath, keys);
 
     for (const key of keys) {
-      if (!index.has(key)) {
-        index.set(key, entry);
-      }
+      registerKey(key, entry);
     }
   }
 
-  return index;
+  const collisions: VaultIndexCollisions = new Map();
+  for (const [key, paths] of claimants) {
+    if (paths.size > 1) {
+      collisions.set(key, [...paths].sort((a, b) => a.localeCompare(b)));
+    }
+  }
+
+  return { index, collisions };
 }
 
 /**
  * Resolves a wikilink target string to a vault-relative note path when possible.
+ * Returns null when unresolved or when the key is claimed by multiple notes.
  */
 export function resolveWikilinkTarget(link: string, index: VaultIndex): string | null {
+  const collisions = getIndexKeyCollisions(index);
   const pathOnly = stripWikilinkAnchor(link);
   const trimmed = pathOnly.trim();
+  const key = normaliseKey(trimmed);
 
-  const direct = index.get(normaliseKey(trimmed));
+  if (collisions.has(key)) {
+    return null;
+  }
+
+  const direct = index.get(key);
   if (direct) {
     return direct.path;
   }
 
-  const slug = normaliseKey(trimmed).replace(/\s+/g, '-');
+  const slug = key.replace(/\s+/g, '-');
+  if (collisions.has(slug)) {
+    return null;
+  }
+
   const slugHit = index.get(slug);
   if (slugHit) {
     return slugHit.path;
   }
 
-  for (const [key, entry] of index) {
-    if (key.endsWith(`/${slug}`) || key.endsWith(`/${normaliseKey(trimmed)}`)) {
-      return entry.path;
+  const suffixHits = new Set<string>();
+  for (const [indexKey, entry] of index) {
+    if (indexKey.endsWith(`/${slug}`) || indexKey.endsWith(`/${key}`)) {
+      suffixHits.add(entry.path);
     }
+  }
+  if (suffixHits.size === 1) {
+    return [...suffixHits][0]!;
   }
 
   return null;
@@ -197,7 +264,8 @@ function throwNoteNotFound(userPath: string): never {
 /**
  * Resolves a user path (vault-relative path, title, or frontmatter alias) to an
  * absolute filesystem path for an existing note. Tries the literal path first,
- * then the vault index. Throws ENOENT when nothing matches.
+ * then the vault index. Throws ENOENT when nothing matches, or PathResolveError
+ * when the key is claimed by multiple notes.
  */
 export async function resolveExistingNotePath(
   vaultPath: string,
@@ -214,7 +282,14 @@ export async function resolveExistingNotePath(
   }
 
   const index = await getVaultIndex(vaultPath);
-  const entry = index.get(normaliseKey(userPath));
+  const collisions = getIndexKeyCollisions(index);
+  const key = normaliseKey(userPath);
+
+  if (collisions.has(key)) {
+    throw new PathResolveError(userPath, collisions.get(key)!);
+  }
+
+  const entry = index.get(key);
   if (!entry) {
     throwNoteNotFound(userPath);
   }

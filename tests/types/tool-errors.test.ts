@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { err, mapToolError, toolError } from '../../src/types/index.js';
 import { ReadOnlyError, SecurityError } from '../../src/lib/security.js';
 import { SectionEditError } from '../../src/lib/section-edit.js';
+import { PathResolveError } from '../../src/lib/vault-index.js';
 
 describe('structured tool errors', () => {
   it('toolError returns JSON payload with isError', () => {
@@ -57,6 +58,21 @@ describe('structured tool errors', () => {
     );
     const ambiguousPayload = JSON.parse(ambiguous.content[0].text) as { error: string };
     expect(ambiguousPayload.error).toBe('invalid_args');
+  });
+
+  it('mapToolError maps PathResolveError to invalid_args with candidates', () => {
+    const result = mapToolError(new PathResolveError('shared', ['a.md', 'b.md']), {
+      path: 'shared',
+    });
+    const payload = JSON.parse(result.content[0].text) as {
+      error: string;
+      message: string;
+      hint?: string;
+    };
+    expect(payload.error).toBe('invalid_args');
+    expect(payload.message).toContain('ambiguous');
+    expect(payload.hint).toContain('a.md');
+    expect(payload.hint).toContain('b.md');
   });
 
   it('mapToolError maps ENOENT to note_not_found', () => {

@@ -27,11 +27,16 @@ function parseHeadingLine(line: string): { level: number; text: string } | null 
 }
 
 /**
- * Strips optional leading ATX `#` markers from a heading argument.
- * Agents often pass `"## Section"`; parsed heading text is already without hashes.
+ * Parses a replace_section heading argument.
+ * When the arg includes ATX `#` markers, the level is required to match.
+ * Plain text (no markers) matches any level.
  */
-function normaliseHeadingInput(heading: string): string {
-  return heading.replace(/^#{1,6}\s*/, '').trim();
+function parseHeadingArg(heading: string): { text: string; level: number | null } {
+  const withLevel = heading.match(/^(#{1,6})\s+(.+)$/);
+  if (withLevel) {
+    return { level: withLevel[1].length, text: withLevel[2].trim() };
+  }
+  return { level: null, text: heading.replace(/^#{1,6}\s*/, '').trim() };
 }
 
 /**
@@ -51,14 +56,19 @@ export function replaceSection(
   newSectionContent: string,
 ): string {
   const lines = body.split('\n');
-  const target = normaliseHeading(normaliseHeadingInput(heading));
+  const { text: headingText, level: requiredLevel } = parseHeadingArg(heading);
+  const target = normaliseHeading(headingText);
   const matches: Array<{ index: number; level: number }> = [];
 
   for (let i = 0; i < lines.length; i++) {
     const parsed = parseHeadingLine(lines[i]);
-    if (parsed && normaliseHeading(parsed.text) === target) {
-      matches.push({ index: i, level: parsed.level });
+    if (!parsed || normaliseHeading(parsed.text) !== target) {
+      continue;
     }
+    if (requiredLevel !== null && parsed.level !== requiredLevel) {
+      continue;
+    }
+    matches.push({ index: i, level: parsed.level });
   }
 
   if (matches.length === 0) {

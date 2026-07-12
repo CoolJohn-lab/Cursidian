@@ -1,5 +1,13 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { buildVaultIndex, normaliseKey, resolveWikilinkTarget, clearVaultIndexCache } from '../../src/lib/vault-index.js';
+import {
+  buildVaultIndex,
+  normaliseKey,
+  resolveWikilinkTarget,
+  resolveExistingNotePath,
+  getIndexKeyCollisions,
+  PathResolveError,
+  clearVaultIndexCache,
+} from '../../src/lib/vault-index.js';
 import { createTestVault, cleanupVault, writeNote } from '../tools/helpers.js';
 
 describe('vault-index', () => {
@@ -37,6 +45,38 @@ describe('vault-index', () => {
     const index = await buildVaultIndex(ctx.vault);
     expect(resolveWikilinkTarget('compute box', index)).toBe('entities/dev-server-alpha.md');
     expect(resolveWikilinkTarget('dev server', index)).toBe('entities/dev-server-alpha.md');
+    await cleanupVault(ctx.vault);
+  });
+
+  it('treats colliding aliases as unresolved for wikilinks and throws for path resolve', async () => {
+    const ctx = await createTestVault();
+    await writeNote(
+      ctx.vault,
+      'entities/one.md',
+      '---\ntitle: One\naliases: [shared-alias]\n---\n\n# One\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'entities/two.md',
+      '---\ntitle: Two\naliases: [shared-alias]\n---\n\n# Two\n',
+    );
+
+    const index = await buildVaultIndex(ctx.vault);
+    const collisions = getIndexKeyCollisions(index);
+    expect(collisions.get('shared-alias')).toEqual(['entities/one.md', 'entities/two.md']);
+    expect(resolveWikilinkTarget('shared-alias', index)).toBeNull();
+
+    await expect(resolveExistingNotePath(ctx.vault, 'shared-alias')).rejects.toBeInstanceOf(
+      PathResolveError,
+    );
+    try {
+      await resolveExistingNotePath(ctx.vault, 'shared-alias');
+    } catch (e) {
+      expect(e).toBeInstanceOf(PathResolveError);
+      expect((e as PathResolveError).paths).toEqual(['entities/one.md', 'entities/two.md']);
+      expect((e as PathResolveError).code).toBe('invalid_args');
+    }
+
     await cleanupVault(ctx.vault);
   });
 });

@@ -53,6 +53,28 @@ describe('note (read)', () => {
     expect(data.content).toContain('Alias target body');
   });
 
+  it('returns invalid_args when an alias is claimed by multiple notes', async () => {
+    const { writeNote } = await import('./helpers.js');
+    await writeNote(
+      ctx.vault,
+      'entities/collide-a.md',
+      '---\ntitle: Collide A\naliases: [shared-read-key]\n---\n\nA\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'entities/collide-b.md',
+      '---\ntitle: Collide B\naliases: [shared-read-key]\n---\n\nB\n',
+    );
+    const result = await callTool(ctx.server, 'note', {
+      action: 'read',
+      path: 'shared-read-key',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_args');
+    expect(data.message).toContain('ambiguous');
+  });
+
   it('returns note_not_found for unknown alias', async () => {
     const result = await callTool(ctx.server, 'note', {
       action: 'read',

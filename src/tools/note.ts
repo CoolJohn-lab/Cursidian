@@ -40,7 +40,9 @@ export function registerNote(server: McpServer, config: Config): void {
         heading: z
           .string()
           .optional()
-          .describe('Section heading for replace_section (with or without # markers)'),
+          .describe(
+            'Section heading for replace_section. Plain text matches any level; with # markers (e.g. "## Details") the ATX level must match too',
+          ),
         expectedHash: z.string().optional().describe('contentHash from read for concurrency check'),
         force: z.boolean().optional().describe('Bypass replace size guard'),
         confirm: z.boolean().optional().describe('Must be true for delete'),

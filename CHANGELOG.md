@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-07-12
+
+### Fixed
+
+- Search ranking matches basename/title segments query→text only (no longer boosts `wiki` pages for query `wikilink` via reverse substring)
+- Ambiguous title/alias/basename keys fail loud: `note`/`graph` path resolve returns `invalid_args` with candidates; wikilink resolve returns unresolved; `vault` health reports `ambiguousKeys`
+- `replace_section` with `#` markers requires matching ATX heading level (plain text still matches any level)
+
 ## [2.2.0] - 2026-07-12
 
 ### Fixed

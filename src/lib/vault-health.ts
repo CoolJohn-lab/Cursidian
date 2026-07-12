@@ -4,7 +4,7 @@ import fg from 'fast-glob';
 import { parseFrontmatter } from './frontmatter.js';
 import { resolveOutgoingLinks } from './wikilink-resolve.js';
 import { buildInboundLinkCounts } from './backlinks.js';
-import { getVaultIndex, resolveWikilinkTarget, type VaultIndex } from './vault-index.js';
+import { getVaultIndex, resolveWikilinkTarget, getIndexKeyCollisions, type VaultIndex } from './vault-index.js';
 import { TRASH_GLOB_IGNORE } from './trash.js';
 import { isHealthExcludedPath } from './operational-paths.js';
 
@@ -24,6 +24,8 @@ export interface VaultHealthReport {
     deadIndexEntries: string[];
     summaryMismatches: Array<{ path: string; indexSummary: string; pageSummary: string }>;
   };
+  /** Title/alias/basename keys claimed by more than one note. */
+  ambiguousKeys: Array<{ key: string; paths: string[] }>;
   stale: Array<{ path: string; updated: string; backlinkCount: number }>;
   counts: {
     orphans: number;
@@ -31,6 +33,7 @@ export interface VaultHealthReport {
     missingFrontmatter: number;
     summaryWarnings: number;
     indexDrift: number;
+    ambiguousKeys: number;
     stale: number;
   };
 }
@@ -206,6 +209,10 @@ export async function computeVaultHealth(
     indexDrift.deadIndexEntries.length +
     indexDrift.summaryMismatches.length;
 
+  const ambiguousKeys = [...getIndexKeyCollisions(index).entries()]
+    .map(([key, paths]) => ({ key, paths }))
+    .sort((a, b) => a.key.localeCompare(b.key));
+
   return {
     generatedAt: new Date().toISOString(),
     noteCount: catalogPaths.size,
@@ -214,6 +221,7 @@ export async function computeVaultHealth(
     missingFrontmatter,
     summaryWarnings,
     indexDrift,
+    ambiguousKeys,
     stale,
     counts: {
       orphans: orphans.length,
@@ -221,6 +229,7 @@ export async function computeVaultHealth(
       missingFrontmatter: missingFrontmatter.length,
       summaryWarnings: summaryWarnings.length,
       indexDrift: indexDriftCount,
+      ambiguousKeys: ambiguousKeys.length,
       stale: stale.length,
     },
   };

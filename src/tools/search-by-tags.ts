@@ -1,6 +1,7 @@
 import { type Config } from '../config.js';
 import { getVaultIndex } from '../lib/vault-index.js';
 import { noteMatchesTags, uniqueIndexEntries } from '../lib/tags.js';
+import { isOperationalPath } from '../lib/operational-paths.js';
 import { ok, mapToolError } from '../types/index.js';
 
 export function searchByTagsHandler(config: Config) {
@@ -9,6 +10,7 @@ export function searchByTagsHandler(config: Config) {
       const effectiveLimit = limit ?? 50;
       const index = await getVaultIndex(config.vaultPath);
       const ranked = uniqueIndexEntries(index)
+        .filter((entry) => !isOperationalPath(entry.path))
         .filter((entry) => noteMatchesTags(entry.tags, tags))
         .sort((a, b) => a.path.localeCompare(b.path));
 

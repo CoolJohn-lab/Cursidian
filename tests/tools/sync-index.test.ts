@@ -34,6 +34,13 @@ describe('vault (sync_index)', () => {
     expect(data.categories).toContain('concepts');
   });
 
+  it('dryRun reports wouldWrite false when catalog body is unchanged', async () => {
+    await callTool(ctx.server, 'vault', { action: 'sync_index' });
+    const result = await callTool(ctx.server, 'vault', { action: 'sync_index', dryRun: true });
+    const data = parseResult(result) as { wouldWrite: boolean };
+    expect(data.wouldWrite).toBe(false);
+  });
+
   it('writes index.md grouped by category', async () => {
     await writeNote(
       ctx.vault,

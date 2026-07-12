@@ -18,7 +18,17 @@ export function syncIndexHandler(config: Config) {
       const { markdown, noteCount, categories } = await buildIndexMarkdown(config.vaultPath);
 
       if (effectiveDryRun) {
-        return ok({ wouldWrite: true, markdown, noteCount, categories });
+        let wouldWrite = true;
+        try {
+          const existingRaw = await fs.readFile(resolvePath(config.vaultPath, INDEX_PATH), 'utf-8');
+          const existingBody = parseFrontmatter(existingRaw).content.replace(/\r\n/g, '\n').trimEnd();
+          const nextBody = markdown.replace(/\r\n/g, '\n').trimEnd();
+          wouldWrite = existingBody !== nextBody;
+        } catch {
+          // index.md missing — a real sync would create it
+          wouldWrite = true;
+        }
+        return ok({ wouldWrite, markdown, noteCount, categories });
       }
 
       assertNotReadOnly(config.readOnly);

@@ -43,6 +43,10 @@ describe('vault (folders)', () => {
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as { subfolders: string[] };
     expect(data.subfolders.length).toBeGreaterThanOrEqual(2);
+    for (const sub of data.subfolders) {
+      expect(sub).not.toContain('\\');
+      expect(sub.startsWith('Parent/')).toBe(true);
+    }
   });
 
   it('lists vault-root subfolders when path is empty', async () => {

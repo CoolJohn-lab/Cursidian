@@ -145,7 +145,8 @@ export function assertReplaceSizeGuard(
 
   const ratio = newBody.length / existingBody.length;
   if (ratio < 0.5) {
-    throw new Error(
+    throw new SectionEditError(
+      'invalid_args',
       `Replace would shrink note body to ${Math.round(ratio * 100)}% of original size. ` +
         'Use mode "patch" or "replace_section" for partial edits, or set force: true to overwrite.',
     );

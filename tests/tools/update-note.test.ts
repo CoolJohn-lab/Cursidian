@@ -128,7 +128,9 @@ describe('note (update)', () => {
       mode: 'replace',
     });
     expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('shrink note body');
+    const payload = JSON.parse(result.content[0].text) as { error: string; message: string };
+    expect(payload.error).toBe('invalid_args');
+    expect(payload.message).toContain('shrink note body');
   });
 
   it('replaces a section by heading', async () => {

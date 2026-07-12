@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-07-12
+
+### Fixed
+
+- Replace size-guard failures return `invalid_args` (not `internal_error`)
+- `vault` `list_folders` always returns forward-slash vault-relative paths
+- `search` `by_tags` / `tags` exclude operational paths (`_raw/`, `_archives/`, index/log/hot) to match content search defaults
+- `vault` `sync_index` dry-run sets `wouldWrite: false` when the catalog body is unchanged
+
 ## [2.4.0] - 2026-07-12
 
 ### Added

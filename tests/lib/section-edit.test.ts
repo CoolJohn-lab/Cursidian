@@ -84,7 +84,14 @@ describe('assertReplaceSizeGuard', () => {
   });
 
   it('rejects small replacements without force', () => {
-    expect(() => assertReplaceSizeGuard('1234567890', '12', false)).toThrow('shrink note body');
+    expect(() => assertReplaceSizeGuard('1234567890', '12', false)).toThrow(SectionEditError);
+    try {
+      assertReplaceSizeGuard('1234567890', '12', false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(SectionEditError);
+      expect((e as SectionEditError).code).toBe('invalid_args');
+      expect((e as Error).message).toContain('shrink note body');
+    }
   });
 
   it('allows small replacements with force', () => {

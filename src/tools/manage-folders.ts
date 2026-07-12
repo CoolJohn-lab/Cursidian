@@ -1,11 +1,18 @@
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import fg from 'fast-glob';
 import { type Config } from '../config.js';
 import { resolveDir } from '../lib/vault.js';
 import { assertSafePath, assertNotReadOnly } from '../lib/security.js';
 import { logger } from '../lib/logger.js';
 import { ok, err, mapToolError } from '../types/index.js';
+
+/** Join vault-relative folder segments with `/` (never OS backslashes). */
+function joinVaultFolder(...parts: string[]): string {
+  return parts
+    .flatMap((p) => p.replace(/\\/g, '/').split('/'))
+    .filter((p) => p.length > 0)
+    .join('/');
+}
 
 export function manageFoldersHandler(config: Config) {
   return async ({
@@ -37,8 +44,8 @@ export function manageFoldersHandler(config: Config) {
           onlyDirectories: true,
           dot: false,
         });
-        const subfolders = entries.map((e) => path.join(folderPath, e));
-        return ok({ folder: folderPath, subfolders });
+        const subfolders = entries.map((e) => joinVaultFolder(folderPath, e));
+        return ok({ folder: folderPath.replace(/\\/g, '/'), subfolders });
       }
 
       if (!confirm) {

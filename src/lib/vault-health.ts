@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { parseFrontmatter } from './frontmatter.js';
 import { resolveOutgoingLinks } from './wikilink-resolve.js';
@@ -35,7 +34,10 @@ export interface VaultHealthReport {
     indexDrift: number;
     ambiguousKeys: number;
     stale: number;
+    skipped: number;
   };
+  incomplete: boolean;
+  skipped: Array<{ path: string; reason: string }>;
 }
 
 interface IndexEntryParsed {
@@ -100,6 +102,7 @@ export async function computeVaultHealth(
   const missingFrontmatter: Array<{ path: string; missing: string[] }> = [];
   const summaryWarnings: Array<{ path: string; issue: 'missing' | 'too_long'; length?: number }> = [];
   const stale: Array<{ path: string; updated: string; backlinkCount: number }> = [];
+  const skipped: Array<{ path: string; reason: string }> = [];
   const catalogPaths = new Set<string>();
 
   for (const file of files) {
@@ -112,7 +115,9 @@ export async function computeVaultHealth(
     let raw: string;
     try {
       raw = await readFileBounded(file, maxFileSize);
-    } catch {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      skipped.push({ path: relativePath, reason: message });
       continue;
     }
     const { data, content } = parseFrontmatter(raw);
@@ -167,9 +172,11 @@ export async function computeVaultHealth(
   const indexPath = path.join(vaultPath, 'index.md');
   let indexBody = '';
   try {
-    const indexRaw = await fs.readFile(indexPath, 'utf-8');
+    const indexRaw = await readFileBounded(indexPath, maxFileSize);
     indexBody = parseFrontmatter(indexRaw).content;
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    skipped.push({ path: 'index.md', reason: message });
     indexDrift.missingFromIndex = [...catalogPaths].sort();
   }
 
@@ -225,6 +232,8 @@ export async function computeVaultHealth(
     indexDrift,
     ambiguousKeys,
     stale,
+    incomplete: skipped.length > 0,
+    skipped,
     counts: {
       orphans: orphans.length,
       brokenLinks: brokenLinks.length,
@@ -233,6 +242,7 @@ export async function computeVaultHealth(
       indexDrift: indexDriftCount,
       ambiguousKeys: ambiguousKeys.length,
       stale: stale.length,
+      skipped: skipped.length,
     },
   };
 }

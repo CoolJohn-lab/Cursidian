@@ -35,7 +35,7 @@ export function registerSearch(server: McpServer, config: Config): void {
           .max(MAX_LIST_LIMIT)
           .optional()
           .describe('Used by content, by_tags, list, and recent actions'),
-        cursor: z.string().optional().describe('Used by list action only'),
+        cursor: z.string().optional().describe('Used by content, by_tags, list, and recent actions'),
         caseSensitive: z.boolean().optional().describe('Used by content action only'),
         verbose: z.boolean().optional().describe('Used by content action only'),
         includeOperational: z
@@ -52,12 +52,21 @@ export function registerSearch(server: McpServer, config: Config): void {
       const action = args.action ?? 'content';
       const specs: Record<string, { allowed: string[]; required?: string[] }> = {
         content: {
-          allowed: ['query', 'tags', 'limit', 'caseSensitive', 'verbose', 'includeOperational', 'format'],
+          allowed: [
+            'query',
+            'tags',
+            'limit',
+            'cursor',
+            'caseSensitive',
+            'verbose',
+            'includeOperational',
+            'format',
+          ],
           required: ['query'],
         },
-        by_tags: { allowed: ['tags', 'limit'], required: ['tags'] },
+        by_tags: { allowed: ['tags', 'limit', 'cursor'], required: ['tags'] },
         list: { allowed: ['folder', 'recursive', 'limit', 'cursor', 'includeOperational'] },
-        recent: { allowed: ['folder', 'limit', 'includeOperational'] },
+        recent: { allowed: ['folder', 'limit', 'cursor', 'includeOperational'] },
         tags: { allowed: [] },
       };
       const spec = specs[action];
@@ -91,6 +100,7 @@ export function registerSearch(server: McpServer, config: Config): void {
             query: query as string,
             caseSensitive,
             limit,
+            cursor,
             tags,
             verbose,
             includeOperational,
@@ -119,7 +129,7 @@ export function registerSearch(server: McpServer, config: Config): void {
               arguments: { action: 'by_tags', tags: tags.filter((tag) => tag.trim().length > 0) },
             });
           }
-          return searchByTagsHandler(config)({ tags, limit });
+          return searchByTagsHandler(config)({ tags, limit, cursor });
         case 'list':
           return listNotesHandler(config)({
             folder,
@@ -130,7 +140,12 @@ export function registerSearch(server: McpServer, config: Config): void {
           });
         case 'recent': {
           const recentLimit = limit !== undefined ? Math.min(limit, MAX_RECENT_LIMIT) : undefined;
-          return listRecentHandler(config)({ limit: recentLimit, folder, includeOperational });
+          return listRecentHandler(config)({
+            limit: recentLimit,
+            folder,
+            includeOperational,
+            cursor,
+          });
         }
         case 'tags':
           return listTagsHandler(config)();

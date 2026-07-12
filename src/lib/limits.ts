@@ -19,6 +19,12 @@ export const DEFAULT_LIST_LIMIT = 200;
 /** Maximum recent notes (schema and runtime aligned). */
 export const MAX_RECENT_LIMIT = 100;
 
+/** Default graph backlink page size. */
+export const DEFAULT_GRAPH_BACKLINK_LIMIT = 50;
+
+/** Maximum graph backlink page size. */
+export const MAX_GRAPH_BACKLINK_LIMIT = 200;
+
 /** Vocabulary size above which typo correction is skipped. */
 export const MAX_TYPO_VOCAB_SIZE = 5_000;
 

@@ -12,30 +12,17 @@ export interface CachedSearchPayload {
 
 interface SearchCacheEntry {
   builtAt: number;
-  responseText: string;
+  payload: CachedSearchPayload;
 }
 
 const searchResultCache = new Map<string, SearchCacheEntry>();
 const SEARCH_CACHE_TTL_MS = 60_000;
 const SEARCH_CACHE_MAX_ENTRIES = 128;
 
-/**
- * Returns true when a cache entry is older than the TTL window.
- */
 function isSearchCacheExpired(builtAt: number): boolean {
   return Date.now() - builtAt >= SEARCH_CACHE_TTL_MS;
 }
 
-/**
- * Serialises ranked search output once for MCP text responses.
- */
-function serializeSearchPayload(payload: CachedSearchPayload): string {
-  return JSON.stringify(payload, null, 2);
-}
-
-/**
- * Evicts the oldest cache entry when at capacity.
- */
 function evictOldestSearchCacheEntry(): void {
   const oldestKey = searchResultCache.keys().next().value;
   if (oldestKey !== undefined) {
@@ -44,27 +31,23 @@ function evictOldestSearchCacheEntry(): void {
 }
 
 /**
- * Builds a stable cache key for a vault search request.
+ * Builds a stable cache key for a vault search request (full ranked result set).
  */
 export function buildSearchCacheKey(
   vaultPath: string,
   vaultSignature: string,
   query: string,
   caseSensitive: boolean,
-  limit: number,
   tags?: string[],
   verbose = false,
   format: 'full' | 'compact' = 'full',
   includeOperational = false,
 ): string {
   const tagKey = tags?.length ? tags.map((tag) => tag.toLowerCase()).sort().join(',') : '';
-  return `${vaultPath}\0${vaultSignature}\0${query}\0${caseSensitive}\0${limit}\0${tagKey}\0${verbose}\0${format}\0${includeOperational}`;
+  return `${vaultPath}\0${vaultSignature}\0${query}\0${caseSensitive}\0${tagKey}\0${verbose}\0${format}\0${includeOperational}`;
 }
 
-/**
- * Returns a pre-serialised MCP response when the ranked search is still cached.
- */
-export function getCachedSearchResponse(key: string): string | null {
+export function getCachedSearchPayload(key: string): CachedSearchPayload | null {
   const entry = searchResultCache.get(key);
   if (!entry) {
     return null;
@@ -73,26 +56,30 @@ export function getCachedSearchResponse(key: string): string | null {
     searchResultCache.delete(key);
     return null;
   }
-  return entry.responseText;
+  return entry.payload;
 }
 
-/**
- * Stores ranked search results and returns the serialised MCP response text.
- */
-export function setCachedSearchResponse(key: string, payload: CachedSearchPayload): string {
-  const responseText = serializeSearchPayload(payload);
+export function setCachedSearchPayload(key: string, payload: CachedSearchPayload): void {
   if (searchResultCache.has(key)) {
     searchResultCache.delete(key);
   } else if (searchResultCache.size >= SEARCH_CACHE_MAX_ENTRIES) {
     evictOldestSearchCacheEntry();
   }
-  searchResultCache.set(key, { builtAt: Date.now(), responseText });
-  return responseText;
+  searchResultCache.set(key, { builtAt: Date.now(), payload });
 }
 
-/**
- * Clears cached search payloads (used when vault index is reset in tests).
- */
 export function clearSearchResultCache(): void {
   searchResultCache.clear();
+}
+
+/** @deprecated Use getCachedSearchPayload; kept for transitional callers. */
+export function getCachedSearchResponse(key: string): string | null {
+  const payload = getCachedSearchPayload(key);
+  return payload ? JSON.stringify(payload, null, 2) : null;
+}
+
+/** @deprecated Use setCachedSearchPayload; kept for transitional callers. */
+export function setCachedSearchResponse(key: string, payload: CachedSearchPayload): string {
+  setCachedSearchPayload(key, payload);
+  return JSON.stringify(payload, null, 2);
 }

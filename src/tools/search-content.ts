@@ -4,8 +4,8 @@ import { getVaultSnapshot } from '../lib/vault-snapshot.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import {
   buildSearchCacheKey,
-  getCachedSearchResponse,
-  setCachedSearchResponse,
+  getCachedSearchPayload,
+  setCachedSearchPayload,
 } from '../lib/search-cache.js';
 import {
   allTokensMatchInText,
@@ -19,6 +19,7 @@ import { correctTokensAgainstVocabulary } from '../lib/edit-distance.js';
 import { isOperationalPath } from '../lib/operational-paths.js';
 import { uniqueIndexEntries } from '../lib/tags.js';
 import { MAX_QUERY_LENGTH } from '../lib/limits.js';
+import { paginateByPath, resolveCursorMarker, scanMetadataFromSkipped } from '../lib/pagination.js';
 import { err, mapToolError, type SearchResult, type CompactSearchResult } from '../types/index.js';
 
 type MatchMode = 'and' | 'or';
@@ -183,11 +184,10 @@ function collectCandidates(
 function mapSearchResults(
   ranked: ReturnType<typeof rankSearchResults>,
   index: VaultIndex,
-  limit: number,
   verbose: boolean,
   format: SearchFormat,
 ): SearchResult[] | CompactSearchResult[] {
-  return ranked.slice(0, limit).map((hit) => {
+  return ranked.map((hit) => {
     const meta = indexEntryForPath(index, hit.path);
     if (format === 'compact') {
       const compact: CompactSearchResult = {
@@ -224,6 +224,7 @@ export function searchContentHandler(config: Config) {
     verbose,
     includeOperational,
     format,
+    cursor,
   }: {
     query: string;
     caseSensitive?: boolean;
@@ -232,6 +233,7 @@ export function searchContentHandler(config: Config) {
     verbose?: boolean;
     includeOperational?: boolean;
     format?: SearchFormat;
+    cursor?: string;
   }) => {
     try {
       const effectiveCaseSensitive = caseSensitive ?? false;
@@ -245,23 +247,24 @@ export function searchContentHandler(config: Config) {
       }
 
       const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
+      const scan = scanMetadataFromSkipped(snapshot.skipped);
+      const marker = resolveCursorMarker(cursor, snapshot.signature);
+
       const cacheKey = buildSearchCacheKey(
         config.vaultPath,
         snapshot.signature,
         query,
         effectiveCaseSensitive,
-        effectiveLimit,
         tags,
         effectiveVerbose,
         effectiveFormat,
         effectiveIncludeOperational,
       );
-      const cachedResponse = getCachedSearchResponse(cacheKey);
-      if (cachedResponse !== null) {
-        return { content: [{ type: 'text' as const, text: cachedResponse }] };
-      }
 
-      const prepared = prepareSearchTokens(query);
+      let basePayload = getCachedSearchPayload(cacheKey);
+
+      if (basePayload === null) {
+        const prepared = prepareSearchTokens(query);
         if (prepared.contentTokens.length === 0) {
           if (prepared.strippedStopwords) {
             return err(
@@ -352,22 +355,50 @@ export function searchContentHandler(config: Config) {
 
         const rankingQuery = tokens.join(' ');
         const ranked = rankSearchResults(candidates, rankingQuery, effectiveCaseSensitive, index);
-        const results = mapSearchResults(ranked, index, effectiveLimit, effectiveVerbose, effectiveFormat);
+        const allResults = mapSearchResults(ranked, index, effectiveVerbose, effectiveFormat);
 
-        const payload = {
+        basePayload = {
           query,
           contentTokens: tokens,
           strippedStopwords: prepared.strippedStopwords,
           fallbackMode: matchMode === 'or' ? ('or' as const) : null,
-          totalMatches: ranked.length,
-          results,
+          totalMatches: allResults.length,
+          results: allResults,
           ...(correctedTokens ? { correctedTokens } : {}),
         };
+        setCachedSearchPayload(cacheKey, basePayload);
+      }
 
-        const responseText = setCachedSearchResponse(cacheKey, payload);
-        return { content: [{ type: 'text' as const, text: responseText }] };
+      const paged = paginateByPath(
+        basePayload.results as Array<{ path: string }>,
+        effectiveLimit,
+        marker,
+        snapshot.signature,
+      );
+
+      const payload = {
+        ...basePayload,
+        results: paged.page,
+        totalMatches: paged.totalMatches,
+        truncated: paged.truncated,
+        nextCursor: paged.nextCursor,
+        effectiveLimit,
+        includeOperational: effectiveIncludeOperational,
+        ...scan,
+      };
+
+      return { content: [{ type: 'text' as const, text: JSON.stringify(payload, null, 2) }] };
     } catch (e) {
-      return mapToolError(e);
+      return mapToolError(e, {
+        tool: 'search',
+        action: 'content',
+        arguments: {
+          action: 'content',
+          query,
+          limit: limit ?? 10,
+          includeOperational: includeOperational ?? false,
+        },
+      });
     }
   };
 }

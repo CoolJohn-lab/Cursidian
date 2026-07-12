@@ -5,7 +5,9 @@ import { resolveDir, toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync } from '../lib/security.js';
 import { vaultGlob } from '../lib/vault-glob.js';
 import { isOperationalPath } from '../lib/operational-paths.js';
+import { getVaultSnapshot } from '../lib/vault-snapshot.js';
 import { DEFAULT_LIST_LIMIT, MAX_LIST_LIMIT } from '../lib/limits.js';
+import { paginateByPath, resolveCursorMarker, scanMetadataFromSkipped } from '../lib/pagination.js';
 import { ok, err, mapToolError, type NoteMetadata } from '../types/index.js';
 
 export function listNotesHandler(config: Config) {
@@ -44,6 +46,9 @@ export function listNotesHandler(config: Config) {
         }
       }
 
+      const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
+      const marker = resolveCursorMarker(cursor, snapshot.signature);
+
       const pattern = isRecursive ? '**/*.md' : '*.md';
       const files = await vaultGlob(config.vaultPath, pattern, { cwd: baseDir });
 
@@ -64,22 +69,32 @@ export function listNotesHandler(config: Config) {
 
       notes.sort((a, b) => a.path.localeCompare(b.path));
 
-      const startIndex = cursor
-        ? Math.max(0, notes.findIndex((n) => n.path === cursor) + 1)
-        : 0;
-      const page = notes.slice(startIndex, startIndex + pageSize);
-      const truncated = startIndex + pageSize < notes.length;
-      const nextCursor = truncated && page.length > 0 ? page[page.length - 1]!.path : undefined;
+      const paged = paginateByPath(notes, pageSize, marker, snapshot.signature);
+      const scan = scanMetadataFromSkipped(snapshot.skipped);
 
       return ok({
-        count: notes.length,
-        notes: page,
-        truncated,
-        nextCursor,
+        count: paged.totalMatches,
+        notes: paged.page,
+        truncated: paged.truncated,
+        nextCursor: paged.nextCursor,
         effectiveLimit: pageSize,
+        folder: folder ?? null,
+        includeOperational: effectiveIncludeOperational,
+        recursive: isRecursive,
+        ...scan,
       });
     } catch (e) {
-      return mapToolError(e, { path: folder });
+      return mapToolError(e, {
+        tool: 'search',
+        action: 'list',
+        path: folder,
+        arguments: {
+          action: 'list',
+          ...(folder ? { folder } : {}),
+          limit: limit ?? DEFAULT_LIST_LIMIT,
+          includeOperational: includeOperational ?? false,
+        },
+      });
     }
   };
 }

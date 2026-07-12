@@ -336,6 +336,18 @@ export function mapToolError(e: unknown, context?: Partial<ToolErrorContext>): T
       });
     }
 
+    if (name === 'StaleCursorError') {
+      return toolError({
+        error: 'invalid_args',
+        message,
+        ...base,
+        retryable: true,
+        details: { required: [], missing: [], rejected: ['cursor'] },
+        recovery: { tool, arguments: recoveryArguments },
+        hint: 'Vault changed since the cursor was issued. Rerun without cursor to start from page one.',
+      });
+    }
+
     if (name === 'PathResolveError') {
       const paths =
         'paths' in e && Array.isArray((e as { paths: unknown }).paths)

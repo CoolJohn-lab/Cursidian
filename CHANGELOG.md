@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.10.0] - 2026-07-12
+
+### Added
+
+- Operation journals under `.cursidian-trash/<operationId>/` with `vault` actions `history` and `undo` (`confirm: true`; optional `force`)
+- Full-note `revisionHash` / `expectedRevision` concurrency (frontmatter + body); `expectedHash` kept as deprecated alias
+- Multi-path locking and lock-free write primitives for handlers that already hold a path lock
+- Typed `vault` action `manifest` (`read` / `upsert_source` / `upsert_project` / `remove`) for `_meta/manifest.md`
+- Machine-actionable success/error metadata: `operationId`, `undoAvailable`, `code`, `recovery`, `retryable`, `sideEffects`
+- Pagination (`cursor` / `truncated` / `nextCursor`) on `search` content/by_tags/recent and `graph` backlinks; incomplete scans surface `incomplete` + `skipped`
+- Rename / `vault log` / create-overwrite all-or-rollback journaling (source note included in rename backups)
+- Skill rollback protocol (operation-ID stack, reverse-order undo) across wiki write skills
+- `npm run skills:check` static skill contract gate; fixture smoke suite covers revision conflicts, manifest, and undo
+- Live `npm run smoke` uses a unique per-run note path, never `overwrite: true`, and always deletes in `finally`
+
+### Changed
+
+- Wiki skills prefer `vault manifest` over hand-editing ledger lines; raw ingest archives via `note rename`
+- `wiki-lint` report-only mode performs zero writes (LINT log line only after consolidate confirmation)
+- Safe-write docs and skills standardize on `revisionHash` / `expectedRevision`
+
+
 ## [2.9.0] - 2026-07-12
 
 

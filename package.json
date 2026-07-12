@@ -1,6 +1,6 @@
 {
   "name": "cursidian",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "description": "MCP server for Obsidian vaults, optimised for Cursor agents - safe writes, lean tool surface, direct filesystem access.",
   "type": "module",
   "bin": {
@@ -38,7 +38,8 @@
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "bump": "node scripts/bump-version.mjs",
     "skills:install": "node scripts/install-skills.mjs",
-    "skills:install:dry": "node scripts/install-skills.mjs --dry-run"
+    "skills:install:dry": "node scripts/install-skills.mjs --dry-run",
+    "skills:check": "node scripts/check-skills.mjs"
   },
   "keywords": [
     "mcp",

@@ -10,23 +10,27 @@ description: >
 
 # Wiki Lint - Health Audit
 
-Find and fix the structural issues that degrade a wiki over time. **All vault access is via the `user-cursidian` MCP server** (MCP Contract in `llm-wiki/SKILL.md`). If an MCP call fails, stop and report; never inspect or repair vault files with filesystem tools.
+Find and fix the structural issues that degrade a wiki over time. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `llm-wiki/SKILL.md`). If an MCP call fails, stop and report; never inspect or repair vault files with filesystem tools.
 
-## Checks (report-only by default)
+## Report-only mode (default)
+
+**Zero writes.** Do not call `note` create/update/delete/rename/frontmatter, do not call `vault` `log`, `sync_index`, `undo`, or `manifest` mutations. A LINT log line is **not** allowed in report-only; it belongs only in consolidate mode after confirmation.
 
 Call `vault` with `action: "health"` once and present its structured report. Do not reimplement these checks with dozens of MCP calls unless `vault` health is unavailable.
 
-The report covers:
+Map **only** fields that `vault` health actually returns:
 
-1. **Orphans** - pages with zero incoming links (ignore `index.md`, `log.md`, `hot.md`, `_meta/`, `_raw/`).
-2. **Broken wikilinks** - unresolved outgoing links.
-3. **Missing frontmatter** - pages lacking `title`, `category`, `tags`, `summary`, or `updated`. Missing `summary` is a soft warning; flag summaries over 200 chars too.
-4. **Index drift** - pages missing from `index.md`, dead index entries, summary mismatches.
-5. **Stale pages** - `updated` more than 90 days ago on pages with 3+ incoming links.
+1. **Orphans** - `orphans` / `counts.orphans` (pages with zero incoming links; health already excludes operational paths).
+2. **Broken wikilinks** - `brokenLinks` / `counts.brokenLinks`.
+3. **Missing frontmatter** - `missingFrontmatter` / `counts.missingFrontmatter` (required: `title`, `category`, `tags`, `summary`, `updated`). Soft issues live in `summaryWarnings` / `counts.summaryWarnings` (missing or >200 chars).
+4. **Index drift** - `indexDrift` / `counts.indexDrift` (missing from index, dead entries, summary mismatches).
+5. **Ambiguous keys** - `ambiguousKeys` / `counts.ambiguousKeys` (title/alias/basename collisions).
+6. **Stale pages** - `stale` / `counts.stale` (old `updated` with enough backlinks; default window from `staleDays`).
+7. **Incomplete scan** - if `incomplete: true` or `counts.skipped` / `skipped` is non-empty, list skipped paths and reasons; never claim a clean vault.
 
-For deeper graph questions during consolidate mode, use `graph` / `search` action `content` as needed.
+There is **no** Contradictions count on `vault` health. Do not invent one in the report-only template. Contradiction discovery is a separate search step that runs only in consolidate mode (below).
 
-## Report
+### Report template
 
 ```markdown
 ## Wiki Health Report
@@ -37,26 +41,33 @@ For deeper graph questions during consolidate mode, use `graph` / `search` actio
 ### Broken links (N)
 - [[entities/bar]] -> [[nonexistent-page]]
 
-### Missing frontmatter (N) · Index drift (N) · Stale (N) · Contradictions (N)
+### Missing frontmatter (N) / Summary warnings (N) / Index drift (N) / Ambiguous keys (N) / Stale (N)
 ...
+
+### Incomplete scan
+- skipped: N (list path + reason) or "none"
 ```
 
-Call `vault` action `log` with `logLine: LINT orphans=N broken=N frontmatter=N index=N stale=N` using counts from `vault` health (no hotActivity needed for report-only).
-
-Then offer to fix.
+Then offer to fix via consolidate mode. Still write nothing.
 
 ## Consolidate mode (`--consolidate`)
 
-Act-and-report. **Always show a dry-run list of planned changes first and get explicit confirmation** before writing anything.
+Act-and-report. Keep `operationStack`. **Always show a dry-run list of planned changes first and get explicit confirmation** before writing anything.
 
-After confirmation, apply via `note` actions `update` / `frontmatter`:
+After confirmation, apply via `note` actions `update` / `frontmatter` with `expectedRevision`. Push every `operationId`.
 
 1. **Fix broken links** - rewrite to the closest unambiguous existing page; if no clear match, unlink to plain text. Never create a page just to satisfy a link.
-2. **Rescue orphans** - find plain-text mentions of the orphan's title in other pages (`search` action `content`) and wikilink them; max 3 insertions per orphan. If no mentions exist, add one line to the most closely related page's Related section.
-3. **Repair frontmatter** - fill missing `summary`/`tags` from page content; normalize tags against `_meta/taxonomy.md`.
-4. **Sync `index.md`** - call `vault` action `sync_index` (preview with `dryRun: true` first if you want to show the user the planned catalog).
-5. **Flag contradictions** - add a one-line `> Contradicts [[other-page]]` callout to both pages. Flag, never resolve.
+2. **Rescue orphans** - find plain-text mentions of the orphan's title in other pages (`search` action `content`, paginate if `truncated`) and wikilink them; max 3 insertions per orphan. If no mentions exist, add one line to the most closely related page's Related section.
+3. **Repair frontmatter** - fill missing `summary`/`tags` from page content; normalize tags against `_meta/taxonomy.md`. Prefer `fmOperation: "merge"` unless `replaceAll` is intentionally required.
+4. **Sync `index.md`** - call `vault` action `sync_index` (preview with `dryRun: true` first to show the planned catalog).
+5. **Flag contradictions** - this is consolidate-only. Search for opposing claims with `search` `content`; add a one-line `> Contradicts [[other-page]]` callout to both pages. Flag, never resolve. Contradiction discovery is **not** part of report-only and is **not** a `vault` health field.
 
 Never merge or delete pages automatically - flag duplicates for the user.
 
-Finish with a summary of changes and `vault` action `log`: `logLine: LINT_CONSOLIDATE links_fixed=N orphans_rescued=N frontmatter=N index=N callouts=N` plus a short `hotActivity` bullet.
+### Verification
+
+`note` `read` each changed page; `vault` `sync_index` with `dryRun: true` expecting `wouldWrite: false`. Report residual drift. On failure after writes, undo reverse-order.
+
+### Final report + log
+
+Summary of changes, then `vault` action `log`: `logLine: LINT_CONSOLIDATE links_fixed=N orphans_rescued=N frontmatter=N index=N callouts=N` plus a short `hotActivity` bullet. Include operation IDs retained for later undo. Clear `operationStack` only after verification passes.

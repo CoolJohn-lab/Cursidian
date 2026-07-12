@@ -30,19 +30,22 @@ Emjoy! John.
 - **Safe writes** - `patch` inferred when `old_string`/`new_string` are set; `replace_section` for heading edits
 - **Agent-friendly search** - default limit 10, compact format, stopwords stripped, token-AND with OR/typo fallback; hits include `title`/`summary`/`tags`
 - **Auto timestamps** - `note` create/update/frontmatter set `created`/`updated` automatically
-- **Optimistic concurrency** - `contentHash` on read, optional `expectedHash` on write
+- **Optimistic concurrency** - `revisionHash` on read (full note), `expectedRevision` on write; `contentHash` / `expectedHash` remain as body-only / deprecated alias
+- **Operation journals + undo** - mutating calls return `operationId`; `vault` `history` / `undo` reverse journaled work
+- **Typed manifest** - `vault` `manifest` for `_meta/manifest.md` (no hand-edited ledger lines)
 - **Signature-based caches** - index and search snapshots invalidate when files change on disk (including Obsidian edits)
 - **Deslop gate** - `npm run build` runs `slop:check` first; strips AI typography and decorative emoji from the repo (and optionally the wiki vault)
 - **Wiki skills** - nine Cursor skills that drive the MCP tools for ingest, query, lint, capture, update, status, and deslop
+- **Skill contract gate** - `npm run skills:check` rejects retired tool names, phantom health fields, and read-only write leaks
 
 ## Tools
 
 | Tool | Actions | Purpose |
 |------|---------|---------|
-| `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | Note CRUD, safe edits, metadata |
-| `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | Find and enumerate notes |
-| `graph` | - | One-hop link neighborhood (outgoing + backlinks) |
-| `vault` | `health`, `sync_index`, `create_folder`, `list_folders`, `delete_folder`, `log` | Health audit, catalog, folders, wiki bookkeeping |
+| `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | Note CRUD, safe edits, metadata; returns `revisionHash` / `operationId` |
+| `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | Find and enumerate notes (paginated; may report `incomplete`) |
+| `graph` | - | One-hop neighborhood (resolved + unresolved outgoing, paginated backlinks) |
+| `vault` | `health`, `sync_index`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest` | Health, catalog, folders, bookkeeping, undo, ingest ledger |
 
 ## Requirements
 
@@ -120,8 +123,8 @@ Source documents **outside** the vault (PDFs, repo files, URLs) may be read with
 
 1. Cursor loads skills from `~/.cursor/skills/` when the user asks something matching a skill description (e.g. "add this to the wiki", "what do I know about X").
 2. The skill tells the agent which MCP actions to call, in what order (cheap search first, full `note` read only when needed).
-3. Writes follow the safe-write protocol: `note` `read` -> `contentHash` -> narrowest `note` `update` with `expectedHash`.
-4. After multi-page edits, skills typically call `vault` `sync_index` (rebuild `index.md`) and `vault` `log` (append `log.md` / optional `hot.md`).
+3. Writes follow the safe-write protocol: `note` `read` -> `revisionHash` -> narrowest `note` `update` with `expectedRevision`. Mutating skills keep an operation-ID stack and call `vault` `undo` in reverse on failure after writes.
+4. After multi-page edits, skills typically call `vault` `sync_index` (rebuild `index.md`) and `vault` `log` (append `log.md` / optional `hot.md`), then verify with `sync_index` `dryRun: true` expecting `wouldWrite: false`.
 
 Shared schema and the full MCP contract live in the `llm-wiki` skill.
 
@@ -143,10 +146,10 @@ Exception: **wiki-slop** runs the npm deslop scripts against the same vault path
 | `wiki-query` | Read-only Q&A | `search` -> optional `note` read / `graph` (no writes) |
 | `wiki-lint` | Vault health / consolidate | `vault` `health`, then `note`/`vault` fixes |
 | `wiki-setup` | Bootstrap vault structure | `vault` folders, `note` create special files |
-| `wiki-ingest` | Distill docs/URLs into pages | `search` + `note` create/update + `vault` log/sync |
-| `wiki-capture` | Save session findings | `note` create/update (`_raw/` or full pages) |
-| `wiki-update` | Sync a project into the wiki | git delta outside vault; writes via `note`/`vault` |
-| `wiki-status` | Delta / what next / hot.md | `note` read manifest; optional `hot` refresh |
+| `wiki-ingest` | Distill docs/URLs into pages | `search` + `note` create/update + `vault` manifest/log/sync |
+| `wiki-capture` | Save session findings | `note` create/update (`_raw/` or full pages); merge on duplicate |
+| `wiki-update` | Sync a project into the wiki | git delta outside vault; writes via `note`/`vault` manifest |
+| `wiki-status` | Delta / what next / hot.md | `vault` manifest read; `_raw/` with `includeOperational`; hot refresh on request |
 | `wiki-slop` | Deslop repo or vault | npm `slop:*` scripts (same vault path as MCP) |
 
 ## Deslop (LLM-slop)
@@ -165,9 +168,32 @@ Wiki scans use the same rules but do **not** gate `build` (the vault lives outsi
 
 ## Safe write workflow
 
-1. **Read** - `note` with `action: "read"`; note the `contentHash`.
+1. **Read** - `note` with `action: "read"`; note the `revisionHash` (full note) and legacy `contentHash` (body only).
 2. **Edit** - `note` with `action: "update"` using the safest mode (`patch`, `replace_section`, `append`, `prepend`, or `replace`).
-3. Pass `expectedHash` from step 1 to detect concurrent edits.
+3. Pass `expectedRevision` from step 1 to detect concurrent edits (including frontmatter-only changes). `expectedHash` still works as a deprecated body-hash alias.
+4. On success, record `operationId` when present. To reverse: `vault` `undo` with `operationId` and `confirm: true`.
+
+### Undo example
+
+```json
+{ "action": "history", "limit": 10 }
+```
+
+```json
+{ "action": "undo", "operationId": "<id-from-mutation>", "confirm": true }
+```
+
+### Manifest example
+
+```json
+{
+  "action": "manifest",
+  "manifestOperation": "upsert_source",
+  "sourceKey": "C:/abs/path/paper.pdf",
+  "sourceIngested": "2026-07-13T00:00:00Z",
+  "sourcePages": ["concepts/foo"]
+}
+```
 
 ## Security model
 
@@ -179,26 +205,27 @@ Cursidian is a **local stdio MCP server**. It trusts the Cursor process that lau
 | **Real-path containment** | Symlinks/junctions that resolve outside the vault are rejected before reads and writes. |
 | **Symlink-safe discovery** | Vault scans use `followSymbolicLinks: false` and filter results whose real path escapes the vault. |
 | **Atomic single-file writes** | Creates use exclusive open; updates use same-directory temp + rename under a per-path lock. |
-| **Optimistic concurrency** | `contentHash` / `expectedHash` detect concurrent MCP edits; external Obsidian edits are not transactional. |
-| **Multi-file limits** | Rename, backlink rewrites, and `vault log` (log + hot) are best-effort; partial failures return structured `partial_update` when unavoidable. |
+| **Optimistic concurrency** | `revisionHash` / `expectedRevision` checked under the mutation lock; frontmatter-only external edits are detected. |
+| **Multi-file rollback** | Rename (including source backup), backlink rewrites, and `vault log` (log + hot) journal together and roll back on failure; `partial_update` with `sideEffects: "partial"` only when rollback itself fails. |
 
 For untrusted agents or shared machines, run with `OBSIDIAN_READ_ONLY=true` and restrict vault directory ACLs to least privilege.
 
 ### Backups (`.cursidian-trash`)
 
-When `OBSIDIAN_BACKUP_ENABLED` is true (default), a timestamped copy of the **prior file** is saved before destructive writes:
+When `OBSIDIAN_BACKUP_ENABLED` is true (default), each mutating MCP call journals under `.cursidian-trash/<operationId>/` (prior snapshots for every affected path, including creates so undo can remove them):
 
-| Operation | Backed up |
+| Operation | Journaled |
 |-----------|-----------|
-| `note` update / replace / patch / section edit | Yes (existing file) |
+| `note` update / replace / patch / section edit | Yes |
 | `note` frontmatter set / merge / delete | Yes |
 | `note` delete | Yes |
 | `note` rename | Yes (source + each rewritten backlink/index file) |
+| `note` create (incl. overwrite) | Yes |
 | `vault` sync_index | Yes (`index.md`) |
 | `vault` log | Yes (`log.md`; `hot.md` when updated) |
-| `note` create | No (nothing to restore) |
+| `vault` manifest | Yes |
 
-Legacy `.obsidian-mcp-trash` entries are **migrated** into `.cursidian-trash/_legacy-migrated/` on first backup (not deleted). Retention keeps the newest **50** backup sessions by default; older session folders are pruned automatically.
+Legacy `.obsidian-mcp-trash` entries are **migrated** into `.cursidian-trash/_legacy-migrated/` on first backup (not deleted). Retention keeps the newest **50** operation folders by default; older folders are pruned automatically. With backups disabled, mutations still succeed but return `undoAvailable: false`.
 
 ## Environment variables
 
@@ -220,8 +247,10 @@ npm run test:clean # coverage run through npm env cleanup for Cursor sandboxes
 npm run lint     # eslint
 npm run typecheck
 npm run build    # slop:check (prebuild), then tsc
-npm run verify   # lint + typecheck + test + build + MCP integration
-npm run smoke    # live smoke against OBSIDIAN_VAULT_PATH
+npm run verify   # lint + typecheck + test + build + MCP integration + skills check + fixture smoke
+npm run smoke    # live smoke against OBSIDIAN_VAULT_PATH (unique path, finally cleanup)
+npm run skills:check
+npm run mcp:test -- suite smoke
 ```
 
 

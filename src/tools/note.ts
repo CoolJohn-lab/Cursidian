@@ -21,7 +21,7 @@ export function registerNote(server: McpServer, config: Config): void {
     'note',
     {
       description:
-        'Read, create, update, delete, rename a note, or edit its frontmatter. action=read returns content+frontmatter+contentHash+revisionHash+outgoingLinks. Path accepts vault-relative paths, titles, and frontmatter aliases (except create, which writes the literal path). update: prefer patch (old_string/new_string) or replace_section (heading); replace is size-guarded. Pass expectedRevision from read to detect concurrent edits.',
+        'Read, create, update, delete, rename a note, or edit its frontmatter. action=read returns content+frontmatter+contentHash+revisionHash+outgoingLinks. Path accepts vault-relative paths, titles, and frontmatter aliases (except create, which writes the literal path). update: prefer patch (old_string/new_string) or replace_section (heading); replace is size-guarded. Pass expectedRevision from read to detect concurrent edits (expectedHash remains a deprecated body-hash alias). Mutations return operationId/undoAvailable when journaling is enabled; use vault undo to reverse.',
       inputSchema: {
         action: z
           .enum(['read', 'create', 'update', 'delete', 'rename', 'frontmatter'])

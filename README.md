@@ -1,9 +1,10 @@
 # Cursidian
 
-Implementation of the Obsidian llm-wiki concept for Cursor, using an MCP designed to minimise token consumption and maximise relevant results.
+Implementation of the Obsidian llm-wiki concept for Cursor, using an MCP designed to minimise token consumption and maximise relevant results. Includes slop removal tools.
 
 Getting Started:
 - Download Obsidian, create an empty vault, make a note of its location.
+- Install the "LLM Slop Detector" plugin in your Cursor (thias-se.llm-slop-detector)
 - Install this MCP and the skills into your Cursor.
 - Restart / Reload Cursor.
 - Enter this prompt: "I have just created an empty obsidian vault at *vault location*, please set up my wiki there"
@@ -12,7 +13,7 @@ Let it do its thing, it will take about 5 minutes and burn like 30k tokens. Auto
 
 Once it is set up you can just ask Cursor agents for stuff like "create pages in my wiki about my project, as many as you need to capture everything." Or "refactor my ui to be more colourful, using the design notes in my wiki" etc. The sky is the limit. The more effort you ask agents to put into your wiki, the more you get out of it.
 
-And notice the distinction there. the more effort *you ask your agents* to put in, you don't write this thing yourself. Have the Cursor agents do everything, they write the wiki, they read it, they lint it, check it and maintain it. You can dump entire ebooks into it, or have it review your most recent 100 cursor chat transcripts and save any relevant information it finds to your wiki.
+And notice the distinction there. the more effort *you ask your agents* to put in, you don't write this thing yourself. Have the Cursor agents do everything, they write the wiki, they read it, they lint it, check it and maintain it. You can dump entire ebooks into it, or have it review your most recent 100 cursor chat transcripts and save any relevant information it finds to your wiki. Optionally, ask it to "remove all slop from my wiki" once in a while.
 
 You can dip in to read it using Obsidian whenever you like, but really its a resource for Cursor agents to store information about your projects, your goals, your design desisions and rules and so on.
 

@@ -13,6 +13,7 @@ npm package: [`cursidian`](https://www.npmjs.com/package/cursidian).
 - **Optimistic concurrency** - `contentHash` on read, optional `expectedHash` on write
 - **Signature-based caches** - index and search snapshots invalidate when files change on disk (including Obsidian edits)
 - **Deslop gate** - `npm run build` runs `slop:check` first; strips AI typography and decorative emoji from the repo (and optionally the wiki vault)
+- **Wiki skills** - nine Cursor skills that drive the MCP tools for ingest, query, lint, capture, update, status, and deslop
 
 ## Tools
 
@@ -82,29 +83,49 @@ Point Cursor at the built entrypoint:
 }
 ```
 
-## Wiki skills
+## Wiki skills + MCP
 
-Tracked skills live in [`skills/wiki/`](skills/wiki/). Install into `~/.cursor/skills/` with:
+Cursidian is a **two-layer** product:
+
+| Layer | Role | Where |
+|-------|------|-------|
+| **MCP server** | Runtime vault I/O for agents | Published `cursidian` package / local `dist/` |
+| **Wiki skills** | Workflow instructions (ingest, query, lint, …) | [`skills/wiki/`](skills/wiki/) copied into `~/.cursor/skills/` |
+
+The MCP server is the only way agents read or write vault markdown. Skills do **not** open vault files with the IDE filesystem tools or shell - they call **`user-cursidian`** (`note`, `search`, `graph`, `vault`). If an MCP call fails, the skill reports the failure and **stops** (no silent filesystem fallback).
+
+Source documents **outside** the vault (PDFs, repo files, URLs) may be read with normal tools for ingest; the moment content enters the vault, it is MCP-only.
+
+### How agents use both
+
+1. Cursor loads skills from `~/.cursor/skills/` when the user asks something matching a skill description (e.g. "add this to the wiki", "what do I know about X").
+2. The skill tells the agent which MCP actions to call, in what order (cheap search first, full `note` read only when needed).
+3. Writes follow the safe-write protocol: `note` `read` -> `contentHash` -> narrowest `note` `update` with `expectedHash`.
+4. After multi-page edits, skills typically call `vault` `sync_index` (rebuild `index.md`) and `vault` `log` (append `log.md` / optional `hot.md`).
+
+Shared schema and the full MCP contract live in the `llm-wiki` skill.
+
+### Install skills
 
 ```bash
 npm run skills:install
 ```
 
-Do not symlink. Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes so installed skills match the repo.
+That **removes then copies** the nine skill folders into `~/.cursor/skills/` (never symlink; copying into an existing folder nests `skill/skill/SKILL.md`). Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes, then start a **new** agent chat so Cursor re-discovers them.
 
-Vault skills are **MCP-only**: agents touch the vault exclusively through the `user-cursidian` tools. There is no filesystem fallback - if the MCP server fails, the agent reports the failure and stops rather than editing vault files directly. Exception: **wiki-slop** runs the npm deslop scripts against the same vault path on disk.
+Exception: **wiki-slop** runs the npm deslop scripts against the same vault path as MCP (deterministic lint/fix on disk); it does not invent a second vault location.
 
-| Skill | Purpose |
-|-------|---------|
-| `llm-wiki` | Theory, schema, the MCP contract |
-| `wiki-query` | Read-only Q&A |
-| `wiki-lint` | Vault health |
-| `wiki-setup` | Bootstrap a wiki vault |
-| `wiki-ingest` | Distill sources into wiki pages |
-| `wiki-capture` | Capture a session into the wiki |
-| `wiki-update` | Sync a project into the wiki |
-| `wiki-status` | Status / delta / hot.md |
-| `wiki-slop` | Deslop repo or vault (`slop:check` / `slop:fix`) |
+| Skill | Purpose | Typical MCP use |
+|-------|---------|-----------------|
+| `llm-wiki` | Theory, schema, MCP contract | Reference for other skills |
+| `wiki-query` | Read-only Q&A | `search` -> optional `note` read / `graph` (no writes) |
+| `wiki-lint` | Vault health / consolidate | `vault` `health`, then `note`/`vault` fixes |
+| `wiki-setup` | Bootstrap vault structure | `vault` folders, `note` create special files |
+| `wiki-ingest` | Distill docs/URLs into pages | `search` + `note` create/update + `vault` log/sync |
+| `wiki-capture` | Save session findings | `note` create/update (`_raw/` or full pages) |
+| `wiki-update` | Sync a project into the wiki | git delta outside vault; writes via `note`/`vault` |
+| `wiki-status` | Delta / what next / hot.md | `note` read manifest; optional `hot` refresh |
+| `wiki-slop` | Deslop repo or vault | npm `slop:*` scripts (same vault path as MCP) |
 
 ## Deslop (LLM-slop)
 

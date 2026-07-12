@@ -19,7 +19,7 @@ Wiki skills are tracked under `skills/wiki/` (not under `.cursor/`, which is git
 
 1. Edit the skill under `skills/wiki/<name>/SKILL.md`.
 2. Keep the Cursidian MCP protocol in `skills/wiki/llm-wiki/SKILL.md` as the single source of truth for tool names.
-3. Copy updated skills into `~/.cursor/skills/` for local Cursor use (see `skills/wiki/INSTALL.md`).
+3. Run `npm run skills:install` to refresh `~/.cursor/skills/` (see `skills/wiki/INSTALL.md`).
 4. Do not commit private vault content or absolute machine paths.
 
 ## Tests

@@ -49,11 +49,21 @@ Config key `"cursidian"` appears as MCP server **`user-cursidian`** in agent too
 The MCP server is the **only** way skills touch the vault — there is no `.env` walk-up or
 filesystem fallback. The vault path lives in `mcp.json` and nowhere else.
 
-## 3. Copy skills into Cursor (copy only — do not symlink)
+## 3. Install skills into Cursor (copy only — do not symlink)
 
-From this repo, copy each skill folder into the user-global Cursor skills directory.
+Skills must live as `~/.cursor/skills/<name>/SKILL.md`. **Always remove the target folder before copying** — copying into an existing folder nests as `<name>/<name>/SKILL.md`, and Cursor will load the stale nested copy.
 
-**Windows (PowerShell):**
+### Recommended (from this repo)
+
+```bash
+npm run skills:install
+# preview only:
+npm run skills:install:dry
+```
+
+This deletes each of the 8 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates or legacy tool names (`read_note`, `search_content`, …).
+
+### Manual (Windows PowerShell)
 
 ```powershell
 $src = "C:\path\to\Cursidian\skills\wiki"
@@ -63,20 +73,24 @@ foreach ($name in @(
   'llm-wiki','wiki-query','wiki-lint','wiki-setup',
   'wiki-ingest','wiki-capture','wiki-update','wiki-status'
 )) {
+  Remove-Item -Recurse -Force "$dst\$name" -ErrorAction SilentlyContinue
   Copy-Item -Recurse -Force "$src\$name" "$dst\$name"
 }
 ```
 
-**macOS / Linux:**
+### Manual (macOS / Linux)
 
 ```bash
 SRC=/path/to/Cursidian/skills/wiki
 DST="$HOME/.cursor/skills"
 mkdir -p "$DST"
 for name in llm-wiki wiki-query wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status; do
+  rm -rf "$DST/$name"
   cp -R "$SRC/$name" "$DST/$name"
 done
 ```
+
+After MCP tool-surface changes (e.g. the 4-tool consolidation), re-run `npm run skills:install` so Cursor does not keep teaching retired tool names.
 
 ## 4. Verify
 

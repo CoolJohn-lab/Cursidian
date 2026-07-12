@@ -13,7 +13,7 @@ npm package: [`cursidian`](https://www.npmjs.com/package/cursidian).
 - **Optimistic concurrency** — `contentHash` on read, optional `expectedHash` on write
 - **Signature-based caches** — index and search snapshots invalidate when files change on disk (including Obsidian edits)
 
-## Tools (v1)
+## Tools
 
 | Tool | Actions | Purpose |
 |------|---------|---------|
@@ -83,7 +83,13 @@ Point Cursor at the built entrypoint:
 
 ## Wiki skills
 
-Tracked skills live in [`skills/wiki/`](skills/wiki/). Copy them into `~/.cursor/skills/` (do not symlink). Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md).
+Tracked skills live in [`skills/wiki/`](skills/wiki/). Install into `~/.cursor/skills/` with:
+
+```bash
+npm run skills:install
+```
+
+Do not symlink. Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes so Cursor does not keep teaching retired tool names.
 
 The skills are **MCP-only**: agents touch the vault exclusively through the `user-cursidian` tools. There is no filesystem fallback — if the MCP server fails, the agent reports the failure and stops rather than editing vault files directly.
 

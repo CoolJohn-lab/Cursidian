@@ -5,7 +5,7 @@ export const OPERATIONAL_BASENAMES = new Set(['hot', 'log', 'index']);
 
 /**
  * Returns true when a note path is operational metadata (index, log, hot, _raw, _archives).
- * Used by search_content to exclude catalog/ops files unless includeOperational is set.
+ * Used by search content mode to exclude catalog/ops files unless includeOperational is set.
  */
 export function isOperationalPath(relativePath: string): boolean {
   const norm = relativePath.replace(/\\/g, '/').toLowerCase();

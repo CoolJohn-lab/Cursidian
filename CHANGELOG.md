@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-07-12
+
+### Added
+
+- `npm run skills:install` — remove-then-copy the 8 wiki skills into `~/.cursor/skills/`, with verification against nested duplicates and legacy tool names
+
+### Fixed
+
+- Skills install docs: always delete the target skill folder before copying (avoids `skill/skill/SKILL.md` nesting that left Cursor on stale pre–4-tool instructions)
+- README tools heading no longer says “Tools (v1)”
+
 ## [2.3.0] - 2026-07-12
 
 ### Fixed

@@ -4,10 +4,19 @@
 
 After `npm run build`, restart the `user-cursidian` MCP server in Cursor (Settings → MCP → restart, or reload the window) so the IDE picks up changes from `dist/`.
 
+## Wiki skills refresh
+
+After changing files under `skills/wiki/`, or when Cursor agents still call retired tool names (`read_note`, `search_content`, …), reinstall into the user skills directory:
+
+```bash
+npm run skills:install
+```
+
+That **removes then copies** the 8 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder — that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills. Details: `skills/wiki/INSTALL.md`.
+
 ## Version bumps
 
 When the user says **"bump the version number"** (or similar), run:
-
 ```bash
 npm run bump
 ```

@@ -12,6 +12,7 @@ npm package: [`cursidian`](https://www.npmjs.com/package/cursidian).
 - **Auto timestamps** - `note` create/update/frontmatter set `created`/`updated` automatically
 - **Optimistic concurrency** - `contentHash` on read, optional `expectedHash` on write
 - **Signature-based caches** - index and search snapshots invalidate when files change on disk (including Obsidian edits)
+- **Deslop gate** - `npm run build` runs `slop:check` first; strips AI typography and decorative emoji from the repo (and optionally the wiki vault)
 
 ## Tools
 
@@ -89,9 +90,9 @@ Tracked skills live in [`skills/wiki/`](skills/wiki/). Install into `~/.cursor/s
 npm run skills:install
 ```
 
-Do not symlink. Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes so Cursor does not keep teaching retired tool names.
+Do not symlink. Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes so installed skills match the repo.
 
-The skills are **MCP-only**: agents touch the vault exclusively through the `user-cursidian` tools. There is no filesystem fallback - if the MCP server fails, the agent reports the failure and stops rather than editing vault files directly.
+Vault skills are **MCP-only**: agents touch the vault exclusively through the `user-cursidian` tools. There is no filesystem fallback - if the MCP server fails, the agent reports the failure and stops rather than editing vault files directly. Exception: **wiki-slop** runs the npm deslop scripts against the same vault path on disk.
 
 | Skill | Purpose |
 |-------|---------|
@@ -103,6 +104,21 @@ The skills are **MCP-only**: agents touch the vault exclusively through the `use
 | `wiki-capture` | Capture a session into the wiki |
 | `wiki-update` | Sync a project into the wiki |
 | `wiki-status` | Status / delta / hot.md |
+| `wiki-slop` | Deslop repo or vault (`slop:check` / `slop:fix`) |
+
+## Deslop (LLM-slop)
+
+Keeps AI typography (em/en dashes, curly quotes, ellipsis, arrows) and decorative emoji out of the package and, when you ask, the Obsidian vault. Uses [`llm-slop-detector`](https://www.npmjs.com/package/llm-slop-detector) with this repo's [`.llmsloprc.json`](.llmsloprc.json).
+
+| Command | Purpose |
+|---------|---------|
+| `npm run slop:check` | Scan this repo; exit non-zero if dirty |
+| `npm run slop:fix` | Auto-fix chars/emoji in this repo |
+| `npm run slop:check:wiki` | Scan the vault (`OBSIDIAN_VAULT_PATH` or `mcp.json`) |
+| `npm run slop:fix:wiki` | Auto-fix chars/emoji in the vault |
+| `npm run build` | `prebuild` -> `slop:check`, then `tsc` |
+
+Wiki scans use the same rules but do **not** gate `build` (the vault lives outside the package). Phrase-pack hits need a manual rewrite; chars/emoji are auto-fixed. Prefer the `wiki-slop` skill over ad-hoc CLI flags.
 
 ## Safe write workflow
 
@@ -129,10 +145,11 @@ npm run test:file -- tests/tools/read-note.test.ts  # focused test file, no cove
 npm run test:clean # coverage run through npm env cleanup for Cursor sandboxes
 npm run lint     # eslint
 npm run typecheck
-npm run build
+npm run build    # slop:check (prebuild), then tsc
 npm run verify   # lint + typecheck + test + build
 npm run smoke    # live smoke against OBSIDIAN_VAULT_PATH
 ```
+
 
 In Cursor agent sandboxes, npm may inherit a deprecated `npm_config_devdir` value. Use
 `npm run verify` or `npm run test:clean` so child processes run through the repository's

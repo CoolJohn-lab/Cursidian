@@ -39,6 +39,30 @@ describe('note (read)', () => {
     expect(result.isError).toBe(true);
   });
 
+  it('reads a note by frontmatter alias and returns canonical path', async () => {
+    const { writeNote } = await import('./helpers.js');
+    await writeNote(
+      ctx.vault,
+      'entities/compute.md',
+      '---\ntitle: Compute Box\naliases:\n  - compute-box\n---\n\nAlias target body.\n',
+    );
+    const result = await callTool(ctx.server, 'note', { action: 'read', path: 'compute-box' });
+    expect(result.isError).toBeFalsy();
+    const data = parseResult(result) as { path: string; content: string };
+    expect(data.path).toBe('entities/compute.md');
+    expect(data.content).toContain('Alias target body');
+  });
+
+  it('returns note_not_found for unknown alias', async () => {
+    const result = await callTool(ctx.server, 'note', {
+      action: 'read',
+      path: 'no-such-alias-xyz',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string };
+    expect(data.error).toBe('note_not_found');
+  });
+
   it('rejects path traversal', async () => {
     const result = await callTool(ctx.server, 'note', { action: 'read', path: '../../../etc/passwd' });
     expect(result.isError).toBe(true);

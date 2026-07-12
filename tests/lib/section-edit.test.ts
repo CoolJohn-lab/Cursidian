@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { applyPatch, assertReplaceSizeGuard, replaceSection } from '../../src/lib/section-edit.js';
+import {
+  applyPatch,
+  assertReplaceSizeGuard,
+  replaceSection,
+  SectionEditError,
+} from '../../src/lib/section-edit.js';
 
 describe('applyPatch', () => {
   it('replaces a unique substring', () => {
@@ -8,11 +13,18 @@ describe('applyPatch', () => {
   });
 
   it('throws when old_string is not found', () => {
+    expect(() => applyPatch('hello', 'missing', 'x')).toThrow(SectionEditError);
     expect(() => applyPatch('hello', 'missing', 'x')).toThrow('not found');
   });
 
   it('throws when old_string appears more than once', () => {
-    expect(() => applyPatch('aaa aaa', 'aaa', 'b')).toThrow('ambiguous');
+    expect(() => applyPatch('aaa aaa', 'aaa', 'b')).toThrow(SectionEditError);
+    try {
+      applyPatch('aaa aaa', 'aaa', 'b');
+    } catch (e) {
+      expect(e).toBeInstanceOf(SectionEditError);
+      expect((e as SectionEditError).code).toBe('invalid_args');
+    }
   });
 });
 
@@ -28,8 +40,32 @@ describe('replaceSection', () => {
     expect(result).toContain('keep me');
   });
 
+  it('accepts headings with leading # markers', () => {
+    const result = replaceSection(body, '## Section A', 'hashed heading body');
+    expect(result).toContain('hashed heading body');
+    expect(result).not.toContain('old line');
+  });
+
   it('throws when heading is not found', () => {
-    expect(() => replaceSection(body, 'Missing', 'x')).toThrow('Heading not found');
+    expect(() => replaceSection(body, 'Missing', 'x')).toThrow(SectionEditError);
+    try {
+      replaceSection(body, 'Missing', 'x');
+    } catch (e) {
+      expect(e).toBeInstanceOf(SectionEditError);
+      expect((e as SectionEditError).code).toBe('not_found');
+    }
+  });
+
+  it('throws when heading appears more than once', () => {
+    const dup = ['## Same', 'A', '', '## Same', 'B'].join('\n');
+    expect(() => replaceSection(dup, 'Same', 'x')).toThrow(SectionEditError);
+    try {
+      replaceSection(dup, '## Same', 'x');
+    } catch (e) {
+      expect(e).toBeInstanceOf(SectionEditError);
+      expect((e as SectionEditError).code).toBe('invalid_args');
+      expect((e as SectionEditError).message).toContain('ambiguous');
+    }
   });
 });
 

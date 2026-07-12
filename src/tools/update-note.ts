@@ -1,12 +1,12 @@
 import fs from 'node:fs/promises';
 import { type Config } from '../config.js';
-import { resolvePath, toRelativePath } from '../lib/vault.js';
+import { toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly, assertFileSize } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { computeContentHash } from '../lib/content-hash.js';
 import { applyPatch, assertReplaceSizeGuard, replaceSection } from '../lib/section-edit.js';
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
+import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { logger } from '../lib/logger.js';
 import { ok, err, toolError, mapToolError } from '../types/index.js';
 
@@ -51,7 +51,7 @@ export function updateNoteHandler(config: Config) {
     try {
       assertNotReadOnly(config.readOnly);
 
-      const resolved = resolvePath(config.vaultPath, notePath);
+      const resolved = await resolveExistingNotePath(config.vaultPath, notePath);
       await assertSafePathAsync(config.vaultPath, resolved);
       await assertFileSize(resolved, config.maxFileSize);
 

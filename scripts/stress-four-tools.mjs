@@ -106,18 +106,28 @@ async function main() {
     const data = expectOk('regression: verbose match field', r);
     if (data?.results?.[0]?.snippets?.[0]) {
       const sn = data.results[0].snippets[0];
-      if (sn.match === 'wikilink backlinks' && !sn.line?.toLowerCase().includes('wikilink')) {
-        record('fail', 'regression: verbose match echoes full query on unrelated line', {
-          path: data.results[0].path,
-          line: sn.line,
-          match: sn.match,
-        });
-      } else {
-        record('ok', 'verbose snippet match looks plausible', {
-          path: data.results[0].path,
-          match: sn.match,
-          line: sn.line?.slice(0, 80),
-        });
+      if (typeof sn.match === 'string' && sn.match.trim() && sn.line) {
+        const claimed = sn.match.toLowerCase();
+        const line = sn.line.toLowerCase();
+        if (claimed.includes(' ') && !line.includes(claimed.split(/\s+/)[0])) {
+          record('fail', 'verbose match echoes multi-token query on unrelated line', {
+            path: data.results[0].path,
+            line: sn.line,
+            match: sn.match,
+          });
+        } else if (!claimed.includes(' ') && !line.includes(claimed)) {
+          record('fail', 'verbose match token absent from snippet line', {
+            path: data.results[0].path,
+            line: sn.line,
+            match: sn.match,
+          });
+        } else {
+          record('ok', 'verbose snippet match present on line', {
+            path: data.results[0].path,
+            match: sn.match,
+            line: sn.line?.slice(0, 80),
+          });
+        }
       }
       // Check basename reasons
       const reasons = data.results[0].matchReasons ?? [];

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { err, mapToolError, toolError } from '../../src/types/index.js';
 import { ReadOnlyError, SecurityError } from '../../src/lib/security.js';
+import { SectionEditError } from '../../src/lib/section-edit.js';
 
 describe('structured tool errors', () => {
   it('toolError returns JSON payload with isError', () => {
@@ -41,6 +42,21 @@ describe('structured tool errors', () => {
     const readOnly = mapToolError(new ReadOnlyError());
     const readOnlyPayload = JSON.parse(readOnly.content[0].text) as { error: string };
     expect(readOnlyPayload.error).toBe('read_only');
+  });
+
+  it('mapToolError maps SectionEditError codes', () => {
+    const missing = mapToolError(new SectionEditError('not_found', 'Heading not found: "X"'), {
+      path: 'n.md',
+    });
+    const missingPayload = JSON.parse(missing.content[0].text) as { error: string; path?: string };
+    expect(missingPayload.error).toBe('not_found');
+    expect(missingPayload.path).toBe('n.md');
+
+    const ambiguous = mapToolError(
+      new SectionEditError('invalid_args', 'heading is ambiguous (found multiple times)'),
+    );
+    const ambiguousPayload = JSON.parse(ambiguous.content[0].text) as { error: string };
+    expect(ambiguousPayload.error).toBe('invalid_args');
   });
 
   it('mapToolError maps ENOENT to note_not_found', () => {

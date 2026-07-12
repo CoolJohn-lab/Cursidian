@@ -75,6 +75,9 @@ export function registerSearch(server: McpServer, config: Config): void {
           if (!tags || tags.length === 0) {
             return err('action "by_tags" requires a non-empty tags array', 'invalid_args');
           }
+          if (tags.some((t) => t.trim().length === 0)) {
+            return err('tags must not contain empty or whitespace-only strings', 'invalid_args');
+          }
           return searchByTagsHandler(config)({ tags, limit });
         case 'list':
           return listNotesHandler(config)({ folder, recursive });

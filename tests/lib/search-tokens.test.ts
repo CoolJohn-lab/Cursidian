@@ -26,6 +26,13 @@ describe('search-tokens', () => {
     expect(tokenMatchesInText('orchestrator', 'Main Orchestration page', false)).toBe(true);
   });
 
+  it('does not match longer query tokens against shorter text words', () => {
+    expect(tokensMorphologicallyMatch('wikilink', 'wiki')).toBe(false);
+    expect(tokenMatchesInText('wikilink', 'Fred is offline in the wiki inventory', false)).toBe(
+      false,
+    );
+  });
+
   it('does not treat unrelated words as morphological matches', () => {
     expect(tokensMorphologicallyMatch('integration', 'ingestion')).toBe(false);
     expect(tokenMatchesInText('integration', 'API ingestion only', false)).toBe(false);

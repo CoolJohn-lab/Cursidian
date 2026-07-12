@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
 import { type Config } from '../config.js';
-import { resolvePath, toRelativePath } from '../lib/vault.js';
+import { toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly } from '../lib/security.js';
 import { backupNote } from '../lib/backup.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
+import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { logger } from '../lib/logger.js';
 import { ok, mapToolError } from '../types/index.js';
 
@@ -12,7 +12,7 @@ export function deleteNoteHandler(config: Config) {
     try {
       assertNotReadOnly(config.readOnly);
 
-      const resolved = resolvePath(config.vaultPath, notePath);
+      const resolved = await resolveExistingNotePath(config.vaultPath, notePath);
       await assertSafePathAsync(config.vaultPath, resolved);
 
       let backupPath: string | undefined;

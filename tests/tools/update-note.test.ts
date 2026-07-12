@@ -151,6 +151,47 @@ describe('note (update)', () => {
     expect(raw).toContain('stay');
   });
 
+  it('replaces a section when heading includes # markers', async () => {
+    await callTool(ctx.server, 'note', {
+      action: 'update',
+      path: 'editable',
+      content: '# Doc\n\n## Details\nold\n\n## Other\nstay',
+      mode: 'replace',
+      force: true,
+    });
+    const result = await callTool(ctx.server, 'note', {
+      action: 'update',
+      path: 'editable',
+      mode: 'replace_section',
+      heading: '## Details',
+      content: 'hashed section body',
+    });
+    expect(result.isError).toBeFalsy();
+    const raw = await fsp.readFile(path.join(ctx.vault, 'editable.md'), 'utf-8');
+    expect(raw).toContain('hashed section body');
+    expect(raw).not.toContain('old');
+  });
+
+  it('returns not_found when replace_section heading is missing', async () => {
+    await callTool(ctx.server, 'note', {
+      action: 'update',
+      path: 'editable',
+      content: '# Doc\n\n## Details\nbody',
+      mode: 'replace',
+      force: true,
+    });
+    const result = await callTool(ctx.server, 'note', {
+      action: 'update',
+      path: 'editable',
+      mode: 'replace_section',
+      heading: 'Missing',
+      content: 'x',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string };
+    expect(data.error).toBe('not_found');
+  });
+
   it('infers patch mode when old_string and new_string provided without mode', async () => {
     await callTool(ctx.server, 'note', { action: 'update',
       path: 'editable',

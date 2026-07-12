@@ -51,6 +51,18 @@ describe('graph', () => {
     expect(typeof data.backlinkCount).toBe('number');
   });
 
+  it('resolves graph path via frontmatter alias', async () => {
+    await writeNote(
+      ctx.vault,
+      'entities/alias-hub.md',
+      '---\ntitle: Alias Hub\naliases:\n  - alias-hub-key\n---\n\nSee [[spoke]]\n',
+    );
+    const result = await callTool(ctx.server, 'graph', { path: 'alias-hub-key' });
+    expect(result.isError).toBeFalsy();
+    const data = parseResult(result) as { note: string };
+    expect(data.note).toBe('entities/alias-hub.md');
+  });
+
   it('rejects path traversal', async () => {
     const result = await callTool(ctx.server, 'graph', { path: '../../../etc/passwd' });
     expect(result.isError).toBe(true);

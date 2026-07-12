@@ -1,3 +1,19 @@
+export type SectionEditErrorCode = 'not_found' | 'invalid_args';
+
+/**
+ * Typed error for section/patch edit failures so callers can map stable codes
+ * without parsing English message strings.
+ */
+export class SectionEditError extends Error {
+  readonly code: SectionEditErrorCode;
+
+  constructor(code: SectionEditErrorCode, message: string) {
+    super(message);
+    this.name = 'SectionEditError';
+    this.code = code;
+  }
+}
+
 /**
  * Parses a markdown heading line into its level (1-6) and text.
  * Returns null when the line is not an ATX-style heading.
@@ -8,6 +24,14 @@ function parseHeadingLine(line: string): { level: number; text: string } | null 
     return null;
   }
   return { level: match[1].length, text: match[2].trim() };
+}
+
+/**
+ * Strips optional leading ATX `#` markers from a heading argument.
+ * Agents often pass `"## Section"`; parsed heading text is already without hashes.
+ */
+function normaliseHeadingInput(heading: string): string {
+  return heading.replace(/^#{1,6}\s*/, '').trim();
 }
 
 /**
@@ -27,22 +51,29 @@ export function replaceSection(
   newSectionContent: string,
 ): string {
   const lines = body.split('\n');
-  const target = normaliseHeading(heading);
-  let startIdx = -1;
-  let headingLevel = 0;
+  const target = normaliseHeading(normaliseHeadingInput(heading));
+  const matches: Array<{ index: number; level: number }> = [];
 
   for (let i = 0; i < lines.length; i++) {
     const parsed = parseHeadingLine(lines[i]);
     if (parsed && normaliseHeading(parsed.text) === target) {
-      startIdx = i;
-      headingLevel = parsed.level;
-      break;
+      matches.push({ index: i, level: parsed.level });
     }
   }
 
-  if (startIdx === -1) {
-    throw new Error(`Heading not found: "${heading}"`);
+  if (matches.length === 0) {
+    throw new SectionEditError('not_found', `Heading not found: "${heading}"`);
   }
+
+  if (matches.length > 1) {
+    throw new SectionEditError(
+      'invalid_args',
+      'heading is ambiguous (found multiple times); provide more context or use patch mode',
+    );
+  }
+
+  const startIdx = matches[0]!.index;
+  const headingLevel = matches[0]!.level;
 
   let endIdx = lines.length;
   for (let i = startIdx + 1; i < lines.length; i++) {
@@ -67,17 +98,20 @@ export function replaceSection(
  */
 export function applyPatch(body: string, oldString: string, newString: string): string {
   if (oldString.length === 0) {
-    throw new Error('old_string must not be empty');
+    throw new SectionEditError('invalid_args', 'old_string must not be empty');
   }
 
   const firstIdx = body.indexOf(oldString);
   if (firstIdx === -1) {
-    throw new Error('old_string not found in note body');
+    throw new SectionEditError('not_found', 'old_string not found in note body');
   }
 
   const secondIdx = body.indexOf(oldString, firstIdx + oldString.length);
   if (secondIdx !== -1) {
-    throw new Error('old_string is ambiguous (found multiple times); provide more context');
+    throw new SectionEditError(
+      'invalid_args',
+      'old_string is ambiguous (found multiple times); provide more context',
+    );
   }
 
   return body.slice(0, firstIdx) + newString + body.slice(firstIdx + oldString.length);

@@ -284,16 +284,22 @@ describe('search (content)', () => {
     await writeNote(
       ctx.vault,
       'partial-token-match.md',
-      '---\ntitle: Partial Match\n---\n\nThis line mentions wiki only.\nAnother line mentions backlinks here.\n',
+      '---\ntitle: Partial Match\n---\n\nThis line mentions wikilink syntax.\nAnother line mentions backlinks here.\nThis line mentions wiki only.\n',
     );
-    const result = await callTool(ctx.server, 'search', { action: 'content', query: 'wikilink backlinks', verbose: true });
+    const result = await callTool(ctx.server, 'search', {
+      action: 'content',
+      query: 'wikilink backlinks',
+      verbose: true,
+    });
     const data = parseResult(result) as {
       results: Array<{ path: string; snippets: Array<{ line: string; match?: string }> }>;
     };
     const hit = data.results.find((r) => r.path.includes('partial-token-match'));
     expect(hit).toBeDefined();
-    const wikiSnippet = hit!.snippets.find((s) => s.line.includes('wiki'));
-    expect(wikiSnippet?.match).not.toContain('backlinks');
+    const wikiOnlySnippet = hit!.snippets.find((s) => s.line.includes('wiki only'));
+    expect(wikiOnlySnippet).toBeUndefined();
+    const wikilinkSnippet = hit!.snippets.find((s) => s.line.includes('wikilink'));
+    expect(wikilinkSnippet?.match).not.toContain('backlinks');
     const backlinkSnippet = hit!.snippets.find((s) => s.line.includes('backlinks'));
     expect(backlinkSnippet?.match).not.toContain('wikilink');
   });

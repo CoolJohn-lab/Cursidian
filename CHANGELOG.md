@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-07-12
+
+### Fixed
+
+- `replace_section` accepts heading text with or without `#` markers; missing headings return `not_found` (not `internal_error`); duplicate headings fail with `invalid_args`
+- Morphological search prefix matching is query→text only, so longer query tokens no longer match shorter vault words (e.g. `wikilink` ≠ `wiki`)
+- `search` `by_tags` rejects empty or whitespace-only tag strings with `invalid_args`
+- `note` / `graph` path args resolve frontmatter aliases (and titles) via the vault index to the canonical note path
+
 ## [2.1.4] - 2026-07-12
 
 

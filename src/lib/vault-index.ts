@@ -6,6 +6,8 @@ import { clearSearchResultCache } from './search-cache.js';
 import { TRASH_GLOB_IGNORE } from './trash.js';
 import { buildVaultMarkdownSignature } from './vault-signature.js';
 import { clearVaultSearchStateCache } from './vault-search-state.js';
+import { resolvePath } from './vault.js';
+import { assertSafePath } from './security.js';
 
 export interface VaultNoteEntry {
   path: string;
@@ -184,4 +186,47 @@ export function resolveWikilinkTarget(link: string, index: VaultIndex): string |
   }
 
   return null;
+}
+
+function throwNoteNotFound(userPath: string): never {
+  const err = new Error(`ENOENT: no such file or directory, open '${userPath}'`) as NodeJS.ErrnoException;
+  err.code = 'ENOENT';
+  throw err;
+}
+
+/**
+ * Resolves a user path (vault-relative path, title, or frontmatter alias) to an
+ * absolute filesystem path for an existing note. Tries the literal path first,
+ * then the vault index. Throws ENOENT when nothing matches.
+ */
+export async function resolveExistingNotePath(
+  vaultPath: string,
+  userPath: string,
+): Promise<string> {
+  const direct = resolvePath(vaultPath, userPath);
+  assertSafePath(vaultPath, direct);
+
+  try {
+    await fs.access(direct);
+    return direct;
+  } catch {
+    // Fall through to index lookup (titles / aliases).
+  }
+
+  const index = await getVaultIndex(vaultPath);
+  const entry = index.get(normaliseKey(userPath));
+  if (!entry) {
+    throwNoteNotFound(userPath);
+  }
+
+  const resolved = resolvePath(vaultPath, entry.path);
+  assertSafePath(vaultPath, resolved);
+
+  try {
+    await fs.access(resolved);
+  } catch {
+    throwNoteNotFound(userPath);
+  }
+
+  return resolved;
 }

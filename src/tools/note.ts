@@ -14,12 +14,17 @@ export function registerNote(server: McpServer, config: Config): void {
     'note',
     {
       description:
-        'Read, create, update, delete, rename a note, or edit its frontmatter. action=read returns content+frontmatter+contentHash+outgoingLinks. update: prefer patch (old_string/new_string) or replace_section (heading); replace is size-guarded. Pass expectedHash from read to detect concurrent edits.',
+        'Read, create, update, delete, rename a note, or edit its frontmatter. action=read returns content+frontmatter+contentHash+outgoingLinks. Path accepts vault-relative paths, titles, and frontmatter aliases (except create, which writes the literal path). update: prefer patch (old_string/new_string) or replace_section (heading); replace is size-guarded. Pass expectedHash from read to detect concurrent edits.',
       inputSchema: {
         action: z
           .enum(['read', 'create', 'update', 'delete', 'rename', 'frontmatter'])
           .describe('Operation: read, create, update, delete, rename, or frontmatter'),
-        path: z.string().min(1).describe('Note path (rename source when action=rename)'),
+        path: z
+          .string()
+          .min(1)
+          .describe(
+            'Note path, title, or frontmatter alias (rename source when action=rename; create uses literal path)',
+          ),
         content: z.string().optional().describe('Body for create or update modes'),
         frontmatter: z
           .record(z.unknown())
@@ -32,7 +37,10 @@ export function registerNote(server: McpServer, config: Config): void {
           .describe('Update mode; patch inferred when old_string/new_string set'),
         old_string: z.string().optional().describe('Find text for patch mode'),
         new_string: z.string().optional().describe('Replace text for patch mode'),
-        heading: z.string().optional().describe('Section heading for replace_section'),
+        heading: z
+          .string()
+          .optional()
+          .describe('Section heading for replace_section (with or without # markers)'),
         expectedHash: z.string().optional().describe('contentHash from read for concurrency check'),
         force: z.boolean().optional().describe('Bypass replace size guard'),
         confirm: z.boolean().optional().describe('Must be true for delete'),

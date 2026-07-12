@@ -1,10 +1,10 @@
 import fs from 'node:fs/promises';
 import { type Config } from '../config.js';
-import { resolvePath, toRelativePath } from '../lib/vault.js';
+import { toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly, assertFileSize } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter, mergeFrontmatter } from '../lib/frontmatter.js';
 import { withUpdatedTimestampUnlessProvided } from '../lib/timestamps.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
+import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { logger } from '../lib/logger.js';
 import { ok, err, mapToolError } from '../types/index.js';
 
@@ -44,7 +44,7 @@ export function manageFrontmatterHandler(config: Config) {
     try {
       assertNotReadOnly(config.readOnly);
 
-      const resolved = resolvePath(config.vaultPath, notePath);
+      const resolved = await resolveExistingNotePath(config.vaultPath, notePath);
       await assertSafePathAsync(config.vaultPath, resolved);
       await assertFileSize(resolved, config.maxFileSize);
 

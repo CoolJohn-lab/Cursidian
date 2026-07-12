@@ -202,10 +202,9 @@ export function tokensMorphologicallyMatch(a: string, b: string): boolean {
   if (stemToken(left) === stemToken(right)) {
     return true;
   }
-  // Natural English overlap: shorter form is a prefix of the longer (min length 4).
-  const shorter = left.length <= right.length ? left : right;
-  const longer = left.length <= right.length ? right : left;
-  if (shorter.length >= 4 && longer.startsWith(shorter)) {
+  // Query → text only: query token is a prefix of the longer vault word (deploy → deployment).
+  // Bidirectional overlap falsely matches wikilink ↔ wiki.
+  if (left.length >= 4 && left.length <= right.length && right.startsWith(left)) {
     return true;
   }
   return false;

@@ -4,7 +4,7 @@ import { type Config } from '../config.js';
 import { resolvePath, toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
-import { getVaultIndex, clearAllSearchCaches } from '../lib/vault-index.js';
+import { getVaultIndex, clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { findBacklinks } from '../lib/backlinks.js';
 import { rewriteWikilinksForRename } from '../lib/wikilinks.js';
 import { ok, err, mapToolError } from '../types/index.js';
@@ -27,19 +27,13 @@ export function renameNoteHandler(config: Config) {
       const effectiveUpdateBacklinks = updateBacklinks ?? true;
       const effectiveUpdateIndex = updateIndex ?? true;
 
-      const fromResolved = resolvePath(config.vaultPath, fromPath);
+      const fromResolved = await resolveExistingNotePath(config.vaultPath, fromPath);
       const toResolved = resolvePath(config.vaultPath, toPath);
       await assertSafePathAsync(config.vaultPath, fromResolved);
       await assertSafePathAsync(config.vaultPath, toResolved);
 
       const fromRelative = toRelativePath(config.vaultPath, fromResolved);
       const toRelative = toRelativePath(config.vaultPath, toResolved);
-
-      try {
-        await fs.access(fromResolved);
-      } catch {
-        return err(`Note not found: ${fromPath}`, 'note_not_found', { path: fromPath });
-      }
 
       try {
         await fs.access(toResolved);

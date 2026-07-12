@@ -54,6 +54,16 @@ describe('dispatch validation', () => {
     expect(data.error).toBe('invalid_args');
   });
 
+  it('search by_tags rejects empty or whitespace-only tags', async () => {
+    const empty = await callTool(ctx.server, 'search', { action: 'by_tags', tags: [''] });
+    expect(empty.isError).toBe(true);
+    expect((parseResult(empty) as { error: string }).error).toBe('invalid_args');
+
+    const whitespace = await callTool(ctx.server, 'search', { action: 'by_tags', tags: ['  '] });
+    expect(whitespace.isError).toBe(true);
+    expect((parseResult(whitespace) as { error: string }).error).toBe('invalid_args');
+  });
+
   it('vault log without logLine returns invalid_args', async () => {
     const result = await callTool(ctx.server, 'vault', { action: 'log' });
     expect(result.isError).toBe(true);

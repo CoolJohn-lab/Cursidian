@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
 import { type Config } from '../config.js';
-import { resolvePath, toRelativePath } from '../lib/vault.js';
+import { toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync } from '../lib/security.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
-import { getVaultIndex } from '../lib/vault-index.js';
+import { getVaultIndex, resolveExistingNotePath } from '../lib/vault-index.js';
 import { resolveOutgoingLinks } from '../lib/wikilink-resolve.js';
 import { findBacklinks } from '../lib/backlinks.js';
 import { ok, mapToolError } from '../types/index.js';
@@ -11,7 +11,7 @@ import { ok, mapToolError } from '../types/index.js';
 export function getNoteNeighborhoodHandler(config: Config) {
   return async ({ path: notePath }: { path: string }) => {
     try {
-      const resolved = resolvePath(config.vaultPath, notePath);
+      const resolved = await resolveExistingNotePath(config.vaultPath, notePath);
       await assertSafePathAsync(config.vaultPath, resolved);
 
       const relativePath = toRelativePath(config.vaultPath, resolved);

@@ -117,6 +117,18 @@ export function mapToolError(e: unknown, context?: { path?: string }): ToolResul
         hint: 'Set OBSIDIAN_READ_ONLY=false (or omit it) to allow writes.',
       });
     }
+
+    if (name === 'SectionEditError') {
+      const code =
+        'code' in e && typeof (e as { code: unknown }).code === 'string'
+          ? (e as { code: string }).code
+          : 'internal_error';
+      return toolError({
+        error: code,
+        message,
+        path: pathHint,
+      });
+    }
   }
 
   if (e && typeof e === 'object' && 'code' in e && (e as { code: unknown }).code === 'ENOENT') {

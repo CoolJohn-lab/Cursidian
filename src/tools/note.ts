@@ -156,7 +156,7 @@ export function registerNote(server: McpServer, config: Config): void {
         case 'create':
           return createNoteHandler(config)({
             path,
-            content,
+            content: content as string,
             frontmatter,
             overwrite,
             expectedRevision,

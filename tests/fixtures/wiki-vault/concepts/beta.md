@@ -1,4 +1,4 @@
-﻿---
+---
 title: Beta
 tags: [concept, beta]
 summary: Second concept page

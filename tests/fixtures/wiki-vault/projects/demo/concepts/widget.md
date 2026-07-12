@@ -1,4 +1,4 @@
-﻿---
+---
 title: Widget
 tags: [concept, widget]
 summary: Demo project widget

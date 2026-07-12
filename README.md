@@ -1,17 +1,17 @@
 # Cursidian
 
-MCP server for local [Obsidian](https://obsidian.md) vaults, optimised for **Cursor agents** — safe note editing, lean tool surface, direct filesystem access. No Local REST API plugin required; Obsidian does not need to be open.
+MCP server for local [Obsidian](https://obsidian.md) vaults, optimised for **Cursor agents** - safe note editing, lean tool surface, direct filesystem access. No Local REST API plugin required; Obsidian does not need to be open.
 
 npm package: [`cursidian`](https://www.npmjs.com/package/cursidian).
 
 ## Features
 
-- **4 MCP tools** — `note`, `search`, `graph`, `vault` (action-dispatch surface)
-- **Safe writes** — `patch` inferred when `old_string`/`new_string` are set; `replace_section` for heading edits
-- **Agent-friendly search** — default limit 10, compact format, stopwords stripped, token-AND with OR/typo fallback; hits include `title`/`summary`/`tags`
-- **Auto timestamps** — `note` create/update/frontmatter set `created`/`updated` automatically
-- **Optimistic concurrency** — `contentHash` on read, optional `expectedHash` on write
-- **Signature-based caches** — index and search snapshots invalidate when files change on disk (including Obsidian edits)
+- **4 MCP tools** - `note`, `search`, `graph`, `vault` (action-dispatch surface)
+- **Safe writes** - `patch` inferred when `old_string`/`new_string` are set; `replace_section` for heading edits
+- **Agent-friendly search** - default limit 10, compact format, stopwords stripped, token-AND with OR/typo fallback; hits include `title`/`summary`/`tags`
+- **Auto timestamps** - `note` create/update/frontmatter set `created`/`updated` automatically
+- **Optimistic concurrency** - `contentHash` on read, optional `expectedHash` on write
+- **Signature-based caches** - index and search snapshots invalidate when files change on disk (including Obsidian edits)
 
 ## Tools
 
@@ -19,7 +19,7 @@ npm package: [`cursidian`](https://www.npmjs.com/package/cursidian).
 |------|---------|---------|
 | `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | Note CRUD, safe edits, metadata |
 | `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | Find and enumerate notes |
-| `graph` | — | One-hop link neighborhood (outgoing + backlinks) |
+| `graph` | - | One-hop link neighborhood (outgoing + backlinks) |
 | `vault` | `health`, `sync_index`, `create_folder`, `list_folders`, `delete_folder`, `log` | Health audit, catalog, folders, wiki bookkeeping |
 
 ## Requirements
@@ -91,7 +91,7 @@ npm run skills:install
 
 Do not symlink. Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes so Cursor does not keep teaching retired tool names.
 
-The skills are **MCP-only**: agents touch the vault exclusively through the `user-cursidian` tools. There is no filesystem fallback — if the MCP server fails, the agent reports the failure and stops rather than editing vault files directly.
+The skills are **MCP-only**: agents touch the vault exclusively through the `user-cursidian` tools. There is no filesystem fallback - if the MCP server fails, the agent reports the failure and stops rather than editing vault files directly.
 
 | Skill | Purpose |
 |-------|---------|
@@ -106,8 +106,8 @@ The skills are **MCP-only**: agents touch the vault exclusively through the `use
 
 ## Safe write workflow
 
-1. **Read** — `note` with `action: "read"`; note the `contentHash`.
-2. **Edit** — `note` with `action: "update"` using the safest mode (`patch`, `replace_section`, `append`, `prepend`, or `replace`).
+1. **Read** - `note` with `action: "read"`; note the `contentHash`.
+2. **Edit** - `note` with `action: "update"` using the safest mode (`patch`, `replace_section`, `append`, `prepend`, or `replace`).
 3. Pass `expectedHash` from step 1 to detect concurrent edits.
 
 ## Environment variables
@@ -152,4 +152,4 @@ I took the "Obsidian Wiki" concept from Andrej Karpathy, and I drew inspiration 
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).

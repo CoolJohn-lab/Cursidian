@@ -1,4 +1,4 @@
-# Agent notes — Cursidian
+# Agent notes - Cursidian
 
 ## MCP server reload
 
@@ -6,13 +6,13 @@ After `npm run build`, restart the `user-cursidian` MCP server in Cursor (Settin
 
 ## Wiki skills refresh
 
-After changing files under `skills/wiki/`, or when Cursor agents still call retired tool names (`read_note`, `search_content`, …), reinstall into the user skills directory:
+After changing files under `skills/wiki/`, or when Cursor agents still call retired tool names (`read_note`, `search_content`, ...), reinstall into the user skills directory:
 
 ```bash
 npm run skills:install
 ```
 
-That **removes then copies** the 8 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder — that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills. Details: `skills/wiki/INSTALL.md`.
+That **removes then copies** the 8 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills. Details: `skills/wiki/INSTALL.md`.
 
 ## Version bumps
 

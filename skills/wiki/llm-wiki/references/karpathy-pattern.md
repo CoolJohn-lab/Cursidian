@@ -1,4 +1,4 @@
-# Karpathy's LLM Wiki Pattern — Original Reference
+# Karpathy's LLM Wiki Pattern - Original Reference
 
 Source: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 
@@ -10,7 +10,7 @@ Human curates sources and asks questions; LLM maintains the knowledge system. Ob
 
 ## Why This Beats RAG
 
-Traditional RAG rediscovers knowledge on every query — it searches raw sources, pulls relevant chunks, and synthesizes an answer from scratch. The LLM Wiki compiles knowledge once into maintained pages, so queries hit pre-synthesized, cross-referenced content.
+Traditional RAG rediscovers knowledge on every query - it searches raw sources, pulls relevant chunks, and synthesizes an answer from scratch. The LLM Wiki compiles knowledge once into maintained pages, so queries hit pre-synthesized, cross-referenced content.
 
 ## Key Operations
 
@@ -22,11 +22,11 @@ Traditional RAG rediscovers knowledge on every query — it searches raw sources
 
 ## Recommended Tools
 
-- **Obsidian** — IDE for browsing and exploring the wiki
-- **Web Clipper** — Browser extension for converting articles to markdown
-- **Marp** — Markdown-based slide decks from wiki content
-- **Dataview** — Obsidian plugin for querying page metadata
-- **qmd** — Local search engine with BM25/vector hybrid search
+- **Obsidian** - IDE for browsing and exploring the wiki
+- **Web Clipper** - Browser extension for converting articles to markdown
+- **Marp** - Markdown-based slide decks from wiki content
+- **Dataview** - Obsidian plugin for querying page metadata
+- **qmd** - Local search engine with BM25/vector hybrid search
 
 ## Applications
 
@@ -38,8 +38,8 @@ Traditional RAG rediscovers knowledge on every query — it searches raw sources
 
 ## Community Extensions Worth Knowing
 
-- **Provenance tracking** — Record which source files produced each claim, detect staleness through content hashing
-- **Hierarchical inheritance** — Parent-child page relationships instead of flat indexing
-- **Decision records** — Capture why the wiki evolved, not just what changed
-- **Two-tier LLMs** — Local models for sensitive data, cloud for the rest
-- **Graph databases** — Typed ontologies instead of markdown links
+- **Provenance tracking** - Record which source files produced each claim, detect staleness through content hashing
+- **Hierarchical inheritance** - Parent-child page relationships instead of flat indexing
+- **Decision records** - Capture why the wiki evolved, not just what changed
+- **Two-tier LLMs** - Local models for sensitive data, cloud for the rest
+- **Graph databases** - Typed ontologies instead of markdown links

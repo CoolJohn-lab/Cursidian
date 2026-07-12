@@ -1,4 +1,4 @@
-﻿---
+---
 title: Alpha
 tags: [concept, alpha]
 summary: First concept page

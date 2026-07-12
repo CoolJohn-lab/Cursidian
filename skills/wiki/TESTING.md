@@ -1,4 +1,4 @@
-# Wiki skills — golden-path tests
+# Wiki skills - golden-path tests
 
 Run these against `tests/fixtures/wiki-vault/` (synthetic) or a personal vault. Do not commit private vault content.
 
@@ -12,7 +12,7 @@ Run these against `tests/fixtures/wiki-vault/` (synthetic) or a personal vault. 
 
 For every golden path below, also verify:
 
-- **No filesystem access to the vault.** The agent never uses Read/Write/StrReplace/Grep/Glob or shell commands on vault paths — every vault read and write is a `user-cursidian` tool call.
+- **No filesystem access to the vault.** The agent never uses Read/Write/StrReplace/Grep/Glob or shell commands on vault paths - every vault read and write is a `user-cursidian` tool call.
 - **Failure means stop.** With the MCP server disabled (or pointed at a bad path), the agent reports the failing tool call and stops. It must not offer or attempt to edit vault files directly.
 
 ## Golden paths
@@ -35,7 +35,7 @@ For every golden path below, also verify:
 ### wiki-lint
 
 1. Run a read-only health check.
-2. Expect: `vault` action `health` once, report presented, `vault` action `log` with counts — no other writes.
+2. Expect: `vault` action `health` once, report presented, `vault` action `log` with counts - no other writes.
 3. `--consolidate`: dry-run list shown and confirmation requested before any `note` update; finish with `vault` action `sync_index`.
 
 ### wiki-capture

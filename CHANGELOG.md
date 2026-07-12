@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.5.2] - 2026-07-12
+
+
 ## [2.5.1] - 2026-07-12
 
 ### Fixed
@@ -30,12 +33,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- `npm run skills:install` — remove-then-copy the 8 wiki skills into `~/.cursor/skills/`, with verification against nested duplicates and legacy tool names
+- `npm run skills:install` - remove-then-copy the 8 wiki skills into `~/.cursor/skills/`, with verification against nested duplicates and legacy tool names
 
 ### Fixed
 
-- Skills install docs: always delete the target skill folder before copying (avoids `skill/skill/SKILL.md` nesting that left Cursor on stale pre–4-tool instructions)
-- README tools heading no longer says “Tools (v1)”
+- Skills install docs: always delete the target skill folder before copying (avoids `skill/skill/SKILL.md` nesting that left Cursor on stale pre-4-tool instructions)
+- README tools heading no longer says "Tools (v1)"
 
 ## [2.3.0] - 2026-07-12
 
@@ -93,10 +96,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- `npm run bump` — agent-friendly semver bump for `package.json`, `package-lock.json`, and `CHANGELOG.md` (see `AGENTS.md`)
-- `vault_health` tool — one-call structured report (orphans, broken links, missing frontmatter, index drift, stale pages)
-- `sync_index` tool — regenerate `index.md` from frontmatter grouped by category
-- `rename_note` tool — rename/move notes with mechanical backlink rewriting
+- `npm run bump` - agent-friendly semver bump for `package.json`, `package-lock.json`, and `CHANGELOG.md` (see `AGENTS.md`)
+- `vault_health` tool - one-call structured report (orphans, broken links, missing frontmatter, index drift, stale pages)
+- `sync_index` tool - regenerate `index.md` from frontmatter grouped by category
+- `rename_note` tool - rename/move notes with mechanical backlink rewriting
 - Frontmatter `aliases` indexed for wikilink resolution and search ranking
 - `search_content` typo correction via edit-distance fallback (`correctedTokens` in response)
 - Auto `created`/`updated` timestamps on `create_note`, `update_note`, and `manage_frontmatter` writes
@@ -107,7 +110,7 @@ All notable changes to this project will be documented in this file.
 - `search_content` new params: `format: compact|full`, `verbose`, `includeOperational`
 - Softer OR fallback when AND returns fewer than 3 hits (≥2 content tokens)
 - `search_content` matches title/summary/aliases/tags in addition to body text
-- `touch_wiki_meta` tool — append `log.md` and optionally refresh `hot.md` Recent Activity in one call
+- `touch_wiki_meta` tool - append `log.md` and optionally refresh `hot.md` Recent Activity in one call
 
 ### Fixed
 
@@ -118,7 +121,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Rewrote all 8 wiki skills as focused, minimal instructions (llm-wiki cut from ~650 to ~150 lines; operational skills to ~40–70 lines each)
+- Rewrote all 8 wiki skills as focused, minimal instructions (llm-wiki cut from ~650 to ~150 lines; operational skills to ~40-70 lines each)
 - Skills are now strictly **MCP-only**: no filesystem fallback for vault access; on MCP failure the agent reports and stops
 - Ingest ledger moved from filesystem `.manifest.json` to MCP-accessible `_meta/manifest.md`
 - Config simplified: the vault path lives only in `mcp.json`; removed the `.env` walk-up / `~/.cursidian/config` resolution protocol
@@ -134,7 +137,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Public `cursidian` MCP server for Obsidian vaults (filesystem, no Local REST API)
-- `list_tags` tool — vault-wide frontmatter tag counts
+- `list_tags` tool - vault-wide frontmatter tag counts
 - Signature-based vault index invalidation (mtime/size fingerprint, shared with search snapshot cache)
 - Tracked wiki skills under `skills/wiki/` (`llm-wiki`, `wiki-query`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`) with `INSTALL.md`
 - Absolute `OBSIDIAN_VAULT_PATH` enforcement (`~` / `%USERPROFILE%` expansion)

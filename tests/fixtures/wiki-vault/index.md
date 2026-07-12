@@ -1,4 +1,4 @@
-﻿---
+---
 title: Wiki Index
 tags: [wiki, index]
 ---

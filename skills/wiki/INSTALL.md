@@ -46,12 +46,12 @@ Reload Cursor after saving.
 
 Config key `"cursidian"` appears as MCP server **`user-cursidian`** in agent tools.
 
-The MCP server is the **only** way skills touch the vault — there is no `.env` walk-up or
+The MCP server is the **only** way skills touch the vault - there is no `.env` walk-up or
 filesystem fallback. The vault path lives in `mcp.json` and nowhere else.
 
-## 3. Install skills into Cursor (copy only — do not symlink)
+## 3. Install skills into Cursor (copy only - do not symlink)
 
-Skills must live as `~/.cursor/skills/<name>/SKILL.md`. **Always remove the target folder before copying** — copying into an existing folder nests as `<name>/<name>/SKILL.md`, and Cursor will load the stale nested copy.
+Skills must live as `~/.cursor/skills/<name>/SKILL.md`. **Always remove the target folder before copying** - copying into an existing folder nests as `<name>/<name>/SKILL.md`, and Cursor will load the stale nested copy.
 
 ### Recommended (from this repo)
 
@@ -61,7 +61,7 @@ npm run skills:install
 npm run skills:install:dry
 ```
 
-This deletes each of the 8 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates or legacy tool names (`read_note`, `search_content`, …).
+This deletes each of the 8 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates or legacy tool names (`read_note`, `search_content`, ...).
 
 ### Manual (Windows PowerShell)
 

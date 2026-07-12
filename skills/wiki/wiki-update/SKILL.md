@@ -6,9 +6,9 @@ description: >
   distilled into their knowledge base.
 ---
 
-# Wiki Update — Sync a Project into the Wiki
+# Wiki Update - Sync a Project into the Wiki
 
-Distill the current project's knowledge into the vault. Reading the *project* (code, docs, git log) with normal tools is fine — it lives outside the vault. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract in `llm-wiki/SKILL.md`). If an MCP call fails, stop and report; never write vault files directly.
+Distill the current project's knowledge into the vault. Reading the *project* (code, docs, git log) with normal tools is fine - it lives outside the vault. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract in `llm-wiki/SKILL.md`). If an MCP call fails, stop and report; never write vault files directly.
 
 ## 1. Understand the project
 
@@ -30,12 +30,12 @@ The heuristic: if reading the codebase answers the question, don't wiki it. If y
 
 Project-specific pages go under `projects/<name>/<category>/` with an overview at `projects/<name>/<name>.md` (never `_project.md`). General lessons go to global `concepts/` / `skills/` / `entities/`. Use the Page Template from `llm-wiki/SKILL.md`; mark rationale you inferred (rather than found stated) as `^[inferred]`.
 
-**Merge aggressively.** If a relevant page exists, `note` action `read` it and `note` action `update` with new information — don't create duplicates. Check `index.md` and `search` action `content` before creating anything. Cross-link new pages both ways.
+**Merge aggressively.** If a relevant page exists, `note` action `read` it and `note` action `update` with new information - don't create duplicates. Check `index.md` and `search` action `content` before creating anything. Cross-link new pages both ways.
 
 Don't copy code. "Uses a debounced search with 300ms delay" is knowledge; the debounce function itself is not.
 
 ## 5. Bookkeeping (all via MCP)
 
-- `_meta/manifest.md` — update the project line: cwd, current HEAD SHA, sync timestamp
-- `vault` action `sync_index` — regenerate the catalog
-- `vault` action `log` — `logLine: WIKI_UPDATE project=<name> pages_created=N pages_updated=M` and `hotActivity` for Recent Activity. If Active Threads / Key Takeaways need deeper edits, use `note` action `update` on `hot.md` after.
+- `_meta/manifest.md` - update the project line: cwd, current HEAD SHA, sync timestamp
+- `vault` action `sync_index` - regenerate the catalog
+- `vault` action `log` - `logLine: WIKI_UPDATE project=<name> pages_created=N pages_updated=M` and `hotActivity` for Recent Activity. If Active Threads / Key Takeaways need deeper edits, use `note` action `update` on `hot.md` after.

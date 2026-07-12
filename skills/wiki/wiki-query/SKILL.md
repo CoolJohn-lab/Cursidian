@@ -7,25 +7,25 @@ description: >
   "just scan", "don't read the pages") that answers from summaries without reading page bodies.
 ---
 
-# Wiki Query — Knowledge Retrieval
+# Wiki Query - Knowledge Retrieval
 
 Answer from the compiled wiki, citing pages. **All vault access is via the `user-cursidian` MCP server** (MCP Contract in `llm-wiki/SKILL.md`). If an MCP call fails or returns something unexpected, stop and report it.
 
 ## This skill is read-only
 
-Create or modify **nothing** — no pages, no `index.md`, no `hot.md`, not even `log.md`. If the user's question contains a new finding or an action ("save this", "record that"), answer the question, then point them to `wiki-capture` or `wiki-update` for the write.
+Create or modify **nothing** - no pages, no `index.md`, no `hot.md`, not even `log.md`. If the user's question contains a new finding or an action ("save this", "record that"), answer the question, then point them to `wiki-capture` or `wiki-update` for the write.
 
 ## Protocol
 
-Follow the retrieval ladder from `llm-wiki/SKILL.md` — cheapest call first, escalate only when it can't answer.
+Follow the retrieval ladder from `llm-wiki/SKILL.md` - cheapest call first, escalate only when it can't answer.
 
 1. **Context.** `note` action `read` on `hot.md` (recent activity) and `index.md` (scope). These alone answer many questions.
 
-2. **Search.** Prefer 2–3 specific keywords. Use `search` with `action: "content"`, `format: "compact"`, `limit: 10` first — it returns `title`/`summary`/`tags`/`relevanceScore` cheaply. Escalate to full content search or `note` action `read` only when summaries aren't enough. Stopwords are stripped automatically; OR-fallback and typo correction may apply.
+2. **Search.** Prefer 2-3 specific keywords. Use `search` with `action: "content"`, `format: "compact"`, `limit: 10` first - it returns `title`/`summary`/`tags`/`relevanceScore` cheaply. Escalate to full content search or `note` action `read` only when summaries aren't enough. Stopwords are stripped automatically; OR-fallback and typo correction may apply.
 
-   **Index-only mode** stops here: answer from summaries and index entries, labelled *"(index-only answer — page bodies not read)"*.
+   **Index-only mode** stops here: answer from summaries and index entries, labelled *"(index-only answer - page bodies not read)"*.
 
-3. **Read.** `note` action `read` the 1–3 most promising candidates in full. Follow at most one hop of wikilinks (`graph`) when the answer spans pages.
+3. **Read.** `note` action `read` the 1-3 most promising candidates in full. Follow at most one hop of wikilinks (`graph`) when the answer spans pages.
 
 4. **Connection questions** ("how is X related to Y"). Run the multi-hop walk below, then synthesize.
 
@@ -41,7 +41,7 @@ Follow the retrieval ladder from `llm-wiki/SKILL.md` — cheapest call first, es
 4. Stop when you reach the goal, or when depth = 3, or when you have made **8 neighborhood calls** (whichever first).
 5. If a path exists, report it as `A → B → C` with one-line role for each hop. If not, say no path within 3 hops and list the closest frontier pages checked.
 
-Do **not** ask for server-side depth>1 — stay within this client-side walk.
+Do **not** ask for server-side depth>1 - stay within this client-side walk.
 
 ## Answer format
 

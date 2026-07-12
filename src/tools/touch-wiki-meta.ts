@@ -1,0 +1,147 @@
+import fs from 'node:fs/promises';
+import { type Config } from '../config.js';
+import { resolvePath } from '../lib/vault.js';
+import { assertSafePathAsync, assertNotReadOnly, assertFileSize } from '../lib/security.js';
+import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
+import { computeContentHash } from '../lib/content-hash.js';
+import { clearAllSearchCaches } from '../lib/vault-index.js';
+import { logger } from '../lib/logger.js';
+import { ok, toolError, mapToolError } from '../types/index.js';
+
+const LOG_PATH = 'log.md';
+const HOT_PATH = 'hot.md';
+const MAX_HOT_ACTIVITY = 3;
+
+function normaliseLogLine(line: string, timestamp: string): string {
+  const trimmed = line.trim();
+  if (trimmed.startsWith('- [')) {
+    return trimmed;
+  }
+  if (trimmed.startsWith('[')) {
+    return `- ${trimmed}`;
+  }
+  return `- [${timestamp}] ${trimmed}`;
+}
+
+function insertHotActivity(body: string, activity: string, timestamp: string): string {
+  const bullet = activity.trim().startsWith('- ')
+    ? activity.trim()
+    : `- [${timestamp}] ${activity.trim()}`;
+
+  const headingRe = /(##\s+Recent Activity[^\n]*\n)([\s\S]*?)(?=\n##\s|\s*$)/i;
+  const match = body.match(headingRe);
+  if (!match || match.index === undefined) {
+    const suffix = `\n\n## Recent Activity\n${bullet}\n`;
+    return `${body.trimEnd()}${suffix}`;
+  }
+
+  const heading = match[1];
+  const sectionBody = match[2];
+  const existingBullets = sectionBody
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.trim().startsWith('- '));
+  const nextBullets = [bullet, ...existingBullets].slice(0, MAX_HOT_ACTIVITY);
+  const rebuilt = `${heading}${nextBullets.join('\n')}\n`;
+  return body.slice(0, match.index) + rebuilt + body.slice(match.index + match[0].length);
+}
+
+function bumpHotUpdated(
+  data: Record<string, unknown>,
+  timestamp: string,
+): Record<string, unknown> {
+  return { ...data, updated: timestamp };
+}
+
+export function touchWikiMetaHandler(config: Config) {
+  return async ({
+    logLine,
+    hotActivity,
+    expectedLogHash,
+    expectedHotHash,
+  }: {
+    logLine: string;
+    hotActivity?: string;
+    expectedLogHash?: string;
+    expectedHotHash?: string;
+  }) => {
+    try {
+      assertNotReadOnly(config.readOnly);
+
+      const timestamp = new Date().toISOString();
+      const normalisedLog = normaliseLogLine(logLine, timestamp);
+
+      const logResolved = resolvePath(config.vaultPath, LOG_PATH);
+      await assertSafePathAsync(config.vaultPath, logResolved);
+      await assertFileSize(logResolved, config.maxFileSize);
+
+      const logRaw = await fs.readFile(logResolved, 'utf-8');
+      const { data: logData, content: logBody } = parseFrontmatter(logRaw);
+      const logHash = computeContentHash(logBody);
+      if (expectedLogHash && expectedLogHash !== logHash) {
+        return toolError({
+          error: 'hash_mismatch',
+          message:
+            'log.md content has changed since read (hash mismatch). Re-read and retry with the latest contentHash.',
+          path: LOG_PATH,
+          hint: 'Call note with action read on log.md, then pass the fresh contentHash as expectedLogHash.',
+        });
+      }
+
+      const updatedLogBody = `${logBody.trimEnd()}\n${normalisedLog}\n`;
+      await fs.writeFile(logResolved, stringifyFrontmatter(logData, updatedLogBody), 'utf-8');
+
+      const result: {
+        log: { path: string; contentHash: string; line: string };
+        hot?: { path: string; contentHash: string };
+      } = {
+        log: {
+          path: LOG_PATH,
+          contentHash: computeContentHash(updatedLogBody),
+          line: normalisedLog,
+        },
+      };
+
+      if (hotActivity !== undefined && hotActivity.trim() !== '') {
+        const hotResolved = resolvePath(config.vaultPath, HOT_PATH);
+        await assertSafePathAsync(config.vaultPath, hotResolved);
+        await assertFileSize(hotResolved, config.maxFileSize);
+
+        const hotRaw = await fs.readFile(hotResolved, 'utf-8');
+        const { data: hotData, content: hotBody } = parseFrontmatter(hotRaw);
+        const hotHash = computeContentHash(hotBody);
+        if (expectedHotHash && expectedHotHash !== hotHash) {
+          return toolError({
+            error: 'hash_mismatch',
+            message:
+              'hot.md content has changed since read (hash mismatch). Re-read and retry with the latest contentHash.',
+            path: HOT_PATH,
+            hint: 'Call note with action read on hot.md, then pass the fresh contentHash as expectedHotHash.',
+          });
+        }
+
+        const updatedHotBody = insertHotActivity(hotBody, hotActivity, timestamp);
+        const updatedHotData = bumpHotUpdated(hotData, timestamp);
+        await fs.writeFile(
+          hotResolved,
+          stringifyFrontmatter(updatedHotData, updatedHotBody),
+          'utf-8',
+        );
+        result.hot = {
+          path: HOT_PATH,
+          contentHash: computeContentHash(updatedHotBody),
+        };
+      }
+
+      clearAllSearchCaches();
+      logger.info('Wiki meta touched', {
+        log: true,
+        hot: Boolean(result.hot),
+      });
+
+      return ok(result);
+    } catch (e) {
+      return mapToolError(e);
+    }
+  };
+}

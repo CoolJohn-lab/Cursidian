@@ -11,7 +11,7 @@ import { applyPatch, assertReplaceSizeGuard, replaceSection } from '../lib/secti
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { withPathLock, atomicReplaceLocked } from '../lib/vault-io.js';
-import { backupNoteIfExists } from '../lib/backup.js';
+import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
 import { logger } from '../lib/logger.js';
 import { ok, invalidArgsError, toolError, mapToolError } from '../types/index.js';
 
@@ -78,104 +78,126 @@ export function updateNoteHandler(config: Config) {
       await assertSafePathAsync(config.vaultPath, resolved);
 
       return await withPathLock(resolved, async () => {
-        const raw = await readFileBounded(resolved, config.maxFileSize);
-        const { data, content: existingContent } = parseFrontmatter(raw);
-
-        const revisionCheck = checkRevisionConcurrency({
-          raw,
-          body: existingContent,
-          expectedRevision,
-          expectedHash,
-        });
-        if (!revisionCheck.ok) {
-          return toolError({
-            error: 'hash_mismatch',
-            message: revisionCheck.message,
-            action: 'update',
-            retryable: true,
-            sideEffects: 'none',
-            path: notePath,
-            details: { check: expectedRevision ? 'revision' : 'content_hash' },
-            recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
-            hint: revisionCheck.hint,
-          });
-        }
-
-        const effectiveMode = resolveEffectiveUpdateMode(mode, old_string, new_string);
-        let updatedBody: string;
-
-        if (effectiveMode === 'patch') {
-          if (old_string === undefined || new_string === undefined) {
-            const missing = [
-              ...(old_string === undefined ? ['old_string'] : []),
-              ...(new_string === undefined ? ['new_string'] : []),
-            ];
-            return invalidUpdate(
-              'mode "patch" requires old_string and new_string',
-              ['path', 'old_string', 'new_string'],
-              missing,
-            );
-          }
-          updatedBody = applyPatch(existingContent, old_string, new_string);
-        } else if (effectiveMode === 'replace_section') {
-          if (!heading) {
-            return invalidUpdate(
-              'mode "replace_section" requires heading',
-              ['path', 'heading', 'content'],
-              ['heading'],
-            );
-          }
-          if (content === undefined) {
-            return invalidUpdate(
-              'mode "replace_section" requires content',
-              ['path', 'heading', 'content'],
-              ['content'],
-            );
-          }
-          updatedBody = replaceSection(existingContent, heading, content);
-        } else if (effectiveMode === 'replace') {
-          if (content === undefined) {
-            return invalidUpdate('mode "replace" requires content', ['path', 'content'], ['content']);
-          }
-          assertReplaceSizeGuard(existingContent, content, force ?? false);
-          updatedBody = content;
-        } else if (effectiveMode === 'append') {
-          if (content === undefined) {
-            return invalidUpdate('mode "append" requires content', ['path', 'content'], ['content']);
-          }
-          updatedBody = `${existingContent}\n${content}`;
-        } else {
-          if (content === undefined) {
-            return invalidUpdate('mode "prepend" requires content', ['path', 'content'], ['content']);
-          }
-          updatedBody = `${content}\n${existingContent}`;
-        }
-
-        const newBody = stringifyFrontmatter(withUpdatedTimestamp(data), updatedBody);
-
-        if (config.backupEnabled) {
-          await backupNoteIfExists(config.vaultPath, resolved);
-        }
-
-        await atomicReplaceLocked(config.vaultPath, resolved, newBody, config.maxFileSize);
-
-        const relative = toRelativePath(config.vaultPath, resolved);
-        clearAllSearchCaches();
-        logger.info('Note updated', { path: relative, mode: effectiveMode });
-
-        return ok({
-          updated: relative,
-          mode: effectiveMode,
-          inferredMode: effectiveMode !== (mode ?? 'replace') ? effectiveMode : undefined,
-          contentHash: computeContentHash(updatedBody),
-          revisionHash: computeRevisionHash(newBody),
-          ...(revisionCheck.warnings ? { warnings: revisionCheck.warnings } : {}),
-        }, {
+        const journal = await OperationJournal.begin(config.vaultPath, {
+          backupEnabled: config.backupEnabled,
+          tool: 'note',
           action: 'update',
-          changed: true,
-          paths: [relative],
-          warnings: revisionCheck.warnings,
         });
+
+        try {
+          const raw = await readFileBounded(resolved, config.maxFileSize);
+          const { data, content: existingContent } = parseFrontmatter(raw);
+
+          const revisionCheck = checkRevisionConcurrency({
+            raw,
+            body: existingContent,
+            expectedRevision,
+            expectedHash,
+          });
+          if (!revisionCheck.ok) {
+            await journal.abort();
+            return toolError({
+              error: 'hash_mismatch',
+              message: revisionCheck.message,
+              action: 'update',
+              retryable: true,
+              sideEffects: 'none',
+              path: notePath,
+              details: { check: expectedRevision ? 'revision' : 'content_hash' },
+              recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
+              hint: revisionCheck.hint,
+            });
+          }
+
+          const effectiveMode = resolveEffectiveUpdateMode(mode, old_string, new_string);
+          let updatedBody: string;
+
+          if (effectiveMode === 'patch') {
+            if (old_string === undefined || new_string === undefined) {
+              await journal.abort();
+              const missing = [
+                ...(old_string === undefined ? ['old_string'] : []),
+                ...(new_string === undefined ? ['new_string'] : []),
+              ];
+              return invalidUpdate(
+                'mode "patch" requires old_string and new_string',
+                ['path', 'old_string', 'new_string'],
+                missing,
+              );
+            }
+            updatedBody = applyPatch(existingContent, old_string, new_string);
+          } else if (effectiveMode === 'replace_section') {
+            if (!heading) {
+              await journal.abort();
+              return invalidUpdate(
+                'mode "replace_section" requires heading',
+                ['path', 'heading', 'content'],
+                ['heading'],
+              );
+            }
+            if (content === undefined) {
+              await journal.abort();
+              return invalidUpdate(
+                'mode "replace_section" requires content',
+                ['path', 'heading', 'content'],
+                ['content'],
+              );
+            }
+            updatedBody = replaceSection(existingContent, heading, content);
+          } else if (effectiveMode === 'replace') {
+            if (content === undefined) {
+              await journal.abort();
+              return invalidUpdate('mode "replace" requires content', ['path', 'content'], ['content']);
+            }
+            assertReplaceSizeGuard(existingContent, content, force ?? false);
+            updatedBody = content;
+          } else if (effectiveMode === 'append') {
+            if (content === undefined) {
+              await journal.abort();
+              return invalidUpdate('mode "append" requires content', ['path', 'content'], ['content']);
+            }
+            updatedBody = `${existingContent}\n${content}`;
+          } else {
+            if (content === undefined) {
+              await journal.abort();
+              return invalidUpdate('mode "prepend" requires content', ['path', 'content'], ['content']);
+            }
+            updatedBody = `${content}\n${existingContent}`;
+          }
+
+          const newBody = stringifyFrontmatter(withUpdatedTimestamp(data), updatedBody);
+
+          await journal.recordBefore(resolved, config.maxFileSize);
+          await atomicReplaceLocked(config.vaultPath, resolved, newBody, config.maxFileSize);
+
+          const relative = toRelativePath(config.vaultPath, resolved);
+          await journal.recordAfter(relative, computeRevisionHash(newBody));
+          const op = await journal.finalize();
+
+          clearAllSearchCaches();
+          logger.info('Note updated', { path: relative, mode: effectiveMode });
+
+          const warnings = mergeOperationWarnings(revisionCheck.warnings, op);
+
+          return ok({
+            updated: relative,
+            mode: effectiveMode,
+            inferredMode: effectiveMode !== (mode ?? 'replace') ? effectiveMode : undefined,
+            contentHash: computeContentHash(updatedBody),
+            revisionHash: computeRevisionHash(newBody),
+            ...(warnings ? { warnings } : {}),
+          }, {
+            action: 'update',
+            changed: true,
+            paths: [relative],
+            warnings,
+            operationId: op.operationId,
+            undoAvailable: op.undoAvailable,
+          });
+        } catch (e) {
+          await journal.abort();
+          throw e;
+        }
       });
     } catch (e) {
       return mapToolError(e, {

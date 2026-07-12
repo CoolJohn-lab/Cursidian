@@ -4,7 +4,7 @@ import { type Config } from '../config.js';
 import { resolvePath, toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
-import { computeContentHash, checkRevisionConcurrency } from '../lib/content-hash.js';
+import { checkRevisionConcurrency } from '../lib/content-hash.js';
 import { getVaultIndex, clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { findBacklinks } from '../lib/backlinks.js';
 import { rewriteWikilinksForRename } from '../lib/wikilinks.js';

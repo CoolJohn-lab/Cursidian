@@ -9,7 +9,7 @@ import { computeContentHash, computeRevisionHash, checkRevisionConcurrency } fro
 import { withUpdatedTimestampUnlessProvided } from '../lib/timestamps.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { withPathLock, atomicReplaceLocked } from '../lib/vault-io.js';
-import { backupNoteIfExists } from '../lib/backup.js';
+import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
 import { MAX_FRONTMATTER_KEYS } from '../lib/limits.js';
 import { logger } from '../lib/logger.js';
 import { ok, invalidArgsError, toolError, mapToolError } from '../types/index.js';
@@ -104,69 +104,85 @@ export function manageFrontmatterHandler(config: Config) {
       }
 
       return await withPathLock(resolved, async () => {
-        const raw = await readFileBounded(resolved, config.maxFileSize);
-        const { data: existing, content } = parseFrontmatter(raw);
-
-        const revisionCheck = checkRevisionConcurrency({
-          raw,
-          body: content,
-          expectedRevision,
-          expectedHash,
-        });
-        if (!revisionCheck.ok) {
-          return toolError({
-            error: 'hash_mismatch',
-            message: revisionCheck.message,
-            action: 'frontmatter',
-            retryable: true,
-            sideEffects: 'none',
-            path: notePath,
-            details: { check: expectedRevision ? 'revision' : 'content_hash' },
-            recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
-            hint: revisionCheck.hint,
-          });
-        }
-
-        let updated: Record<string, unknown>;
-
-        if (operation === 'set') {
-          updated = data as Record<string, unknown>;
-        } else if (operation === 'merge') {
-          updated = mergeFrontmatter(existing, data as Record<string, unknown>);
-        } else {
-          updated = { ...existing };
-          for (const key of keys as string[]) {
-            delete updated[key];
-          }
-        }
-
-        updated = withUpdatedTimestampUnlessProvided(updated, data, undefined);
-
-        const newContent = stringifyFrontmatter(updated, content);
-
-        if (config.backupEnabled) {
-          await backupNoteIfExists(config.vaultPath, resolved);
-        }
-
-        await atomicReplaceLocked(config.vaultPath, resolved, newContent, config.maxFileSize);
-
-        const relative = toRelativePath(config.vaultPath, resolved);
-        clearAllSearchCaches();
-        logger.info('Frontmatter updated', { path: relative, operation });
-
-        return ok({
-          path: relative,
-          operation,
-          frontmatter: updated,
-          contentHash: computeContentHash(content),
-          revisionHash: computeRevisionHash(newContent),
-          ...(revisionCheck.warnings ? { warnings: revisionCheck.warnings } : {}),
-        }, {
+        const journal = await OperationJournal.begin(config.vaultPath, {
+          backupEnabled: config.backupEnabled,
+          tool: 'note',
           action: 'frontmatter',
-          changed: true,
-          paths: [relative],
-          warnings: revisionCheck.warnings,
         });
+
+        try {
+          const raw = await readFileBounded(resolved, config.maxFileSize);
+          const { data: existing, content } = parseFrontmatter(raw);
+
+          const revisionCheck = checkRevisionConcurrency({
+            raw,
+            body: content,
+            expectedRevision,
+            expectedHash,
+          });
+          if (!revisionCheck.ok) {
+            await journal.abort();
+            return toolError({
+              error: 'hash_mismatch',
+              message: revisionCheck.message,
+              action: 'frontmatter',
+              retryable: true,
+              sideEffects: 'none',
+              path: notePath,
+              details: { check: expectedRevision ? 'revision' : 'content_hash' },
+              recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
+              hint: revisionCheck.hint,
+            });
+          }
+
+          let updated: Record<string, unknown>;
+
+          if (operation === 'set') {
+            updated = data as Record<string, unknown>;
+          } else if (operation === 'merge') {
+            updated = mergeFrontmatter(existing, data as Record<string, unknown>);
+          } else {
+            updated = { ...existing };
+            for (const key of keys as string[]) {
+              delete updated[key];
+            }
+          }
+
+          updated = withUpdatedTimestampUnlessProvided(updated, data, undefined);
+
+          const newContent = stringifyFrontmatter(updated, content);
+
+          await journal.recordBefore(resolved, config.maxFileSize);
+          await atomicReplaceLocked(config.vaultPath, resolved, newContent, config.maxFileSize);
+
+          const relative = toRelativePath(config.vaultPath, resolved);
+          await journal.recordAfter(relative, computeRevisionHash(newContent));
+          const op = await journal.finalize();
+
+          clearAllSearchCaches();
+          logger.info('Frontmatter updated', { path: relative, operation });
+
+          const warnings = mergeOperationWarnings(revisionCheck.warnings, op);
+
+          return ok({
+            path: relative,
+            operation,
+            frontmatter: updated,
+            contentHash: computeContentHash(content),
+            revisionHash: computeRevisionHash(newContent),
+            ...(warnings ? { warnings } : {}),
+          }, {
+            action: 'frontmatter',
+            changed: true,
+            paths: [relative],
+            warnings,
+            operationId: op.operationId,
+            undoAvailable: op.undoAvailable,
+          });
+        } catch (e) {
+          await journal.abort();
+          throw e;
+        }
       });
     } catch (e) {
       return mapToolError(e, {

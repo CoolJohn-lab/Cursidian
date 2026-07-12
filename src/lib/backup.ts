@@ -79,9 +79,26 @@ async function pruneOldBackups(vaultPath: string, retention = DEFAULT_BACKUP_RET
   }
 }
 
+/**
+ * Prunes oldest backup session folders beyond retention.
+ */
+export async function pruneOperationJournals(
+  vaultPath: string,
+  retention = DEFAULT_BACKUP_RETENTION,
+): Promise<void> {
+  await pruneOldBackups(vaultPath, retention);
+}
+
+/**
+ * Ensures trash is ready (legacy migration) before journal or backup writes.
+ */
+export async function ensureTrashReady(vaultPath: string): Promise<void> {
+  await migrateLegacyTrash(vaultPath);
+}
+
 export async function backupNote(vaultPath: string, notePath: string): Promise<string> {
   await assertWritablePathAsync(vaultPath, notePath);
-  await migrateLegacyTrash(vaultPath);
+  await ensureTrashReady(vaultPath);
 
   const relativePath = path.relative(vaultPath, notePath);
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');

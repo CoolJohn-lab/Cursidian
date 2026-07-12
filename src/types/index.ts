@@ -73,6 +73,8 @@ export interface ToolSuccessMetadata {
   changed: boolean;
   paths?: string[];
   warnings?: string[];
+  operationId?: string;
+  undoAvailable?: boolean;
 }
 
 /** Structured error payload returned by MCP tools (JSON text). */
@@ -106,6 +108,8 @@ export function ok(data: unknown, metadata?: ToolSuccessMetadata): ToolResult {
           changed: metadata.changed,
           paths: metadata.paths ?? [],
           warnings: metadata.warnings ?? [],
+          ...(metadata.operationId !== undefined ? { operationId: metadata.operationId } : {}),
+          ...(metadata.undoAvailable !== undefined ? { undoAvailable: metadata.undoAvailable } : {}),
           ...(data as Record<string, unknown>),
         };
   return {

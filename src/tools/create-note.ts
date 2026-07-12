@@ -12,7 +12,7 @@ import {
   atomicWriteLocked,
   AlreadyExistsError,
 } from '../lib/vault-io.js';
-import { backupNoteIfExists } from '../lib/backup.js';
+import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
 import { MAX_CONTENT_BYTES } from '../lib/limits.js';
 import { logger } from '../lib/logger.js';
 import { ok, err, toolError, mapToolError } from '../types/index.js';
@@ -43,13 +43,46 @@ export function createNoteHandler(config: Config) {
       const doOverwrite = overwrite ?? false;
       const fm = frontmatter ? withCreateTimestamps(frontmatter as Record<string, unknown>) : undefined;
       const body = fm ? stringifyFrontmatter(fm, content) : content;
+      const relative = toRelativePath(config.vaultPath, resolved);
 
       if (!doOverwrite) {
+        const journal = await OperationJournal.begin(config.vaultPath, {
+          backupEnabled: config.backupEnabled,
+          tool: 'note',
+          action: 'create',
+        });
+
         try {
+          journal.recordNewFile(relative);
           await atomicWrite(config.vaultPath, resolved, body, config.maxFileSize, {
             exclusive: true,
           });
+          await journal.recordAfter(relative, computeRevisionHash(body));
+          const op = await journal.finalize();
+
+          clearAllSearchCaches();
+          logger.info('Note created', { path: relative, overwrite: false });
+
+          const warnings = mergeOperationWarnings(undefined, op);
+
+          return ok(
+            {
+              created: relative,
+              overwrite: false,
+              revisionHash: computeRevisionHash(body),
+              ...(warnings ? { warnings } : {}),
+            },
+            {
+              action: 'create',
+              changed: true,
+              paths: [relative],
+              warnings,
+              operationId: op.operationId,
+              undoAvailable: op.undoAvailable,
+            },
+          );
         } catch (e) {
+          await journal.abort();
           if (e instanceof AlreadyExistsError) {
             return err(
               `Note already exists: "${notePath}". Use overwrite: true to replace it, or choose a different path.`,
@@ -70,8 +103,16 @@ export function createNoteHandler(config: Config) {
           }
           throw e;
         }
-      } else {
-        const result = await withPathLock(resolved, async () => {
+      }
+
+      const result = await withPathLock(resolved, async () => {
+        const journal = await OperationJournal.begin(config.vaultPath, {
+          backupEnabled: config.backupEnabled,
+          tool: 'note',
+          action: 'create',
+        });
+
+        try {
           let exists = false;
           try {
             await fs.access(resolved);
@@ -80,7 +121,7 @@ export function createNoteHandler(config: Config) {
             exists = false;
           }
 
-          let warnings: string[] | undefined;
+          let revisionWarnings: string[] | undefined;
           if (exists) {
             const raw = await readFileBounded(resolved, config.maxFileSize);
             const { content: existingBody } = parseFrontmatter(raw);
@@ -91,6 +132,7 @@ export function createNoteHandler(config: Config) {
               expectedHash,
             });
             if (!revisionCheck.ok) {
+              await journal.abort();
               return toolError({
                 error: 'hash_mismatch',
                 message: revisionCheck.message,
@@ -106,16 +148,16 @@ export function createNoteHandler(config: Config) {
                 hint: revisionCheck.hint,
               });
             }
-            warnings = revisionCheck.warnings;
-
-            if (config.backupEnabled) {
-              await backupNoteIfExists(config.vaultPath, resolved);
-            }
+            revisionWarnings = revisionCheck.warnings;
           }
 
+          await journal.recordBefore(resolved, config.maxFileSize);
           await atomicWriteLocked(config.vaultPath, resolved, body, config.maxFileSize);
+          await journal.recordAfter(relative, computeRevisionHash(body));
+          const op = await journal.finalize();
 
-          const relative = toRelativePath(config.vaultPath, resolved);
+          const warnings = mergeOperationWarnings(revisionWarnings, op);
+
           return ok({
             created: relative,
             overwrite: true,
@@ -126,26 +168,22 @@ export function createNoteHandler(config: Config) {
             changed: true,
             paths: [relative],
             warnings,
+            operationId: op.operationId,
+            undoAvailable: op.undoAvailable,
           });
-        });
-
-        if (result.isError) {
-          return result;
+        } catch (e) {
+          await journal.abort();
+          throw e;
         }
+      });
 
-        clearAllSearchCaches();
-        logger.info('Note created', { path: notePath, overwrite: true });
+      if (result.isError) {
         return result;
       }
 
-      const relative = toRelativePath(config.vaultPath, resolved);
       clearAllSearchCaches();
-      logger.info('Note created', { path: relative, overwrite: false });
-
-      return ok(
-        { created: relative, overwrite: false, revisionHash: computeRevisionHash(body) },
-        { action: 'create', changed: true, paths: [relative] },
-      );
+      logger.info('Note created', { path: notePath, overwrite: true });
+      return result;
     } catch (e) {
       return mapToolError(e, {
         tool: 'note',

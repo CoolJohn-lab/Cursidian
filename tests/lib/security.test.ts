@@ -35,7 +35,7 @@ describe('assertSafePath', () => {
 describe('assertSafePathAsync', () => {
   it('passes for a path inside vault (file may not exist yet)', async () => {
     const tmpDir = os.tmpdir();
-    // File does not exist — static check passes, ENOENT is silently swallowed
+    // File does not exist - static check passes, ENOENT is silently swallowed
     await expect(assertSafePathAsync(tmpDir, path.join(tmpDir, 'file.md'))).resolves.toBeUndefined();
   });
 

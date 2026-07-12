@@ -2,7 +2,7 @@
 
 ## MCP server reload
 
-After `npm run build`, restart the `user-cursidian` MCP server in Cursor (Settings → MCP → restart, or reload the window) so the IDE picks up changes from `dist/`.
+After `npm run build`, restart the `user-cursidian` MCP server in Cursor (Settings -> MCP -> restart, or reload the window) so the IDE picks up changes from `dist/`.
 
 ## Wiki skills refresh
 
@@ -21,7 +21,7 @@ When the user says **"bump the version number"** (or similar), run:
 npm run bump
 ```
 
-That defaults to a **patch** bump (`1.0.0` → `1.0.1`), updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated section.
+That defaults to a **patch** bump (`1.0.0` -> `1.0.1`), updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated section.
 
 | User intent | Command |
 |-------------|---------|

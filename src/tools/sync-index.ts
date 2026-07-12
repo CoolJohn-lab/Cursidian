@@ -25,7 +25,7 @@ export function syncIndexHandler(config: Config) {
           const nextBody = markdown.replace(/\r\n/g, '\n').trimEnd();
           wouldWrite = existingBody !== nextBody;
         } catch {
-          // index.md missing — a real sync would create it
+          // index.md missing - a real sync would create it
           wouldWrite = true;
         }
         return ok({ wouldWrite, markdown, noteCount, categories });

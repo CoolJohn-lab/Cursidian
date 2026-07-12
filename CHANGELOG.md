@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.5.3] - 2026-07-12
+
+
 ## [2.5.2] - 2026-07-12
 
 
@@ -44,7 +47,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Search ranking matches basename/title segments query→text only (no longer boosts `wiki` pages for query `wikilink` via reverse substring)
+- Search ranking matches basename/title segments query->text only (no longer boosts `wiki` pages for query `wikilink` via reverse substring)
 - Ambiguous title/alias/basename keys fail loud: `note`/`graph` path resolve returns `invalid_args` with candidates; wikilink resolve returns unresolved; `vault` health reports `ambiguousKeys`
 - `replace_section` with `#` markers requires matching ATX heading level (plain text still matches any level)
 
@@ -53,7 +56,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - `replace_section` accepts heading text with or without `#` markers; missing headings return `not_found` (not `internal_error`); duplicate headings fail with `invalid_args`
-- Morphological search prefix matching is query→text only, so longer query tokens no longer match shorter vault words (e.g. `wikilink` ≠ `wiki`)
+- Morphological search prefix matching is query->text only, so longer query tokens no longer match shorter vault words (e.g. `wikilink` ≠ `wiki`)
 - `search` `by_tags` rejects empty or whitespace-only tag strings with `invalid_args`
 - `note` / `graph` path args resolve frontmatter aliases (and titles) via the vault index to the canonical note path
 
@@ -73,7 +76,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Typo correction no longer rewrites 4-character tokens at edit distance 2 (e.g. `note` → `home`)
+- Typo correction no longer rewrites 4-character tokens at edit distance 2 (e.g. `note` -> `home`)
 - Verbose search snippets report only tokens present on each matched line; basename `matchReasons` cite the actual segment
 - Frontmatter validation errors refer to `frontmatter` instead of legacy `data` parameter name
 - `search` list/recent paths normalized to forward slashes on Windows
@@ -90,7 +93,7 @@ All notable changes to this project will be documented in this file.
 - `search_content` typo correction uses Damerau-Levenshtein (adjacent transposition) with vault document-frequency tie-break; correction vocabulary built from title/basename/tags only (aliases excluded)
 - Search ranking no longer applies path-folder boosts (`entities/` / `concepts/` / `skills/`) or a post-hoc specificity floor
 - Shared operational path helpers for search, ranking, and vault health
-- Renamed ranking stem helper `synonymGroupKey` → `stemGroupKey`
+- Renamed ranking stem helper `synonymGroupKey` -> `stemGroupKey`
 
 ## [1.0.1] - 2026-07-12
 

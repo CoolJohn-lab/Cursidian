@@ -525,7 +525,7 @@ async function main() {
   {
     const health = expectOk('vault: health', await callTool(server, 'vault', { action: 'health', staleDays: 1 }));
     if (health) {
-      // our probe notes may appear as orphans / missing FM issues — that's ok, note them
+      // our probe notes may appear as orphans / missing FM issues - that's ok, note them
       const probeOrphans = (health.orphans ?? []).filter((p) => String(p).includes('_stress-') || String(p.path ?? '').includes('_stress-'));
       if (probeOrphans.length) {
         record('warn', 'vault health lists stress probes as orphans (expected mid-run)', probeOrphans.length);
@@ -551,7 +551,7 @@ async function main() {
         logLine: `STRESS_PROBE ${probePrefix} (will leave a log line)`,
         expectedLogHash: logData.contentHash,
       });
-      // logging is a real vault mutation — record result
+      // logging is a real vault mutation - record result
       if (good.isError) {
         record('warn', 'vault: log with good hash failed', good.content[0].text.slice(0, 200));
       } else {
@@ -565,7 +565,7 @@ async function main() {
   // --- Dispatch confusion / invalid combos ---
   {
     const combos = [
-      ['note', { action: 'read' }], // missing path — schema may block
+      ['note', { action: 'read' }], // missing path - schema may block
       ['note', { action: 'update', path: noteB, mode: 'patch', old_string: 'nope', new_string: 'x' }],
       ['note', { action: 'update', path: noteB, mode: 'replace_section', heading: '## Missing', content: 'x' }],
       ['note', { action: 'delete', path: noteB, confirm: false }],

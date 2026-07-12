@@ -24,7 +24,7 @@ Fast staging to `_raw/`, no index/log/hot updates - promotion via `wiki-ingest` 
 
 1. **Filter.** Worth keeping: decisions and their *why*, technical findings, frameworks or mental models developed, hard-won explanations. Skip logistics, dead-end exploration, and anything already in the wiki (check `index.md` via `note` action `read`). If nothing material emerged, say so and stop.
 
-2. **Classify** to pick the target folder: reasoning/analysis or a decision → `synthesis/`; a definition or mental model → `concepts/`; a summary of an external source → `references/`; a multi-topic session record → `journal/`. Project-specific content goes under `projects/<name>/<category>/` instead.
+2. **Classify** to pick the target folder: reasoning/analysis or a decision -> `synthesis/`; a definition or mental model -> `concepts/`; a summary of an external source -> `references/`; a multi-topic session record -> `journal/`. Project-specific content goes under `projects/<name>/<category>/` instead.
 
 3. **Rewrite as declarative knowledge.** Not "we discussed X and decided..." but "X works by..." / "Y is preferred over Z because...". Present tense, no chat narration. Mark inferences `^[inferred]` and contested points `^[ambiguous]`.
 

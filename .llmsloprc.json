@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mandakan/llm-slop-detector/main/schemas/llmsloprc.schema.json",
+  "name": "cursidian",
+  "version": "1.0.0",
+  "description": "Extra typography slop: Unicode arrows and related AI punctuation",
+  "chars": [
+    { "char": "→", "name": "RIGHTWARDS ARROW", "severity": "information", "replacement": "->" },
+    { "char": "←", "name": "LEFTWARDS ARROW", "severity": "information", "replacement": "<-" },
+    { "char": "↔", "name": "LEFT RIGHT ARROW", "severity": "information", "replacement": "<->" },
+    { "char": "⇒", "name": "RIGHTWARDS DOUBLE ARROW", "severity": "information", "replacement": "=>" },
+    { "char": "⇐", "name": "LEFTWARDS DOUBLE ARROW", "severity": "information", "replacement": "<=" },
+    { "char": "⟶", "name": "LONG RIGHTWARDS ARROW", "severity": "information", "replacement": "->" },
+    { "char": "⟵", "name": "LONG LEFTWARDS ARROW", "severity": "information", "replacement": "<-" }
+  ]
+}

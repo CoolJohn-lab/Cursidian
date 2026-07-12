@@ -61,7 +61,7 @@ export async function callTool(
   toolName: string,
   args: Record<string, unknown>,
 ): Promise<{ content: Array<{ type: string; text: string }>; isError?: boolean }> {
-  // Access internal tool registry — _registeredTools[name].handler is the async callback
+  // Access internal tool registry - _registeredTools[name].handler is the async callback
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const registered = (server as any)._registeredTools?.[toolName];
   if (!registered?.handler) {

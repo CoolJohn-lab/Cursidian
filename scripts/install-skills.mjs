@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Install Cursidian wiki skills into ~/.cursor/skills (copy only — never symlink).
+ * Install Cursidian wiki skills into ~/.cursor/skills (copy only - never symlink).
  *
  * Removes each target skill folder first so Copy-into-existing cannot nest
  * as skill-name/skill-name/SKILL.md (a common PowerShell Copy-Item pitfall).

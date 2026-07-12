@@ -24,7 +24,7 @@ describe('vault-index signature invalidation', () => {
     const first = await getVaultIndex(ctx.vault);
     expect([...first.values()][0]?.tags).toContain('alpha');
 
-    // In-place edit without clearAllSearchCaches — signature must bust the TTL cache.
+    // In-place edit without clearAllSearchCaches - signature must bust the TTL cache.
     await writeNote(
       ctx.vault,
       'note.md',

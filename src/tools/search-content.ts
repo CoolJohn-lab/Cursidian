@@ -25,7 +25,7 @@ type SearchFormat = 'full' | 'compact';
 
 /**
  * Builds a title/basename/tag vocabulary with per-word document frequencies for typo correction.
- * Aliases are intentionally excluded — they are ranking surfaces, not spelling authorities.
+ * Aliases are intentionally excluded - they are ranking surfaces, not spelling authorities.
  */
 function buildSearchVocabulary(index: VaultIndex): Map<string, number> {
   const vocab = new Map<string, number>();

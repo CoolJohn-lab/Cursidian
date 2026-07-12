@@ -7,6 +7,7 @@ const cli = spawnSync(
   "llm-slop",
   [
     "--format=json",
+    "--scan-comments",
     "--exclude",
     "node_modules",
     "--exclude",

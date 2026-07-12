@@ -78,7 +78,7 @@ function toFrequencyMap(vocabulary: VocabularyFrequencies): Map<string, number> 
 }
 
 /**
- * Caps edit distance for short tokens to reduce false positives (e.g. note → home at distance 2).
+ * Caps edit distance for short tokens to reduce false positives (e.g. note -> home at distance 2).
  */
 function maxDistanceForToken(token: string, globalMax: number): number {
   if (token.length === 4) {

@@ -44,6 +44,6 @@ Via `note` action `create`:
 
 Re-run `search` action `list` and confirm every folder and file above exists. Report the result, then tell the user:
 
-1. Open the vault in Obsidian (File → Open Vault)
+1. Open the vault in Obsidian (File -> Open Vault)
 2. Run `wiki-ingest` to add their first sources
 3. Run `wiki-status` anytime to see what's pending

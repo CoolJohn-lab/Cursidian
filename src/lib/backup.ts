@@ -13,7 +13,7 @@ async function removeLegacyTrash(vaultPath: string): Promise<void> {
   try {
     await fs.rm(legacy, { recursive: true, force: true });
   } catch {
-    // ignore — force:true should not throw for missing paths
+    // ignore - force:true should not throw for missing paths
   }
 }
 

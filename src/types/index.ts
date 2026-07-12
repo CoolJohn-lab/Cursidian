@@ -85,7 +85,7 @@ export function toolError(payload: ToolErrorPayload): ToolResult {
 }
 
 /**
- * Backward-compatible error helper — emits structured JSON with a generic code.
+ * Backward-compatible error helper - emits structured JSON with a generic code.
  */
 export function err(message: string, code = 'error', extras?: Omit<ToolErrorPayload, 'error' | 'message'>): ToolResult {
   return toolError({ error: code, message, ...extras });

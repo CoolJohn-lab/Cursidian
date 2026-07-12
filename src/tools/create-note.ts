@@ -42,7 +42,7 @@ export function createNoteHandler(config: Config) {
           );
         }
       } catch {
-        // File doesn't exist — good, proceed
+        // File doesn't exist - good, proceed
       }
 
       await fs.mkdir(path.dirname(resolved), { recursive: true });

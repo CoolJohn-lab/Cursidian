@@ -189,7 +189,7 @@ export function stemToken(token: string): string {
 }
 
 /**
- * Stem group key for ranking dedupe — the Porter stem.
+ * Stem group key for ranking dedupe - the Porter stem.
  */
 export function stemGroupKey(token: string): string {
   return stemToken(token);
@@ -197,7 +197,7 @@ export function stemGroupKey(token: string): string {
 
 /**
  * Returns true when two tokens match via stem equality or natural substring overlap.
- * Substring overlap covers cases Porter splits oddly (deploy vs deployment → deploi/deploy).
+ * Substring overlap covers cases Porter splits oddly (deploy vs deployment -> deploi/deploy).
  */
 export function tokensMorphologicallyMatch(a: string, b: string): boolean {
   const left = a.toLowerCase();
@@ -208,8 +208,8 @@ export function tokensMorphologicallyMatch(a: string, b: string): boolean {
   if (stemToken(left) === stemToken(right)) {
     return true;
   }
-  // Query → text only: query token is a prefix of the longer vault word (deploy → deployment).
-  // Bidirectional overlap falsely matches wikilink ↔ wiki.
+  // Query -> text only: query token is a prefix of the longer vault word (deploy -> deployment).
+  // Bidirectional overlap falsely matches wikilink <-> wiki.
   if (left.length >= 4 && left.length <= right.length && right.startsWith(left)) {
     return true;
   }
@@ -218,7 +218,7 @@ export function tokensMorphologicallyMatch(a: string, b: string): boolean {
 
 /**
  * Expands a token for matching: original form plus Porter stem.
- * Prefer tokensMorphologicallyMatch / tokenMatchesInText for comparisons —
+ * Prefer tokensMorphologicallyMatch / tokenMatchesInText for comparisons -
  * stems like "holidai" are not useful as raw substrings in vault text.
  */
 export function expandSearchToken(token: string): string[] {

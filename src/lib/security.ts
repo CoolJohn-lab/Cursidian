@@ -41,7 +41,7 @@ export async function assertSafePathAsync(vaultPath: string, resolvedPath: strin
     }
   } catch (err) {
     if (err instanceof SecurityError) throw err;
-    // ENOENT: file doesn't exist yet (e.g. create_note) — static check already passed above
+    // ENOENT: file doesn't exist yet (e.g. create_note) - static check already passed above
     // Other errors: static check already passed, proceed
   }
 }

@@ -23,7 +23,7 @@ export interface RankedSearchHit extends SearchCandidate {
   matchReasons: string[];
   /** Internal: compound basename token hits (used for focus comparisons). */
   compoundCoverage?: number;
-  /** Internal: title token density 0–1 (used for focus comparisons). */
+  /** Internal: title token density 0-1 (used for focus comparisons). */
   titleDensity?: number;
 }
 
@@ -36,7 +36,7 @@ interface RankContext {
 
 /**
  * Returns the basename segment or substring that matched a query token.
- * Query → text only: never treat a shorter basename segment as a hit for a longer query token.
+ * Query -> text only: never treat a shorter basename segment as a hit for a longer query token.
  */
 function basenameMatchLabel(primary: string, basenameNorm: string, segments: string[]): string {
   const exact = segments.find(
@@ -465,7 +465,7 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     reasons.push('snippet-density-penalty');
   }
 
-  // Hub dilution: low title/basename focus + many body hits → mild penalty.
+  // Hub dilution: low title/basename focus + many body hits -> mild penalty.
   const focusScore = Math.max(titleDensity, compoundHits / Math.max(context.tokens.length, 1));
   if (!isFocused && focusScore < 0.25 && candidate.matchCount > 8 && context.tokens.length >= 2) {
     score -= Math.min(30, candidate.matchCount - 8);

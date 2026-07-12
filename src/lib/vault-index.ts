@@ -20,7 +20,7 @@ export interface VaultNoteEntry {
 
 export type VaultIndex = Map<string, VaultNoteEntry>;
 
-/** Normalised key → vault-relative paths that claim it (size ≥ 2 means ambiguous). */
+/** Normalised key -> vault-relative paths that claim it (size ≥ 2 means ambiguous). */
 export type VaultIndexCollisions = Map<string, string[]>;
 
 /**

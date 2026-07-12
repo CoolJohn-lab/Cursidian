@@ -1,65 +1,27 @@
-import { spawnSync } from "node:child_process";
+#!/usr/bin/env node
+/**
+ * Auto-fix deterministic llm-slop character findings + strip all decorative emoji.
+ * Phrase findings are reported but not rewritten.
+ */
 import fs from "node:fs";
 import path from "node:path";
+import {
+  EMOJI_RE,
+  findEmojiHits,
+  root,
+  runSlopScan,
+  walkTextFiles,
+} from "./slop-lib.mjs";
 
-const root = process.cwd();
+const scan = runSlopScan({ format: "json" });
 
-function resolveCliJs() {
-  const candidates = [];
-  const npm = spawnSync("npm", ["root", "-g"], {
-    encoding: "utf8",
-    shell: process.platform === "win32",
-  });
-  if (npm.stdout?.trim()) {
-    candidates.push(path.join(npm.stdout.trim(), "llm-slop-detector", "out", "cli.js"));
-  }
-  if (process.env.APPDATA) {
-    candidates.push(
-      path.join(process.env.APPDATA, "npm", "node_modules", "llm-slop-detector", "out", "cli.js"),
-    );
-  }
-  if (process.env.HOME) {
-    candidates.push(
-      path.join(process.env.HOME, ".npm-global", "lib", "node_modules", "llm-slop-detector", "out", "cli.js"),
-    );
-  }
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) return candidate;
-  }
-  return null;
-}
-
-const cliJs = resolveCliJs();
-if (!cliJs) {
-  console.error("llm-slop-detector CLI not found. Install: npm i -g llm-slop-detector");
+if (scan.error) {
+  console.error(`slop:fix failed: ${scan.error}`);
+  if (scan.stderr) console.error(scan.stderr);
   process.exit(1);
 }
 
-// Packs match .vscode/settings.json. Skip cliches/academic: single words like
-// "crucial"/"ensure"/"escalate" flood TypeScript codebases.
-const cli = spawnSync(
-  process.execPath,
-  [
-    cliJs,
-    "--format=json",
-    "--scan-comments",
-    "--pack=claudeisms,structural,puffery,security",
-    "--exclude=node_modules",
-    "--exclude=dist",
-    "--exclude=.git",
-    "--exclude=*.map",
-    "--exclude=package-lock.json",
-    ".",
-  ],
-  { encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
-);
-
-if (cli.error) {
-  console.error(cli.error);
-  process.exit(1);
-}
-
-const findings = JSON.parse(cli.stdout || "[]");
+const findings = scan.findings || [];
 const charFindings = findings.filter((f) => f.code === "char");
 const phraseFindings = findings.filter((f) => f.code !== "char");
 
@@ -128,53 +90,23 @@ for (const [file, items] of byFile) {
 
 console.log(`\nDone: ${replacements} character fixes across ${filesChanged} files.`);
 if (phraseFindings.length) {
-  console.log(`Skipped ${phraseFindings.length} non-character findings (no auto-fix).`);
-}
-
-// Full-repo emoji wipe (llm-slop only sees markdown + comments; user wants zero
-// emojis in string literals / code too). Keeps © ® ™.
-const EMOJI_RE =
-  /(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}(?:\uFE0F|\u200D(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}\uFE0F?)*/gu;
-const SKIP_DIRS = new Set(["node_modules", "dist", ".git", "coverage"]);
-const TEXT_EXT = new Set([
-  ".md",
-  ".txt",
-  ".ts",
-  ".tsx",
-  ".js",
-  ".mjs",
-  ".cjs",
-  ".json",
-  ".jsonc",
-  ".yml",
-  ".yaml",
-  ".css",
-  ".html",
-  ".svg",
-]);
-
-function walk(dir, out = []) {
-  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (SKIP_DIRS.has(ent.name)) continue;
-    const p = path.join(dir, ent.name);
-    if (ent.isDirectory()) walk(p, out);
-    else if (TEXT_EXT.has(path.extname(ent.name).toLowerCase())) out.push(p);
+  console.log(`Skipped ${phraseFindings.length} non-character findings (no auto-fix):`);
+  for (const f of phraseFindings) {
+    console.log(`  ${f.path}:${f.line}:${f.col}  ${f.message}`);
   }
-  return out;
 }
 
 let emojiFiles = 0;
 let emojiRemovals = 0;
-for (const file of walk(root)) {
-  if (file.endsWith(`${path.sep}.llmsloprc.json`)) continue; // contains emoji as rule keys
+for (const file of walkTextFiles()) {
+  if (path.basename(file) === ".llmsloprc.json") continue;
   const before = fs.readFileSync(file, "utf8");
   let n = 0;
-  const after = before.replace(EMOJI_RE, () => {
+  const after = before.replace(new RegExp(EMOJI_RE.source, EMOJI_RE.flags), () => {
     n++;
     return "";
   });
   if (n > 0) {
-    // Collapse accidental double spaces left by removals (keep newlines)
     const cleaned = after.replace(/ {2,}/g, " ");
     fs.writeFileSync(file, cleaned, "utf8");
     emojiFiles++;
@@ -184,3 +116,16 @@ for (const file of walk(root)) {
 }
 console.log(`Emoji pass: removed ${emojiRemovals} across ${emojiFiles} files.`);
 
+const remainingPhrases = runSlopScan({ format: "json" }).findings.filter(
+  (f) => f.code !== "char",
+);
+const remainingEmoji = findEmojiHits();
+if (remainingPhrases.length || remainingEmoji.length) {
+  console.error(
+    `\nslop:fix incomplete — ${remainingPhrases.length} phrase(s), ${remainingEmoji.length} emoji(s) still present.`,
+  );
+  console.error(`Run npm run slop:check for details, then rewrite phrase hits by hand.`);
+  process.exit(1);
+}
+
+console.log("\nslop:fix — clean");

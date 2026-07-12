@@ -1,5 +1,17 @@
 # Agent notes - Cursidian
 
+## Slop gate (required for build)
+
+`npm run build` runs **`prebuild` -> `slop:check`**. The MCP will not compile while LLM-slop findings or decorative emoji remain.
+
+| Command | Purpose |
+|---------|---------|
+| `npm run slop:check` | Scan only; exits non-zero if dirty |
+| `npm run slop:fix` | Auto-fix characters/emoji; rewrite any leftover phrases by hand |
+| `npm run build` | Slop check, then `tsc` |
+
+Config: `.llmsloprc.json` + `.vscode/settings.json` (packs: `claudeisms`, `structural`, `puffery`, `security`).
+
 ## MCP server reload
 
 After `npm run build`, restart the `user-cursidian` MCP server in Cursor (Settings -> MCP -> restart, or reload the window) so the IDE picks up changes from `dist/`.

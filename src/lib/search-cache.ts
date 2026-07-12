@@ -48,6 +48,7 @@ function evictOldestSearchCacheEntry(): void {
  */
 export function buildSearchCacheKey(
   vaultPath: string,
+  vaultSignature: string,
   query: string,
   caseSensitive: boolean,
   limit: number,
@@ -57,7 +58,7 @@ export function buildSearchCacheKey(
   includeOperational = false,
 ): string {
   const tagKey = tags?.length ? tags.map((tag) => tag.toLowerCase()).sort().join(',') : '';
-  return `${vaultPath}\0${query}\0${caseSensitive}\0${limit}\0${tagKey}\0${verbose}\0${format}\0${includeOperational}`;
+  return `${vaultPath}\0${vaultSignature}\0${query}\0${caseSensitive}\0${limit}\0${tagKey}\0${verbose}\0${format}\0${includeOperational}`;
 }
 
 /**

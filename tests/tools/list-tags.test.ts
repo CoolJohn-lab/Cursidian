@@ -12,9 +12,10 @@ import type { TestContext } from './helpers.js';
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
+  ctx = await createTestVault((server, config) => {
+    registerSearch(server, config);
+  });
   await seedVault(ctx.vault);
-  registerSearch(ctx.server, ctx.config);
 });
 
 afterAll(async () => {
@@ -23,7 +24,7 @@ afterAll(async () => {
 
 describe('search (tags)', () => {
   it('lists tags with counts', async () => {
-    const result = await callTool(ctx.server, 'search', { action: 'tags' });
+    const result = await callTool(ctx.client, 'search', { action: 'tags' });
     const data = parseResult(result) as { totalTags: number; tags: Array<{ tag: string; count: number }> };
     expect(data.totalTags).toBeGreaterThan(0);
     expect(data.tags.length).toBeGreaterThan(0);

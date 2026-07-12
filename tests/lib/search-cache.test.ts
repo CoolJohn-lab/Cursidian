@@ -6,6 +6,7 @@ import {
   setCachedSearchResponse,
 } from '../../src/lib/search-cache.js';
 
+const SIG = 'vault-signature-test';
 const samplePayload = {
   query: 'ADF pipeline',
   totalMatches: 2,
@@ -31,16 +32,16 @@ describe('search-cache', () => {
   });
 
   it('buildSearchCacheKey is stable for tag order', () => {
-    const keyA = buildSearchCacheKey('/vault', 'query', false, 20, ['dlz', 'cdf'], false, 'full', false);
-    const keyB = buildSearchCacheKey('/vault', 'query', false, 20, ['cdf', 'dlz'], false, 'full', false);
+    const keyA = buildSearchCacheKey('/vault', SIG, 'query', false, 20, ['dlz', 'cdf'], false, 'full', false);
+    const keyB = buildSearchCacheKey('/vault', SIG, 'query', false, 20, ['cdf', 'dlz'], false, 'full', false);
     expect(keyA).toBe(keyB);
   });
 
   it('buildSearchCacheKey differs for verbose/format/includeOperational', () => {
-    const base = buildSearchCacheKey('/vault', 'query', false, 20);
-    const verbose = buildSearchCacheKey('/vault', 'query', false, 20, undefined, true);
-    const compact = buildSearchCacheKey('/vault', 'query', false, 20, undefined, false, 'compact');
-    const operational = buildSearchCacheKey('/vault', 'query', false, 20, undefined, false, 'full', true);
+    const base = buildSearchCacheKey('/vault', SIG, 'query', false, 20);
+    const verbose = buildSearchCacheKey('/vault', SIG, 'query', false, 20, undefined, true);
+    const compact = buildSearchCacheKey('/vault', SIG, 'query', false, 20, undefined, false, 'compact');
+    const operational = buildSearchCacheKey('/vault', SIG, 'query', false, 20, undefined, false, 'full', true);
     expect(base).not.toBe(verbose);
     expect(base).not.toBe(compact);
     expect(base).not.toBe(operational);
@@ -51,7 +52,7 @@ describe('search-cache', () => {
   });
 
   it('returns pre-serialised JSON on cache hit', () => {
-    const key = buildSearchCacheKey('/vault', 'ADF pipeline', false, 20);
+    const key = buildSearchCacheKey('/vault', SIG, 'ADF pipeline', false, 20);
     const stored = setCachedSearchResponse(key, samplePayload);
     const cached = getCachedSearchResponse(key);
     expect(cached).toBe(stored);
@@ -60,7 +61,7 @@ describe('search-cache', () => {
 
   it('expires entries after TTL', () => {
     vi.useFakeTimers();
-    const key = buildSearchCacheKey('/vault', 'ADF pipeline', false, 20);
+    const key = buildSearchCacheKey('/vault', SIG, 'ADF pipeline', false, 20);
     setCachedSearchResponse(key, samplePayload);
     vi.advanceTimersByTime(60_001);
     expect(getCachedSearchResponse(key)).toBeNull();

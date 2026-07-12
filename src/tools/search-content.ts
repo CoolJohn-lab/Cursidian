@@ -1,6 +1,6 @@
 import { type Config } from '../config.js';
-import { getVaultIndex, normaliseKey, type VaultIndex } from '../lib/vault-index.js';
-import { getVaultMarkdownFiles } from '../lib/vault-search-state.js';
+import { normaliseKey, type VaultIndex } from '../lib/vault-index.js';
+import { getVaultSnapshot } from '../lib/vault-snapshot.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import {
   buildSearchCacheKey,
@@ -18,6 +18,7 @@ import { rankSearchResults, type SearchCandidate } from '../lib/search-ranking.j
 import { correctTokensAgainstVocabulary } from '../lib/edit-distance.js';
 import { isOperationalPath } from '../lib/operational-paths.js';
 import { uniqueIndexEntries } from '../lib/tags.js';
+import { MAX_QUERY_LENGTH } from '../lib/limits.js';
 import { err, mapToolError, type SearchResult, type CompactSearchResult } from '../types/index.js';
 
 type MatchMode = 'and' | 'or';
@@ -239,8 +240,14 @@ export function searchContentHandler(config: Config) {
       const effectiveIncludeOperational = includeOperational ?? false;
       const effectiveFormat = format ?? 'full';
 
+      if (query.length > MAX_QUERY_LENGTH) {
+        return err(`query exceeds ${MAX_QUERY_LENGTH} characters`, 'invalid_query');
+      }
+
+      const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
       const cacheKey = buildSearchCacheKey(
         config.vaultPath,
+        snapshot.signature,
         query,
         effectiveCaseSensitive,
         effectiveLimit,
@@ -249,12 +256,12 @@ export function searchContentHandler(config: Config) {
         effectiveFormat,
         effectiveIncludeOperational,
       );
-        const cachedResponse = getCachedSearchResponse(cacheKey);
-        if (cachedResponse !== null) {
-          return { content: [{ type: 'text' as const, text: cachedResponse }] };
-        }
+      const cachedResponse = getCachedSearchResponse(cacheKey);
+      if (cachedResponse !== null) {
+        return { content: [{ type: 'text' as const, text: cachedResponse }] };
+      }
 
-        const prepared = prepareSearchTokens(query);
+      const prepared = prepareSearchTokens(query);
         if (prepared.contentTokens.length === 0) {
           if (prepared.strippedStopwords) {
             return err(
@@ -266,8 +273,8 @@ export function searchContentHandler(config: Config) {
         }
 
         let tokens = prepared.contentTokens;
-        const vaultFiles = await getVaultMarkdownFiles(config.vaultPath);
-        const index = await getVaultIndex(config.vaultPath);
+        const vaultFiles = snapshot.files;
+        const index = snapshot.index;
         const tagFilter = tags?.map((tag) => normaliseKey(tag)) ?? [];
 
         let matchMode: MatchMode = 'and';

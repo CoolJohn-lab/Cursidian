@@ -8,8 +8,9 @@ import type { TestContext } from './helpers.js';
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
-  registerVault(ctx.server, ctx.config);
+  ctx = await createTestVault((server, config) => {
+    registerVault(server, config);
+  });
 });
 
 afterAll(async () => {
@@ -24,7 +25,7 @@ describe('vault (sync_index)', () => {
       '---\ntitle: Alpha\ncategory: concepts\ntags: [wiki]\nsummary: First note.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n# Alpha\n',
     );
 
-    const result = await callTool(ctx.server, 'vault', { action: 'sync_index', dryRun: true });
+    const result = await callTool(ctx.client, 'vault', { action: 'sync_index', dryRun: true });
     const data = parseResult(result) as { wouldWrite: boolean; markdown: string; noteCount: number; categories: string[] };
 
     expect(data.wouldWrite).toBe(true);
@@ -35,8 +36,8 @@ describe('vault (sync_index)', () => {
   });
 
   it('dryRun reports wouldWrite false when catalog body is unchanged', async () => {
-    await callTool(ctx.server, 'vault', { action: 'sync_index' });
-    const result = await callTool(ctx.server, 'vault', { action: 'sync_index', dryRun: true });
+    await callTool(ctx.client, 'vault', { action: 'sync_index' });
+    const result = await callTool(ctx.client, 'vault', { action: 'sync_index', dryRun: true });
     const data = parseResult(result) as { wouldWrite: boolean };
     expect(data.wouldWrite).toBe(false);
   });
@@ -48,7 +49,7 @@ describe('vault (sync_index)', () => {
       '---\ntitle: Beta\ncategory: entities\ntags: [entity]\nsummary: Entity note.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n# Beta\n',
     );
 
-    const result = await callTool(ctx.server, 'vault', { action: 'sync_index' });
+    const result = await callTool(ctx.client, 'vault', { action: 'sync_index' });
     const data = parseResult(result) as { updated: string; noteCount: number; categories: string[] };
     expect(data.updated).toBe('index.md');
 

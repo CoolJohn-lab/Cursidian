@@ -10,8 +10,9 @@ import type { TestContext } from './helpers.js';
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
-  registerNote(ctx.server, ctx.config);
+  ctx = await createTestVault((server, config) => {
+    registerNote(server, config);
+  });
 });
 
 afterAll(async () => {
@@ -37,10 +38,10 @@ describe('note (rename)', () => {
     );
 
     const index = await buildVaultIndex(ctx.vault);
-    const before = await findBacklinks(ctx.vault, 'concepts/old-name.md', index);
+    const before = await findBacklinks(ctx.vault, 'concepts/old-name.md', index, ctx.config.maxFileSize);
     expect(before.some((b) => b.path.includes('linker'))).toBe(true);
 
-    const result = await callTool(ctx.server, 'note', {
+    const result = await callTool(ctx.client, 'note', {
       action: 'rename',
       path: 'concepts/old-name',
       newPath: 'concepts/new-name',

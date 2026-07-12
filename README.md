@@ -129,6 +129,8 @@ Shared schema and the full MCP contract live in the `llm-wiki` skill.
 
 ```bash
 npm run skills:install
+# or from the published package:
+npx cursidian-skills
 ```
 
 That **removes then copies** the nine skill folders into `~/.cursor/skills/` (never symlink; copying into an existing folder nests `skill/skill/SKILL.md`). Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes, then start a **new** agent chat so Cursor re-discovers them.
@@ -167,6 +169,37 @@ Wiki scans use the same rules but do **not** gate `build` (the vault lives outsi
 2. **Edit** - `note` with `action: "update"` using the safest mode (`patch`, `replace_section`, `append`, `prepend`, or `replace`).
 3. Pass `expectedHash` from step 1 to detect concurrent edits.
 
+## Security model
+
+Cursidian is a **local stdio MCP server**. It trusts the Cursor process that launches it and the OS user that owns the vault directory. There is no network attack surface in normal use; hardening focuses on **path containment**, **bounded I/O**, and **recoverable writes** when agents or external editors touch the vault.
+
+| Layer | What it guarantees |
+|-------|-------------------|
+| **Lexical containment** | Resolved paths must stay under `OBSIDIAN_VAULT_PATH` (blocks `../` and absolute escapes). |
+| **Real-path containment** | Symlinks/junctions that resolve outside the vault are rejected before reads and writes. |
+| **Symlink-safe discovery** | Vault scans use `followSymbolicLinks: false` and filter results whose real path escapes the vault. |
+| **Atomic single-file writes** | Creates use exclusive open; updates use same-directory temp + rename under a per-path lock. |
+| **Optimistic concurrency** | `contentHash` / `expectedHash` detect concurrent MCP edits; external Obsidian edits are not transactional. |
+| **Multi-file limits** | Rename, backlink rewrites, and `vault log` (log + hot) are best-effort; partial failures return structured `partial_update` when unavoidable. |
+
+For untrusted agents or shared machines, run with `OBSIDIAN_READ_ONLY=true` and restrict vault directory ACLs to least privilege.
+
+### Backups (`.cursidian-trash`)
+
+When `OBSIDIAN_BACKUP_ENABLED` is true (default), a timestamped copy of the **prior file** is saved before destructive writes:
+
+| Operation | Backed up |
+|-----------|-----------|
+| `note` update / replace / patch / section edit | Yes (existing file) |
+| `note` frontmatter set / merge / delete | Yes |
+| `note` delete | Yes |
+| `note` rename | Yes (source + each rewritten backlink/index file) |
+| `vault` sync_index | Yes (`index.md`) |
+| `vault` log | Yes (`log.md`; `hot.md` when updated) |
+| `note` create | No (nothing to restore) |
+
+Legacy `.obsidian-mcp-trash` entries are **migrated** into `.cursidian-trash/_legacy-migrated/` on first backup (not deleted). Retention keeps the newest **50** backup sessions by default; older session folders are pruned automatically.
+
 ## Environment variables
 
 | Variable | Required | Description |
@@ -187,7 +220,7 @@ npm run test:clean # coverage run through npm env cleanup for Cursor sandboxes
 npm run lint     # eslint
 npm run typecheck
 npm run build    # slop:check (prebuild), then tsc
-npm run verify   # lint + typecheck + test + build
+npm run verify   # lint + typecheck + test + build + MCP integration
 npm run smoke    # live smoke against OBSIDIAN_VAULT_PATH
 ```
 

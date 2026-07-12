@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import fg from 'fast-glob';
 import { type Config } from '../config.js';
 import { resolveDir, toRelativePath } from '../lib/vault.js';
-import { assertSafePath } from '../lib/security.js';
-import { TRASH_GLOB_IGNORE } from '../lib/trash.js';
+import { assertSafePathAsync } from '../lib/security.js';
+import { vaultGlob } from '../lib/vault-glob.js';
 import { isOperationalPath } from '../lib/operational-paths.js';
+import { DEFAULT_LIST_LIMIT, MAX_LIST_LIMIT } from '../lib/limits.js';
 import { ok, err, mapToolError, type NoteMetadata } from '../types/index.js';
 
 export function listNotesHandler(config: Config) {
@@ -13,18 +13,23 @@ export function listNotesHandler(config: Config) {
     folder,
     recursive,
     includeOperational,
+    limit,
+    cursor,
   }: {
     folder?: string;
     recursive?: boolean;
     includeOperational?: boolean;
+    limit?: number;
+    cursor?: string;
   }) => {
     try {
       const baseDir = folder ? resolveDir(config.vaultPath, folder) : config.vaultPath;
       const isRecursive = recursive ?? true;
       const effectiveIncludeOperational = includeOperational ?? false;
+      const pageSize = Math.min(limit ?? DEFAULT_LIST_LIMIT, MAX_LIST_LIMIT);
 
       if (folder) {
-        assertSafePath(config.vaultPath, baseDir);
+        await assertSafePathAsync(config.vaultPath, baseDir);
         try {
           const stat = await fs.stat(baseDir);
           if (!stat.isDirectory()) {
@@ -40,12 +45,7 @@ export function listNotesHandler(config: Config) {
       }
 
       const pattern = isRecursive ? '**/*.md' : '*.md';
-      const files = await fg(pattern, {
-        cwd: baseDir,
-        absolute: true,
-        dot: false,
-        ignore: [TRASH_GLOB_IGNORE],
-      });
+      const files = await vaultGlob(config.vaultPath, pattern, { cwd: baseDir });
 
       const notes: NoteMetadata[] = [];
       for (const file of files) {
@@ -64,7 +64,20 @@ export function listNotesHandler(config: Config) {
 
       notes.sort((a, b) => a.path.localeCompare(b.path));
 
-      return ok({ count: notes.length, notes });
+      const startIndex = cursor
+        ? Math.max(0, notes.findIndex((n) => n.path === cursor) + 1)
+        : 0;
+      const page = notes.slice(startIndex, startIndex + pageSize);
+      const truncated = startIndex + pageSize < notes.length;
+      const nextCursor = truncated && page.length > 0 ? page[page.length - 1]!.path : undefined;
+
+      return ok({
+        count: notes.length,
+        notes: page,
+        truncated,
+        nextCursor,
+        effectiveLimit: pageSize,
+      });
     } catch (e) {
       return mapToolError(e, { path: folder });
     }

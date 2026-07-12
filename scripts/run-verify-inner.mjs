@@ -7,6 +7,8 @@ const steps = [
   ['typecheck', ['npm', ['run', 'typecheck']]],
   ['test', ['npm', ['run', 'test']]],
   ['build', ['npm', ['run', 'build']]],
+  ['mcp-integration', ['node', ['scripts/mcp-integration-test.mjs']]],
+  ['skills-install-dry', ['node', ['scripts/install-skills.mjs', '--dry-run']]],
 ];
 
 for (const [label, [command, args]] of steps) {

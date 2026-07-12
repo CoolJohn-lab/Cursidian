@@ -6,6 +6,7 @@ import { syncIndexHandler } from './sync-index.js';
 import { manageFoldersHandler } from './manage-folders.js';
 import { touchWikiMetaHandler } from './touch-wiki-meta.js';
 import { err } from '../types/index.js';
+import { MAX_LOG_LINE_LENGTH } from '../lib/limits.js';
 
 export function registerVault(server: McpServer, config: Config): void {
   server.registerTool(
@@ -26,8 +27,8 @@ export function registerVault(server: McpServer, config: Config): void {
           .describe('Stale threshold in days for health report'),
         dryRun: z.boolean().optional().describe('Preview sync_index without writing'),
         confirm: z.boolean().optional().describe('Must be true for delete_folder'),
-        logLine: z.string().optional().describe('Log entry for action=log'),
-        hotActivity: z.string().optional().describe('Optional hot.md Recent Activity bullet'),
+        logLine: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Log entry for action=log'),
+        hotActivity: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Optional hot.md Recent Activity bullet'),
         expectedLogHash: z.string().optional().describe('contentHash from read on log.md'),
         expectedHotHash: z.string().optional().describe('contentHash from read on hot.md'),
       },

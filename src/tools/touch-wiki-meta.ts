@@ -1,10 +1,16 @@
-import fs from 'node:fs/promises';
 import { type Config } from '../config.js';
 import { resolvePath } from '../lib/vault.js';
-import { assertSafePathAsync, assertNotReadOnly, assertFileSize } from '../lib/security.js';
+import {
+  assertSafePathAsync,
+  assertNotReadOnly,
+  readFileBounded,
+} from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { computeContentHash } from '../lib/content-hash.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
+import { atomicReplace } from '../lib/vault-io.js';
+import { backupNoteIfExists } from '../lib/backup.js';
+import { MAX_LOG_LINE_LENGTH } from '../lib/limits.js';
 import { logger } from '../lib/logger.js';
 import { ok, toolError, mapToolError } from '../types/index.js';
 
@@ -68,14 +74,27 @@ export function touchWikiMetaHandler(config: Config) {
     try {
       assertNotReadOnly(config.readOnly);
 
+      if (logLine.length > MAX_LOG_LINE_LENGTH) {
+        return toolError({
+          error: 'invalid_args',
+          message: `logLine exceeds ${MAX_LOG_LINE_LENGTH} characters.`,
+        });
+      }
+      if (hotActivity && hotActivity.length > MAX_LOG_LINE_LENGTH) {
+        return toolError({
+          error: 'invalid_args',
+          message: `hotActivity exceeds ${MAX_LOG_LINE_LENGTH} characters.`,
+        });
+      }
+
       const timestamp = new Date().toISOString();
       const normalisedLog = normaliseLogLine(logLine, timestamp);
 
       const logResolved = resolvePath(config.vaultPath, LOG_PATH);
+      const hotResolved = resolvePath(config.vaultPath, HOT_PATH);
       await assertSafePathAsync(config.vaultPath, logResolved);
-      await assertFileSize(logResolved, config.maxFileSize);
 
-      const logRaw = await fs.readFile(logResolved, 'utf-8');
+      const logRaw = await readFileBounded(logResolved, config.maxFileSize);
       const { data: logData, content: logBody } = parseFrontmatter(logRaw);
       const logHash = computeContentHash(logBody);
       if (expectedLogHash && expectedLogHash !== logHash) {
@@ -89,25 +108,14 @@ export function touchWikiMetaHandler(config: Config) {
       }
 
       const updatedLogBody = `${logBody.trimEnd()}\n${normalisedLog}\n`;
-      await fs.writeFile(logResolved, stringifyFrontmatter(logData, updatedLogBody), 'utf-8');
+      const logOutput = stringifyFrontmatter(logData, updatedLogBody);
 
-      const result: {
-        log: { path: string; contentHash: string; line: string };
-        hot?: { path: string; contentHash: string };
-      } = {
-        log: {
-          path: LOG_PATH,
-          contentHash: computeContentHash(updatedLogBody),
-          line: normalisedLog,
-        },
-      };
+      let hotOutput: string | undefined;
+      let updatedHotBody: string | undefined;
 
       if (hotActivity !== undefined && hotActivity.trim() !== '') {
-        const hotResolved = resolvePath(config.vaultPath, HOT_PATH);
         await assertSafePathAsync(config.vaultPath, hotResolved);
-        await assertFileSize(hotResolved, config.maxFileSize);
-
-        const hotRaw = await fs.readFile(hotResolved, 'utf-8');
+        const hotRaw = await readFileBounded(hotResolved, config.maxFileSize);
         const { data: hotData, content: hotBody } = parseFrontmatter(hotRaw);
         const hotHash = computeContentHash(hotBody);
         if (expectedHotHash && expectedHotHash !== hotHash) {
@@ -120,13 +128,33 @@ export function touchWikiMetaHandler(config: Config) {
           });
         }
 
-        const updatedHotBody = insertHotActivity(hotBody, hotActivity, timestamp);
+        updatedHotBody = insertHotActivity(hotBody, hotActivity, timestamp);
         const updatedHotData = bumpHotUpdated(hotData, timestamp);
-        await fs.writeFile(
-          hotResolved,
-          stringifyFrontmatter(updatedHotData, updatedHotBody),
-          'utf-8',
-        );
+        hotOutput = stringifyFrontmatter(updatedHotData, updatedHotBody);
+      }
+
+      if (config.backupEnabled) {
+        await backupNoteIfExists(config.vaultPath, logResolved);
+        if (hotOutput) {
+          await backupNoteIfExists(config.vaultPath, hotResolved);
+        }
+      }
+
+      await atomicReplace(config.vaultPath, logResolved, logOutput, config.maxFileSize);
+
+      const result: {
+        log: { path: string; contentHash: string; line: string };
+        hot?: { path: string; contentHash: string };
+      } = {
+        log: {
+          path: LOG_PATH,
+          contentHash: computeContentHash(updatedLogBody),
+          line: normalisedLog,
+        },
+      };
+
+      if (hotOutput && updatedHotBody) {
+        await atomicReplace(config.vaultPath, hotResolved, hotOutput, config.maxFileSize);
         result.hot = {
           path: HOT_PATH,
           contentHash: computeContentHash(updatedHotBody),

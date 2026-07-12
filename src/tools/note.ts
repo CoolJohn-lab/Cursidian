@@ -8,6 +8,13 @@ import { deleteNoteHandler } from './delete-note.js';
 import { renameNoteHandler } from './rename-note.js';
 import { manageFrontmatterHandler } from './manage-frontmatter.js';
 import { err } from '../types/index.js';
+import {
+  MAX_CONTENT_BYTES,
+  MAX_FRONTMATTER_KEYS,
+} from '../lib/limits.js';
+
+const boundedContent = z.string().max(MAX_CONTENT_BYTES);
+const boundedPatch = z.string().max(50_000);
 
 export function registerNote(server: McpServer, config: Config): void {
   server.registerTool(
@@ -22,12 +29,16 @@ export function registerNote(server: McpServer, config: Config): void {
         path: z
           .string()
           .min(1)
+          .max(500)
           .describe(
             'Note path, title, or frontmatter alias (rename source when action=rename; create uses literal path)',
           ),
-        content: z.string().optional().describe('Body for create or update modes'),
+        content: boundedContent.optional().describe('Body for create or update modes'),
         frontmatter: z
           .record(z.unknown())
+          .refine((obj) => Object.keys(obj).length <= MAX_FRONTMATTER_KEYS, {
+            message: `frontmatter exceeds ${MAX_FRONTMATTER_KEYS} keys`,
+          })
           .optional()
           .describe('Metadata for create or frontmatter set/merge'),
         overwrite: z.boolean().optional().describe('Overwrite existing note on create'),
@@ -35,25 +46,24 @@ export function registerNote(server: McpServer, config: Config): void {
           .enum(['replace', 'append', 'prepend', 'patch', 'replace_section'])
           .optional()
           .describe('Update mode; patch inferred when old_string/new_string set'),
-        old_string: z.string().optional().describe('Find text for patch mode'),
-        new_string: z.string().optional().describe('Replace text for patch mode'),
-        heading: z
-          .string()
-          .optional()
-          .describe(
-            'Section heading for replace_section. Plain text matches any level; with # markers (e.g. "## Details") the ATX level must match too. Replaces body until the next same-or-higher heading (nested subsections included)',
-          ),
+        old_string: boundedPatch.optional().describe('Find text for patch mode'),
+        new_string: boundedPatch.optional().describe('Replace text for patch mode'),
+        heading: z.string().max(500).optional().describe('Section heading for replace_section'),
         expectedHash: z.string().optional().describe('contentHash from read for concurrency check'),
         force: z.boolean().optional().describe('Bypass replace size guard'),
         confirm: z.boolean().optional().describe('Must be true for delete'),
-        newPath: z.string().optional().describe('Destination path for rename'),
+        newPath: z.string().max(500).optional().describe('Destination path for rename'),
         updateBacklinks: z.boolean().optional().describe('Rewrite wikilinks on rename'),
         updateIndex: z.boolean().optional().describe('Update index.md on rename'),
         fmOperation: z
           .enum(['set', 'merge', 'delete'])
           .optional()
           .describe('Frontmatter operation (get via action=read)'),
-        keys: z.array(z.string()).optional().describe('Frontmatter keys to delete'),
+        replaceAll: z
+          .boolean()
+          .optional()
+          .describe('Required true for fmOperation set (replaces all frontmatter keys)'),
+        keys: z.array(z.string()).max(MAX_FRONTMATTER_KEYS).optional().describe('Frontmatter keys to delete'),
       },
     },
     async (args) => {
@@ -74,6 +84,7 @@ export function registerNote(server: McpServer, config: Config): void {
         updateBacklinks,
         updateIndex,
         fmOperation,
+        replaceAll,
         keys,
       } = args;
 
@@ -120,6 +131,8 @@ export function registerNote(server: McpServer, config: Config): void {
             operation: fmOperation,
             data: frontmatter,
             keys,
+            replaceAll,
+            expectedHash,
           });
         default:
           return err(`Unknown action: ${action as string}`, 'invalid_args', { path });

@@ -1,8 +1,9 @@
 import fs from 'node:fs/promises';
-import fg from 'fast-glob';
+import path from 'node:path';
 import { type Config } from '../config.js';
 import { resolveDir } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly } from '../lib/security.js';
+import { vaultGlob } from '../lib/vault-glob.js';
 import { logger } from '../lib/logger.js';
 import { ok, err, mapToolError } from '../types/index.js';
 
@@ -39,12 +40,13 @@ export function manageFoldersHandler(config: Config) {
       }
 
       if (operation === 'list') {
-        const entries = await fg('*', {
+        const entries = await vaultGlob(config.vaultPath, '*', {
           cwd: resolved,
           onlyDirectories: true,
-          dot: false,
         });
-        const subfolders = entries.map((e) => joinVaultFolder(folderPath, e));
+        const subfolders = entries.map((e) =>
+          joinVaultFolder(folderPath, path.basename(e)),
+        );
         return ok({ folder: folderPath.replace(/\\/g, '/'), subfolders });
       }
 

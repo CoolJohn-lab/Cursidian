@@ -6,9 +6,10 @@ import type { TestContext } from './helpers.js';
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
+  ctx = await createTestVault((server, config) => {
+    registerNote(server, config);
+  });
   await seedVault(ctx.vault);
-  registerNote(ctx.server, ctx.config);
 });
 
 afterAll(async () => {
@@ -17,7 +18,7 @@ afterAll(async () => {
 
 describe('note (read)', () => {
   it('reads a note with frontmatter', async () => {
-    const result = await callTool(ctx.server, 'note', { action: 'read', path: 'index' });
+    const result = await callTool(ctx.client, 'note', { action: 'read', path: 'index' });
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as {
       frontmatter: Record<string, unknown>;
@@ -30,12 +31,12 @@ describe('note (read)', () => {
   });
 
   it('accepts path with .md extension', async () => {
-    const result = await callTool(ctx.server, 'note', { action: 'read', path: 'index.md' });
+    const result = await callTool(ctx.client, 'note', { action: 'read', path: 'index.md' });
     expect(result.isError).toBeFalsy();
   });
 
   it('returns error for non-existent note', async () => {
-    const result = await callTool(ctx.server, 'note', { action: 'read', path: 'does-not-exist' });
+    const result = await callTool(ctx.client, 'note', { action: 'read', path: 'does-not-exist' });
     expect(result.isError).toBe(true);
   });
 
@@ -46,7 +47,7 @@ describe('note (read)', () => {
       'entities/compute.md',
       '---\ntitle: Compute Box\naliases:\n  - compute-box\n---\n\nAlias target body.\n',
     );
-    const result = await callTool(ctx.server, 'note', { action: 'read', path: 'compute-box' });
+    const result = await callTool(ctx.client, 'note', { action: 'read', path: 'compute-box' });
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as { path: string; content: string };
     expect(data.path).toBe('entities/compute.md');
@@ -65,7 +66,7 @@ describe('note (read)', () => {
       'entities/collide-b.md',
       '---\ntitle: Collide B\naliases: [shared-read-key]\n---\n\nB\n',
     );
-    const result = await callTool(ctx.server, 'note', {
+    const result = await callTool(ctx.client, 'note', {
       action: 'read',
       path: 'shared-read-key',
     });
@@ -76,7 +77,7 @@ describe('note (read)', () => {
   });
 
   it('returns note_not_found for unknown alias', async () => {
-    const result = await callTool(ctx.server, 'note', {
+    const result = await callTool(ctx.client, 'note', {
       action: 'read',
       path: 'no-such-alias-xyz',
     });
@@ -86,7 +87,7 @@ describe('note (read)', () => {
   });
 
   it('rejects path traversal', async () => {
-    const result = await callTool(ctx.server, 'note', { action: 'read', path: '../../../etc/passwd' });
+    const result = await callTool(ctx.client, 'note', { action: 'read', path: '../../../etc/passwd' });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('path_traversal');
   });

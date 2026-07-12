@@ -14,12 +14,13 @@ import type { TestContext } from './helpers.js';
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
+  ctx = await createTestVault((server, config) => {
+    registerGraph(server, config);
+    registerSearch(server, config);
+  });
   await seedVault(ctx.vault);
   await writeNote(ctx.vault, 'hub.md', '---\ntitle: Hub\n---\n\nSee [[spoke]]');
   await writeNote(ctx.vault, 'spoke.md', '---\ntitle: Spoke\n---\n\nBack to [[hub]]');
-  registerGraph(ctx.server, ctx.config);
-  registerSearch(ctx.server, ctx.config);
 });
 
 afterAll(async () => {
@@ -28,7 +29,7 @@ afterAll(async () => {
 
 describe('graph', () => {
   it('returns outgoing links and backlinks', async () => {
-    const result = await callTool(ctx.server, 'graph', { path: 'hub' });
+    const result = await callTool(ctx.client, 'graph', { path: 'hub' });
     const data = parseResult(result) as {
       outgoingLinks: Array<{ raw: string; resolvedPath: string | null }>;
       backlinks: Array<{ path: string }>;
@@ -40,13 +41,13 @@ describe('graph', () => {
   });
 
   it('finds backlinks to a seeded note', async () => {
-    const result = await callTool(ctx.server, 'graph', { path: 'Resources/book' });
+    const result = await callTool(ctx.client, 'graph', { path: 'Resources/book' });
     const data = parseResult(result) as { backlinks: Array<{ path: string }> };
     expect(data.backlinks.length).toBeGreaterThan(0);
   });
 
   it('returns empty backlinks for note with no incoming links', async () => {
-    const result = await callTool(ctx.server, 'graph', { path: 'Daily/2024-01-16' });
+    const result = await callTool(ctx.client, 'graph', { path: 'Daily/2024-01-16' });
     const data = parseResult(result) as { backlinkCount: number };
     expect(typeof data.backlinkCount).toBe('number');
   });
@@ -57,14 +58,14 @@ describe('graph', () => {
       'entities/alias-hub.md',
       '---\ntitle: Alias Hub\naliases:\n  - alias-hub-key\n---\n\nSee [[spoke]]\n',
     );
-    const result = await callTool(ctx.server, 'graph', { path: 'alias-hub-key' });
+    const result = await callTool(ctx.client, 'graph', { path: 'alias-hub-key' });
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as { note: string };
     expect(data.note).toBe('entities/alias-hub.md');
   });
 
   it('rejects path traversal', async () => {
-    const result = await callTool(ctx.server, 'graph', { path: '../../../etc/passwd' });
+    const result = await callTool(ctx.client, 'graph', { path: '../../../etc/passwd' });
     expect(result.isError).toBe(true);
   });
 });

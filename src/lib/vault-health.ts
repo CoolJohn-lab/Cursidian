@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import fg from 'fast-glob';
 import { parseFrontmatter } from './frontmatter.js';
 import { resolveOutgoingLinks } from './wikilink-resolve.js';
 import { buildInboundLinkCounts } from './backlinks.js';
 import { getVaultIndex, resolveWikilinkTarget, getIndexKeyCollisions, type VaultIndex } from './vault-index.js';
-import { TRASH_GLOB_IGNORE } from './trash.js';
+import { listVaultMarkdownPaths } from './vault-glob.js';
+import { readFileBounded } from './security.js';
 import { isHealthExcludedPath } from './operational-paths.js';
 
 export { isHealthExcludedPath } from './operational-paths.js';
@@ -87,16 +87,12 @@ function resolveIndexTarget(target: string, index: VaultIndex): string | null {
 export async function computeVaultHealth(
   vaultPath: string,
   staleDays = 90,
+  maxFileSize = 10_485_760,
 ): Promise<VaultHealthReport> {
-  const files = await fg('**/*.md', {
-    cwd: vaultPath,
-    absolute: true,
-    dot: false,
-    ignore: [TRASH_GLOB_IGNORE],
-  });
+  const files = await listVaultMarkdownPaths(vaultPath);
 
   const index = await getVaultIndex(vaultPath);
-  const inboundCounts = await buildInboundLinkCounts(vaultPath, index);
+  const inboundCounts = await buildInboundLinkCounts(vaultPath, index, maxFileSize);
   const staleCutoff = Date.now() - staleDays * 24 * 60 * 60 * 1000;
 
   const orphans: Array<{ path: string }> = [];
@@ -113,7 +109,12 @@ export async function computeVaultHealth(
     }
     catalogPaths.add(relativePath);
 
-    const raw = await fs.readFile(file, 'utf-8');
+    let raw: string;
+    try {
+      raw = await readFileBounded(file, maxFileSize);
+    } catch {
+      continue;
+    }
     const { data, content } = parseFrontmatter(raw);
 
     const missing: string[] = [];
@@ -246,13 +247,11 @@ export function isCatalogNote(relativePath: string): boolean {
 /**
  * Builds index.md body grouped by category.
  */
-export async function buildIndexMarkdown(vaultPath: string): Promise<{ markdown: string; noteCount: number; categories: string[] }> {
-  const files = await fg('**/*.md', {
-    cwd: vaultPath,
-    absolute: true,
-    dot: false,
-    ignore: [TRASH_GLOB_IGNORE],
-  });
+export async function buildIndexMarkdown(
+  vaultPath: string,
+  maxFileSize = 10_485_760,
+): Promise<{ markdown: string; noteCount: number; categories: string[] }> {
+  const files = await listVaultMarkdownPaths(vaultPath);
 
   const groups = new Map<string, Array<{ path: string; title: string; summary: string; tags: string[] }>>();
 
@@ -262,7 +261,12 @@ export async function buildIndexMarkdown(vaultPath: string): Promise<{ markdown:
       continue;
     }
 
-    const raw = await fs.readFile(file, 'utf-8');
+    let raw: string;
+    try {
+      raw = await readFileBounded(file, maxFileSize);
+    } catch {
+      continue;
+    }
     const { data } = parseFrontmatter(raw);
     const basename = path.basename(relativePath, '.md');
     const title = typeof data.title === 'string' ? data.title : basename;

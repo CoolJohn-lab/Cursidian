@@ -6,8 +6,9 @@ import type { TestContext } from './helpers.js';
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
-  registerVault(ctx.server, ctx.config);
+  ctx = await createTestVault((server, config) => {
+    registerVault(server, config);
+  });
 });
 
 afterAll(async () => {
@@ -27,7 +28,7 @@ describe('vault (health)', () => {
       '---\ntitle: Linker\ncategory: concepts\ntags: [x]\nsummary: Links out.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nSee [[missing-page]].\n',
     );
 
-    const result = await callTool(ctx.server, 'vault', { action: 'health' });
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
     const data = parseResult(result) as {
       orphans: Array<{ path: string }>;
       brokenLinks: Array<{ path: string; raw: string }>;
@@ -55,7 +56,7 @@ describe('vault (health)', () => {
       '---\ntitle: Collide B\ncategory: concepts\ntags: [x]\nsummary: B.\naliases: [dup-key]\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nB.\n',
     );
 
-    const result = await callTool(ctx.server, 'vault', { action: 'health' });
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
     const data = parseResult(result) as {
       ambiguousKeys: Array<{ key: string; paths: string[] }>;
       counts: { ambiguousKeys: number };
@@ -77,7 +78,7 @@ describe('vault (health)', () => {
       '---\ntitle: Wiki Index\n---\n\n# Wiki Index\n\n- [[concepts/dead-entry]] - old summary\n',
     );
 
-    const result = await callTool(ctx.server, 'vault', { action: 'health' });
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
     const data = parseResult(result) as {
       missingFrontmatter: Array<{ path: string }>;
       indexDrift: { deadIndexEntries: string[]; missingFromIndex: string[] };

@@ -1,7 +1,6 @@
-import fs from 'node:fs/promises';
 import { type Config } from '../config.js';
 import { toRelativePath } from '../lib/vault.js';
-import { assertSafePathAsync } from '../lib/security.js';
+import { readFileBounded } from '../lib/security.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { getVaultIndex, resolveExistingNotePath } from '../lib/vault-index.js';
 import { resolveOutgoingLinks } from '../lib/wikilink-resolve.js';
@@ -12,14 +11,18 @@ export function getNoteNeighborhoodHandler(config: Config) {
   return async ({ path: notePath }: { path: string }) => {
     try {
       const resolved = await resolveExistingNotePath(config.vaultPath, notePath);
-      await assertSafePathAsync(config.vaultPath, resolved);
 
       const relativePath = toRelativePath(config.vaultPath, resolved);
-      const raw = await fs.readFile(resolved, 'utf-8');
+      const raw = await readFileBounded(resolved, config.maxFileSize);
       const { content } = parseFrontmatter(raw);
       const index = await getVaultIndex(config.vaultPath);
       const outgoingLinks = resolveOutgoingLinks(content, index);
-      const backlinks = await findBacklinks(config.vaultPath, relativePath, index);
+      const backlinks = await findBacklinks(
+        config.vaultPath,
+        relativePath,
+        index,
+        config.maxFileSize,
+      );
 
       return ok({
         note: relativePath,

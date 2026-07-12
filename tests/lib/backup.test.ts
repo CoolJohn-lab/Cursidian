@@ -2,13 +2,14 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import { backupNote } from '../../src/lib/backup.js';
+import { backupNote, resetLegacyMigrationCache } from '../../src/lib/backup.js';
 import { LEGACY_TRASH_DIR_NAME, TRASH_DIR_NAME } from '../../src/lib/trash.js';
 
 let vault: string;
 let noteFile: string;
 
 beforeAll(async () => {
+  resetLegacyMigrationCache();
   vault = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-test-backup-'));
   noteFile = path.join(vault, 'note.md');
   await fsp.writeFile(noteFile, '# Original content');
@@ -36,18 +37,27 @@ describe('backupNote', () => {
     expect(backupPath).toContain(TRASH_DIR_NAME);
   });
 
-  it('deletes legacy .obsidian-mcp-trash on backup', async () => {
-    const legacy = path.join(vault, LEGACY_TRASH_DIR_NAME, 'old.md');
+  it('migrates legacy .obsidian-mcp-trash into active trash on backup', async () => {
+    resetLegacyMigrationCache();
+    const isolated = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-legacy-'));
+    const isolatedNote = path.join(isolated, 'note.md');
+    await fsp.writeFile(isolatedNote, '# isolated');
+    const legacy = path.join(isolated, LEGACY_TRASH_DIR_NAME, 'old.md');
     await fsp.mkdir(path.dirname(legacy), { recursive: true });
     await fsp.writeFile(legacy, 'legacy');
 
-    const backupPath = await backupNote(vault, noteFile);
-    expect(backupPath).toContain(TRASH_DIR_NAME);
+    await backupNote(isolated, isolatedNote);
 
-    const legacyExists = await fsp
-      .access(path.join(vault, LEGACY_TRASH_DIR_NAME))
+    const legacyStillExists = await fsp
+      .access(legacy)
       .then(() => true)
       .catch(() => false);
-    expect(legacyExists).toBe(false);
+    expect(legacyStillExists).toBe(false);
+
+    const migrated = path.join(isolated, TRASH_DIR_NAME, '_legacy-migrated', 'old.md');
+    const migratedExists = await fsp.access(migrated).then(() => true).catch(() => false);
+    expect(migratedExists).toBe(true);
+
+    await fsp.rm(isolated, { recursive: true, force: true });
   });
 });

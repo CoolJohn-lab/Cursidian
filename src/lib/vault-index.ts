@@ -1,13 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import fg from 'fast-glob';
 import { parseFrontmatter, parseAliases } from './frontmatter.js';
 import { clearSearchResultCache } from './search-cache.js';
-import { TRASH_GLOB_IGNORE } from './trash.js';
+import { listVaultMarkdownPaths } from './vault-glob.js';
 import { buildVaultMarkdownSignature } from './vault-signature.js';
 import { clearVaultSearchStateCache } from './vault-search-state.js';
+import { clearVaultSnapshotCache } from './vault-snapshot.js';
 import { resolvePath } from './vault.js';
-import { assertSafePath } from './security.js';
+import { assertSafePathAsync } from './security.js';
 
 export interface VaultNoteEntry {
   path: string;
@@ -49,47 +49,24 @@ interface VaultIndexCacheEntry {
 }
 
 const indexCache = new Map<string, VaultIndexCacheEntry>();
-/** Collisions keyed by the index Map instance returned to callers. */
 const collisionsByIndex = new WeakMap<VaultIndex, VaultIndexCollisions>();
 const CACHE_TTL_MS = 60_000;
 
-/**
- * Clears the in-memory vault index cache (used in tests).
- */
 export function clearVaultIndexCache(): void {
   indexCache.clear();
 }
 
-/**
- * Clears all search-related caches (index, file snapshot, ranked results).
- * Call after any vault mutation so search/index results stay consistent.
- */
 export function clearAllSearchCaches(): void {
   indexCache.clear();
   clearVaultSearchStateCache();
+  clearVaultSnapshotCache();
   clearSearchResultCache();
 }
 
-/**
- * Returns collision map for a vault index (empty when none / unknown).
- */
 export function getIndexKeyCollisions(index: VaultIndex): VaultIndexCollisions {
   return collisionsByIndex.get(index) ?? new Map();
 }
 
-async function listVaultMarkdownPaths(vaultPath: string): Promise<string[]> {
-  return fg('**/*.md', {
-    cwd: vaultPath,
-    absolute: true,
-    dot: false,
-    ignore: [TRASH_GLOB_IGNORE],
-  });
-}
-
-/**
- * Returns a cached vault index when fresh, otherwise rebuilds it.
- * Invalidates when the path/mtime/size fingerprint changes (not merely after TTL).
- */
 export async function getVaultIndex(vaultPath: string): Promise<VaultIndex> {
   const currentPaths = await listVaultMarkdownPaths(vaultPath);
   const signature = await buildVaultMarkdownSignature(currentPaths);
@@ -109,23 +86,14 @@ export async function getVaultIndex(vaultPath: string): Promise<VaultIndex> {
   return index;
 }
 
-/**
- * Normalises a string for case-insensitive path/title matching.
- */
 export function normaliseKey(value: string): string {
   return value.trim().toLowerCase().replace(/\\/g, '/').replace(/\.md$/i, '');
 }
 
-/**
- * Strips Obsidian heading anchors from a wikilink target.
- */
 export function stripWikilinkAnchor(link: string): string {
   return link.split('#')[0]?.trim() ?? link.trim();
 }
 
-/**
- * Registers short aliases for notes under projects/<name>/<category>/<page>.
- */
 function registerProjectAliases(relativePath: string, keys: Set<string>): void {
   const parts = relativePath.replace(/\.md$/i, '').split(/[/\\]/);
   if (parts[0] !== 'projects' || parts.length < 4) {
@@ -135,9 +103,6 @@ function registerProjectAliases(relativePath: string, keys: Set<string>): void {
   keys.add(normaliseKey(parts[parts.length - 1]!));
 }
 
-/**
- * Builds a lookup index from wikilink keys to vault-relative note paths.
- */
 export async function buildVaultIndex(vaultPath: string): Promise<VaultIndex> {
   const files = await listVaultMarkdownPaths(vaultPath);
   const { index, collisions } = await buildVaultIndexFromPaths(vaultPath, files);
@@ -145,7 +110,7 @@ export async function buildVaultIndex(vaultPath: string): Promise<VaultIndex> {
   return index;
 }
 
-async function buildVaultIndexFromPaths(
+export async function buildVaultIndexFromPaths(
   vaultPath: string,
   files: string[],
 ): Promise<{ index: VaultIndex; collisions: VaultIndexCollisions }> {
@@ -167,7 +132,12 @@ async function buildVaultIndexFromPaths(
   for (const file of files) {
     const relativePath = path.relative(vaultPath, file).split(path.sep).join('/');
     const basename = path.basename(relativePath, '.md');
-    const raw = await fs.readFile(file, 'utf-8');
+    let raw: string;
+    try {
+      raw = await fs.readFile(file, 'utf-8');
+    } catch {
+      continue;
+    }
     const { data } = parseFrontmatter(raw);
     const title = typeof data.title === 'string' ? data.title : basename;
     const summary = typeof data.summary === 'string' ? data.summary : '';
@@ -213,10 +183,6 @@ async function buildVaultIndexFromPaths(
   return { index, collisions };
 }
 
-/**
- * Resolves a wikilink target string to a vault-relative note path when possible.
- * Returns null when unresolved or when the key is claimed by multiple notes.
- */
 export function resolveWikilinkTarget(link: string, index: VaultIndex): string | null {
   const collisions = getIndexKeyCollisions(index);
   const pathOnly = stripWikilinkAnchor(link);
@@ -261,18 +227,12 @@ function throwNoteNotFound(userPath: string): never {
   throw err;
 }
 
-/**
- * Resolves a user path (vault-relative path, title, or frontmatter alias) to an
- * absolute filesystem path for an existing note. Tries the literal path first,
- * then the vault index. Throws ENOENT when nothing matches, or PathResolveError
- * when the key is claimed by multiple notes.
- */
 export async function resolveExistingNotePath(
   vaultPath: string,
   userPath: string,
 ): Promise<string> {
   const direct = resolvePath(vaultPath, userPath);
-  assertSafePath(vaultPath, direct);
+  await assertSafePathAsync(vaultPath, direct);
 
   try {
     await fs.access(direct);
@@ -295,7 +255,7 @@ export async function resolveExistingNotePath(
   }
 
   const resolved = resolvePath(vaultPath, entry.path);
-  assertSafePath(vaultPath, resolved);
+  await assertSafePathAsync(vaultPath, resolved);
 
   try {
     await fs.access(resolved);

@@ -1,12 +1,17 @@
-import fs from 'node:fs/promises';
 import { type Config } from '../config.js';
 import { toRelativePath } from '../lib/vault.js';
-import { assertSafePathAsync, assertNotReadOnly, assertFileSize } from '../lib/security.js';
+import {
+  assertSafePathAsync,
+  assertNotReadOnly,
+  readFileBounded,
+} from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { computeContentHash } from '../lib/content-hash.js';
 import { applyPatch, assertReplaceSizeGuard, replaceSection } from '../lib/section-edit.js';
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
+import { atomicReplace } from '../lib/vault-io.js';
+import { backupNoteIfExists } from '../lib/backup.js';
 import { logger } from '../lib/logger.js';
 import { ok, err, toolError, mapToolError } from '../types/index.js';
 
@@ -53,9 +58,8 @@ export function updateNoteHandler(config: Config) {
 
       const resolved = await resolveExistingNotePath(config.vaultPath, notePath);
       await assertSafePathAsync(config.vaultPath, resolved);
-      await assertFileSize(resolved, config.maxFileSize);
 
-      const raw = await fs.readFile(resolved, 'utf-8');
+      const raw = await readFileBounded(resolved, config.maxFileSize);
       const { data, content: existingContent } = parseFrontmatter(raw);
 
       const currentHash = computeContentHash(existingContent);
@@ -104,7 +108,12 @@ export function updateNoteHandler(config: Config) {
       }
 
       const newBody = stringifyFrontmatter(withUpdatedTimestamp(data), updatedBody);
-      await fs.writeFile(resolved, newBody, 'utf-8');
+
+      if (config.backupEnabled) {
+        await backupNoteIfExists(config.vaultPath, resolved);
+      }
+
+      await atomicReplace(config.vaultPath, resolved, newBody, config.maxFileSize);
 
       const relative = toRelativePath(config.vaultPath, resolved);
       clearAllSearchCaches();

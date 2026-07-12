@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { registerVault } from '../../src/tools/vault.js';
-import { createTestVault, cleanupVault, callTool, parseResult } from './helpers.js';
+import { createTestVault, createTestClient, cleanupVault, callTool, parseResult } from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
-  registerVault(ctx.server, ctx.config);
+  ctx = await createTestVault((server, config) => {
+    registerVault(server, config);
+  });
 });
 
 afterAll(async () => {
@@ -16,7 +17,7 @@ afterAll(async () => {
 
 describe('vault (folders)', () => {
   it('creates a folder', async () => {
-    const result = await callTool(ctx.server, 'vault', {
+    const result = await callTool(ctx.client, 'vault', {
       action: 'create_folder',
       path: 'NewFolder',
     });
@@ -26,7 +27,7 @@ describe('vault (folders)', () => {
   });
 
   it('creates nested folders', async () => {
-    const result = await callTool(ctx.server, 'vault', {
+    const result = await callTool(ctx.client, 'vault', {
       action: 'create_folder',
       path: 'Deep/Nested/Folder',
     });
@@ -34,9 +35,9 @@ describe('vault (folders)', () => {
   });
 
   it('lists subfolders', async () => {
-    await callTool(ctx.server, 'vault', { action: 'create_folder', path: 'Parent/Child1' });
-    await callTool(ctx.server, 'vault', { action: 'create_folder', path: 'Parent/Child2' });
-    const result = await callTool(ctx.server, 'vault', {
+    await callTool(ctx.client, 'vault', { action: 'create_folder', path: 'Parent/Child1' });
+    await callTool(ctx.client, 'vault', { action: 'create_folder', path: 'Parent/Child2' });
+    const result = await callTool(ctx.client, 'vault', {
       action: 'list_folders',
       path: 'Parent',
     });
@@ -50,7 +51,7 @@ describe('vault (folders)', () => {
   });
 
   it('lists vault-root subfolders when path is empty', async () => {
-    const result = await callTool(ctx.server, 'vault', { action: 'list_folders', path: '' });
+    const result = await callTool(ctx.client, 'vault', { action: 'list_folders', path: '' });
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as { folder: string; subfolders: string[] };
     expect(data.folder).toBe('');
@@ -58,8 +59,8 @@ describe('vault (folders)', () => {
   });
 
   it('deletes an empty folder with confirm', async () => {
-    await callTool(ctx.server, 'vault', { action: 'create_folder', path: 'ToDelete' });
-    const result = await callTool(ctx.server, 'vault', {
+    await callTool(ctx.client, 'vault', { action: 'create_folder', path: 'ToDelete' });
+    const result = await callTool(ctx.client, 'vault', {
       action: 'delete_folder',
       path: 'ToDelete',
       confirm: true,
@@ -68,8 +69,8 @@ describe('vault (folders)', () => {
   });
 
   it('fails to delete without confirm', async () => {
-    await callTool(ctx.server, 'vault', { action: 'create_folder', path: 'NoConfirm' });
-    const result = await callTool(ctx.server, 'vault', {
+    await callTool(ctx.client, 'vault', { action: 'create_folder', path: 'NoConfirm' });
+    const result = await callTool(ctx.client, 'vault', {
       action: 'delete_folder',
       path: 'NoConfirm',
       confirm: false,
@@ -79,12 +80,12 @@ describe('vault (folders)', () => {
   });
 
   it('returns folder_not_empty when deleting a non-empty folder', async () => {
-    await callTool(ctx.server, 'vault', { action: 'create_folder', path: 'NotEmpty' });
+    await callTool(ctx.client, 'vault', { action: 'create_folder', path: 'NotEmpty' });
     const { writeFile, mkdir } = await import('node:fs/promises');
     const { join } = await import('node:path');
     await mkdir(join(ctx.vault, 'NotEmpty'), { recursive: true });
     await writeFile(join(ctx.vault, 'NotEmpty', 'note.md'), '# hi\n', 'utf-8');
-    const result = await callTool(ctx.server, 'vault', {
+    const result = await callTool(ctx.client, 'vault', {
       action: 'delete_folder',
       path: 'NotEmpty',
       confirm: true,
@@ -95,7 +96,7 @@ describe('vault (folders)', () => {
   });
 
   it('rejects path traversal', async () => {
-    const result = await callTool(ctx.server, 'vault', {
+    const result = await callTool(ctx.client, 'vault', {
       action: 'create_folder',
       path: '../evil',
     });
@@ -103,11 +104,11 @@ describe('vault (folders)', () => {
   });
 
   it('rejects in read-only mode', async () => {
-    const { McpServer } = await import('@modelcontextprotocol/sdk/server/mcp.js');
     const { registerVault: reg } = await import('../../src/tools/vault.js');
-    const roServer = new McpServer({ name: 'ro', version: '0' });
-    reg(roServer, { ...ctx.config, readOnly: true });
-    const result = await callTool(roServer, 'vault', {
+    const roClient = await createTestClient({ ...ctx.config, readOnly: true }, (server, config) => {
+      reg(server, config);
+    });
+    const result = await callTool(roClient, 'vault', {
       action: 'create_folder',
       path: 'x',
     });

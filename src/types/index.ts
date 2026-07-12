@@ -118,6 +118,41 @@ export function mapToolError(e: unknown, context?: { path?: string }): ToolResul
       });
     }
 
+    if (name === 'FileTooLargeError') {
+      return toolError({
+        error: 'file_too_large',
+        message,
+        path: pathHint,
+        hint: 'Reduce note size or raise OBSIDIAN_MAX_FILE_SIZE.',
+      });
+    }
+
+    if (name === 'AlreadyExistsError') {
+      return toolError({
+        error: 'already_exists',
+        message,
+        path: pathHint,
+        hint: 'Use overwrite: true to replace, or choose a different path.',
+      });
+    }
+
+    if (name === 'PartialUpdateError') {
+      const completed =
+        'completed' in e && Array.isArray((e as { completed: unknown }).completed)
+          ? (e as { completed: string[] }).completed
+          : [];
+      const failed =
+        'failed' in e && Array.isArray((e as { failed: unknown }).failed)
+          ? (e as { failed: string[] }).failed
+          : [];
+      return toolError({
+        error: 'partial_update',
+        message,
+        path: pathHint,
+        hint: `Completed: ${completed.join(', ') || 'none'}. Failed: ${failed.join(', ') || 'none'}.`,
+      });
+    }
+
     if (name === 'SectionEditError') {
       const code =
         'code' in e && typeof (e as { code: unknown }).code === 'string'

@@ -1,10 +1,11 @@
 {
   "name": "cursidian",
-  "version": "2.6.7",
+  "version": "2.7.0",
   "description": "MCP server for Obsidian vaults, optimised for Cursor agents - safe writes, lean tool surface, direct filesystem access.",
   "type": "module",
   "bin": {
-    "cursidian": "dist/index.js"
+    "cursidian": "dist/index.js",
+    "cursidian-skills": "dist/cli/install-skills.js"
   },
   "files": [
     "dist",
@@ -14,7 +15,7 @@
     "skills"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-cli-assets.mjs",
     "prebuild": "npm run slop:check",
     "slop:check": "node scripts/slop-check.mjs",
     "slop:fix": "node scripts/fix-slop.mjs",
@@ -68,8 +69,8 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "fast-glob": "^3.3.3",
-    "gray-matter": "^4.0.3",
     "stemmer": "^2.0.1",
+    "yaml": "^2.9.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

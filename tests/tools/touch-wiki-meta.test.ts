@@ -13,7 +13,10 @@ import type { TestContext } from './helpers.js';
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
+  ctx = await createTestVault((server, config) => {
+    registerVault(server, config);
+    registerNote(server, config);
+  });
   await writeNote(
     ctx.vault,
     'log.md',
@@ -24,8 +27,6 @@ beforeAll(async () => {
     'hot.md',
     '---\ntitle: Hot Cache\nupdated: 2026-01-01T00:00:00Z\n---\n\n# Hot Cache\n\n## Recent Activity\n\n- [2026-01-01T00:00:00Z] INIT\n\n## Active Threads\n\n- none\n',
   );
-  registerVault(ctx.server, ctx.config);
-  registerNote(ctx.server, ctx.config);
 });
 
 afterAll(async () => {
@@ -34,7 +35,7 @@ afterAll(async () => {
 
 describe('vault (log)', () => {
   it('appends a normalised log line', async () => {
-    const result = await callTool(ctx.server, 'vault', {
+    const result = await callTool(ctx.client, 'vault', {
       action: 'log',
       logLine: 'CAPTURE page="concepts/demo" title="Demo"',
     });
@@ -49,23 +50,23 @@ describe('vault (log)', () => {
     expect(data.hot).toBeUndefined();
 
     const log = parseResult(
-      await callTool(ctx.server, 'note', { action: 'read', path: 'log.md' }),
+      await callTool(ctx.client, 'note', { action: 'read', path: 'log.md' }),
     ) as { content: string };
     expect(log.content).toContain('CAPTURE page="concepts/demo"');
   });
 
   it('updates hot.md Recent Activity and keeps three bullets', async () => {
-    await callTool(ctx.server, 'vault', {
+    await callTool(ctx.client, 'vault', {
       action: 'log',
       logLine: 'INGEST mode=append pages_created=1',
       hotActivity: 'INGEST - added [[concepts/demo]]',
     });
-    await callTool(ctx.server, 'vault', {
+    await callTool(ctx.client, 'vault', {
       action: 'log',
       logLine: 'LINT orphans=0',
       hotActivity: 'LINT - clean',
     });
-    const result = await callTool(ctx.server, 'vault', {
+    const result = await callTool(ctx.client, 'vault', {
       action: 'log',
       logLine: 'WIKI_UPDATE project=demo',
       hotActivity: 'WIKI_UPDATE - demo synced',
@@ -75,7 +76,7 @@ describe('vault (log)', () => {
     expect(data.hot.path).toBe('hot.md');
 
     const hot = parseResult(
-      await callTool(ctx.server, 'note', { action: 'read', path: 'hot.md' }),
+      await callTool(ctx.client, 'note', { action: 'read', path: 'hot.md' }),
     ) as { content: string; frontmatter: { updated?: string } };
     expect(hot.frontmatter.updated).toBeTruthy();
     const activitySection = hot.content.split('## Active Threads')[0] ?? '';
@@ -85,7 +86,7 @@ describe('vault (log)', () => {
   });
 
   it('returns structured hash_mismatch for stale expectedLogHash', async () => {
-    const result = await callTool(ctx.server, 'vault', {
+    const result = await callTool(ctx.client, 'vault', {
       action: 'log',
       logLine: 'SHOULD_FAIL',
       expectedLogHash: 'deadbeef',
@@ -94,5 +95,29 @@ describe('vault (log)', () => {
     const data = parseResult(result) as { error: string; path?: string };
     expect(data.error).toBe('hash_mismatch');
     expect(data.path).toBe('log.md');
+  });
+
+  it('leaves log.md unchanged when expectedHotHash is stale', async () => {
+    const before = parseResult(
+      await callTool(ctx.client, 'note', { action: 'read', path: 'log.md' }),
+    ) as { content: string; contentHash: string };
+
+    const result = await callTool(ctx.client, 'vault', {
+      action: 'log',
+      logLine: 'HOT_HASH_FAIL',
+      hotActivity: 'should not apply',
+      expectedHotHash: 'deadbeef',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; path?: string };
+    expect(data.error).toBe('hash_mismatch');
+    expect(data.path).toBe('hot.md');
+
+    const after = parseResult(
+      await callTool(ctx.client, 'note', { action: 'read', path: 'log.md' }),
+    ) as { content: string; contentHash: string };
+    expect(after.contentHash).toBe(before.contentHash);
+    expect(after.content).toBe(before.content);
+    expect(after.content).not.toContain('HOT_HASH_FAIL');
   });
 });

@@ -7,6 +7,7 @@ import { listNotesHandler } from './list-notes.js';
 import { listRecentHandler } from './list-recent.js';
 import { listTagsHandler } from './list-tags.js';
 import { err } from '../types/index.js';
+import { DEFAULT_LIST_LIMIT, MAX_LIST_LIMIT, MAX_QUERY_LENGTH, MAX_RECENT_LIMIT } from '../lib/limits.js';
 
 export function registerSearch(server: McpServer, config: Config): void {
   server.registerTool(
@@ -20,20 +21,21 @@ export function registerSearch(server: McpServer, config: Config): void {
           .optional()
           .default('content')
           .describe('Search mode; defaults to content'),
-        query: z.string().optional().describe('Keywords for content search'),
+        query: z.string().max(MAX_QUERY_LENGTH).optional().describe('Keywords for content search'),
         tags: z
           .array(z.string().min(1))
           .optional()
           .describe('Required for by_tags; optional AND-filter for content'),
-        folder: z.string().optional().describe('Subfolder filter for list/recent'),
+        folder: z.string().max(500).optional().describe('Subfolder filter for list/recent'),
         recursive: z.boolean().optional().describe('Include subfolders for list'),
         limit: z
           .number()
           .int()
           .min(1)
-          .max(200)
+          .max(MAX_LIST_LIMIT)
           .optional()
-          .describe('Max results for content/by_tags/recent'),
+          .describe('Max results for content/by_tags/list'),
+        cursor: z.string().optional().describe('Pagination cursor from a prior list response (nextCursor)'),
         caseSensitive: z.boolean().optional().describe('Case-sensitive content search'),
         verbose: z.boolean().optional().describe('Include matchReasons and snippet match text'),
         includeOperational: z
@@ -54,6 +56,7 @@ export function registerSearch(server: McpServer, config: Config): void {
         folder,
         recursive,
         limit,
+        cursor,
         caseSensitive,
         verbose,
         includeOperational,
@@ -83,9 +86,17 @@ export function registerSearch(server: McpServer, config: Config): void {
           }
           return searchByTagsHandler(config)({ tags, limit });
         case 'list':
-          return listNotesHandler(config)({ folder, recursive, includeOperational });
-        case 'recent':
-          return listRecentHandler(config)({ limit, folder, includeOperational });
+          return listNotesHandler(config)({
+            folder,
+            recursive,
+            includeOperational,
+            limit: limit ?? DEFAULT_LIST_LIMIT,
+            cursor,
+          });
+        case 'recent': {
+          const recentLimit = limit !== undefined ? Math.min(limit, MAX_RECENT_LIMIT) : undefined;
+          return listRecentHandler(config)({ limit: recentLimit, folder, includeOperational });
+        }
         case 'tags':
           return listTagsHandler(config)();
         default:

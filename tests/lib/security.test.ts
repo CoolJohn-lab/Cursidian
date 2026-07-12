@@ -7,6 +7,8 @@ import {
   assertSafePathAsync,
   assertNotReadOnly,
   findExistingAncestor,
+  readFileBounded,
+  FileTooLargeError,
   ReadOnlyError,
   SecurityError,
 } from '../../src/lib/security.js';
@@ -87,8 +89,13 @@ describe('assertSafePathAsync symlink containment', () => {
         await fsp.symlink(outside, escapeLink, 'dir');
       }
       symlinkOk = true;
-    } catch {
+    } catch (err) {
       symlinkOk = false;
+      if (process.platform !== 'win32') {
+        throw new Error(
+          `Symlink fixture required on ${process.platform} but creation failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
     }
   });
 
@@ -135,6 +142,19 @@ describe('findExistingAncestor', () => {
     try {
       const deep = path.join(tmpDir, 'a', 'b', 'c', 'note.md');
       await expect(findExistingAncestor(deep)).resolves.toBe(tmpDir);
+    } finally {
+      await fsp.rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('readFileBounded', () => {
+  it('throws FileTooLargeError when the file exceeds maxBytes', async () => {
+    const tmpDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-bounded-'));
+    try {
+      const note = path.join(tmpDir, 'big.md');
+      await fsp.writeFile(note, 'x'.repeat(32), 'utf-8');
+      await expect(readFileBounded(note, 16)).rejects.toBeInstanceOf(FileTooLargeError);
     } finally {
       await fsp.rm(tmpDir, { recursive: true, force: true });
     }

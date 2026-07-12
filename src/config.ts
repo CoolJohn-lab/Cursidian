@@ -4,16 +4,28 @@ import os from 'node:os';
 import path from 'node:path';
 import { setLogLevel, type LogLevel } from './lib/logger.js';
 
+const DEFAULT_MAX_FILE_SIZE = 10_485_760;
+
+function parsePositiveInt(raw: string | undefined, fallback: number): number {
+  if (raw === undefined || raw.trim() === '') {
+    return fallback;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(
+      `OBSIDIAN_MAX_FILE_SIZE must be a positive integer (got "${raw}"). Example: 10485760`,
+    );
+  }
+  return parsed;
+}
+
 const configSchema = z.object({
   OBSIDIAN_VAULT_PATH: z.string().min(1),
   OBSIDIAN_READ_ONLY: z
     .string()
     .optional()
     .transform((v) => v === 'true'),
-  OBSIDIAN_MAX_FILE_SIZE: z
-    .string()
-    .optional()
-    .transform((v) => (v ? parseInt(v, 10) : 10_485_760)),
+  OBSIDIAN_MAX_FILE_SIZE: z.string().optional(),
   OBSIDIAN_BACKUP_ENABLED: z
     .string()
     .optional()
@@ -32,9 +44,6 @@ export interface Config {
   logLevel: LogLevel;
 }
 
-/**
- * Expands ~ / %USERPROFILE% and requires an absolute vault path.
- */
 export function resolveVaultPath(raw: string): string {
   let expanded = raw.trim();
 
@@ -80,6 +89,14 @@ export function loadConfig(): Config {
     process.exit(1);
   }
 
+  let maxFileSize: number;
+  try {
+    maxFileSize = parsePositiveInt(env.OBSIDIAN_MAX_FILE_SIZE, DEFAULT_MAX_FILE_SIZE);
+  } catch (err) {
+    console.error(`[FATAL] ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  }
+
   if (!fs.existsSync(vaultPath)) {
     console.error(`[FATAL] Vault path does not exist: ${vaultPath}`);
     process.exit(1);
@@ -102,7 +119,7 @@ export function loadConfig(): Config {
   const config: Config = {
     vaultPath,
     readOnly: env.OBSIDIAN_READ_ONLY,
-    maxFileSize: env.OBSIDIAN_MAX_FILE_SIZE,
+    maxFileSize,
     backupEnabled: env.OBSIDIAN_BACKUP_ENABLED,
     logLevel: env.OBSIDIAN_LOG_LEVEL as LogLevel,
   };
@@ -110,3 +127,5 @@ export function loadConfig(): Config {
   setLogLevel(config.logLevel);
   return config;
 }
+
+export { parsePositiveInt, DEFAULT_MAX_FILE_SIZE };

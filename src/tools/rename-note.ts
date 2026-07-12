@@ -2,12 +2,20 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { type Config } from '../config.js';
 import { resolvePath, toRelativePath } from '../lib/vault.js';
-import { assertSafePathAsync, assertNotReadOnly } from '../lib/security.js';
+import { assertSafePathAsync, assertNotReadOnly, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { getVaultIndex, clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { findBacklinks } from '../lib/backlinks.js';
 import { rewriteWikilinksForRename } from '../lib/wikilinks.js';
+import { atomicReplace, PartialUpdateError } from '../lib/vault-io.js';
+import { backupNoteIfExists } from '../lib/backup.js';
 import { ok, err, mapToolError } from '../types/index.js';
+
+interface PendingRewrite {
+  absolutePath: string;
+  body: string;
+  backup?: boolean;
+}
 
 export function renameNoteHandler(config: Config) {
   return async ({
@@ -21,6 +29,7 @@ export function renameNoteHandler(config: Config) {
     updateBacklinks?: boolean;
     updateIndex?: boolean;
   }) => {
+    const completed: string[] = [];
     try {
       assertNotReadOnly(config.readOnly);
 
@@ -44,13 +53,11 @@ export function renameNoteHandler(config: Config) {
 
       const index = await getVaultIndex(config.vaultPath);
       const backlinksBeforeRename = effectiveUpdateBacklinks
-        ? await findBacklinks(config.vaultPath, fromRelative, index)
+        ? await findBacklinks(config.vaultPath, fromRelative, index, config.maxFileSize)
         : [];
 
-      await fs.mkdir(path.dirname(toResolved), { recursive: true });
-      await fs.rename(fromResolved, toResolved);
+      const pending: PendingRewrite[] = [];
 
-      let backlinksUpdated = 0;
       if (effectiveUpdateBacklinks) {
         for (const backlink of backlinksBeforeRename) {
           const backlinkNorm = backlink.path.replace(/\\/g, '/').toLowerCase();
@@ -58,31 +65,60 @@ export function renameNoteHandler(config: Config) {
             continue;
           }
           const backlinkResolved = resolvePath(config.vaultPath, backlink.path);
-          const raw = await fs.readFile(backlinkResolved, 'utf-8');
+          await assertSafePathAsync(config.vaultPath, backlinkResolved);
+          const raw = await readFileBounded(backlinkResolved, config.maxFileSize);
           const { data, content } = parseFrontmatter(raw);
           const rewritten = rewriteWikilinksForRename(content, fromRelative, toRelative);
           if (rewritten !== content) {
-            await fs.writeFile(backlinkResolved, stringifyFrontmatter(data, rewritten), 'utf-8');
-            backlinksUpdated += 1;
+            pending.push({
+              absolutePath: backlinkResolved,
+              body: stringifyFrontmatter(data, rewritten),
+              backup: true,
+            });
           }
         }
       }
 
-      let indexUpdated = false;
       if (effectiveUpdateIndex) {
         const indexResolved = resolvePath(config.vaultPath, 'index.md');
+        await assertSafePathAsync(config.vaultPath, indexResolved);
         try {
-          const raw = await fs.readFile(indexResolved, 'utf-8');
+          const raw = await readFileBounded(indexResolved, config.maxFileSize);
           const { data, content } = parseFrontmatter(raw);
           const rewritten = rewriteWikilinksForRename(content, fromRelative, toRelative);
           if (rewritten !== content) {
-            await fs.writeFile(indexResolved, stringifyFrontmatter(data, rewritten), 'utf-8');
-            indexUpdated = true;
+            pending.push({
+              absolutePath: indexResolved,
+              body: stringifyFrontmatter(data, rewritten),
+              backup: true,
+            });
           }
         } catch {
           // no index.md
         }
       }
+
+      let backlinksUpdated = 0;
+      let indexUpdated = false;
+
+      for (const item of pending) {
+        if (config.backupEnabled && item.backup) {
+          await backupNoteIfExists(config.vaultPath, item.absolutePath);
+        }
+        await atomicReplace(config.vaultPath, item.absolutePath, item.body, config.maxFileSize);
+        const rel = toRelativePath(config.vaultPath, item.absolutePath);
+        completed.push(rel);
+        if (rel === 'index.md') {
+          indexUpdated = true;
+        } else {
+          backlinksUpdated += 1;
+        }
+      }
+
+      await fs.mkdir(path.dirname(toResolved), { recursive: true });
+      await assertSafePathAsync(config.vaultPath, toResolved);
+      await fs.rename(fromResolved, toResolved);
+      completed.push(toRelative);
 
       clearAllSearchCaches();
 
@@ -93,6 +129,9 @@ export function renameNoteHandler(config: Config) {
         indexUpdated,
       });
     } catch (e) {
+      if (e instanceof PartialUpdateError) {
+        return mapToolError(e, { path: fromPath });
+      }
       return mapToolError(e, { path: fromPath });
     }
   };

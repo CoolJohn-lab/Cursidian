@@ -1,6 +1,4 @@
-/**
- * Computes Levenshtein edit distance between two strings.
- */
+import { MAX_TYPO_VOCAB_SIZE } from './limits.js';
 export function levenshtein(a: string, b: string): number {
   const m = a.length;
   const n = b.length;
@@ -98,6 +96,9 @@ export function correctTokensAgainstVocabulary(
   maxDistance = 2,
 ): TokenCorrectionResult {
   const freqMap = toFrequencyMap(vocabulary);
+  if (freqMap.size > MAX_TYPO_VOCAB_SIZE) {
+    return { corrected: tokens, didCorrect: false, corrections: {} };
+  }
   const corrections: Record<string, string> = {};
   const corrected = tokens.map((token) => {
     if (token.length < 4) {

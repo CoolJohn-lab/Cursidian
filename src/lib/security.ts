@@ -15,6 +15,17 @@ export class ReadOnlyError extends Error {
   }
 }
 
+export class FileTooLargeError extends Error {
+  readonly code = 'file_too_large';
+
+  constructor(size: number, maxBytes: number) {
+    super(
+      `File size ${size} bytes exceeds the limit of ${maxBytes} bytes (${(maxBytes / 1_048_576).toFixed(1)} MB).`,
+    );
+    this.name = 'FileTooLargeError';
+  }
+}
+
 export function assertSafePath(vaultPath: string, resolvedPath: string): void {
   const relative = path.relative(vaultPath, resolvedPath);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
@@ -40,6 +51,12 @@ function isEnoent(err: unknown): boolean {
     'code' in err &&
     (err as NodeJS.ErrnoException).code === 'ENOENT'
   );
+}
+
+function assertPositiveMaxBytes(maxBytes: number): void {
+  if (!Number.isFinite(maxBytes) || maxBytes <= 0) {
+    throw new Error(`Invalid max file size: ${maxBytes}. Must be a positive finite number.`);
+  }
 }
 
 /**
@@ -70,14 +87,11 @@ export async function findExistingAncestor(resolvedPath: string): Promise<string
 }
 
 export async function assertSafePathAsync(vaultPath: string, resolvedPath: string): Promise<void> {
-  // First: static check using the provided vault path (may be a symlink like /tmp on macOS)
   assertSafePath(vaultPath, resolvedPath);
 
   const realVault = await fs.realpath(vaultPath);
   const normalized = path.resolve(resolvedPath);
 
-  // Resolve the target when it exists, otherwise the nearest existing ancestor
-  // (covers create_note and mkdir under paths that do not exist yet).
   let anchorPath: string;
   try {
     await fs.lstat(normalized);
@@ -93,17 +107,43 @@ export async function assertSafePathAsync(vaultPath: string, resolvedPath: strin
   assertRealPathInsideVault(realVault, realAnchor, resolvedPath);
 }
 
+/** Alias for write-path validation before any mutation. */
+export async function assertWritablePathAsync(
+  vaultPath: string,
+  resolvedPath: string,
+): Promise<void> {
+  await assertSafePathAsync(vaultPath, resolvedPath);
+}
+
 export function assertNotReadOnly(readOnly: boolean): void {
   if (readOnly) {
     throw new ReadOnlyError();
   }
 }
 
+export function assertContentSize(content: string, maxBytes: number): void {
+  assertPositiveMaxBytes(maxBytes);
+  const bytes = Buffer.byteLength(content, 'utf8');
+  if (bytes > maxBytes) {
+    throw new FileTooLargeError(bytes, maxBytes);
+  }
+}
+
 export async function assertFileSize(filePath: string, maxBytes: number): Promise<void> {
+  assertPositiveMaxBytes(maxBytes);
   const stat = await fs.stat(filePath);
   if (stat.size > maxBytes) {
-    throw new Error(
-      `File size ${stat.size} bytes exceeds the limit of ${maxBytes} bytes (${(maxBytes / 1_048_576).toFixed(1)} MB).`,
-    );
+    throw new FileTooLargeError(stat.size, maxBytes);
   }
+}
+
+/**
+ * Reads a UTF-8 file when within maxBytes; throws FileTooLargeError otherwise.
+ */
+export async function readFileBounded(
+  filePath: string,
+  maxBytes: number,
+): Promise<string> {
+  await assertFileSize(filePath, maxBytes);
+  return fs.readFile(filePath, 'utf-8');
 }

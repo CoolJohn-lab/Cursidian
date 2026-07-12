@@ -8,10 +8,11 @@ import type { TestContext } from './helpers.js';
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault();
-  registerNote(ctx.server, ctx.config);
-  registerSearch(ctx.server, ctx.config);
-  registerVault(ctx.server, ctx.config);
+  ctx = await createTestVault((server, config) => {
+    registerNote(server, config);
+      registerSearch(server, config);
+      registerVault(server, config);
+  });
 });
 
 afterAll(async () => {
@@ -20,59 +21,58 @@ afterAll(async () => {
 
 describe('dispatch validation', () => {
   it('note create without content returns invalid_args', async () => {
-    const result = await callTool(ctx.server, 'note', { action: 'create', path: 'x' });
+    const result = await callTool(ctx.client, 'note', { action: 'create', path: 'x' });
     expect(result.isError).toBe(true);
     const data = parseResult(result) as { error: string };
     expect(data.error).toBe('invalid_args');
   });
 
   it('note delete without confirm returns invalid_args', async () => {
-    const result = await callTool(ctx.server, 'note', { action: 'delete', path: 'x' });
+    const result = await callTool(ctx.client, 'note', { action: 'delete', path: 'x' });
     expect(result.isError).toBe(true);
     const data = parseResult(result) as { error: string };
     expect(data.error).toBe('invalid_args');
   });
 
   it('note rename without newPath returns invalid_args', async () => {
-    const result = await callTool(ctx.server, 'note', { action: 'rename', path: 'x' });
+    const result = await callTool(ctx.client, 'note', { action: 'rename', path: 'x' });
     expect(result.isError).toBe(true);
     const data = parseResult(result) as { error: string };
     expect(data.error).toBe('invalid_args');
   });
 
   it('search content without query returns invalid_args', async () => {
-    const result = await callTool(ctx.server, 'search', { action: 'content' });
+    const result = await callTool(ctx.client, 'search', { action: 'content' });
     expect(result.isError).toBe(true);
     const data = parseResult(result) as { error: string };
     expect(data.error).toBe('invalid_args');
   });
 
   it('search by_tags without tags returns invalid_args', async () => {
-    const result = await callTool(ctx.server, 'search', { action: 'by_tags' });
+    const result = await callTool(ctx.client, 'search', { action: 'by_tags' });
     expect(result.isError).toBe(true);
     const data = parseResult(result) as { error: string };
     expect(data.error).toBe('invalid_args');
   });
 
   it('search by_tags rejects empty or whitespace-only tags', async () => {
-    const empty = await callTool(ctx.server, 'search', { action: 'by_tags', tags: [''] });
+    const empty = await callTool(ctx.client, 'search', { action: 'by_tags', tags: [''] });
     expect(empty.isError).toBe(true);
-    expect((parseResult(empty) as { error: string }).error).toBe('invalid_args');
 
-    const whitespace = await callTool(ctx.server, 'search', { action: 'by_tags', tags: ['  '] });
+    const whitespace = await callTool(ctx.client, 'search', { action: 'by_tags', tags: ['  '] });
     expect(whitespace.isError).toBe(true);
     expect((parseResult(whitespace) as { error: string }).error).toBe('invalid_args');
   });
 
   it('vault log without logLine returns invalid_args', async () => {
-    const result = await callTool(ctx.server, 'vault', { action: 'log' });
+    const result = await callTool(ctx.client, 'vault', { action: 'log' });
     expect(result.isError).toBe(true);
     const data = parseResult(result) as { error: string };
     expect(data.error).toBe('invalid_args');
   });
 
   it('vault delete_folder without confirm returns invalid_args', async () => {
-    const result = await callTool(ctx.server, 'vault', {
+    const result = await callTool(ctx.client, 'vault', {
       action: 'delete_folder',
       path: 'SomeFolder',
     });

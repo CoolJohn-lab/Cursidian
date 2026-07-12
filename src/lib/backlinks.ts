@@ -1,9 +1,8 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
-import fg from 'fast-glob';
 import { extractWikilinks } from './wikilinks.js';
 import { wikilinkTargetsNote, resolveOutgoingLinks } from './wikilink-resolve.js';
-import { TRASH_GLOB_IGNORE } from './trash.js';
+import { listVaultMarkdownPaths } from './vault-glob.js';
+import { readFileBounded } from './security.js';
 import type { VaultIndex } from './vault-index.js';
 import type { BacklinkResult } from '../types/index.js';
 
@@ -14,14 +13,9 @@ export async function findBacklinks(
   vaultPath: string,
   targetRelativePath: string,
   index: VaultIndex,
+  maxFileSize: number,
 ): Promise<BacklinkResult[]> {
-  const files = await fg('**/*.md', {
-    cwd: vaultPath,
-    absolute: true,
-    dot: false,
-    ignore: [TRASH_GLOB_IGNORE],
-  });
-
+  const files = await listVaultMarkdownPaths(vaultPath);
   const targetResolved = path.join(vaultPath, targetRelativePath);
   const backlinks: BacklinkResult[] = [];
 
@@ -30,7 +24,13 @@ export async function findBacklinks(
       continue;
     }
 
-    const content = await fs.readFile(file, 'utf-8');
+    let content: string;
+    try {
+      content = await readFileBounded(file, maxFileSize);
+    } catch {
+      continue;
+    }
+
     const links = extractWikilinks(content);
     const matching = links.filter((link) => wikilinkTargetsNote(link, targetRelativePath, index));
 
@@ -52,17 +52,19 @@ export async function findBacklinks(
 export async function buildInboundLinkCounts(
   vaultPath: string,
   index: VaultIndex,
+  maxFileSize: number,
 ): Promise<Map<string, number>> {
   const counts = new Map<string, number>();
-  const files = await fg('**/*.md', {
-    cwd: vaultPath,
-    absolute: true,
-    dot: false,
-    ignore: [TRASH_GLOB_IGNORE],
-  });
+  const files = await listVaultMarkdownPaths(vaultPath);
 
   for (const file of files) {
-    const content = await fs.readFile(file, 'utf-8');
+    let content: string;
+    try {
+      content = await readFileBounded(file, maxFileSize);
+    } catch {
+      continue;
+    }
+
     const outgoing = resolveOutgoingLinks(content, index);
     for (const link of outgoing) {
       if (link.resolvedPath) {

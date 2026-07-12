@@ -1,8 +1,27 @@
 # Cursidian
 
-MCP server for local [Obsidian](https://obsidian.md) vaults, optimised for **Cursor agents** - safe note editing, lean tool surface, direct filesystem access. No Local REST API plugin required; Obsidian does not need to be open.
+Implementation of the Obsidian llm-wiki concept for Cursor, using an MCP designed to minimise token consumption and maximise relevant results.
 
-npm package: [`cursidian`](https://www.npmjs.com/package/cursidian).
+Getting Started:
+- Download Obsidian, create an empty vault, make a note of its location.
+- Install this MCP and the skills into your Cursor.
+- Restart / Reload Cursor.
+- Enter this prompt: "I have just created an empty obsidian vault at *vault location*, please set up my wiki there"
+
+Let it do its thing, it will take about 5 minutes and burn like 30k tokens. Auto is fine, you don't need Claude for this! At this point you don't even need to be running Obsidian any more, the point of it was just to create the vault structure.
+
+Once it is set up you can just ask Cursor agents for stuff like "create pages in my wiki about my project, as many as you need to capture everything." Or "refactor my ui to be more colourful, using the design notes in my wiki" etc. The sky is the limit. The more effort you ask agents to put into your wiki, the more you get out of it.
+
+And notice the distinction there. the more effort *you ask your agents* to put in, you don't write this thing yourself. Have the Cursor agents do everything, they write the wiki, they read it, they lint it, check it and maintain it. You can dump entire ebooks into it, or have it review your most recent 100 cursor chat transcripts and save any relevant information it finds to your wiki.
+
+You can dip in to read it using Obsidian whenever you like, but really its a resource for Cursor agents to store information about your projects, your goals, your design desisions and rules and so on.
+
+## Credits
+I took the "Obsidian Wiki" concept from Andrej Karpathy, and I drew inspiration from this existing Obsidian MCP: [@istrejo/obsidian-mcp](https://github.com/istrejo/obsidian-mcp). But really the credit goes to Fable, Grok and Composer 2.5, I am just their conductor, and I used Cursor to create this.
+
+Anyway that's the end of the human-written portion of the readme, the rest is by Agents and for Agents really, but feel free to keep reading if you want. 
+
+Emjoy! John.
 
 ## Features
 
@@ -184,9 +203,6 @@ npm run mcp:test -- note --action read --path index
 npm run mcp:test -- search --query "wiki index" --limit 10
 npm run mcp:test -- --list
 ```
-
-## Credits
-I took the "Obsidian Wiki" concept from Andrej Karpathy, and I drew inspiration from this existing Obsidian MCP: [@istrejo/obsidian-mcp](https://github.com/istrejo/obsidian-mcp). But really the credit goes to Fable, Grok and Composer 2.5, I am just their conductor, and I used Cursor to create this.
 
 ## License
 

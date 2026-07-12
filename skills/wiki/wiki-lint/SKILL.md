@@ -1,11 +1,11 @@
 ---
 name: wiki-lint
 description: >
-  Audit and maintain the health of the Obsidian wiki. Use when the user wants a health check, or
-  says "clean up the wiki", "audit my notes", "find orphans", "fix broken links", "link my pages",
-  "connect my wiki", or after a large ingest to weave new pages into the graph. Default is
-  report-only; add --consolidate (or "clean up") for act-and-report mode, which applies fixes
-  after a dry-run preview and explicit user confirmation.
+ Audit and maintain the health of the Obsidian wiki. Use when the user wants a health check, or
+ says "clean up the wiki", "audit my notes", "find orphans", "fix broken links", "link my pages",
+ "connect my wiki", or after a large ingest to weave new pages into the graph. Default is
+ report-only; add --consolidate (or "clean up") for act-and-report mode, which applies fixes
+ after a dry-run preview and explicit user confirmation.
 ---
 
 # Wiki Lint - Health Audit
@@ -55,7 +55,7 @@ After confirmation, apply via `note` actions `update` / `frontmatter`:
 2. **Rescue orphans** - find plain-text mentions of the orphan's title in other pages (`search` action `content`) and wikilink them; max 3 insertions per orphan. If no mentions exist, add one line to the most closely related page's Related section.
 3. **Repair frontmatter** - fill missing `summary`/`tags` from page content; normalize tags against `_meta/taxonomy.md`.
 4. **Sync `index.md`** - call `vault` action `sync_index` (preview with `dryRun: true` first if you want to show the user the planned catalog).
-5. **Flag contradictions** - add a one-line `> ⚠️ Contradicts [[other-page]]` callout to both pages. Flag, never resolve.
+5. **Flag contradictions** - add a one-line `> Contradicts [[other-page]]` callout to both pages. Flag, never resolve.
 
 Never merge or delete pages automatically - flag duplicates for the user.
 

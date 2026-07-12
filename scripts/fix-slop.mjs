@@ -3,24 +3,55 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
+
+function resolveCliJs() {
+  const candidates = [];
+  const npm = spawnSync("npm", ["root", "-g"], {
+    encoding: "utf8",
+    shell: process.platform === "win32",
+  });
+  if (npm.stdout?.trim()) {
+    candidates.push(path.join(npm.stdout.trim(), "llm-slop-detector", "out", "cli.js"));
+  }
+  if (process.env.APPDATA) {
+    candidates.push(
+      path.join(process.env.APPDATA, "npm", "node_modules", "llm-slop-detector", "out", "cli.js"),
+    );
+  }
+  if (process.env.HOME) {
+    candidates.push(
+      path.join(process.env.HOME, ".npm-global", "lib", "node_modules", "llm-slop-detector", "out", "cli.js"),
+    );
+  }
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+const cliJs = resolveCliJs();
+if (!cliJs) {
+  console.error("llm-slop-detector CLI not found. Install: npm i -g llm-slop-detector");
+  process.exit(1);
+}
+
+// Packs match .vscode/settings.json. Skip cliches/academic: single words like
+// "crucial"/"ensure"/"escalate" flood TypeScript codebases.
 const cli = spawnSync(
-  "llm-slop",
+  process.execPath,
   [
+    cliJs,
     "--format=json",
     "--scan-comments",
-    "--exclude",
-    "node_modules",
-    "--exclude",
-    "dist",
-    "--exclude",
-    ".git",
-    "--exclude",
-    "*.map",
-    "--exclude",
-    "package-lock.json",
+    "--pack=claudeisms,structural,puffery,security",
+    "--exclude=node_modules",
+    "--exclude=dist",
+    "--exclude=.git",
+    "--exclude=*.map",
+    "--exclude=package-lock.json",
     ".",
   ],
-  { encoding: "utf8", maxBuffer: 20 * 1024 * 1024, shell: true },
+  { encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
 );
 
 if (cli.error) {
@@ -99,3 +130,57 @@ console.log(`\nDone: ${replacements} character fixes across ${filesChanged} file
 if (phraseFindings.length) {
   console.log(`Skipped ${phraseFindings.length} non-character findings (no auto-fix).`);
 }
+
+// Full-repo emoji wipe (llm-slop only sees markdown + comments; user wants zero
+// emojis in string literals / code too). Keeps © ® ™.
+const EMOJI_RE =
+  /(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}(?:\uFE0F|\u200D(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}\uFE0F?)*/gu;
+const SKIP_DIRS = new Set(["node_modules", "dist", ".git", "coverage"]);
+const TEXT_EXT = new Set([
+  ".md",
+  ".txt",
+  ".ts",
+  ".tsx",
+  ".js",
+  ".mjs",
+  ".cjs",
+  ".json",
+  ".jsonc",
+  ".yml",
+  ".yaml",
+  ".css",
+  ".html",
+  ".svg",
+]);
+
+function walk(dir, out = []) {
+  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (SKIP_DIRS.has(ent.name)) continue;
+    const p = path.join(dir, ent.name);
+    if (ent.isDirectory()) walk(p, out);
+    else if (TEXT_EXT.has(path.extname(ent.name).toLowerCase())) out.push(p);
+  }
+  return out;
+}
+
+let emojiFiles = 0;
+let emojiRemovals = 0;
+for (const file of walk(root)) {
+  if (file.endsWith(`${path.sep}.llmsloprc.json`)) continue; // contains emoji as rule keys
+  const before = fs.readFileSync(file, "utf8");
+  let n = 0;
+  const after = before.replace(EMOJI_RE, () => {
+    n++;
+    return "";
+  });
+  if (n > 0) {
+    // Collapse accidental double spaces left by removals (keep newlines)
+    const cleaned = after.replace(/ {2,}/g, " ");
+    fs.writeFileSync(file, cleaned, "utf8");
+    emojiFiles++;
+    emojiRemovals += n;
+    console.log(`Removed ${n} emoji(s) in ${path.relative(root, file)}`);
+  }
+}
+console.log(`Emoji pass: removed ${emojiRemovals} across ${emojiFiles} files.`);
+

@@ -1,0 +1,13 @@
+{
+  "llmSlopDetector.enabledPacks": [
+    "claudeisms",
+    "structural",
+    "puffery",
+    "security"
+  ],
+  "llmSlopDetector.severityOverrides": {
+    "pack:cliches": "off",
+    "pack:academic": "off",
+    "pack:fiction": "off"
+  }
+}

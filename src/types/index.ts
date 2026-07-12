@@ -296,10 +296,16 @@ export function mapToolError(e: unknown, context?: Partial<ToolErrorContext>): T
         'completed' in e && Array.isArray((e as { completed: unknown }).completed)
           ? (e as { completed: string[] }).completed
           : [];
-      const failed =
-        'failed' in e && Array.isArray((e as { failed: unknown }).failed)
-          ? (e as { failed: string[] }).failed
+      const restored =
+        'restored' in e && Array.isArray((e as { restored: unknown }).restored)
+          ? (e as { restored: string[] }).restored
           : [];
+      const unresolved =
+        'unresolved' in e && Array.isArray((e as { unresolved: unknown }).unresolved)
+          ? (e as { unresolved: string[] }).unresolved
+          : 'failed' in e && Array.isArray((e as { failed: unknown }).failed)
+            ? (e as { failed: string[] }).failed
+            : [];
       return toolError({
         error: 'partial_update',
         message,
@@ -307,9 +313,9 @@ export function mapToolError(e: unknown, context?: Partial<ToolErrorContext>): T
         retryable: false,
         sideEffects: 'partial',
         path: pathHint,
-        details: { completed, failed },
+        details: { completed, restored, unresolved },
         recovery: { tool: 'vault', arguments: { action: 'health' } },
-        hint: `Completed: ${completed.join(', ') || 'none'}. Failed: ${failed.join(', ') || 'none'}.`,
+        hint: `Completed: ${completed.join(', ') || 'none'}. Restored: ${restored.join(', ') || 'none'}. Unresolved: ${unresolved.join(', ') || 'none'}.`,
       });
     }
 

@@ -8,8 +8,11 @@ import { checkRevisionConcurrency } from '../lib/content-hash.js';
 import { getVaultIndex, clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { findBacklinks } from '../lib/backlinks.js';
 import { rewriteWikilinksForRename } from '../lib/wikilinks.js';
-import { withPathLocks, atomicReplaceLocked, PartialUpdateError } from '../lib/vault-io.js';
-import { backupNoteIfExists } from '../lib/backup.js';
+import { atomicReplaceLocked } from '../lib/vault-io.js';
+import {
+  mergeJournaledWarnings,
+  runJournaledMultiFileOperation,
+} from '../lib/multi-file-operation.js';
 import { ok, toolError, mapToolError } from '../types/index.js';
 
 export function renameNoteHandler(config: Config) {
@@ -28,7 +31,6 @@ export function renameNoteHandler(config: Config) {
     expectedRevision?: string;
     expectedHash?: string;
   }) => {
-    const completed: string[] = [];
     try {
       assertNotReadOnly(config.readOnly);
 
@@ -42,6 +44,23 @@ export function renameNoteHandler(config: Config) {
 
       const fromRelative = toRelativePath(config.vaultPath, fromResolved);
       const toRelative = toRelativePath(config.vaultPath, toResolved);
+
+      try {
+        await fs.access(toResolved);
+        return toolError({
+          error: 'already_exists',
+          message: `Destination already exists: ${toPath}`,
+          action: 'rename',
+          retryable: true,
+          sideEffects: 'none',
+          path: toPath,
+          details: { existingPath: toPath },
+          recovery: { tool: 'note', arguments: { action: 'read', path: toPath } },
+          hint: 'Read the destination note, then choose a different destination path.',
+        });
+      } catch {
+        // destination free
+      }
 
       const index = await getVaultIndex(config.vaultPath);
       const backlinksBeforeRename = effectiveUpdateBacklinks
@@ -69,106 +88,120 @@ export function renameNoteHandler(config: Config) {
       }
 
       const lockPaths = [fromResolved, toResolved, ...rewriteCandidates];
+      const snapshotPaths = [fromResolved, toResolved, ...rewriteCandidates];
 
-      return await withPathLocks(lockPaths, async () => {
-        try {
-          await fs.access(toResolved);
-          return toolError({
-            error: 'already_exists',
-            message: `Destination already exists: ${toPath}`,
-            action: 'rename',
-            retryable: true,
-            sideEffects: 'none',
-            path: toPath,
-            details: { existingPath: toPath },
-            recovery: { tool: 'note', arguments: { action: 'read', path: toPath } },
-            hint: 'Read the destination note, then choose a different destination path.',
+      const journaled = await runJournaledMultiFileOperation(config, {
+        tool: 'note',
+        action: 'rename',
+        lockPaths,
+        snapshotPaths,
+        run: async ({ tracker, recordAfter, readRevision }) => {
+          const sourceRaw = await readFileBounded(fromResolved, config.maxFileSize);
+          const { content: sourceBody } = parseFrontmatter(sourceRaw);
+          const revisionCheck = checkRevisionConcurrency({
+            raw: sourceRaw,
+            body: sourceBody,
+            expectedRevision,
+            expectedHash,
           });
-        } catch {
-          // destination free
-        }
-
-        const sourceRaw = await readFileBounded(fromResolved, config.maxFileSize);
-        const { content: sourceBody } = parseFrontmatter(sourceRaw);
-        const revisionCheck = checkRevisionConcurrency({
-          raw: sourceRaw,
-          body: sourceBody,
-          expectedRevision,
-          expectedHash,
-        });
-        if (!revisionCheck.ok) {
-          return toolError({
-            error: 'hash_mismatch',
-            message: revisionCheck.message,
-            action: 'rename',
-            retryable: true,
-            sideEffects: 'none',
-            path: fromPath,
-            details: { check: expectedRevision ? 'revision' : 'content_hash' },
-            recovery: { tool: 'note', arguments: { action: 'read', path: fromPath } },
-            hint: revisionCheck.hint,
-          });
-        }
-
-        let backlinksUpdated = 0;
-        let indexUpdated = false;
-
-        for (const backlinkResolved of rewriteCandidates) {
-          let raw: string;
-          try {
-            raw = await readFileBounded(backlinkResolved, config.maxFileSize);
-          } catch {
-            continue;
-          }
-          const { data, content } = parseFrontmatter(raw);
-          const rewritten = rewriteWikilinksForRename(content, fromRelative, toRelative);
-          if (rewritten === content) {
-            continue;
+          if (!revisionCheck.ok) {
+            throw Object.assign(new Error(revisionCheck.message), {
+              revisionMismatch: true,
+              hint: revisionCheck.hint,
+            });
           }
 
-          if (config.backupEnabled) {
-            await backupNoteIfExists(config.vaultPath, backlinkResolved);
+          let backlinksUpdated = 0;
+          let indexUpdated = false;
+
+          for (const backlinkResolved of rewriteCandidates) {
+            let raw: string;
+            try {
+              raw = await readFileBounded(backlinkResolved, config.maxFileSize);
+            } catch {
+              continue;
+            }
+            const { data, content } = parseFrontmatter(raw);
+            const rewritten = rewriteWikilinksForRename(content, fromRelative, toRelative);
+            if (rewritten === content) {
+              continue;
+            }
+
+            const body = stringifyFrontmatter(data, rewritten);
+            await atomicReplaceLocked(config.vaultPath, backlinkResolved, body, config.maxFileSize);
+            const rel = toRelativePath(config.vaultPath, backlinkResolved);
+            tracker.recordWrite(rel);
+            await recordAfter(rel, await readRevision(backlinkResolved));
+            if (rel === 'index.md') {
+              indexUpdated = true;
+            } else {
+              backlinksUpdated += 1;
+            }
           }
-          const body = stringifyFrontmatter(data, rewritten);
-          await atomicReplaceLocked(config.vaultPath, backlinkResolved, body, config.maxFileSize);
-          const rel = toRelativePath(config.vaultPath, backlinkResolved);
-          completed.push(rel);
-          if (rel === 'index.md') {
-            indexUpdated = true;
-          } else {
-            backlinksUpdated += 1;
-          }
-        }
 
-        await fs.mkdir(path.dirname(toResolved), { recursive: true });
-        await assertSafePathAsync(config.vaultPath, toResolved);
-        await fs.rename(fromResolved, toResolved);
-        completed.push(toRelative);
+          await fs.mkdir(path.dirname(toResolved), { recursive: true });
+          await assertSafePathAsync(config.vaultPath, toResolved);
+          await fs.rename(fromResolved, toResolved);
+          tracker.recordRename(fromRelative, toRelative);
+          await recordAfter(toRelative, await readRevision(toResolved));
+          await recordAfter(fromRelative, null);
 
-        clearAllSearchCaches();
+          return {
+            from: fromRelative,
+            to: toRelative,
+            backlinksUpdated,
+            indexUpdated,
+            revisionWarnings: revisionCheck.warnings,
+          };
+        },
+      });
 
-        return ok({
-          from: fromRelative,
-          to: toRelative,
-          backlinksUpdated,
-          indexUpdated,
-          ...(revisionCheck.warnings ? { warnings: revisionCheck.warnings } : {}),
-        }, {
+      clearAllSearchCaches();
+
+      const warnings = mergeJournaledWarnings(journaled.value.revisionWarnings, journaled);
+
+      return ok(
+        {
+          from: journaled.value.from,
+          to: journaled.value.to,
+          backlinksUpdated: journaled.value.backlinksUpdated,
+          indexUpdated: journaled.value.indexUpdated,
+          ...(warnings ? { warnings } : {}),
+        },
+        {
           action: 'rename',
           changed: true,
-          paths: [...new Set([fromRelative, ...completed])],
-          warnings: revisionCheck.warnings,
-        });
-      });
+          paths: [journaled.value.from, journaled.value.to],
+          warnings,
+          operationId: journaled.operationId,
+          undoAvailable: journaled.undoAvailable,
+        },
+      );
     } catch (e) {
-      if (e instanceof PartialUpdateError) {
-        return mapToolError(e, {
-          tool: 'note',
+      if (
+        e &&
+        typeof e === 'object' &&
+        'revisionMismatch' in e &&
+        (e as { revisionMismatch: boolean }).revisionMismatch
+      ) {
+        const message = e instanceof Error ? e.message : String(e);
+        const hint =
+          'hint' in e && typeof (e as { hint: unknown }).hint === 'string'
+            ? (e as { hint: string }).hint
+            : undefined;
+        return toolError({
+          error: 'hash_mismatch',
+          message,
           action: 'rename',
+          retryable: true,
+          sideEffects: 'none',
           path: fromPath,
-          arguments: { action: 'read', path: fromPath },
+          details: { check: expectedRevision ? 'revision' : 'content_hash' },
+          recovery: { tool: 'note', arguments: { action: 'read', path: fromPath } },
+          hint,
         });
       }
+
       return mapToolError(e, {
         tool: 'note',
         action: 'rename',

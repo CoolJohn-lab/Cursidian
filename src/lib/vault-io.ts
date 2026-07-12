@@ -85,13 +85,23 @@ export class AlreadyExistsError extends Error {
 export class PartialUpdateError extends Error {
   readonly code = 'partial_update';
   readonly completed: string[];
+  readonly restored: string[];
+  readonly unresolved: string[];
+  /** @deprecated use unresolved */
   readonly failed: string[];
 
-  constructor(message: string, completed: string[], failed: string[]) {
+  constructor(
+    message: string,
+    completed: string[],
+    restored: string[],
+    unresolved: string[],
+  ) {
     super(message);
     this.name = 'PartialUpdateError';
     this.completed = completed;
-    this.failed = failed;
+    this.restored = restored;
+    this.unresolved = unresolved;
+    this.failed = unresolved;
   }
 }
 

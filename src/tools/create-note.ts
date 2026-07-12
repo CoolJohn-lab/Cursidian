@@ -7,12 +7,15 @@ import { checkRevisionConcurrency, computeRevisionHash } from '../lib/content-ha
 import { withCreateTimestamps } from '../lib/timestamps.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
 import {
-  withPathLock,
   atomicWrite,
-  atomicWriteLocked,
   AlreadyExistsError,
+  atomicWriteLocked,
 } from '../lib/vault-io.js';
 import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
+import {
+  mergeJournaledWarnings,
+  runJournaledMultiFileOperation,
+} from '../lib/multi-file-operation.js';
 import { MAX_CONTENT_BYTES } from '../lib/limits.js';
 import { logger } from '../lib/logger.js';
 import { ok, err, toolError, mapToolError } from '../types/index.js';
@@ -105,14 +108,12 @@ export function createNoteHandler(config: Config) {
         }
       }
 
-      const result = await withPathLock(resolved, async () => {
-        const journal = await OperationJournal.begin(config.vaultPath, {
-          backupEnabled: config.backupEnabled,
-          tool: 'note',
-          action: 'create',
-        });
-
-        try {
+      const journaled = await runJournaledMultiFileOperation(config, {
+        tool: 'note',
+        action: 'create',
+        lockPaths: [resolved],
+        snapshotPaths: [resolved],
+        run: async ({ tracker, recordAfter }) => {
           let exists = false;
           try {
             await fs.access(resolved);
@@ -132,59 +133,68 @@ export function createNoteHandler(config: Config) {
               expectedHash,
             });
             if (!revisionCheck.ok) {
-              await journal.abort();
-              return toolError({
-                error: 'hash_mismatch',
-                message: revisionCheck.message,
-                action: 'create',
-                retryable: true,
-                sideEffects: 'none',
-                path: notePath,
-                details: { check: expectedRevision ? 'revision' : 'content_hash' },
-                recovery: {
-                  tool: 'note',
-                  arguments: { action: 'read', path: notePath },
-                },
+              throw Object.assign(new Error(revisionCheck.message), {
+                revisionMismatch: true,
                 hint: revisionCheck.hint,
               });
             }
             revisionWarnings = revisionCheck.warnings;
           }
 
-          await journal.recordBefore(resolved, config.maxFileSize);
           await atomicWriteLocked(config.vaultPath, resolved, body, config.maxFileSize);
-          await journal.recordAfter(relative, computeRevisionHash(body));
-          const op = await journal.finalize();
+          tracker.recordWrite(relative);
+          await recordAfter(relative, computeRevisionHash(body));
 
-          const warnings = mergeOperationWarnings(revisionWarnings, op);
-
-          return ok({
-            created: relative,
-            overwrite: true,
-            revisionHash: computeRevisionHash(body),
-            ...(warnings ? { warnings } : {}),
-          }, {
-            action: 'create',
-            changed: true,
-            paths: [relative],
-            warnings,
-            operationId: op.operationId,
-            undoAvailable: op.undoAvailable,
-          });
-        } catch (e) {
-          await journal.abort();
-          throw e;
-        }
+          return { revisionWarnings };
+        },
       });
-
-      if (result.isError) {
-        return result;
-      }
 
       clearAllSearchCaches();
       logger.info('Note created', { path: notePath, overwrite: true });
-      return result;
+
+      const warnings = mergeJournaledWarnings(journaled.value.revisionWarnings, journaled);
+
+      return ok(
+        {
+          created: relative,
+          overwrite: true,
+          revisionHash: computeRevisionHash(body),
+          ...(warnings ? { warnings } : {}),
+        },
+        {
+          action: 'create',
+          changed: true,
+          paths: [relative],
+          warnings,
+          operationId: journaled.operationId,
+          undoAvailable: journaled.undoAvailable,
+        },
+      );
     } catch (e) {
+      if (
+        e &&
+        typeof e === 'object' &&
+        'revisionMismatch' in e &&
+        (e as { revisionMismatch: boolean }).revisionMismatch
+      ) {
+        const message = e instanceof Error ? e.message : String(e);
+        const hint =
+          'hint' in e && typeof (e as { hint: unknown }).hint === 'string'
+            ? (e as { hint: string }).hint
+            : undefined;
+        return toolError({
+          error: 'hash_mismatch',
+          message,
+          action: 'create',
+          retryable: true,
+          sideEffects: 'none',
+          path: notePath,
+          details: { check: expectedRevision ? 'revision' : 'content_hash' },
+          recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
+          hint,
+        });
+      }
+
       return mapToolError(e, {
         tool: 'note',
         action: 'create',

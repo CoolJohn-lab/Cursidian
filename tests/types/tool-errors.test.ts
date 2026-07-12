@@ -151,7 +151,7 @@ describe('structured tool errors', () => {
 
   it('mapToolError maps PartialUpdateError with sideEffects partial', () => {
     const result = mapToolError(
-      new PartialUpdateError('rollback incomplete', ['a.md'], ['b.md']),
+      new PartialUpdateError('rollback incomplete', ['a.md'], ['a.md'], ['b.md']),
       { tool: 'note', action: 'rename', path: 'a.md' },
     );
     const payload = parsePayload(result);
@@ -159,7 +159,7 @@ describe('structured tool errors', () => {
     expect(payload.code).toBe('partial_update');
     expect(payload.retryable).toBe(false);
     expect(payload.sideEffects).toBe('partial');
-    expect(payload.details).toEqual({ completed: ['a.md'], failed: ['b.md'] });
+    expect(payload.details).toEqual({ completed: ['a.md'], restored: ['a.md'], unresolved: ['b.md'] });
     expect(payload.recovery).toEqual({ tool: 'vault', arguments: { action: 'health' } });
   });
 

@@ -7,8 +7,11 @@ import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { buildIndexMarkdown } from '../lib/vault-health.js';
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
-import { atomicWrite } from '../lib/vault-io.js';
-import { backupNoteIfExists } from '../lib/backup.js';
+import { atomicWriteLocked } from '../lib/vault-io.js';
+import {
+  mergeJournaledWarnings,
+  runJournaledMultiFileOperation,
+} from '../lib/multi-file-operation.js';
 import { ok, mapToolError } from '../types/index.js';
 
 const INDEX_PATH = 'index.md';
@@ -35,7 +38,7 @@ export function syncIndexHandler(config: Config) {
         } catch {
           wouldWrite = true;
         }
-        return ok({ wouldWrite, markdown, noteCount, categories });
+        return ok({ wouldWrite, markdown, noteCount, categories }, { action: 'sync_index', changed: false });
       }
 
       assertNotReadOnly(config.readOnly);
@@ -51,22 +54,42 @@ export function syncIndexHandler(config: Config) {
       const frontmatter = withUpdatedTimestamp({ ...existingFm, title: 'Wiki Index' });
       const body = stringifyFrontmatter(frontmatter, markdown);
 
-      if (config.backupEnabled) {
-        await backupNoteIfExists(config.vaultPath, resolved);
-      }
-
-      await fs.mkdir(path.dirname(resolved), { recursive: true });
-      await atomicWrite(config.vaultPath, resolved, body, config.maxFileSize);
+      const journaled = await runJournaledMultiFileOperation(config, {
+        tool: 'vault',
+        action: 'sync_index',
+        lockPaths: [resolved],
+        snapshotPaths: [resolved],
+        run: async ({ tracker, recordAfter, readRevision }) => {
+          await fs.mkdir(path.dirname(resolved), { recursive: true });
+          await atomicWriteLocked(config.vaultPath, resolved, body, config.maxFileSize);
+          tracker.recordWrite(INDEX_PATH);
+          await recordAfter(INDEX_PATH, await readRevision(resolved));
+          return {
+            updated: toRelativePath(config.vaultPath, resolved),
+            noteCount,
+            categories,
+          };
+        },
+      });
 
       clearAllSearchCaches();
 
-      return ok({
-        updated: toRelativePath(config.vaultPath, resolved),
-        noteCount,
-        categories,
+      const warnings = mergeJournaledWarnings(undefined, journaled);
+
+      return ok(journaled.value, {
+        action: 'sync_index',
+        changed: true,
+        paths: [INDEX_PATH],
+        warnings,
+        operationId: journaled.operationId,
+        undoAvailable: journaled.undoAvailable,
       });
     } catch (e) {
-      return mapToolError(e);
+      return mapToolError(e, {
+        tool: 'vault',
+        action: 'sync_index',
+        arguments: { action: 'sync_index', dryRun },
+      });
     }
   };
 }

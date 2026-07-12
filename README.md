@@ -110,7 +110,7 @@ Cursidian is a **two-layer** product:
 | Layer | Role | Where |
 |-------|------|-------|
 | **MCP server** | Runtime vault I/O for agents | Published `cursidian` package / local `dist/` |
-| **Wiki skills** | Workflow instructions (ingest, query, lint, …) | [`skills/wiki/`](skills/wiki/) copied into `~/.cursor/skills/` |
+| **Wiki skills** | Workflow instructions (ingest, query, lint, ...) | [`skills/wiki/`](skills/wiki/) copied into `~/.cursor/skills/` |
 
 The MCP server is the only way agents read or write vault markdown. Skills do **not** open vault files with the IDE filesystem tools or shell - they call **`user-cursidian`** (`note`, `search`, `graph`, `vault`). If an MCP call fails, the skill reports the failure and **stops** (no silent filesystem fallback).
 

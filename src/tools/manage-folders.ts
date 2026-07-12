@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import fg from 'fast-glob';
 import { type Config } from '../config.js';
 import { resolveDir } from '../lib/vault.js';
-import { assertSafePath, assertNotReadOnly } from '../lib/security.js';
+import { assertSafePathAsync, assertNotReadOnly } from '../lib/security.js';
 import { logger } from '../lib/logger.js';
 import { ok, err, mapToolError } from '../types/index.js';
 
@@ -30,7 +30,7 @@ export function manageFoldersHandler(config: Config) {
       }
 
       const resolved = resolveDir(config.vaultPath, folderPath);
-      assertSafePath(config.vaultPath, resolved);
+      await assertSafePathAsync(config.vaultPath, resolved);
 
       if (operation === 'create') {
         await fs.mkdir(resolved, { recursive: true });

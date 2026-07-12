@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.6.7] - 2026-07-12
+
+### Fixed
+
+- `assertSafePathAsync` resolves the nearest existing ancestor for not-yet-created paths so symlinked/junction directories inside the vault cannot be used to write outside it; folder create/delete now use the async check
+
 ## [2.6.6] - 2026-07-12
 
 

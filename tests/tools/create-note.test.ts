@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import path from 'node:path';
+import os from 'node:os';
 import fsp from 'node:fs/promises';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerNote } from '../../src/tools/note.js';
 import { createTestVault, cleanupVault, callTool, parseResult } from './helpers.js';
 import type { TestContext } from './helpers.js';
@@ -100,5 +102,69 @@ describe('note (create)', () => {
     const content = await fsp.readFile(path.join(ctx.vault, 'timestamped.md'), 'utf-8');
     expect(content).toMatch(/created: .+/);
     expect(content).toMatch(/updated: .+/);
+  });
+});
+
+describe('note (create) symlink escape', () => {
+  let root = '';
+  let vault = '';
+  let outside = '';
+  let symlinkOk = false;
+  let symlinkCtx: TestContext;
+
+  beforeAll(async () => {
+    root = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-create-symlink-'));
+    vault = path.join(root, 'vault');
+    outside = path.join(root, 'outside');
+    await fsp.mkdir(vault, { recursive: true });
+    await fsp.mkdir(outside, { recursive: true });
+    const escapeLink = path.join(vault, 'escape');
+    try {
+      if (process.platform === 'win32') {
+        await fsp.symlink(outside, escapeLink, 'junction');
+      } else {
+        await fsp.symlink(outside, escapeLink, 'dir');
+      }
+      symlinkOk = true;
+    } catch {
+      symlinkOk = false;
+    }
+
+    symlinkCtx = {
+      vault,
+      server: new McpServer({ name: 'symlink-test', version: '0' }),
+      config: {
+        vaultPath: vault,
+        readOnly: false,
+        maxFileSize: 10_485_760,
+        backupEnabled: false,
+        logLevel: 'error',
+      },
+    };
+    registerNote(symlinkCtx.server, symlinkCtx.config);
+  });
+
+  afterAll(async () => {
+    if (root) {
+      await fsp.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects note create under a symlinked directory outside the vault', async (ctx) => {
+    if (!symlinkOk) {
+      ctx.skip();
+    }
+    const result = await callTool(symlinkCtx.server, 'note', {
+      action: 'create',
+      path: 'escape/evil',
+      content: '# Evil',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string };
+    expect(data.error).toBe('path_traversal');
+
+    const escaped = path.join(outside, 'evil.md');
+    const exists = await fsp.access(escaped).then(() => true).catch(() => false);
+    expect(exists).toBe(false);
   });
 });

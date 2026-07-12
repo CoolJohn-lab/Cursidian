@@ -95,7 +95,7 @@ function verifyInstalled(destRoot) {
       continue;
     }
     if (fs.existsSync(nestedTrap)) {
-      problems.push(`${name}: nested duplicate ${path.join(name, name, 'SKILL.md')} — remove and reinstall`);
+      problems.push(`${name}: nested duplicate ${path.join(name, name, 'SKILL.md')} - remove and reinstall`);
     }
 
     for (const file of collectSkillMarkdown(skillDir)) {
@@ -119,7 +119,7 @@ function main() {
 
   console.log(`Source: ${srcRoot}`);
   console.log(`Dest:   ${dest}`);
-  if (dryRun) console.log('(dry-run — no changes)');
+  if (dryRun) console.log('(dry-run - no changes)');
 
   if (!dryRun) fs.mkdirSync(dest, { recursive: true });
 

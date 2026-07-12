@@ -30,6 +30,6 @@ Fast staging to `_raw/`, no index/log/hot updates - promotion via `wiki-ingest` 
 
 4. **Write** via `note` action `create`: Page Template frontmatter from `llm-wiki/SKILL.md` with `sources: [conversation:<ISO-date>]`, a `summary`, and at least 2 wikilinks to existing pages (search first with `search` action `content`).
 
-5. **Bookkeeping** via MCP: call `vault` action `sync_index`; then call `vault` action `log` with `logLine: CAPTURE page="<path>" title="<title>"` and `hotActivity: CAPTURE — saved [[path]]`.
+5. **Bookkeeping** via MCP: call `vault` action `sync_index`; then call `vault` action `log` with `logLine: CAPTURE page="<path>" title="<title>"` and `hotActivity: CAPTURE - saved [[path]]`.
 
 6. **Confirm** the saved path and title to the user.

@@ -74,7 +74,7 @@ describe('vault (health)', () => {
     await writeNote(
       ctx.vault,
       'index.md',
-      '---\ntitle: Wiki Index\n---\n\n# Wiki Index\n\n- [[concepts/dead-entry]] — old summary\n',
+      '---\ntitle: Wiki Index\n---\n\n# Wiki Index\n\n- [[concepts/dead-entry]] - old summary\n',
     );
 
     const result = await callTool(ctx.server, 'vault', { action: 'health' });

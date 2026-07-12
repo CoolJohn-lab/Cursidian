@@ -61,16 +61,16 @@ async function main() {
  query: 'Temporary probe note',
  limit: 5,
  });
- const data = expectOk('regression: note→home typo', r);
+ const data = expectOk('regression: note->home typo', r);
  if (data) {
  const tokens = data.contentTokens ?? [];
  if (tokens.includes('home') && !tokens.includes('note')) {
- record('fail', 'regression: note→home typo', { contentTokens: tokens, correctedTokens: data.correctedTokens });
+ record('fail', 'regression: note->home typo', { contentTokens: tokens, correctedTokens: data.correctedTokens });
  } else if (!tokens.includes('note') && !tokens.map((t) => t.toLowerCase()).includes('note')) {
  // note may be lowercased
  const lower = tokens.map((t) => t.toLowerCase());
  if (lower.includes('home') && !lower.includes('note')) {
- record('fail', 'regression: note→home typo', { contentTokens: tokens });
+ record('fail', 'regression: note->home typo', { contentTokens: tokens });
  } else {
  record('ok', 'regression: note token preserved', { contentTokens: tokens });
  }
@@ -176,7 +176,7 @@ async function main() {
  if (data && data.totalMatches !== 0) {
  record('fail', 'search: AND with nonexistent tag should be 0', data.totalMatches);
  } else {
- record('ok', 'by_tags AND with missing tag → 0', { totalMatches: data?.totalMatches });
+ record('ok', 'by_tags AND with missing tag -> 0', { totalMatches: data?.totalMatches });
  }
  }
 

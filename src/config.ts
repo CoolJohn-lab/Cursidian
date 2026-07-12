@@ -95,7 +95,7 @@ export function loadConfig(): Config {
   const hasIndex = fs.existsSync(path.join(vaultPath, 'index.md'));
   if (!hasObsidian && !hasIndex) {
     console.error(
-      `[WARN] Vault has neither .obsidian/ nor index.md — continuing anyway (plain markdown folders are supported): ${vaultPath}`,
+      `[WARN] Vault has neither .obsidian/ nor index.md - continuing anyway (plain markdown folders are supported): ${vaultPath}`,
     );
   }
 

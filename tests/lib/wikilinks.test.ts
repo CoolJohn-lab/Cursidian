@@ -46,7 +46,7 @@ describe('rewriteWikilinksForRename', () => {
 
   it('replaces path-style links when renaming a nested note', () => {
     const result = rewriteWikilinksForRename(
-      '- [[concepts/old-name]] — summary',
+      '- [[concepts/old-name]] - summary',
       'concepts/old-name.md',
       'concepts/new-name.md',
     );

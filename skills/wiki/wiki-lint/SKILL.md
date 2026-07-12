@@ -32,10 +32,10 @@ For deeper graph questions during consolidate mode, use `graph` / `search` actio
 ## Wiki Health Report
 
 ### Orphans (N)
-- [[concepts/foo]] — no incoming links
+- [[concepts/foo]] - no incoming links
 
 ### Broken links (N)
-- [[entities/bar]] → [[nonexistent-page]]
+- [[entities/bar]] -> [[nonexistent-page]]
 
 ### Missing frontmatter (N) · Index drift (N) · Stale (N) · Contradictions (N)
 ...

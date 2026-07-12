@@ -48,7 +48,8 @@ interface IndexEntryParsed {
  */
 export function parseIndexEntries(body: string): IndexEntryParsed[] {
   const entries: IndexEntryParsed[] = [];
-  const lineRe = /^-\s*\[\[([^\]|]+)(?:\|[^\]]+)?\]\]\s*(?:—|-)\s*(.*)$/;
+  // Accept ASCII hyphen or legacy em dash (U+2014) between wikilink and summary.
+  const lineRe = /^-\s*\[\[([^\]|]+)(?:\|[^\]]+)?\]\]\s*(?:\u2014|-)\s*(.*)$/;
 
   for (const line of body.split('\n')) {
     const match = line.trim().match(lineRe);
@@ -290,7 +291,7 @@ export async function buildIndexMarkdown(vaultPath: string): Promise<{ markdown:
     for (const note of notes) {
       const tagSuffix =
         note.tags.length > 0 ? ` ( ${note.tags.map((t) => `#${t}`).join(' ')})` : '';
-      lines.push(`- [[${note.path}]] — ${note.summary}${tagSuffix}`);
+      lines.push(`- [[${note.path}]] - ${note.summary}${tagSuffix}`);
     }
     lines.push('');
   }

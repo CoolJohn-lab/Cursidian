@@ -27,7 +27,7 @@ afterAll(async () => {
   await cleanupVault(ctx.vault);
 });
 
-describe('write → search cache invalidation', () => {
+describe('write -> search cache invalidation', () => {
   it('note create is immediately findable via search content', async () => {
     await callTool(ctx.server, 'search', { action: 'content', query: 'Project A', limit: 5 });
 

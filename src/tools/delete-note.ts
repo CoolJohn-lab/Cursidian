@@ -30,7 +30,7 @@ export function deleteNoteHandler(config: Config) {
         deleted: relative,
         backup: backupPath
           ? `Backup saved to: ${backupPath}`
-          : 'Backup disabled — note permanently removed.',
+          : 'Backup disabled - note permanently removed.',
       });
     } catch (e) {
       return mapToolError(e, { path: notePath });

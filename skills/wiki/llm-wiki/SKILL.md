@@ -73,7 +73,7 @@ Project-specific knowledge goes under `projects/<name>/<category>/`; general kno
 
 | File | Purpose |
 |---|---|
-| `index.md` | Catalog by category: `- [[page]] — one-line summary ( #tag #tag)`. Note the space after `(` - `(#tag` breaks parsing. Regenerate via `vault` with `action: "sync_index"` at the end of write sessions (do not hand-edit unless fixing a specific line). |
+| `index.md` | Catalog by category: `- [[page]] - one-line summary ( #tag #tag)`. Note the space after `(` - `(#tag` breaks parsing. Regenerate via `vault` with `action: "sync_index"` at the end of write sessions (do not hand-edit unless fixing a specific line). |
 | `log.md` | Append-only operation log: `- [ISO-timestamp] INGEST source="..." pages_created=N pages_updated=M` |
 | `hot.md` | ~500-word session cache: Recent Activity, Active Threads, Key Takeaways, Flagged Contradictions. Refresh after material changes. |
 | `_meta/manifest.md` | Ingest ledger - see below |
@@ -109,9 +109,9 @@ Source keys are absolute paths, one canonical form, never mixed with `~`-relativ
 title: Page Title
 category: concepts
 tags: [two-to-five, taxonomy-tags]
-summary: One or two sentences, ≤200 chars — lets skills preview the page without reading it.
+summary: One or two sentences, ≤200 chars - lets skills preview the page without reading it.
 sources: [where this came from]
-aliases: [optional real alternate names for search and wikilinks — not misspellings]
+aliases: [optional real alternate names for search and wikilinks - not misspellings]
 created: 2026-07-12T16:00:00Z
 updated: 2026-07-12T16:00:00Z
 ---
@@ -128,7 +128,7 @@ One-paragraph summary.
 
 ## Related
 
-- [[concepts/related-page]] — why it's related
+- [[concepts/related-page]] - why it's related
 ```
 
 Every page needs the frontmatter above, a `summary`, and at least 2 wikilinks. Older pages may carry extra fields (`provenance` ratios, `base_confidence`, `lifecycle`, `tier`, `relationships`) - **decorative leftovers from removed skill machinery**. Tolerate them on read; do not require them on write; do not invent new ones; do not bulk-strip existing pages unless the user asks.

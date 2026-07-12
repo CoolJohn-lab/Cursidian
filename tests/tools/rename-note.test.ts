@@ -33,7 +33,7 @@ describe('note (rename)', () => {
     await writeNote(
       ctx.vault,
       'index.md',
-      '---\ntitle: Wiki Index\n---\n\n# Wiki Index\n\n- [[concepts/old-name]] — Old.\n',
+      '---\ntitle: Wiki Index\n---\n\n# Wiki Index\n\n- [[concepts/old-name]] - Old.\n',
     );
 
     const index = await buildVaultIndex(ctx.vault);

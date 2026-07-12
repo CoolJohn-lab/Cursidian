@@ -58,17 +58,17 @@ describe('vault (log)', () => {
     await callTool(ctx.server, 'vault', {
       action: 'log',
       logLine: 'INGEST mode=append pages_created=1',
-      hotActivity: 'INGEST — added [[concepts/demo]]',
+      hotActivity: 'INGEST - added [[concepts/demo]]',
     });
     await callTool(ctx.server, 'vault', {
       action: 'log',
       logLine: 'LINT orphans=0',
-      hotActivity: 'LINT — clean',
+      hotActivity: 'LINT - clean',
     });
     const result = await callTool(ctx.server, 'vault', {
       action: 'log',
       logLine: 'WIKI_UPDATE project=demo',
-      hotActivity: 'WIKI_UPDATE — demo synced',
+      hotActivity: 'WIKI_UPDATE - demo synced',
     });
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as { hot: { path: string; contentHash: string } };

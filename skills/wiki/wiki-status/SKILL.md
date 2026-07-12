@@ -37,9 +37,9 @@ Report the state of the wiki so the user can decide what to do next. **All vault
 - _raw/ drafts pending: N
 
 ## What to Do Next
-1. Promote N drafts in _raw/          → wiki-ingest (raw mode)
-2. Ingest N new/modified sources      → wiki-ingest (append)
-3. Lint overdue (no LINT entry in log.md for 30+ days) → wiki-lint
+1. Promote N drafts in _raw/          -> wiki-ingest (raw mode)
+2. Ingest N new/modified sources      -> wiki-ingest (append)
+3. Lint overdue (no LINT entry in log.md for 30+ days) -> wiki-lint
 ```
 
 Rank by intent: `_raw/` drafts first (work already done, just needs promotion), then source delta, then maintenance. If nothing is pending, say the wiki is healthy and stop.

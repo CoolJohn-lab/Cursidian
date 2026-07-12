@@ -39,7 +39,7 @@ Follow the retrieval ladder from `llm-wiki/SKILL.md` - cheapest call first, esca
 2. BFS from start: for each frontier page, call `graph` once. Neighbours = unique `outgoingLinks[].resolvedPath` ∪ `backlinks[].path`.
 3. Record parent pointers so you can reconstruct the path.
 4. Stop when you reach the goal, or when depth = 3, or when you have made **8 neighborhood calls** (whichever first).
-5. If a path exists, report it as `A → B → C` with one-line role for each hop. If not, say no path within 3 hops and list the closest frontier pages checked.
+5. If a path exists, report it as `A -> B -> C` with one-line role for each hop. If not, say no path within 3 hops and list the closest frontier pages checked.
 
 Do **not** ask for server-side depth>1 - stay within this client-side walk.
 

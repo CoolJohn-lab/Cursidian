@@ -1,16 +1,17 @@
 import { createRequire } from "node:module";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Packs match .vscode/settings.json - skip cliches/academic (noisy in TS). */
 export const SLOP_PACKS = "claudeisms,structural,puffery,security";
 
-export const SLOP_EXCLUDES = [
+export const REPO_EXCLUDES = [
   "node_modules",
   "dist",
   ".git",
@@ -18,6 +19,14 @@ export const SLOP_EXCLUDES = [
   "*.map",
   "package-lock.json",
   ".llmsloprc.json",
+];
+
+export const WIKI_EXCLUDES = [
+  ".obsidian",
+  ".trash",
+  ".cursidian-trash",
+  ".git",
+  "node_modules",
 ];
 
 export function resolveCliJs() {
@@ -61,7 +70,57 @@ export function resolveCliJs() {
   return null;
 }
 
-export function runSlopScan({ format = "pretty" } = {}) {
+function vaultFromMcpJson(filePath) {
+  if (!fs.existsSync(filePath)) return null;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    const servers = parsed?.mcpServers ?? {};
+    for (const server of Object.values(servers)) {
+      const vaultPath = server?.env?.OBSIDIAN_VAULT_PATH;
+      if (typeof vaultPath === "string" && vaultPath.trim()) {
+        return vaultPath.trim();
+      }
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+/**
+ * Resolve the Obsidian wiki vault path.
+ * Order: OBSIDIAN_VAULT_PATH -> ~/.cursor/mcp.json -> examples/cursor-mcp.json (if path exists).
+ */
+export function resolveVaultPath() {
+  if (process.env.OBSIDIAN_VAULT_PATH?.trim()) {
+    return path.resolve(process.env.OBSIDIAN_VAULT_PATH.trim());
+  }
+
+  const homeMcp = path.join(os.homedir(), ".cursor", "mcp.json");
+  const fromHome = vaultFromMcpJson(homeMcp);
+  if (fromHome) return path.resolve(fromHome);
+
+  const example = vaultFromMcpJson(path.join(root, "examples", "cursor-mcp.json"));
+  if (example && fs.existsSync(example)) return path.resolve(example);
+
+  return null;
+}
+
+export function parseSlopArgs(argv = process.argv.slice(2)) {
+  const wiki = argv.includes("--wiki");
+  const rest = argv.filter((a) => a !== "--wiki");
+  return { wiki, rest };
+}
+
+/**
+ * @param {{ format?: 'pretty'|'json', target?: string, excludes?: string[], scanComments?: boolean }} opts
+ */
+export function runSlopScan({
+  format = "pretty",
+  target = root,
+  excludes = REPO_EXCLUDES,
+  scanComments = true,
+} = {}) {
   const cliJs = resolveCliJs();
   if (!cliJs) {
     return {
@@ -75,19 +134,23 @@ export function runSlopScan({ format = "pretty" } = {}) {
     };
   }
 
+  const configPath = path.join(root, ".llmsloprc.json");
+  const absTarget = path.resolve(target);
+
   const args = [
     cliJs,
     `--format=${format}`,
-    "--scan-comments",
+    `--config=${configPath}`,
     `--pack=${SLOP_PACKS}`,
-    ...SLOP_EXCLUDES.flatMap((p) => [`--exclude=${p}`]),
-    ".",
+    ...excludes.flatMap((p) => [`--exclude=${p}`]),
   ];
+  if (scanComments) args.push("--scan-comments");
+  args.push(absTarget);
 
   const result = spawnSync(process.execPath, args, {
     cwd: root,
     encoding: "utf8",
-    maxBuffer: 20 * 1024 * 1024,
+    maxBuffer: 40 * 1024 * 1024,
   });
 
   if (result.error) {
@@ -119,20 +182,30 @@ export function runSlopScan({ format = "pretty" } = {}) {
 
   const status = result.status ?? 1;
   return {
-    ok: status === 0 && findings.length === 0,
+    ok: status === 0 && (format !== "json" || findings.length === 0),
     findings,
     error: null,
     stdout: result.stdout || "",
     stderr: result.stderr || "",
     status,
+    target: absTarget,
   };
 }
 
-/** Keeps © ® ™. Matches Extended_Pictographic (+ optional FE0F / ZWJ sequences). */
+/** Keeps (c)(r)TM. Matches Extended_Pictographic (+ optional FE0F / ZWJ sequences). */
 export const EMOJI_RE =
   /(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}(?:\uFE0F|\u200D(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}\uFE0F?)*/gu;
 
-const SKIP_DIRS = new Set(["node_modules", "dist", ".git", "coverage"]);
+const SKIP_DIRS = new Set([
+  "node_modules",
+  "dist",
+  ".git",
+  "coverage",
+  ".obsidian",
+  ".trash",
+  ".cursidian-trash",
+]);
+
 const TEXT_EXT = new Set([
   ".md",
   ".txt",
@@ -150,7 +223,7 @@ const TEXT_EXT = new Set([
   ".svg",
 ]);
 
-export function walkTextFiles(dir = root, out = []) {
+export function walkTextFiles(dir, out = []) {
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
     if (SKIP_DIRS.has(ent.name)) continue;
     const p = path.join(dir, ent.name);
@@ -160,9 +233,10 @@ export function walkTextFiles(dir = root, out = []) {
   return out;
 }
 
-export function findEmojiHits() {
+export function findEmojiHits(baseDir = root) {
   const hits = [];
-  for (const file of walkTextFiles()) {
+  const absBase = path.resolve(baseDir);
+  for (const file of walkTextFiles(absBase)) {
     if (path.basename(file) === ".llmsloprc.json") continue;
     const text = fs.readFileSync(file, "utf8");
     let m;
@@ -172,7 +246,8 @@ export function findEmojiHits() {
       const line = before.split("\n").length;
       const col = before.length - before.lastIndexOf("\n");
       hits.push({
-        path: path.relative(root, file),
+        path: path.relative(absBase, file),
+        absPath: file,
         line,
         col,
         match: m[0],
@@ -182,4 +257,7 @@ export function findEmojiHits() {
   return hits;
 }
 
-export { root };
+/** Resolve a finding path relative to scan cwd (repo root) to an absolute file path. */
+export function resolveFindingPath(findingPath) {
+  return path.resolve(root, findingPath);
+}

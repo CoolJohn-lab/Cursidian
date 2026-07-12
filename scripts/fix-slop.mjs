@@ -1,22 +1,47 @@
 #!/usr/bin/env node
 /**
- * Auto-fix deterministic llm-slop character findings + strip all decorative emoji.
+ * Auto-fix deterministic llm-slop character findings + strip decorative emoji.
  * Phrase findings are reported but not rewritten.
+ * Wiki vault: `npm run slop:fix:wiki` / `node scripts/fix-slop.mjs --wiki`
  */
 import fs from "node:fs";
 import path from "node:path";
 import {
   EMOJI_RE,
   findEmojiHits,
+  parseSlopArgs,
+  REPO_EXCLUDES,
+  resolveFindingPath,
+  resolveVaultPath,
   root,
   runSlopScan,
   walkTextFiles,
+  WIKI_EXCLUDES,
 } from "./slop-lib.mjs";
 
-const scan = runSlopScan({ format: "json" });
+const { wiki } = parseSlopArgs();
+
+let target = root;
+let excludes = REPO_EXCLUDES;
+let label = "slop:fix";
+
+if (wiki) {
+  const vault = resolveVaultPath();
+  if (!vault) {
+    console.error("slop:fix:wiki failed: could not resolve OBSIDIAN_VAULT_PATH.");
+    console.error("Set OBSIDIAN_VAULT_PATH, or configure it in ~/.cursor/mcp.json under cursidian.env.");
+    process.exit(1);
+  }
+  target = vault;
+  excludes = WIKI_EXCLUDES;
+  label = "slop:fix:wiki";
+  console.log(`${label} - vault: ${vault}`);
+}
+
+const scan = runSlopScan({ format: "json", target, excludes });
 
 if (scan.error) {
-  console.error(`slop:fix failed: ${scan.error}`);
+  console.error(`${label} failed: ${scan.error}`);
   if (scan.stderr) console.error(scan.stderr);
   process.exit(1);
 }
@@ -46,7 +71,7 @@ function offsetAt(text, line, col) {
 
 const byFile = new Map();
 for (const f of charFindings) {
-  const abs = path.resolve(root, f.path);
+  const abs = resolveFindingPath(f.path);
   if (!byFile.has(abs)) byFile.set(abs, []);
   byFile.get(abs).push(f);
 }
@@ -65,7 +90,7 @@ for (const [file, items] of byFile) {
   for (const f of sorted) {
     const fix = parseFix(f.message);
     if (fix === undefined) {
-      console.warn(`No fix parsed for ${f.path}:${f.line}:${f.col} — ${f.message}`);
+      console.warn(`No fix parsed for ${f.path}:${f.line}:${f.col} - ${f.message}`);
       continue;
     }
     const start = offsetAt(text, f.line, f.col);
@@ -84,7 +109,7 @@ for (const [file, items] of byFile) {
   if (changed) {
     fs.writeFileSync(file, text, "utf8");
     filesChanged++;
-    console.log(`Fixed ${items.length} in ${path.relative(root, file)}`);
+    console.log(`Fixed ${items.length} in ${path.relative(wiki ? target : root, file)}`);
   }
 }
 
@@ -98,7 +123,7 @@ if (phraseFindings.length) {
 
 let emojiFiles = 0;
 let emojiRemovals = 0;
-for (const file of walkTextFiles()) {
+for (const file of walkTextFiles(target)) {
   if (path.basename(file) === ".llmsloprc.json") continue;
   const before = fs.readFileSync(file, "utf8");
   let n = 0;
@@ -111,21 +136,22 @@ for (const file of walkTextFiles()) {
     fs.writeFileSync(file, cleaned, "utf8");
     emojiFiles++;
     emojiRemovals += n;
-    console.log(`Removed ${n} emoji(s) in ${path.relative(root, file)}`);
+    console.log(`Removed ${n} emoji(s) in ${path.relative(wiki ? target : root, file)}`);
   }
 }
 console.log(`Emoji pass: removed ${emojiRemovals} across ${emojiFiles} files.`);
 
-const remainingPhrases = runSlopScan({ format: "json" }).findings.filter(
-  (f) => f.code !== "char",
-);
-const remainingEmoji = findEmojiHits();
+const remaining = runSlopScan({ format: "json", target, excludes });
+const remainingPhrases = (remaining.findings || []).filter((f) => f.code !== "char");
+const remainingEmoji = findEmojiHits(target);
 if (remainingPhrases.length || remainingEmoji.length) {
   console.error(
-    `\nslop:fix incomplete — ${remainingPhrases.length} phrase(s), ${remainingEmoji.length} emoji(s) still present.`,
+    `\n${label} incomplete - ${remainingPhrases.length} phrase(s), ${remainingEmoji.length} emoji(s) still present.`,
   );
-  console.error(`Run npm run slop:check for details, then rewrite phrase hits by hand.`);
+  console.error(
+    `Run ${wiki ? "npm run slop:check:wiki" : "npm run slop:check"} for details, then rewrite phrase hits by hand.`,
+  );
   process.exit(1);
 }
 
-console.log("\nslop:fix — clean");
+console.log(`\n${label} - clean`);

@@ -6,9 +6,13 @@
 
 | Command | Purpose |
 |---------|---------|
-| `npm run slop:check` | Scan only; exits non-zero if dirty |
-| `npm run slop:fix` | Auto-fix characters/emoji; rewrite any leftover phrases by hand |
-| `npm run build` | Slop check, then `tsc` |
+| `npm run slop:check` | Scan this repo; exits non-zero if dirty |
+| `npm run slop:fix` | Auto-fix characters/emoji in this repo |
+| `npm run slop:check:wiki` | Scan the Obsidian vault (`OBSIDIAN_VAULT_PATH` / `~/.cursor/mcp.json`) |
+| `npm run slop:fix:wiki` | Auto-fix characters/emoji in the vault |
+| `npm run build` | Repo slop check, then `tsc` |
+
+Wiki scans use this repo's `.llmsloprc.json` rules but do **not** gate `build` (vault lives outside the package).
 
 Config: `.llmsloprc.json` + `.vscode/settings.json` (packs: `claudeisms`, `structural`, `puffery`, `security`).
 

@@ -1,6 +1,6 @@
 {
   "name": "cursidian",
-  "version": "2.5.5",
+  "version": "2.6.0",
   "description": "MCP server for Obsidian vaults, optimised for Cursor agents — safe writes, lean tool surface, direct filesystem access.",
   "type": "module",
   "bin": {
@@ -18,6 +18,8 @@
     "prebuild": "npm run slop:check",
     "slop:check": "node scripts/slop-check.mjs",
     "slop:fix": "node scripts/fix-slop.mjs",
+    "slop:check:wiki": "node scripts/slop-check.mjs --wiki",
+    "slop:fix:wiki": "node scripts/fix-slop.mjs --wiki",
     "smoke": "node scripts/smoke-test.mjs",
     "mcp:test": "node scripts/mcp-test.mjs",
     "dev": "tsx src/index.ts",

@@ -22,6 +22,25 @@ Config: `.llmsloprc.json` + `.vscode/settings.json` (packs: `claudeisms`, `struc
 
 After `npm run build`, restart the `user-cursidian` MCP server in Cursor (Settings -> MCP -> restart, or reload the window) so the IDE picks up changes from `dist/`.
 
+After changing `~/.cursor/mcp.json` (or switching away from a predecessor path such as `Obsidian-MCP-For-Cursor`), run:
+
+```bash
+npm run mcp:check
+```
+
+That is a **read-only** guard: it fails if the `cursidian` server entry is missing, still points at `Obsidian-MCP-For-Cursor`, or lacks an absolute `OBSIDIAN_VAULT_PATH`. It does not rewrite the file. Then restart `user-cursidian`.
+
+## MCP invocation checklist (CallMcpTool)
+
+Every vault MCP call must set **both**:
+
+- `server: "user-cursidian"`
+- `toolName`: exactly one of `note` | `search` | `graph` | `vault`
+
+Never send only `arguments` + `description` (missing `server` / `toolName` fails before Cursidian runs). Discover schemas with `GetMcpTools` first. On verify steps, re-read with a well-formed call - do not mark verify complete after a malformed invocation.
+
+Retired tool names (`read_note`, `search_content`, `list_notes`, ...) must not be called. See `skills/wiki/llm-wiki/SKILL.md` (MCP Contract) and `docs/MCP-HOST-HYGIENE.md` for stale Cursor allowlist cleanup.
+
 ## Wiki skills refresh
 
 After changing files under `skills/wiki/`, or when Cursor agents still call retired tool names (`read_note`, `search_content`, ...), reinstall into the user skills directory:

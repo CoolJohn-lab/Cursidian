@@ -46,6 +46,12 @@ Reload Cursor after saving.
 
 Config key `"cursidian"` appears as MCP server **`user-cursidian`** in agent tools.
 
+From a local clone, verify the config is not still pointing at a predecessor path:
+
+```bash
+npm run mcp:check
+```
+
 The MCP server is the **only** way skills touch the vault - there is no `.env` walk-up or
 filesystem fallback. The vault path lives in `mcp.json` and nowhere else.
 
@@ -96,6 +102,7 @@ After MCP tool-surface changes (e.g. the 4-tool consolidation), re-run `npm run 
 
 ## 4. Verify
 
-1. In Cursor, confirm `user-cursidian` tools are listed (`note`, `search`, `graph`, `vault`).
-2. Ask the agent to call `search` with `action: "list"`.
+1. In Cursor, confirm `user-cursidian` tools are listed (`note`, `search`, `graph`, `vault`) - not a leftover `obsidian` / `user-obsidian` server.
+2. Ask the agent to call `search` with `action: "list"`. Every `CallMcpTool` must set `server: "user-cursidian"` and `toolName` (`note` | `search` | `graph` | `vault`); never `arguments` + `description` alone.
 3. For a fresh vault, run the `wiki-setup` skill; otherwise run `wiki-status`.
+4. If Cursor still walks retired tool allowlist entries (`read_note`, `search_content`, ...), clean them up per [`docs/MCP-HOST-HYGIENE.md`](../../docs/MCP-HOST-HYGIENE.md).

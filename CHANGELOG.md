@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `npm run mcp:check` (`scripts/check-mcp-config.mjs`) - read-only guard that `~/.cursor/mcp.json` uses `cursidian`, not `Obsidian-MCP-For-Cursor`, with an absolute vault path
+- `docs/MCP-HOST-HYGIENE.md` - clean up stale `user-obsidian` / legacy tool allowlist noise after cutover
+
+### Changed
+
+- Operational `INFO`/`DEBUG` logs no longer write to stderr by default (Cursor MCP host was labeling them `[error]`); optional `OBSIDIAN_LOG_FILE` or `OBSIDIAN_LOG_STDERR_INFO=true`; `WARN`/`ERROR` stay on stderr; stdout remains MCP JSON-RPC only
+- `AGENTS.md` / `skills/wiki/INSTALL.md` - `mcp:check`, CallMcpTool `server`+`toolName` checklist, host hygiene pointer
+
 ## [2.11.4] - 2026-07-13
 
 ### Fixed

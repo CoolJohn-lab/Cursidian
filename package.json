@@ -24,6 +24,7 @@
     "slop:fix:wiki": "node scripts/fix-slop.mjs --wiki",
     "smoke": "node scripts/smoke-test.mjs",
     "mcp:test": "node scripts/mcp-test.mjs",
+    "mcp:check": "node scripts/check-mcp-config.mjs",
     "dev": "tsx src/index.ts",
     "test": "vitest run --coverage",
     "test:clean": "node scripts/clean-npm-env.mjs vitest run --coverage",

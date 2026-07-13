@@ -324,15 +324,31 @@ export function mapToolError(e: unknown, context?: Partial<ToolErrorContext>): T
         'code' in e && typeof (e as { code: unknown }).code === 'string'
           ? (e as { code: string }).code
           : 'internal_error';
+      let conflictKind: string | undefined;
+      let suggestion: string | undefined;
+      if (code === 'not_found' && /old_string/i.test(message)) {
+        conflictKind = 'patch_not_found';
+        suggestion = 'Re-read the note and widen old_string context, or use mode replace for a wholesale rewrite.';
+      } else if (code === 'not_found' && /heading/i.test(message)) {
+        conflictKind = 'heading_not_found';
+        suggestion = 'Re-read the note and confirm the heading text/level, or use mode replace for a wholesale rewrite.';
+      } else if (code === 'invalid_args' && /ambiguous/i.test(message)) {
+        conflictKind = 'ambiguous_match';
+        suggestion =
+          'Provide a longer unique old_string / more specific heading, or use mode replace for a wholesale rewrite.';
+      }
       return toolError({
         error: code,
         message,
         ...base,
         retryable: code === 'invalid_args' || code === 'not_found',
         path: pathHint,
-        details: {},
+        details: {
+          ...(conflictKind ? { conflictKind } : {}),
+          ...(suggestion ? { suggestion } : {}),
+        },
         recovery: { tool, arguments: recoveryArguments },
-        hint: `Retry ${tool} with the recovery arguments.`,
+        hint: suggestion ?? `Retry ${tool} with the recovery arguments.`,
       });
     }
 

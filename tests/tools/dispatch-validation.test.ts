@@ -180,5 +180,15 @@ describe('dispatch validation', () => {
       tool: 'note',
       arguments: { action: 'read', path: 'recovery-test' },
     });
+    expect(data.details).toMatchObject({
+      conflictKind: 'revision',
+      check: 'revision',
+    });
+    expect(typeof (data.details as { currentRevision?: string }).currentRevision).toBe('string');
+  });
+
+  it('search tags rejects limit argument', async () => {
+    const result = await callTool(ctx.client, 'search', { action: 'tags', limit: 10 });
+    expectInvalidArgs(result, { rejected: ['limit'], recoveryTool: 'search' });
   });
 });

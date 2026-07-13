@@ -21,7 +21,7 @@ export function registerNote(server: McpServer, config: Config): void {
     'note',
     {
       description:
-        'Read, create, update, delete, rename a note, or edit its frontmatter. action=read returns content+frontmatter+contentHash+revisionHash+outgoingLinks. Path accepts vault-relative paths, titles, and frontmatter aliases (except create, which writes the literal path). update: prefer patch (old_string/new_string) or replace_section (heading); replace is size-guarded. Pass expectedRevision from read to detect concurrent edits (expectedHash remains a deprecated body-hash alias). Mutations return operationId/undoAvailable when journaling is enabled; use vault undo to reverse.',
+        'Read, create, update, delete, rename a note, or edit its frontmatter. action=read returns content+frontmatter+contentHash+revisionHash+outgoingLinks. Path accepts vault-relative paths, titles, and frontmatter aliases (except create, which writes the literal path). update: prefer patch (old_string/new_string) or replace_section (heading); replace is size-guarded; optional frontmatter merge on the same update (one journaled op for body + metadata). Pass expectedRevision from read to detect concurrent edits (expectedHash remains a deprecated body-hash alias). Mutations return operationId/undoAvailable when journaling is enabled; use vault undo to reverse.',
       inputSchema: {
         action: z
           .enum(['read', 'create', 'update', 'delete', 'rename', 'frontmatter'])
@@ -40,7 +40,9 @@ export function registerNote(server: McpServer, config: Config): void {
             message: `frontmatter exceeds ${MAX_FRONTMATTER_KEYS} keys`,
           })
           .optional()
-          .describe('Used by create and frontmatter set or merge actions'),
+          .describe(
+            'Used by create, frontmatter set/merge, and update (merge into existing frontmatter in the same journaled op)',
+          ),
         overwrite: z.boolean().optional().describe('Used by create action only'),
         mode: z
           .enum(['replace', 'append', 'prepend', 'patch', 'replace_section'])
@@ -96,6 +98,7 @@ export function registerNote(server: McpServer, config: Config): void {
             'old_string',
             'new_string',
             'heading',
+            'frontmatter',
             'expectedRevision',
             'expectedHash',
             'force',
@@ -170,6 +173,7 @@ export function registerNote(server: McpServer, config: Config): void {
             old_string,
             new_string,
             heading,
+            frontmatter,
             expectedRevision,
             expectedHash,
             force,

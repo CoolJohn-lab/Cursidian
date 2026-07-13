@@ -175,6 +175,10 @@ describe('structured tool errors', () => {
     expect(missingPayload.code).toBe('not_found');
     expect(missingPayload.retryable).toBe(true);
     expect(missingPayload.path).toBe('n.md');
+    expect(missingPayload.details).toMatchObject({
+      conflictKind: 'heading_not_found',
+      suggestion: expect.stringContaining('heading'),
+    });
     expect(missingPayload.recovery).toEqual({
       tool: 'note',
       arguments: { action: 'update', path: 'n.md', mode: 'replace_section', heading: 'X' },
@@ -187,6 +191,18 @@ describe('structured tool errors', () => {
     const ambiguousPayload = parsePayload(ambiguous);
     expect(ambiguousPayload.error).toBe('invalid_args');
     expect(ambiguousPayload.retryable).toBe(true);
+    expect(ambiguousPayload.details).toMatchObject({
+      conflictKind: 'ambiguous_match',
+      suggestion: expect.stringContaining('replace'),
+    });
+
+    const patchMissing = mapToolError(
+      new SectionEditError('not_found', 'old_string not found in note body'),
+      { tool: 'note', action: 'update', path: 'n.md' },
+    );
+    expect(parsePayload(patchMissing).details).toMatchObject({
+      conflictKind: 'patch_not_found',
+    });
   });
 
   it('mapToolError maps PathResolveError to invalid_args with candidate array', () => {

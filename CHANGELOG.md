@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.10.1] - 2026-07-13
+
+### Added
+
+- Optional `frontmatter` merge on `note` `update` (one journaled op for body + metadata)
+- `details.currentRevision` / `conflictKind` / `suggestion` on `hash_mismatch` and section/patch edit errors
+- Skill write-hygiene contract: CallMcpTool `server`+`toolName`, same-path serialization, write-scope announcement, combined updates
+
+### Changed
+
+- `search` `tags` docs: accepts no other arguments (`limit`/`cursor` rejected with `invalid_args`)
+- `skills:check` gates CallMcpTool hygiene, revision chaining, and write-scope announcement
+
 ## [2.10.0] - 2026-07-12
 
 ### Added

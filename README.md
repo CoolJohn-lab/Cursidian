@@ -169,9 +169,16 @@ Wiki scans use the same rules but do **not** gate `build` (the vault lives outsi
 ## Safe write workflow
 
 1. **Read** - `note` with `action: "read"`; note the `revisionHash` (full note) and legacy `contentHash` (body only).
-2. **Edit** - `note` with `action: "update"` using the safest mode (`patch`, `replace_section`, `append`, `prepend`, or `replace`).
+2. **Edit** - `note` with `action: "update"` using the safest mode for surgical edits (`patch`, `replace_section`, `append`, `prepend`). For wholesale page rewrites, use a single `replace`. Prefer one combined `update` that also passes `frontmatter` (merge) so body + metadata share one `operationId`.
 3. Pass `expectedRevision` from step 1 to detect concurrent edits (including frontmatter-only changes). `expectedHash` still works as a deprecated body-hash alias.
-4. On success, record `operationId` when present. To reverse: `vault` `undo` with `operationId` and `confirm: true`.
+4. On success, record `operationId` when present and replace any cached `revisionHash` for that path with the response value. To reverse: `vault` `undo` with `operationId` and `confirm: true`.
+
+### Same-path edits in one session
+
+- Never fire parallel `note` mutations for the same path.
+- Pattern: `read` -> immediate write with that `revisionHash` -> use the **response** `revisionHash` for any further write to that path.
+- Prefer combined body + `frontmatter` on one `update` over a body write then a separate `frontmatter` call.
+- On `hash_mismatch`, prefer `details.currentRevision` for frontmatter-only / full-`replace` retries; re-read when re-deriving a `patch` / `replace_section`.
 
 ### Undo example
 

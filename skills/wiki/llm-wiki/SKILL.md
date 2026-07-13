@@ -18,10 +18,11 @@ You maintain a persistent, compounding knowledge base. The wiki is a **compiled 
 
 1. **Never** touch vault files with filesystem tools (`Read`, `Write`, `StrReplace`, `Grep`, `Glob`) or shell commands (`cat`, `sed`, `echo >`, `mkdir`, `mv`, `rm`, ...). This covers every file in the vault: pages, `index.md`, `log.md`, `hot.md`, `_meta/`, `_raw/` - everything.
 2. Reads use `search` (actions: `content`, `by_tags`, `list`, `recent`, `tags`), `note` (action: `read`), `graph`, `vault` (actions: `health`, `history`, `manifest` with `manifestOperation: "read"`, `list_folders`). Writes use `note` (actions: `create`, `update`, `delete`, `rename`, `frontmatter`), `vault` (actions: `sync_index`, `create_folder`, `delete_folder`, `log`, `undo`, `manifest` mutations).
-3. Edits follow the safe-write protocol: `note` with `action: "read"` -> note the `revisionHash` (and legacy `contentHash`) -> mutate with the narrowest mode (`patch` > `replace_section` > `append`/`prepend` > `replace`) passing `expectedRevision`. On `hash_mismatch` / revision mismatch, re-read and re-apply once against the fresh content. Prefer `expectedRevision` over deprecated `expectedHash`.
+3. Edits follow the safe-write protocol: `note` with `action: "read"` -> note the `revisionHash` (and legacy `contentHash`) -> mutate with `expectedRevision`. Prefer surgical modes for small edits (`patch` > `replace_section` > `append`/`prepend`); for wholesale page rewrites (version sync, multi-section overhaul) use a single `replace` instead of chained `replace_section`. Prefer one combined `note` `update` that carries both body and `frontmatter` (merge). If body and frontmatter must be separate ops, update body first, then `frontmatter` with the post-body `revisionHash` - never both in one parallel batch. Serialize per path: `read` -> immediate write with that `revisionHash` -> use the **response** `revisionHash` for any further write to that path. Never parallel `note` mutations (or read-then-batch-write) for the same path. Prefer `expectedRevision` over deprecated `expectedHash`.
 4. Mutating skills keep an **operation-ID stack**: after every successful write that returns `operationId`, push it. Clear the stack only after final verification succeeds. On failure after any successful write, roll back with `vault` `undo` in reverse order (see Failure handling).
 5. **If an MCP call fails after the recovery rules below are exhausted: stop.** Tell the user which tool was called, with what arguments, what came back (`code`, `sideEffects`, `recovery`, `operationId`s already stacked), and wait. Do not retry with different tools, do not fall back to the filesystem, do not improvise.
 6. If the `user-cursidian` server is missing or unreachable, say so and stop. Point the user at `INSTALL.md`. Do not offer a manual alternative.
+7. Every vault MCP invocation must set `server: "user-cursidian"` and `toolName` to exactly one of `note` | `search` | `graph` | `vault`. Discover schemas with `GetMcpTools` first. Never send only `arguments` + `description` (missing `server`/`toolName` fails before Cursidian runs). `search` with `action: "tags"` accepts **no** other arguments (no `limit` / `cursor`).
 
 The only files read outside MCP are **source documents that live outside the vault** - the things being ingested. Use `Read`/`Glob`/`WebFetch` on those as normal. The moment content enters the vault, it is MCP-only.
 
@@ -29,8 +30,8 @@ The only files read outside MCP are **source documents that live outside the vau
 
 | Tool | Actions | Notes |
 |---|---|---|
-| `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | `content`: default `limit: 10`; `format: "compact"` for index-only hits; follow `nextCursor` while `truncated` is true. Operational files (`index`/`log`/`hot`/`_raw`/`_archives`) excluded unless `includeOperational: true`. Stopwords stripped; AND then OR-fallback; typo correction when zero hits (disclose when either fired). `list`/`recent`: same exclusion; `list` fails loud (`not_found`) on a missing folder. Responses may set `incomplete: true` with `skipped` paths when the scan could not read every file. |
-| `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | `read`: body, frontmatter, `contentHash`, `revisionHash`, `outgoingLinks`. Mutations return `operationId` / `undoAvailable` when journaling is on. Pass `expectedRevision` on `update`, `frontmatter`, `delete`, `rename`, and `create` with `overwrite: true`. `expectedHash` still works as a deprecated alias. `update` modes: `patch`, `replace_section`, `append`, `prepend`, `replace`. `rename`: `newPath`; rewrites backlinks under one journaled operation. `delete`: `confirm: true`. |
+| `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | `content`: default `limit: 10`; `format: "compact"` for index-only hits; follow `nextCursor` while `truncated` is true. Operational files (`index`/`log`/`hot`/`_raw`/`_archives`) excluded unless `includeOperational: true`. Stopwords stripped; AND then OR-fallback; typo correction when zero hits (disclose when either fired). `list`/`recent`: same exclusion; `list` fails loud (`not_found`) on a missing folder. `tags`: full tag vocabulary with counts; accepts **no** other arguments (no `limit`/`cursor`). Responses may set `incomplete: true` with `skipped` paths when the scan could not read every file. |
+| `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | `read`: body, frontmatter, `contentHash`, `revisionHash`, `outgoingLinks`. Mutations return `operationId` / `undoAvailable` when journaling is on. Pass `expectedRevision` on `update`, `frontmatter`, `delete`, `rename`, and `create` with `overwrite: true`. `expectedHash` still works as a deprecated alias. `update` modes: `patch`, `replace_section`, `append`, `prepend`, `replace`; optional `frontmatter` merge on the same `update` (one journaled op for body + metadata). Prefer that combined update over separate body then `frontmatter` calls. `rename`: `newPath`; rewrites backlinks under one journaled operation. `delete`: `confirm: true`. |
 | `graph` | - | One-hop neighborhood: resolved outgoing, **unresolved** outgoing, paginated backlinks (`truncated` / `nextCursor`). Skip neighbors whose `resolvedPath` is null. |
 | `vault` | `health`, `sync_index`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest` | `health`: orphans / broken links / missing frontmatter / summary warnings / index drift / ambiguous keys / stale / skipped (`incomplete`). `sync_index`: rebuild `index.md` (`dryRun: true` for preview). `log`: append `log.md` + optional `hot.md`. `history`: list journaled ops. `undo`: requires `operationId` + `confirm: true` (optional `force: true`). `manifest`: `manifestOperation` `read` / `upsert_source` / `upsert_project` / `remove` - typed ledger edits; do not hand-edit `_meta/manifest.md` lines. |
 
@@ -39,6 +40,7 @@ The only files read outside MCP are **source documents that live outside the vau
 - `revisionHash` covers the **full note** (frontmatter + body). Use it for concurrency.
 - `contentHash` covers the body only; keep reading it, but prefer `revisionHash` / `expectedRevision` for writes.
 - Concurrent frontmatter-only edits change `revisionHash` but not `contentHash`.
+- After every successful write, replace any cached `revisionHash` for that path with the response value. Never reuse a pre-batch read revision for a second write to the same path.
 
 ### Pagination and incomplete scans
 
@@ -52,8 +54,11 @@ Keep a session list: `operationStack: string[]` (newest at the end).
 
 | Error / situation | Agent action |
 |---|---|
-| `hash_mismatch` / revision mismatch | Re-read the path, then reapply the same intent **once** with the fresh `expectedRevision`. If the second attempt fails, stop and report. |
-| Correctable `invalid_args`, `already_exists`, `not_found` | Follow the structured `recovery` payload **once** (exact tool + argument template). Candidate paths are arrays in `details`, never comma-joined strings. |
+| `hash_mismatch` / revision mismatch | Prefer `details.currentRevision` from the error for frontmatter-only merges and full `replace` retries. For body `patch` / `replace_section`, re-read that path, re-derive `old_string` / heading from the fresh body, then retry **once** with the fresh `expectedRevision`. If the second attempt fails, stop and report. |
+| Same path written twice in one workflow | After each success, replace cached `revisionHash` from the response; never reuse a pre-batch read. |
+| Parallel same-path tool calls | Forbidden. Serialize: one note at a time. |
+| Cursor auto-review / Smart Mode blocks a write | Re-call the **same** mutation with `requestSmartModeApproval: true` and the exact returned `smartModeBlockReason`. Do not invent filesystem workarounds or skip the page. After approval resumes, re-read which planned writes actually landed before continuing the sweep. |
+| Correctable `invalid_args`, `already_exists`, `not_found` | Follow the structured `recovery` payload **once** (exact tool + argument template). Candidate paths are arrays in `details`, never comma-joined strings. Use `details.conflictKind` / `suggestion` when present (e.g. widen `old_string`, or `replace` for wholesale rewrite). |
 | Any error **after** one or more successful writes in this workflow | Call `vault` with `action: "undo"`, `confirm: true`, for each stacked `operationId` in **reverse** order. Then stop and report what was undone vs what failed. |
 | `sideEffects: "partial"` | Stop immediately. Report `completed` / `restored` / `unresolved` from the error. Do not continue the workflow; do not invent further repairs without user instruction. |
 | Undo conflict (file no longer matches post-write revision) | Stop. Report conflicts. Do **not** pass `force: true` unless the user explicitly authorizes destructive override. |
@@ -66,10 +71,12 @@ Never clear `operationStack` until final verification passes. Never fall back to
 Every write skill (setup, ingest, capture, update, lint consolidate, status hot-refresh) follows:
 
 1. **Preflight** - read-only discovery; collect inputs the user must supply before any write.
-2. **Operation stack** - push every returned `operationId`.
-3. **Rollback** - on failure after writes, undo reverse-order as above.
-4. **Verification** - after multi-page write workflows: `note` `read` each changed page; `vault` `sync_index` with `dryRun: true` expecting `wouldWrite: false`; report residual drift instead of claiming success.
-5. **Final report** - created / updated / renamed paths, manifest record (if any), index state, warnings, and operation IDs retained for later undo. Then clear the stack.
+2. **Announce write scope** - before the first mutation in a multi-page workflow, send one short message listing the paths about to change and why. The user's trigger phrase (e.g. "update wiki") is the authorization - do **not** add a blocking confirmation round-trip (wiki-lint consolidate keeps its stricter confirm because it is cleanup the user has not itemized). Stating scope also helps Cursor auto-review classify the writes as requested.
+3. **Write sequencing** - one note at a time. Prefer combined body+`frontmatter` on a single `note` `update`. Push `operationId` after each success before starting the next note. Do not read all pages upfront then write in parallel; read immediately before each write (or chain the response `revisionHash`).
+4. **Operation stack** - push every returned `operationId`.
+5. **Rollback** - on failure after writes, undo reverse-order as above.
+6. **Verification** - after multi-page write workflows: `note` `read` each changed page; `vault` `sync_index` with `dryRun: true` expecting `wouldWrite: false`; report residual drift instead of claiming success.
+7. **Final report** - created / updated / renamed paths, manifest record (if any), index state, warnings, and operation IDs retained for later undo. Then clear the stack.
 
 ### Retrieval ladder
 

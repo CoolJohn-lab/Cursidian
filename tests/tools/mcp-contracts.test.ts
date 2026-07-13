@@ -116,6 +116,11 @@ describe('MCP skill contracts', () => {
     expect(mismatchPayload.retryable).toBe(true);
     expect(mismatchPayload.recovery?.tool).toBe('note');
     expect(read.revisionHash).toBeTruthy();
+    const mismatchDetails = mismatchPayload as {
+      details?: { conflictKind?: string; currentRevision?: string };
+    };
+    expect(mismatchDetails.details?.conflictKind).toBe('revision');
+    expect(mismatchDetails.details?.currentRevision).toBe(read.revisionHash);
   });
 
   it('reverse-order undo restores vault after multi-step writes', async () => {

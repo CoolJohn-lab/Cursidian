@@ -20,7 +20,14 @@ export function computeRevisionHash(rawFileText: string): string {
 
 export type RevisionCheckResult =
   | { ok: true; warnings?: string[] }
-  | { ok: false; message: string; hint: string };
+  | {
+      ok: false;
+      message: string;
+      hint: string;
+      check: 'revision' | 'content_hash';
+      currentRevision?: string;
+      currentHash?: string;
+    };
 
 export function checkRevisionConcurrency(options: {
   raw: string;
@@ -39,9 +46,11 @@ export function checkRevisionConcurrency(options: {
     if (options.expectedRevision !== currentRevision) {
       return {
         ok: false,
+        check: 'revision',
+        currentRevision,
         message:
           'Note has changed since read (revision mismatch). Re-read the note and retry with the latest revisionHash.',
-        hint: 'Call note with action read again, then pass the fresh revisionHash as expectedRevision.',
+        hint: 'Call note with action read again, then pass the fresh revisionHash as expectedRevision. Or use details.currentRevision from this error for frontmatter-only / replace retries.',
       };
     }
     return warnings.length > 0 ? { ok: true, warnings } : { ok: true };
@@ -52,6 +61,9 @@ export function checkRevisionConcurrency(options: {
     if (options.expectedHash !== currentHash) {
       return {
         ok: false,
+        check: 'content_hash',
+        currentHash,
+        currentRevision: computeRevisionHash(options.raw),
         message:
           'Note content has changed since read (hash mismatch). Re-read the note and retry with the latest contentHash.',
         hint: 'Call note with action read again, then pass the fresh contentHash as expectedHash.',
@@ -61,4 +73,18 @@ export function checkRevisionConcurrency(options: {
   }
 
   return { ok: true };
+}
+
+/** Shared details payload for hash_mismatch tool errors. */
+export function hashMismatchDetails(
+  revisionCheck: Extract<RevisionCheckResult, { ok: false }>,
+): Record<string, unknown> {
+  return {
+    conflictKind: 'revision' as const,
+    check: revisionCheck.check,
+    ...(revisionCheck.currentRevision
+      ? { currentRevision: revisionCheck.currentRevision }
+      : {}),
+    ...(revisionCheck.currentHash ? { currentHash: revisionCheck.currentHash } : {}),
+  };
 }

@@ -12,7 +12,7 @@ You are bootstrapping a new wiki vault (or repairing one). **All vault access is
 
 The MCP server already knows the vault path (`OBSIDIAN_VAULT_PATH` in the user's `mcp.json`). If `search` action `list` fails because the server isn't configured, point the user at `INSTALL.md` and stop.
 
-Keep `operationStack: string[]` for every successful write's `operationId`. On failure after writes, undo reverse-order per `llm-wiki`.
+Keep `operationStack: string[]` for every successful write's `operationId`. On failure after writes, undo reverse-order per `llm-wiki`. Follow `llm-wiki` write sequencing: one note/folder op at a time; read immediately before each write that needs `expectedRevision`; chain response revisions when the same path is touched twice.
 
 ## Preflight (no writes)
 

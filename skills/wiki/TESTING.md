@@ -20,10 +20,13 @@ npm run mcp:test -- suite smoke
 
 ## The MCP-only invariant (applies to every test)
 
-For every golden path below, also verify:
-
-- **No filesystem access to the vault.** The agent never uses Read/Write/StrReplace/Grep/Glob or shell commands on vault paths - every vault read and write is a `user-cursidian` tool call.
+- **No filesystem access to the vault.** The agent never uses Read/Write/StrReplace/Grep/Glob or shell commands on vault paths - every vault read and write is a `user-cursidian` tool call (`server: "user-cursidian"` + `toolName`).
 - **Failure means stop (after recovery rules).** Follow structured `recovery` once for correctable errors; on failure after successful writes, `vault` `undo` stacked `operationId`s in reverse order. Do not fall back to the filesystem.
+- Mutating paths use `expectedRevision`, push `operationId` onto an operation stack, and undo reverse-order on failure after writes.
+- One note at a time: read immediately before each write (or chain the response `revisionHash`); prefer combined body + `frontmatter` on one `update`.
+- Multi-page workflows announce write scope before the first mutation.
+- `search` `tags` is called with no `limit` / `cursor`.
+- Post multi-page: `note` `read` each changed page; `vault` `sync_index` `dryRun: true` expects `wouldWrite: false`.
 
 ## Golden paths
 
@@ -65,7 +68,9 @@ For every golden path below, also verify:
 ### wiki-update
 
 1. From a sample project folder.
-2. Expect: project knowledge merged via MCP only; project line via `vault` `manifest` `upsert_project`.
+2. Announce planned create/update paths before the first mutation (no blocking confirmation).
+3. Expect: one note at a time via MCP; prefer combined body + `frontmatter` update; project line via `vault` `manifest` `upsert_project`.
+4. Expect roughly one write op per page (not separate body then frontmatter for every page).
 
 ### wiki-status
 

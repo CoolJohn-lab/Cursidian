@@ -3,7 +3,7 @@ import { type Config } from '../config.js';
 import { toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
-import { checkRevisionConcurrency } from '../lib/content-hash.js';
+import { checkRevisionConcurrency, hashMismatchDetails } from '../lib/content-hash.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { withPathLock } from '../lib/vault-io.js';
 import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
@@ -54,7 +54,7 @@ export function deleteNoteHandler(config: Config) {
               retryable: true,
               sideEffects: 'none',
               path: notePath,
-              details: { check: expectedRevision ? 'revision' : 'content_hash' },
+              details: hashMismatchDetails(revisionCheck),
               recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
               hint: revisionCheck.hint,
             });

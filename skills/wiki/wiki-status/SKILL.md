@@ -58,8 +58,8 @@ Rank by intent: `_raw/` drafts first (work already done, just needs promotion), 
 When the user **explicitly** asks to refresh hot (not merely because it is stale):
 
 1. `search` action `recent` with `limit: 10` for the most recently modified pages (skip `_raw/`, `_archives/`, special files unless needed); paginate if `truncated`; read their summaries.
-2. Rewrite `hot.md` via `note` action `update` (`expectedRevision`): ~500 words across Recent Activity (last 3 operations), Active Threads, Key Takeaways, Flagged Contradictions. Bump `updated`. Push `operationId`.
+2. Rewrite `hot.md` via `note` action `update` (`expectedRevision`): ~500 words across Recent Activity (last 3 operations), Active Threads, Key Takeaways, Flagged Contradictions. Prefer one combined update with body + `frontmatter` merge when bumping `updated`. Chain the response `revisionHash` if a follow-up edit to `hot.md` is needed. Push `operationId`.
 3. `vault` action `log` with `logLine: STATUS_HOT refreshed=1` (omit hotActivity - you already rewrote Recent Activity).
 4. Verify with `note` `read` on `hot.md`. On failure after the write, undo reverse-order. Clear `operationStack` after success.
 
-This skill writes nothing else - ingestion belongs to `wiki-ingest` / `wiki-update`.
+This skill writes nothing else - ingestion belongs to `wiki-ingest` / `wiki-update`. Follow `llm-wiki` write sequencing (read immediately before each write; never parallel same-path mutations).

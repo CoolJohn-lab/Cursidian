@@ -14,7 +14,7 @@ export function registerSearch(server: McpServer, config: Config): void {
     'search',
     {
       description:
-        'Find notes. action=content (default): full-text search, prefer 2-3 keywords, token-AND with OR fallback and typo correction, format=compact for index-only results. action=by_tags: frontmatter tag filter (AND). action=list: enumerate notes by folder (missing folder -> not_found). action=recent: newest first. action=tags: tag vocabulary with counts. content/by_tags/list/recent support cursor/truncated/nextCursor (stale cursor -> structured error). Responses may set incomplete+skipped when the vault scan could not read every file. list/recent/content exclude index/log/hot/_raw/_archives unless includeOperational=true.',
+        'Find notes. action=content (default): full-text search, prefer 2-3 keywords, token-AND with OR fallback and typo correction, format=compact for index-only results. action=by_tags: frontmatter tag filter (AND). action=list: enumerate notes by folder (missing folder -> not_found). action=recent: newest first. action=tags: full tag vocabulary with counts; accepts no other arguments. content/by_tags/list/recent support cursor/truncated/nextCursor (stale cursor -> structured error). Responses may set incomplete+skipped when the vault scan could not read every file. list/recent/content exclude index/log/hot/_raw/_archives unless includeOperational=true.',
       inputSchema: {
         action: z
           .enum(['content', 'by_tags', 'list', 'recent', 'tags'])
@@ -34,8 +34,11 @@ export function registerSearch(server: McpServer, config: Config): void {
           .min(1)
           .max(MAX_LIST_LIMIT)
           .optional()
-          .describe('Used by content, by_tags, list, and recent actions'),
-        cursor: z.string().optional().describe('Used by content, by_tags, list, and recent actions'),
+          .describe('Used by content, by_tags, list, and recent actions. Not valid for action=tags'),
+        cursor: z
+          .string()
+          .optional()
+          .describe('Used by content, by_tags, list, and recent actions. Not valid for action=tags'),
         caseSensitive: z.boolean().optional().describe('Used by content action only'),
         verbose: z.boolean().optional().describe('Used by content action only'),
         includeOperational: z

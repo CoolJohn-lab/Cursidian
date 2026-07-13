@@ -5,7 +5,7 @@ import {
   readFileBounded,
 } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter, mergeFrontmatter } from '../lib/frontmatter.js';
-import { computeContentHash, computeRevisionHash, checkRevisionConcurrency } from '../lib/content-hash.js';
+import { computeContentHash, computeRevisionHash, checkRevisionConcurrency, hashMismatchDetails } from '../lib/content-hash.js';
 import { withUpdatedTimestampUnlessProvided } from '../lib/timestamps.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { withPathLock, atomicReplaceLocked } from '../lib/vault-io.js';
@@ -129,7 +129,7 @@ export function manageFrontmatterHandler(config: Config) {
               retryable: true,
               sideEffects: 'none',
               path: notePath,
-              details: { check: expectedRevision ? 'revision' : 'content_hash' },
+              details: hashMismatchDetails(revisionCheck),
               recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
               hint: revisionCheck.hint,
             });

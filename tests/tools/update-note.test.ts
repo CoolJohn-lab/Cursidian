@@ -2,15 +2,23 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import path from 'node:path';
 import fsp from 'node:fs/promises';
 import { registerNote } from '../../src/tools/note.js';
-import { createTestVault, createTestClient, cleanupVault, callTool, parseResult } from './helpers.js';
+import { registerVault } from '../../src/tools/vault.js';
+import { createTestContextAt, createTestClient, cleanupVault, callTool, parseResult } from './helpers.js';
 import type { TestContext } from './helpers.js';
+import os from 'node:os';
 
 let ctx: TestContext;
 
 beforeAll(async () => {
-  ctx = await createTestVault((server, config) => {
-    registerNote(server, config);
-  });
+  const vault = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-test-'));
+  ctx = await createTestContextAt(
+    vault,
+    { backupEnabled: true },
+    (server, config) => {
+      registerNote(server, config);
+      registerVault(server, config);
+    },
+  );
   await callTool(ctx.client, 'note', {
     action: 'create',
     path: 'editable',
@@ -258,5 +266,53 @@ describe('note (update)', () => {
     const raw = await fsp.readFile(path.join(ctx.vault, 'fm-update.md'), 'utf-8');
     expect(raw).toContain('updated:');
     expect(raw).not.toContain('2020-01-01T00:00:00.000Z');
+  });
+
+  it('merges frontmatter on the same update as body in one journaled op', async () => {
+    await callTool(ctx.client, 'note', {
+      action: 'create',
+      path: 'combined-update',
+      content: '# Combined\n\nOriginal body.',
+      frontmatter: { title: 'Combined', tags: ['old'], summary: 'Before' },
+      overwrite: true,
+    });
+    const read = parseResult(
+      await callTool(ctx.client, 'note', { action: 'read', path: 'combined-update' }),
+    ) as { revisionHash: string };
+
+    const updated = parseResult(
+      await callTool(ctx.client, 'note', {
+        action: 'update',
+        path: 'combined-update',
+        mode: 'replace',
+        content: '# Combined\n\nNew body with enough text for the replace size guard to pass cleanly.',
+        frontmatter: { summary: 'After sync', tags: ['new'] },
+        expectedRevision: read.revisionHash,
+      }),
+    ) as { operationId: string; revisionHash: string; frontmatter: Record<string, unknown> };
+
+    expect(updated.operationId).toBeTruthy();
+    expect(updated.frontmatter.summary).toBe('After sync');
+    expect(updated.frontmatter.tags).toEqual(['new']);
+    expect(updated.frontmatter.title).toBe('Combined');
+
+    const after = parseResult(
+      await callTool(ctx.client, 'note', { action: 'read', path: 'combined-update' }),
+    ) as { content: string; frontmatter: Record<string, unknown> };
+    expect(after.content).toContain('New body');
+    expect(after.frontmatter.summary).toBe('After sync');
+
+    const undone = await callTool(ctx.client, 'vault', {
+      action: 'undo',
+      operationId: updated.operationId,
+      confirm: true,
+    });
+    expect(undone.isError).toBeFalsy();
+
+    const restored = parseResult(
+      await callTool(ctx.client, 'note', { action: 'read', path: 'combined-update' }),
+    ) as { content: string; frontmatter: Record<string, unknown> };
+    expect(restored.content).toContain('Original body');
+    expect(restored.frontmatter.summary).toBe('Before');
   });
 });

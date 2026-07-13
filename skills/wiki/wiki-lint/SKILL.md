@@ -54,7 +54,7 @@ Then offer to fix via consolidate mode. Still write nothing.
 
 Act-and-report. Keep `operationStack`. **Always show a dry-run list of planned changes first and get explicit confirmation** before writing anything.
 
-After confirmation, apply via `note` actions `update` / `frontmatter` with `expectedRevision`. Push every `operationId`.
+After confirmation, apply via `note` actions `update` / `frontmatter` with `expectedRevision` (prefer combined body + `frontmatter` on one `update` when both change). Serialize per path: read immediately before each write; chain the response `revisionHash` for a second edit to the same path; never parallel same-path mutations. Push every `operationId`.
 
 1. **Fix broken links** - rewrite to the closest unambiguous existing page; if no clear match, unlink to plain text. Never create a page just to satisfy a link.
 2. **Rescue orphans** - find plain-text mentions of the orphan's title in other pages (`search` action `content`, paginate if `truncated`) and wikilink them; max 3 insertions per orphan. If no mentions exist, add one line to the most closely related page's Related section.

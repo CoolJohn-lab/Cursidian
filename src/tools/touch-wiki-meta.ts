@@ -208,6 +208,12 @@ export function touchWikiMetaHandler(config: Config) {
           retryable: true,
           sideEffects: 'none',
           path: 'path' in e ? String((e as { path: string }).path) : LOG_PATH,
+          details: {
+            conflictKind: 'revision',
+            ...('currentRevision' in e && typeof (e as { currentRevision: unknown }).currentRevision === 'string'
+              ? { currentRevision: (e as { currentRevision: string }).currentRevision }
+              : {}),
+          },
           recovery: { tool: 'note', arguments: { action: 'read', path: LOG_PATH } },
           hint: 'hint' in e ? String((e as { hint: string }).hint) : undefined,
         });

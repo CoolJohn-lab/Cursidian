@@ -81,6 +81,43 @@ function checkOperationStack(name, text, problems) {
   }
 }
 
+function checkWriteSequencing(name, text, problems) {
+  if (!MUTATING_SKILLS.includes(name)) return;
+  const hasSequencing =
+    /one note at a time|serialize per path|same-path|read immediately before each write|chain(?:ing)? (?:the )?(?:response )?revision/i.test(
+      text,
+    );
+  if (!hasSequencing) {
+    problems.push(
+      `${name}: mutating skill missing same-path serialization / revision-chaining guidance`,
+    );
+  }
+}
+
+function checkWriteScopeAnnouncement(name, text, problems) {
+  if (name !== 'wiki-update' && name !== 'wiki-ingest') return;
+  if (!/announce(?: the)? (?:write )?scope|planned path list|paths about to/i.test(text)) {
+    problems.push(`${name}: missing write-scope announcement before first mutation`);
+  }
+}
+
+function checkLlmWikiCallHygiene(text, problems) {
+  const hasToolName =
+    /toolName/.test(text) && (/user-cursidian/.test(text) || /CallMcpTool|GetMcpTools/.test(text));
+  if (!hasToolName) {
+    problems.push(
+      'llm-wiki: missing CallMcpTool hygiene (server user-cursidian + toolName)',
+    );
+  }
+  if (
+    !/one note at a time|serialize per path|same-path|read immediately before each write/i.test(
+      text,
+    )
+  ) {
+    problems.push('llm-wiki: missing same-path / one-note write sequencing language');
+  }
+}
+
 function checkReplaceAllGuidance(name, text, problems) {
   // Skills that instruct frontmatter set should mention replaceAll.
   const usesFmSet =
@@ -169,6 +206,8 @@ function main() {
 
     checkRawListing(name, text, problems);
     checkOperationStack(name, text, problems);
+    checkWriteSequencing(name, text, problems);
+    checkWriteScopeAnnouncement(name, text, problems);
     checkReplaceAllGuidance(name, text, problems);
     checkReadOnlyZeroWrites(name, text, problems);
   }
@@ -176,6 +215,7 @@ function main() {
   // Shared contract must document undo/history/manifest and revisionHash.
   const { text: llmWiki } = readSkill('llm-wiki');
   if (llmWiki) {
+    checkLlmWikiCallHygiene(llmWiki, problems);
     for (const token of ['history', 'undo', 'manifest', 'revisionHash', 'expectedRevision', 'operationStack']) {
       if (!llmWiki.includes(token) && token !== 'operationStack') {
         // operationStack may be written as "operation-ID stack"

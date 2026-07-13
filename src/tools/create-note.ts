@@ -136,6 +136,9 @@ export function createNoteHandler(config: Config) {
               throw Object.assign(new Error(revisionCheck.message), {
                 revisionMismatch: true,
                 hint: revisionCheck.hint,
+                currentRevision: revisionCheck.currentRevision,
+                currentHash: revisionCheck.currentHash,
+                check: revisionCheck.check,
               });
             }
             revisionWarnings = revisionCheck.warnings;
@@ -189,7 +192,21 @@ export function createNoteHandler(config: Config) {
           retryable: true,
           sideEffects: 'none',
           path: notePath,
-          details: { check: expectedRevision ? 'revision' : 'content_hash' },
+          details: {
+            conflictKind: 'revision',
+            check:
+              'check' in e && typeof (e as { check: unknown }).check === 'string'
+                ? (e as { check: string }).check
+                : expectedRevision
+                  ? 'revision'
+                  : 'content_hash',
+            ...('currentRevision' in e && typeof (e as { currentRevision: unknown }).currentRevision === 'string'
+              ? { currentRevision: (e as { currentRevision: string }).currentRevision }
+              : {}),
+            ...('currentHash' in e && typeof (e as { currentHash: unknown }).currentHash === 'string'
+              ? { currentHash: (e as { currentHash: string }).currentHash }
+              : {}),
+          },
           recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
           hint,
         });

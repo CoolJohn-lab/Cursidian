@@ -39,13 +39,15 @@ Markdown and text directly; PDFs via Read with page ranges; images require a vis
 
 Identify the concepts, entities, claims, and open questions the source carries. Tag each claim as extracted, inferred, or ambiguous as you go. Then check what already exists (`search` action `content` with pagination if `truncated`, plus `index.md`) and plan which pages to **update** and which to **create**. Cluster by topic, not by source. Project-specific knowledge goes under `projects/<name>/<category>/`; general knowledge goes global.
 
+Before the first mutation when promoting multiple pages, announce the planned path list and why (ingest). The user's ingest trigger is the authorization - no blocking confirmation. If Smart Mode blocks a write, re-approve with the exact block reason and re-check landed writes before continuing.
+
 ### 3. Write via MCP
 
-Push every returned `operationId` onto `operationStack`.
+Push every returned `operationId` onto `operationStack`. Serialize per path: one note at a time; read immediately before each write (or chain the response `revisionHash`); never parallel same-path mutations or pre-read-all-then-write-all.
 
 For each planned page:
 
-- **Existing page:** `note` `read` first, merge the new information (don't just append), `note` `update` with `expectedRevision`, add the source to `sources:` (`updated` is bumped automatically).
+- **Existing page:** `note` `read` first, merge the new information (don't just append), `note` `update` with `expectedRevision` (prefer combined body + `frontmatter` merge), add the source to `sources:` (`updated` is bumped automatically).
 - **New page:** `note` `create` with the Page Template from `llm-wiki/SKILL.md` - frontmatter with `summary` (<=200 chars), 2+ wikilinks to existing pages, provenance markers on inferred/ambiguous claims.
 
 ### 4. Bookkeeping (all via MCP)

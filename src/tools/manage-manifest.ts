@@ -185,6 +185,9 @@ export function manageManifestHandler(config: Config) {
               throw Object.assign(new Error(revisionCheck.message), {
                 hashMismatch: true,
                 hint: revisionCheck.hint,
+                currentRevision: revisionCheck.currentRevision,
+                currentHash: revisionCheck.currentHash,
+                check: revisionCheck.check,
               });
             }
           } else if (expectedRevision) {
@@ -230,6 +233,19 @@ export function manageManifestHandler(config: Config) {
           retryable: true,
           sideEffects: 'none',
           path: MANIFEST_RELATIVE_PATH,
+          details: {
+            conflictKind: 'revision',
+            check:
+              'check' in e && typeof (e as { check: unknown }).check === 'string'
+                ? (e as { check: string }).check
+                : 'revision',
+            ...('currentRevision' in e && typeof (e as { currentRevision: unknown }).currentRevision === 'string'
+              ? { currentRevision: (e as { currentRevision: string }).currentRevision }
+              : {}),
+            ...('currentHash' in e && typeof (e as { currentHash: unknown }).currentHash === 'string'
+              ? { currentHash: (e as { currentHash: string }).currentHash }
+              : {}),
+          },
           recovery: {
             tool: 'vault',
             arguments: { action: 'manifest', manifestOperation: 'read' },

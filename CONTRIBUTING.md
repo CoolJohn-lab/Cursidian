@@ -34,6 +34,9 @@ Wiki skills are tracked under `skills/wiki/` (not under `.cursor/`, which is git
 
 Source of truth: `package.json` `"version"` (semver).
 
+1. Write release notes under **`[Unreleased]`** in `CHANGELOG.md` before bumping.
+2. Run:
+
 ```bash
 npm run bump              # patch (default)
 npm run bump -- minor
@@ -41,10 +44,12 @@ npm run bump -- major
 npm run bump -- --dry-run
 ```
 
-Agents: when asked to "bump the version number", run `npm run bump` (see `AGENTS.md`). The script updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated version section. Do not tag or publish unless explicitly asked.
+`npm run bump` **rejects an empty `[Unreleased]`** unless you pass `--allow-empty-changelog`.
+
+Agents: when asked to "bump the version number", add changelog bullets first, then run `npm run bump` (see `AGENTS.md`). The script updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated version section. Do not tag or publish unless explicitly asked (see [`docs/PUBLISH.md`](docs/PUBLISH.md)).
 
 ## Pull requests
 
 - Keep changes focused.
 - Ensure `npm run verify` passes.
-- Update `CHANGELOG.md` under Unreleased or the next version section.
+- Update `CHANGELOG.md` under `[Unreleased]` (required before `npm run bump`).

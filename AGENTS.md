@@ -34,12 +34,16 @@ That **removes then copies** the 9 skill folders into `~/.cursor/skills/` (never
 
 ## Version bumps
 
-When the user says **"bump the version number"** (or similar), run:
+When the user says **"bump the version number"** (or similar):
+
+1. Add notes under **`[Unreleased]`** in `CHANGELOG.md` (`### Added` / `### Changed` / `### Fixed` with bullets).
+2. Run:
+
 ```bash
 npm run bump
 ```
 
-That defaults to a **patch** bump (`1.0.0` -> `1.0.1`), updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated section.
+That defaults to a **patch** bump (`1.0.0` -> `1.0.1`), updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated section. **`npm run bump` fails if `[Unreleased]` is empty** unless you pass `--allow-empty-changelog` (README-only typo bumps).
 
 | User intent | Command |
 |-------------|---------|
@@ -48,6 +52,7 @@ That defaults to a **patch** bump (`1.0.0` -> `1.0.1`), updates `package.json`, 
 | Minor (new features) | `npm run bump -- minor` |
 | Major (breaking) | `npm run bump -- major` |
 | Preview only | `npm run bump -- --dry-run` |
+| Empty changelog override | `npm run bump -- --allow-empty-changelog` |
 
 Do **not** create a git commit, tag, or publish unless the user explicitly asks. Tagging/publishing is human-gated (see `docs/PUBLISH.md`).
 

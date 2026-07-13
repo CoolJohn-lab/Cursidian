@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.11.3] - 2026-07-13
+
+### Changed
+
+- Backfilled empty CHANGELOG sections from git history; `npm run bump` now requires notes under `[Unreleased]` (use `--allow-empty-changelog` to override)
+- Updated `docs/PUBLISH.md` for current release flow
+
 ## [2.11.2] - 2026-07-13
 
 ### Changed
@@ -12,6 +19,9 @@ All notable changes to this project will be documented in this file.
 
 ## [2.11.1] - 2026-07-13
 
+### Fixed
+
+- Vault `slop_check` / `deslop` scan and fix edge cases in frontmatter string values (tests in `tests/lib/slop.test.ts`)
 
 ## [2.11.0] - 2026-07-13
 
@@ -62,24 +72,46 @@ All notable changes to this project will be documented in this file.
 
 ## [2.9.0] - 2026-07-12
 
+### Added
+
+- Search and graph pagination: `cursor`, `truncated`, `nextCursor`; incomplete scans surface `incomplete` and `skipped` (expanded in 2.10.0)
 
 ## [2.8.0] - 2026-07-12
 
+### Added
+
+- Typed `vault` action `manifest` (`read`, `upsert_source`, `upsert_project`, `remove`) for `_meta/manifest.md`
 
 ## [2.7.4] - 2026-07-12
 
+### Changed
+
+- Simplified multi-file write operations and lock scope for handlers that already hold a path lock
 
 ## [2.7.3] - 2026-07-12
 
+### Added
+
+- Operation journals under `.cursidian-trash/<operationId>/` (foundation for undo; see 2.10.0)
 
 ## [2.7.2] - 2026-07-12
 
+### Changed
+
+- Success responses include machine-actionable metadata (`operationId`, `undoAvailable`, `code`, `recovery`, `retryable`, `sideEffects`)
 
 ## [2.7.1] - 2026-07-12
 
+### Added
+
+- Full-note `revisionHash` / `expectedRevision` optimistic concurrency (`expectedHash` kept as deprecated alias)
+- Multi-path locking for concurrent writes
 
 ## [2.7.0] - 2026-07-12
 
+### Changed
+
+- Major internal refactor: operation journal plumbing, typed recovery errors, handler lock primitives (feature-complete summary in 2.10.0)
 
 ## [2.6.7] - 2026-07-12
 
@@ -89,36 +121,73 @@ All notable changes to this project will be documented in this file.
 
 ## [2.6.6] - 2026-07-12
 
+### Changed
+
+- README: LLM Slop Detector Cursor plugin mention; expanded deslop and wiki-slop documentation
 
 ## [2.6.5] - 2026-07-12
 
+### Changed
+
+- README split into human-written onboarding (top) and agent-oriented reference (below)
 
 ## [2.6.4] - 2026-07-12
 
+### Changed
+
+- README documents two-layer product (MCP + wiki skills) and `npm run skills:install`
 
 ## [2.6.3] - 2026-07-12
 
+### Changed
+
+- README documents build-time slop gate and `slop:check` / `slop:fix` commands
 
 ## [2.6.2] - 2026-07-12
 
+### Changed
+
+- Extended deslop pass across repo source, skills, scripts, and test fixtures
 
 ## [2.6.1] - 2026-07-12
 
+### Added
+
+- `wiki-slop` skill; `skills:install` and INSTALL.md cover all nine wiki skills
 
 ## [2.6.0] - 2026-07-12
 
+### Added
+
+- `npm run slop:check:wiki` and `slop:fix:wiki` scan/fix the Obsidian vault (same rules as repo; path from `OBSIDIAN_VAULT_PATH` or `mcp.json`)
 
 ## [2.5.5] - 2026-07-12
 
+### Changed
+
+- `prebuild` runs `slop:check`; shared `slop-lib.mjs`; AGENTS.md documents slop gate
 
 ## [2.5.4] - 2026-07-12
 
+### Added
+
+- `generate-emoji-rules.mjs`; expanded `.llmsloprc.json` decorative emoji ban list
 
 ## [2.5.3] - 2026-07-12
 
+### Changed
+
+- Second deslop pass on skills, AGENTS.md, and source comments
 
 ## [2.5.2] - 2026-07-12
 
+### Added
+
+- `scripts/fix-slop.mjs` for auto-fixing AI typography and emoji in the repo
+
+### Changed
+
+- Deslop pass on README, wiki skills, and test fixtures
 
 ## [2.5.1] - 2026-07-12
 
@@ -146,7 +215,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- `npm run skills:install` - remove-then-copy the 8 wiki skills into `~/.cursor/skills/`, with verification against nested duplicates and legacy tool names
+- `npm run skills:install` - remove-then-copy the 9 wiki skills into `~/.cursor/skills/`, with verification against nested duplicates and legacy tool names
 
 ### Fixed
 
@@ -172,15 +241,27 @@ All notable changes to this project will be documented in this file.
 
 ## [2.1.4] - 2026-07-12
 
+### Added
+
+- `scripts/stress-four-tools.mjs` - live chaos/stress probe for the 4-tool MCP surface against `OBSIDIAN_VAULT_PATH`
 
 ## [2.1.3] - 2026-07-12
 
+### Added
+
+- Initial public git release: MCP server, eight wiki skills, CI (Ubuntu + Windows), tests, bump tooling, and docs (~15k LOC; feature list under 1.0.0)
 
 ## [2.1.2] - 2026-07-12
 
+### Changed
+
+- Pre-public patch release; see 2.1.0 and 2.2.0 for documented fixes
 
 ## [2.1.1] - 2026-07-12
 
+### Changed
+
+- Pre-public patch release; see 2.1.0 for documented fixes
 
 ## [2.1.0] - 2026-07-12
 

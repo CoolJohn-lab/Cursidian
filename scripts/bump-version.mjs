@@ -12,6 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const LEVELS = new Set(['patch', 'minor', 'major']);
+const UNRELEASED_HEADING = '## [Unreleased]';
 
 export function parseArgs(argv) {
   const args = argv.slice(2);
@@ -19,6 +20,7 @@ export function parseArgs(argv) {
     level: 'patch',
     dryRun: false,
     noChangelog: false,
+    allowEmptyChangelog: false,
     help: false,
   };
 
@@ -35,13 +37,17 @@ export function parseArgs(argv) {
       opts.noChangelog = true;
       continue;
     }
+    if (arg === '--allow-empty-changelog') {
+      opts.allowEmptyChangelog = true;
+      continue;
+    }
     if (LEVELS.has(arg)) {
       opts.level = arg;
       continue;
     }
     throw new Error(
       `Unknown argument: ${arg}\n` +
-        `  npm run bump -- [patch|minor|major] [--dry-run] [--no-changelog]\n` +
+        `  npm run bump -- [patch|minor|major] [--dry-run] [--no-changelog] [--allow-empty-changelog]\n` +
         `  npm run bump -- --help`,
     );
   }
@@ -83,16 +89,64 @@ export function todayISO(date = new Date()) {
 }
 
 /**
- * Promote ## [Unreleased] contents under ## [version] - date, and insert a fresh Unreleased.
+ * Returns the body text under ## [Unreleased] (exclusive of the next ## heading).
  */
-export function promoteChangelog(changelog, version, date = todayISO()) {
-  const heading = '## [Unreleased]';
-  const idx = changelog.indexOf(heading);
+export function extractUnreleasedBody(changelog) {
+  const idx = changelog.indexOf(UNRELEASED_HEADING);
   if (idx === -1) {
     throw new Error('CHANGELOG.md is missing an "## [Unreleased]" heading');
   }
 
-  const afterHeading = idx + heading.length;
+  const afterHeading = idx + UNRELEASED_HEADING.length;
+  const rest = changelog.slice(afterHeading);
+  const nextHeading = rest.search(/\n## \[/);
+  return nextHeading === -1 ? rest : rest.slice(0, nextHeading);
+}
+
+/**
+ * True when a changelog section has no substantive release notes (whitespace or headings only).
+ */
+export function isChangelogBodyEmpty(body) {
+  const trimmed = body.trim();
+  if (!trimmed) {
+    return true;
+  }
+
+  const lines = trimmed.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
+  if (lines.length === 0) {
+    return true;
+  }
+
+  return lines.every((line) => /^#{1,6}\s/.test(line));
+}
+
+/**
+ * Returns semver strings for released sections that have no substantive notes.
+ */
+export function findEmptyReleasedSections(changelog) {
+  const empty = [];
+  const re = /^## \[([^\]]+)\] - \d{4}-\d{2}-\d{2}\s*\n([\s\S]*?)(?=^## \[|\Z)/gm;
+  let match;
+  while ((match = re.exec(changelog)) !== null) {
+    const version = match[1];
+    const body = match[2];
+    if (isChangelogBodyEmpty(body)) {
+      empty.push(version);
+    }
+  }
+  return empty;
+}
+
+/**
+ * Promote ## [Unreleased] contents under ## [version] - date, and insert a fresh Unreleased.
+ */
+export function promoteChangelog(changelog, version, date = todayISO()) {
+  const idx = changelog.indexOf(UNRELEASED_HEADING);
+  if (idx === -1) {
+    throw new Error('CHANGELOG.md is missing an "## [Unreleased]" heading');
+  }
+
+  const afterHeading = idx + UNRELEASED_HEADING.length;
   const rest = changelog.slice(afterHeading);
   const nextHeading = rest.search(/\n## \[/);
   const unreleasedBody = nextHeading === -1 ? rest : rest.slice(0, nextHeading);
@@ -102,7 +156,7 @@ export function promoteChangelog(changelog, version, date = todayISO()) {
   const released = `## [${version}] - ${date}`;
   const body = unreleasedBody.replace(/^\r?\n/, '');
 
-  return `${prefix}${heading}\n\n${released}\n${body.startsWith('\n') ? '' : '\n'}${body}${remainder}`;
+  return `${prefix}${UNRELEASED_HEADING}\n\n${released}\n${body.startsWith('\n') ? '' : '\n'}${body}${remainder}`;
 }
 
 export function updatePackageLock(lockText, version) {
@@ -119,20 +173,21 @@ function printHelp() {
 
 Usage:
   npm run bump
-  npm run bump -- [patch|minor|major] [--dry-run] [--no-changelog]
+  npm run bump -- [patch|minor|major] [--dry-run] [--no-changelog] [--allow-empty-changelog]
 
 Options:
-  patch|minor|major   Semver level (default: patch)
-  --dry-run           Print the plan without writing files
-  --no-changelog      Skip CHANGELOG.md promotion
-  -h, --help          Show this help
+  patch|minor|major        Semver level (default: patch)
+  --dry-run                  Print the plan without writing files
+  --no-changelog             Skip CHANGELOG.md promotion
+  --allow-empty-changelog    Promote even when [Unreleased] has no notes
+  -h, --help                 Show this help
 
 Examples:
   npm run bump
   npm run bump -- patch
   npm run bump -- minor
   npm run bump -- major --dry-run
-  npm run bump -- patch --no-changelog
+  npm run bump -- patch --allow-empty-changelog
 
 Success output:
   bumped 1.0.0 -> 1.0.1 (patch)
@@ -159,6 +214,12 @@ export function bumpVersion(rootDir, opts, { now } = {}) {
   let nextChangelog;
   if (!opts.noChangelog) {
     const changelog = fs.readFileSync(changelogPath, 'utf8');
+    const unreleasedBody = extractUnreleasedBody(changelog);
+    if (isChangelogBodyEmpty(unreleasedBody) && !opts.allowEmptyChangelog) {
+      throw new Error(
+        'Add notes under [Unreleased] in CHANGELOG.md before bumping (or pass --allow-empty-changelog)',
+      );
+    }
     nextChangelog = promoteChangelog(changelog, next, date);
     files.push('CHANGELOG.md');
   }
@@ -200,7 +261,9 @@ function main() {
     }
   } catch (err) {
     console.error(`Error: ${err.message}`);
-    console.error('  npm run bump -- [patch|minor|major] [--dry-run] [--no-changelog]');
+    console.error(
+      '  npm run bump -- [patch|minor|major] [--dry-run] [--no-changelog] [--allow-empty-changelog]',
+    );
     process.exit(1);
   }
 }

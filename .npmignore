@@ -1,0 +1,11 @@
+src/
+tests/
+.github/
+*.config.js
+*.config.ts
+tsconfig.json
+.prettierrc
+.eslintrc*
+coverage/
+*.log
+.env

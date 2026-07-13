@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "cursidian": {
+      "command": "npx",
+      "args": ["-y", "cursidian"],
+      "env": {
+        "OBSIDIAN_VAULT_PATH": "C:\\Users\\you\\Documents\\MyVault"
+      }
+    }
+  }
+}

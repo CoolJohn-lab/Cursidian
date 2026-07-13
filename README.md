@@ -45,7 +45,7 @@ Emjoy! John.
 | `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | Note CRUD, safe edits, metadata; returns `revisionHash` / `operationId` |
 | `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | Find and enumerate notes (paginated; may report `incomplete`) |
 | `graph` | - | One-hop neighborhood (resolved + unresolved outgoing, paginated backlinks) |
-| `vault` | `health`, `sync_index`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest` | Health, catalog, folders, bookkeeping, undo, ingest ledger |
+| `vault` | `health`, `sync_index`, `slop_check`, `deslop`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest` | Health, catalog, deslop, folders, bookkeeping, undo, ingest ledger |
 
 ## Requirements
 
@@ -231,6 +231,7 @@ When `OBSIDIAN_BACKUP_ENABLED` is true (default), each mutating MCP call journal
 | `note` rename | Yes (source + each rewritten backlink/index file) |
 | `note` create (incl. overwrite) | Yes |
 | `vault` sync_index | Yes (`index.md`) |
+| `vault` deslop | Yes (each changed note; `index.md` when summaries change) |
 | `vault` log | Yes (`log.md`; `hot.md` when updated) |
 | `vault` manifest | Yes |
 

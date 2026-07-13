@@ -1,6 +1,6 @@
 {
   "name": "cursidian",
-  "version": "2.11.3",
+  "version": "2.11.4",
   "description": "MCP server for Obsidian vaults, optimised for Cursor agents - safe writes, lean tool surface, direct filesystem access.",
   "type": "module",
   "bin": {

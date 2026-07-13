@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.11.4] - 2026-07-13
+
+### Fixed
+
+- Bump-version test no longer assumes `[Unreleased]` always has notes (passes after a release promotes an empty section)
+
 ## [2.11.3] - 2026-07-13
 
 ### Changed

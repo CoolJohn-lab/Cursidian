@@ -120,10 +120,6 @@ describe('promoteChangelog', () => {
 
 describe('bumpVersion changelog guard', () => {
   it('rejects bump when Unreleased is empty', () => {
-    expect(() =>
-      bumpVersion(repoRoot, { level: 'patch', dryRun: true, noChangelog: false, allowEmptyChangelog: false }),
-    ).not.toThrow();
-
     const emptyUnreleased = `# Changelog
 
 ## [Unreleased]
@@ -135,6 +131,36 @@ describe('bumpVersion changelog guard', () => {
 - first
 `;
     expect(isChangelogBodyEmpty(extractUnreleasedBody(emptyUnreleased))).toBe(true);
+
+    const tmpDir = fs.mkdtempSync(path.join(repoRoot, '.tmp-bump-test-'));
+    try {
+      fs.writeFileSync(
+        path.join(tmpDir, 'package.json'),
+        `${JSON.stringify({ name: 'cursidian', version: '1.0.0' }, null, 2)}\n`,
+      );
+      fs.writeFileSync(
+        path.join(tmpDir, 'package-lock.json'),
+        `${JSON.stringify({ name: 'cursidian', version: '1.0.0', packages: { '': { version: '1.0.0' } } }, null, 2)}\n`,
+      );
+      fs.writeFileSync(path.join(tmpDir, 'CHANGELOG.md'), emptyUnreleased);
+
+      expect(() =>
+        bumpVersion(tmpDir, { level: 'patch', dryRun: true, noChangelog: false, allowEmptyChangelog: false }),
+      ).toThrow(/Add notes under \[Unreleased\]/);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+
+    const repoChangelog = fs.readFileSync(path.join(repoRoot, 'CHANGELOG.md'), 'utf8');
+    if (isChangelogBodyEmpty(extractUnreleasedBody(repoChangelog))) {
+      expect(() =>
+        bumpVersion(repoRoot, { level: 'patch', dryRun: true, noChangelog: false, allowEmptyChangelog: false }),
+      ).toThrow(/Add notes under \[Unreleased\]/);
+    } else {
+      expect(() =>
+        bumpVersion(repoRoot, { level: 'patch', dryRun: true, noChangelog: false, allowEmptyChangelog: false }),
+      ).not.toThrow();
+    }
   });
 
   it('allows empty Unreleased with --allow-empty-changelog', () => {

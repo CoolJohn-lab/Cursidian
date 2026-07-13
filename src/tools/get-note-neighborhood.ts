@@ -30,7 +30,9 @@ export function getNoteNeighborhoodHandler(config: Config) {
       const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
       const scan = scanMetadataFromSkipped(snapshot.skipped);
       const effectiveLimit = Math.min(limit ?? DEFAULT_GRAPH_BACKLINK_LIMIT, MAX_GRAPH_BACKLINK_LIMIT);
-      const marker = resolveCursorMarker(cursor, snapshot.signature);
+      const marker = resolveCursorMarker(cursor, snapshot.signature, {
+        vaultPath: config.vaultPath,
+      });
 
       const raw = await readFileBounded(resolved, config.maxFileSize);
       const { content } = parseFrontmatter(raw);

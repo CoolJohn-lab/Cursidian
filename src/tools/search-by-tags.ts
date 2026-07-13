@@ -18,7 +18,9 @@ export function searchByTagsHandler(config: Config) {
     try {
       const effectiveLimit = limit ?? 50;
       const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
-      const marker = resolveCursorMarker(cursor, snapshot.signature);
+      const marker = resolveCursorMarker(cursor, snapshot.signature, {
+        vaultPath: config.vaultPath,
+      });
 
       const ranked = uniqueIndexEntries(snapshot.index)
         .filter((entry) => !isOperationalPath(entry.path))

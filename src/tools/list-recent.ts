@@ -44,7 +44,9 @@ export function listRecentHandler(config: Config) {
       }
 
       const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
-      const marker = resolveCursorMarker(cursor, snapshot.signature);
+      const marker = resolveCursorMarker(cursor, snapshot.signature, {
+        vaultPath: config.vaultPath,
+      });
 
       const files = await vaultGlob(config.vaultPath, '**/*.md', { cwd: baseDir });
 

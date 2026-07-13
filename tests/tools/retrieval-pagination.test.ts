@@ -179,10 +179,20 @@ describe('retrieval pagination and completeness', () => {
     const errData = parseResult(stale) as {
       error: string;
       recovery?: { arguments: Record<string, unknown> };
+      details?: {
+        changedPathCount?: number;
+        changedPaths?: Array<{ path: string; change: string }>;
+      };
     };
     expect(errData.error).toBe('invalid_args');
     expect(errData.recovery?.arguments.action).toBe('list');
     expect(errData.recovery?.arguments.cursor).toBeUndefined();
+    expect(errData.details?.changedPathCount).toBeGreaterThanOrEqual(1);
+    expect(
+      errData.details?.changedPaths?.some(
+        (entry) => entry.path === 'cursor-invalidation.md' && entry.change === 'added',
+      ),
+    ).toBe(true);
   });
 
   it('graph returns unresolved outgoing links and paginated backlinks', async () => {

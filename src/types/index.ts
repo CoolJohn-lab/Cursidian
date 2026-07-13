@@ -353,12 +353,16 @@ export function mapToolError(e: unknown, context?: Partial<ToolErrorContext>): T
     }
 
     if (name === 'StaleCursorError') {
+      const staleDetails =
+        'details' in e && e.details && typeof e.details === 'object'
+          ? (e as { details: Record<string, unknown> }).details
+          : {};
       return toolError({
         error: 'invalid_args',
         message,
         ...base,
         retryable: true,
-        details: { required: [], missing: [], rejected: ['cursor'] },
+        details: { required: [], missing: [], rejected: ['cursor'], ...staleDetails },
         recovery: { tool, arguments: recoveryArguments },
         hint: 'Vault changed since the cursor was issued. Rerun without cursor to start from page one.',
       });

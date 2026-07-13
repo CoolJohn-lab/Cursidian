@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.11.2] - 2026-07-13
+
+### Changed
+
+- Stale-cursor `invalid_args` errors include `details.changedPaths` (capped), fingerprints, and change counts so agents can see which vault markdown fingerprints drifted between pages
+
 ## [2.11.1] - 2026-07-13
 
 

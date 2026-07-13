@@ -248,7 +248,9 @@ export function searchContentHandler(config: Config) {
 
       const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
       const scan = scanMetadataFromSkipped(snapshot.skipped);
-      const marker = resolveCursorMarker(cursor, snapshot.signature);
+      const marker = resolveCursorMarker(cursor, snapshot.signature, {
+        vaultPath: config.vaultPath,
+      });
 
       const cacheKey = buildSearchCacheKey(
         config.vaultPath,

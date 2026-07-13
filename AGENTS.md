@@ -2,17 +2,19 @@
 
 ## Slop gate (required for build)
 
-`npm run build` runs **`prebuild` -> `slop:check`**. The MCP will not compile while LLM-slop findings or decorative emoji remain.
+`npm run build` runs **`prebuild` -> `slop:check`**. The MCP will not compile while LLM-slop findings or decorative emoji remain in the **repo**.
 
-| Command | Purpose |
-|---------|---------|
+| Command / tool | Purpose |
+|----------------|---------|
 | `npm run slop:check` | Scan this repo; exits non-zero if dirty |
 | `npm run slop:fix` | Auto-fix characters/emoji in this repo |
-| `npm run slop:check:wiki` | Scan the Obsidian vault (`OBSIDIAN_VAULT_PATH` / `~/.cursor/mcp.json`) |
-| `npm run slop:fix:wiki` | Auto-fix characters/emoji in the vault |
+| `vault` `slop_check` | Read-only vault slop report (body + frontmatter) via MCP |
+| `vault` `deslop` | Journaled vault char/emoji fix (`dryRun` / `confirm: true`) |
+| `npm run slop:check:wiki` | Human/CI CLI vault scan (agents prefer MCP) |
+| `npm run slop:fix:wiki` | Human/CI CLI vault fix (agents must use MCP `deslop`) |
 | `npm run build` | Repo slop check, then `tsc` |
 
-Wiki scans use this repo's `.llmsloprc.json` rules but do **not** gate `build` (vault lives outside the package).
+Wiki deslop is MCP-only for agents (covers frontmatter `summary` so index drift stays clear). Wiki scans do **not** gate `build` (vault lives outside the package).
 
 Config: `.llmsloprc.json` + `.vscode/settings.json` (packs: `claudeisms`, `structural`, `puffery`, `security`).
 
@@ -28,7 +30,7 @@ After changing files under `skills/wiki/`, or when Cursor agents still call reti
 npm run skills:install
 ```
 
-That **removes then copies** the 9 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills. Details: `skills/wiki/INSTALL.md`. Use the **wiki-slop** skill for deslop / `slop:check` / `slop:fix` / wiki vault cleanup.
+That **removes then copies** the 9 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills. Details: `skills/wiki/INSTALL.md`. Use the **wiki-slop** skill for deslop / repo `slop:*` / vault `slop_check`+`deslop`.
 
 ## Version bumps
 

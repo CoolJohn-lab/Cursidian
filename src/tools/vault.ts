@@ -8,6 +8,7 @@ import { touchWikiMetaHandler } from './touch-wiki-meta.js';
 import { operationHistoryHandler } from './operation-history.js';
 import { undoOperationHandler } from './undo-operation.js';
 import { manageManifestHandler } from './manage-manifest.js';
+import { vaultDeslopHandler, vaultSlopCheckHandler } from './vault-slop.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
 import { MAX_LOG_LINE_LENGTH } from '../lib/limits.js';
 
@@ -16,12 +17,14 @@ export function registerVault(server: McpServer, config: Config): void {
     'vault',
     {
       description:
-        'Vault maintenance. action=health: structured report (orphans, broken links, index drift, stale pages). action=sync_index: regenerate index.md from frontmatter. action=create_folder/list_folders/delete_folder: folder ops (delete requires confirm, empty folders only). action=log: append to log.md and optionally hot.md (wiki bookkeeping). action=history: list journaled operations. action=undo: reverse a journaled operation (requires confirm: true). action=manifest: typed read/upsert/remove for _meta/manifest.md ingest ledger.',
+        'Vault maintenance. action=health: structured report (orphans, broken links, index drift, stale pages). action=sync_index: regenerate index.md from frontmatter. action=slop_check: read-only LLM-slop report (body + frontmatter). action=deslop: journaled char/emoji auto-fix (confirm: true; dryRun preview). action=create_folder/list_folders/delete_folder: folder ops (delete requires confirm, empty folders only). action=log: append to log.md and optionally hot.md (wiki bookkeeping). action=history: list journaled operations. action=undo: reverse a journaled operation (requires confirm: true). action=manifest: typed read/upsert/remove for _meta/manifest.md ingest ledger.',
       inputSchema: {
         action: z
           .enum([
             'health',
             'sync_index',
+            'slop_check',
+            'deslop',
             'create_folder',
             'list_folders',
             'delete_folder',
@@ -56,8 +59,11 @@ export function registerVault(server: McpServer, config: Config): void {
           .min(1)
           .optional()
           .describe('Used by health action only'),
-        dryRun: z.boolean().optional().describe('Used by sync_index action only'),
-        confirm: z.boolean().optional().describe('Used by delete_folder and undo actions; must be true'),
+        dryRun: z.boolean().optional().describe('Used by sync_index and deslop actions'),
+        confirm: z
+          .boolean()
+          .optional()
+          .describe('Used by delete_folder, undo, and deslop actions; must be true'),
         logLine: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Used by log action only'),
         hotActivity: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Used by log action only'),
         expectedLogHash: z.string().optional().describe('Used by log action only'),
@@ -77,6 +83,8 @@ export function registerVault(server: McpServer, config: Config): void {
       const specs: Record<string, { allowed: string[]; required?: string[] }> = {
         health: { allowed: ['staleDays'] },
         sync_index: { allowed: ['dryRun'] },
+        slop_check: { allowed: [] },
+        deslop: { allowed: ['dryRun', 'confirm'] },
         create_folder: { allowed: ['path'], required: ['path'] },
         list_folders: { allowed: ['path'] },
         delete_folder: { allowed: ['path', 'confirm'], required: ['path', 'confirm'] },
@@ -201,6 +209,10 @@ export function registerVault(server: McpServer, config: Config): void {
           return vaultHealthHandler(config)({ staleDays });
         case 'sync_index':
           return syncIndexHandler(config)({ dryRun });
+        case 'slop_check':
+          return vaultSlopCheckHandler(config)();
+        case 'deslop':
+          return vaultDeslopHandler(config)({ dryRun, confirm });
         case 'create_folder':
           return manageFoldersHandler(config)({ operation: 'create', path: path as string });
         case 'list_folders':

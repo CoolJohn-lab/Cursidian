@@ -9,48 +9,59 @@ description: >
 
 # Wiki Slop - Deslop Repo and Vault
 
-Strip AI typography and decorative emoji using the Cursidian npm scripts. Prefer these scripts over ad-hoc `llm-slop` CLI flags (packs, vault path, and `.llmsloprc.json` are already wired).
+Strip AI typography and decorative emoji. **Vault deslop is MCP-only** via `user-cursidian` (`vault` `slop_check` / `deslop`). Repo deslop stays on npm scripts (build gate). Prefer these over ad-hoc `llm-slop` CLI flags.
 
-Work from the **Cursidian repo root** (`Cursidian/`). Vault path comes from `OBSIDIAN_VAULT_PATH` or `~/.cursor/mcp.json`.
+Work from the **Cursidian repo root** for npm repo commands. Vault path is whatever the MCP server already uses (`OBSIDIAN_VAULT_PATH`).
 
-## Commands
+## Commands / tools
 
-| Intent | Command |
-|--------|---------|
+| Intent | How |
+|--------|-----|
 | Check this repo | `npm run slop:check` |
 | Auto-fix this repo | `npm run slop:fix` |
-| Check the wiki vault | `npm run slop:check:wiki` |
-| Auto-fix the wiki vault | `npm run slop:fix:wiki` |
-| Compile MCP | `npm run build` (runs `slop:check` via `prebuild`) |
+| Check the wiki vault | `vault` `action: "slop_check"` on `user-cursidian` |
+| Auto-fix the wiki vault | `vault` `action: "deslop"` with `dryRun: true` first, then `confirm: true` |
+| Compile MCP | `npm run build` (runs repo `slop:check` via `prebuild`) |
+
+CLI `npm run slop:check:wiki` / `slop:fix:wiki` remain for humans/CI but **agents must not** use them for vault writes (bypasses journals/undo and historically missed frontmatter).
 
 ## Workflow
 
 1. **Decide scope**
-   - User said wiki / vault / Memories -> wiki scripts (`*:wiki`)
-   - User said repo / MCP / build / skills under `skills/wiki` in the package -> repo scripts
-   - Unclear after a mixed doc session -> run **wiki** if they care about notes, else **repo**; ask only if both are likely dirty
-2. **Prefer fix then check** when the user wants cleanup: `slop:fix` / `slop:fix:wiki`, then the matching `slop:check`
-3. **If check fails after fix**
-   - Character/emoji hits should be gone after `slop:fix`
-   - Remaining **phrase** hits need a manual rewrite (no auto-replace). Open the file, reword, re-run check
+   - User said wiki / vault / Memories -> MCP `slop_check` / `deslop`
+   - User said repo / MCP package / build / `skills/wiki` in the package -> npm repo scripts
+   - Unclear after a mixed doc session -> vault via MCP if they care about notes, else repo; ask only if both are likely dirty
+2. **Vault cleanup (MCP)**
+   - `vault` `slop_check` - read-only report (body + frontmatter string fields + emoji)
+   - Prefer `deslop` with `dryRun: true`, then `deslop` with `confirm: true`
+   - Push returned `operationId` onto the operation stack; undo with `vault` `undo` on failure
+   - `deslop` is one vault call (server-side multi-file journal); do not parallel it with other same-path vault mutations. For leftover **phrase** hits, serialize `note` updates one note at a time and chain response `revisionHash`
+   - When `summariesChanged` / `indexSynced` is true, catalogs are already rebuilt inside `deslop`; otherwise run `vault` `sync_index` if you still see index drift
+   - Re-check with `slop_check` and optionally `vault` `health` (expect zero `summaryMismatches`)
+3. **Repo cleanup (npm)**
+   - Prefer `slop:fix` then `slop:check`
+4. **If check fails after fix**
+   - Character/emoji hits should be gone after `deslop` / `slop:fix`
+   - Remaining **phrase** hits need a manual rewrite via `note` `read` -> `update` `patch` (no auto-replace). Reword, re-run check
    - Do not disable packs casually; rewrite the prose or ask the user before severity-overrides
-4. **Build gate** - If `npm run build` fails on `slop:check`, run `npm run slop:fix`, clear leftover phrases, then build again
-5. **Do not** run `slop:fix:wiki` unless the user asked to clean the vault (it rewrites many notes)
+5. **Build gate** - If `npm run build` fails on `slop:check`, run `npm run slop:fix`, clear leftover phrases, then build again
+6. **Do not** run vault `deslop` with `confirm: true` unless the user asked to clean the vault
 
 ## What it catches
 
-- Unicode typography: em/en dashes, curly quotes, ellipsis, arrows, bullets
+- Unicode typography: em/en dashes, curly quotes, ellipsis, arrows, bullets (note **body** and **frontmatter** string fields including `summary`)
 - Decorative emoji (`Extended_Pictographic`; keeps (c)(r)TM)
-- Phrase packs: `claudeisms`, `structural`, `puffery`, plus custom phrases in `.llmsloprc.json`
-- Wiki scan skips `.obsidian`, `.trash`, `.cursidian-trash`
+- Phrase packs: `claudeisms`, `structural`, `puffery`, plus custom phrases in `.llmsloprc.json` (report only)
+- Vault scan skips `.obsidian`, `.trash`, `.cursidian-trash`
 
-## Config (Cursidian repo)
+## Config (Cursidian package)
 
-- `.llmsloprc.json` - char/phrase rules (includes generated emoji ban list)
+- `.llmsloprc.json` - char/phrase rules (includes generated emoji ban list); shipped with the npm package
 - `.vscode/settings.json` - `llmSlopDetector.enabledPacks`
-- `scripts/slop-lib.mjs` / `slop-check.mjs` / `fix-slop.mjs`
+- MCP: `src/lib/slop.ts` + `vault` `slop_check` / `deslop`
+- Repo scripts: `scripts/slop-lib.mjs` / `slop-check.mjs` / `fix-slop.mjs`
 - Regenerate emoji rules: `node scripts/generate-emoji-rules.mjs`
 
 ## Report back
 
-Summarize: scope (repo vs wiki), files fixed, any leftover phrase findings with paths, and whether `slop:check` / `slop:check:wiki` is clean.
+Summarize: scope (repo vs wiki), files fixed / `operationId`, any leftover phrase findings with paths, whether `slop_check` / repo `slop:check` is clean, and whether `vault` `health` index drift is clear.

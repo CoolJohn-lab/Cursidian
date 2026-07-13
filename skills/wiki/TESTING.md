@@ -82,8 +82,9 @@ npm run mcp:test -- suite smoke
 
 1. From the Cursidian repo: `npm run slop:check` (expect clean or actionable findings).
 2. `npm run slop:fix` then `slop:check` again (chars/emoji cleared; phrases may remain).
-3. With vault configured: `npm run slop:check:wiki` / `slop:fix:wiki` (only when user asked to clean the vault).
+3. Against a vault MCP: `vault` `slop_check`, then `deslop` `dryRun: true`, then `deslop` `confirm: true` when the user asked to clean the vault. Expect frontmatter summaries cleaned and `health` `summaryMismatches` empty after.
 4. Confirm `npm run build` fails if repo slop is reintroduced (prebuild gate).
+5. Agents must not use `slop:fix:wiki` for vault writes.
 
 ## Manual dogfood
 

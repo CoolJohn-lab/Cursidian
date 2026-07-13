@@ -138,7 +138,7 @@ npx cursidian-skills
 
 That **removes then copies** the nine skill folders into `~/.cursor/skills/` (never symlink; copying into an existing folder nests `skill/skill/SKILL.md`). Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes, then start a **new** agent chat so Cursor re-discovers them.
 
-Exception: **wiki-slop** runs the npm deslop scripts against the same vault path as MCP (deterministic lint/fix on disk); it does not invent a second vault location.
+Exception: none for vault writes. **wiki-slop** uses MCP `vault` `slop_check` / `deslop` for the vault; npm `slop:*` remains for the **repo** build gate (and optional human/CI `*:wiki` CLIs).
 
 | Skill | Purpose | Typical MCP use |
 |-------|---------|-----------------|
@@ -150,18 +150,20 @@ Exception: **wiki-slop** runs the npm deslop scripts against the same vault path
 | `wiki-capture` | Save session findings | `note` create/update (`_raw/` or full pages); merge on duplicate |
 | `wiki-update` | Sync a project into the wiki | git delta outside vault; writes via `note`/`vault` manifest |
 | `wiki-status` | Delta / what next / hot.md | `vault` manifest read; `_raw/` with `includeOperational`; hot refresh on request |
-| `wiki-slop` | Deslop repo or vault | npm `slop:*` scripts (same vault path as MCP) |
+| `wiki-slop` | Deslop repo or vault | Repo: npm `slop:*`. Vault: `vault` `slop_check` / `deslop` |
 
 ## Deslop (LLM-slop)
 
-Keeps AI typography (em/en dashes, curly quotes, ellipsis, arrows) and decorative emoji out of the package and, when you ask, the Obsidian vault. Uses [`llm-slop-detector`](https://www.npmjs.com/package/llm-slop-detector) with this repo's [`.llmsloprc.json`](.llmsloprc.json).
+Keeps AI typography (em/en dashes, curly quotes, ellipsis, arrows) and decorative emoji out of the package and, when you ask, the Obsidian vault. Uses [`llm-slop-detector`](https://www.npmjs.com/package/llm-slop-detector) with this repo's [`.llmsloprc.json`](.llmsloprc.json). Vault MCP deslop covers **bodies and frontmatter** (including `summary`) so index drift stays clear.
 
-| Command | Purpose |
-|---------|---------|
+| Command / tool | Purpose |
+|----------------|---------|
 | `npm run slop:check` | Scan this repo; exit non-zero if dirty |
 | `npm run slop:fix` | Auto-fix chars/emoji in this repo |
-| `npm run slop:check:wiki` | Scan the vault (`OBSIDIAN_VAULT_PATH` or `mcp.json`) |
-| `npm run slop:fix:wiki` | Auto-fix chars/emoji in the vault |
+| `vault` `slop_check` | Read-only vault slop report (body + frontmatter) |
+| `vault` `deslop` | Journaled vault char/emoji fix (`dryRun` / `confirm: true`) |
+| `npm run slop:check:wiki` | Human/CI CLI vault scan (agents prefer MCP) |
+| `npm run slop:fix:wiki` | Human/CI CLI vault fix (agents must use MCP `deslop`) |
 | `npm run build` | `prebuild` -> `slop:check`, then `tsc` |
 
 Wiki scans use the same rules but do **not** gate `build` (the vault lives outside the package). Phrase-pack hits need a manual rewrite; chars/emoji are auto-fixed. Prefer the `wiki-slop` skill over ad-hoc CLI flags.

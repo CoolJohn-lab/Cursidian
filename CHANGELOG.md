@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.11.0] - 2026-07-13
+
+### Added
+
+- `vault` actions `slop_check` (read-only) and `deslop` (journaled char/emoji auto-fix with frontmatter coverage; `dryRun` / `confirm: true`)
+- MCP wiki deslop closes the frontmatter blind spot that left `summary` em dashes while `index.md` was cleaned
+
+### Changed
+
+- `wiki-slop` skill uses MCP for vault deslop; npm `slop:*:wiki` remains for humans/CI only
+- `llm-slop-detector` moved to runtime `dependencies`; `.llmsloprc.json` included in the npm package
+
 ## [2.10.1] - 2026-07-13
 
 ### Added

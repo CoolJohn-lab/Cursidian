@@ -198,4 +198,23 @@ describe('MCP skill contracts', () => {
     ) as { wouldWrite?: boolean };
     expect(dry.wouldWrite).toBe(false);
   });
+
+  it('slop_check is zero-write', async () => {
+    await callTool(ctx.client, 'note', {
+      action: 'create',
+      path: 'concepts/slop-contract',
+      content: '# Slop Contract\n\nClean body.',
+      frontmatter: {
+        title: 'Slop Contract',
+        category: 'concepts',
+        tags: ['x'],
+        summary: 'Clean summary',
+      },
+    });
+    const before = await fsp.readFile(path.join(ctx.vault, 'concepts/slop-contract.md'), 'utf8');
+    const result = await callTool(ctx.client, 'vault', { action: 'slop_check' });
+    expect(result.isError).toBeFalsy();
+    const after = await fsp.readFile(path.join(ctx.vault, 'concepts/slop-contract.md'), 'utf8');
+    expect(after).toBe(before);
+  });
 });

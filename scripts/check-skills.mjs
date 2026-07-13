@@ -33,6 +33,7 @@ const MUTATING_SKILLS = [
   'wiki-update',
   'wiki-lint',
   'wiki-status',
+  'wiki-slop',
 ];
 
 const LEGACY_TOOL_RE =
@@ -202,6 +203,14 @@ function main() {
 
     if (name !== 'wiki-slop' && !/user-cursidian|MCP Contract|MCP-only/i.test(text)) {
       problems.push(`${rel(file)}: missing MCP contract / user-cursidian reference`);
+    }
+    if (name === 'wiki-slop') {
+      if (!/slop_check|deslop/i.test(text)) {
+        problems.push(`${rel(file)}: wiki-slop must document vault slop_check / deslop`);
+      }
+      if (!/user-cursidian|MCP-only|MCP only/i.test(text)) {
+        problems.push(`${rel(file)}: wiki-slop must require MCP for vault deslop`);
+      }
     }
 
     checkRawListing(name, text, problems);

@@ -26,3 +26,10 @@ body = body.replace(
 );
 fs.writeFileSync(dest, body, 'utf8');
 console.error(`copied CLI: ${dest}`);
+
+const slopRcSrc = path.join(repoRoot, '.llmsloprc.json');
+const slopRcDest = path.join(repoRoot, 'dist', '.llmsloprc.json');
+if (fs.existsSync(slopRcSrc)) {
+  fs.copyFileSync(slopRcSrc, slopRcDest);
+  console.error(`copied slop config: ${slopRcDest}`);
+}

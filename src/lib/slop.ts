@@ -303,20 +303,27 @@ function deslopFrontmatterValue(
   return { value, charFixes: 0, emojiRemovals: 0, findings: [], summaryChanged: false };
 }
 
+/**
+ * Rebuild file with a new body while keeping the original YAML fence bytes.
+ * `newBody` must match parseFrontmatter(raw).content (one trailing fence newline already stripped).
+ */
 function replaceBodyPreservingFrontmatter(raw: string, newBody: string): string {
   if (!raw.startsWith('---')) {
     return newBody;
   }
-  const match = raw.match(/^---\r?\n[\s\S]*?\r?\n---/);
+  // Include the same \r?\n that parseFrontmatter consumes after the closing ---.
+  const match = raw.match(/^---\r?\n[\s\S]*?\r?\n---(\r?\n)?/);
   if (!match) {
     return newBody;
   }
-  const prefix = match[0];
+  const sep = match[1] ?? '';
+  const fence = match[0].slice(0, match[0].length - sep.length);
   if (newBody.length === 0) {
-    return prefix;
+    return `${fence}${sep}`;
   }
-  const sep = newBody.startsWith('\n') || newBody.startsWith('\r\n') ? '' : '\n';
-  return `${prefix}${sep}${newBody}`;
+  // No original sep (EOF right after ---): insert LF so body is not glued to the fence.
+  const join = sep || '\n';
+  return `${fence}${join}${newBody}`;
 }
 
 export function planFileDeslop(
@@ -364,10 +371,14 @@ export function planFileDeslop(
 
   const cleanedBody = bodyEmoji.text;
   const cleanedData = fm.value as Record<string, unknown>;
+  const bodyTouched = bodyApplied.count > 0 || bodyEmoji.count > 0;
   const frontmatterTouched = fm.charFixes > 0 || fm.emojiRemovals > 0;
 
   let cleaned: string;
-  if (!frontmatterTouched) {
+  if (!frontmatterTouched && !bodyTouched) {
+    // Avoid false positives from fence/body reassembly (blank line / CRLF).
+    cleaned = raw;
+  } else if (!frontmatterTouched) {
     cleaned = replaceBodyPreservingFrontmatter(raw, cleanedBody);
   } else if (Object.keys(cleanedData).length === 0) {
     cleaned = cleanedBody;

@@ -55,12 +55,41 @@ export interface BacklinkResult {
   wikilinks: string[];
 }
 
+export type ContextIntent = 'lookup' | 'connection' | 'onboarding' | 'troubleshoot' | 'ingest-prep';
+
+export interface ContextBundle {
+  query: string;
+  intent: ContextIntent;
+  tokenBudget: number;
+  tokensUsed: number;
+  items: ContextItem[];
+  coverage: { includedPaths: string[]; consideredPaths: string[]; droppedForBudget: string[] };
+  warnings: string[];
+  citations: string[];
+  nextCursor?: string;
+  bundleConfidence?: number;
+}
+
+export interface ContextItem {
+  path: string;
+  title: string;
+  kind: 'summary' | 'section' | 'body' | 'neighbor-note';
+  text: string;
+  score: number;
+  reasons: string[];
+  provenance?: { extracted?: number; inferred?: number; ambiguous?: number };
+  lifecycle?: string;
+  updated?: string;
+  staleDays?: number;
+  tokens: number;
+}
+
 export type ToolResult = {
   content: Array<{ type: 'text'; text: string }>;
   isError?: boolean;
 };
 
-export type ToolName = 'note' | 'search' | 'graph' | 'vault';
+export type ToolName = 'note' | 'search' | 'graph' | 'vault' | 'context';
 export type ToolSideEffects = 'none' | 'rolled_back' | 'partial';
 
 export interface ToolRecovery {

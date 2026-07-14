@@ -1,0 +1,46 @@
+{"query": "medallion layers", "intent": "lookup", "relevant_paths": ["concepts/medallion-layers.md"], "budget": 4000}
+{"query": "bronze silver gold layers", "intent": "lookup", "relevant_paths": ["concepts/medallion-layers.md"], "budget": 4000}
+{"query": "worker data mart", "intent": "lookup", "relevant_paths": ["concepts/worker-data-mart.md"], "budget": 4000}
+{"query": "WDM", "intent": "lookup", "relevant_paths": ["concepts/worker-data-mart.md"], "budget": 2000}
+{"query": "contract generation", "intent": "lookup", "relevant_paths": ["concepts/contract-generation.md"], "budget": 4000}
+{"query": "schema contracts", "intent": "lookup", "relevant_paths": ["concepts/contract-generation.md"], "budget": 4000}
+{"query": "ingestion vs egress", "intent": "lookup", "relevant_paths": ["concepts/ingestion-vs-egress.md"], "budget": 4000}
+{"query": "egress pipelines", "intent": "lookup", "relevant_paths": ["concepts/ingestion-vs-egress.md"], "budget": 4000}
+{"query": "BigHand", "intent": "lookup", "relevant_paths": ["entities/bighand.md"], "budget": 2000}
+{"query": "BigHand source system", "intent": "lookup", "relevant_paths": ["entities/bighand.md"], "budget": 4000}
+{"query": "FactPersonForecastHistory", "intent": "lookup", "relevant_paths": ["entities/fact-person-forecast-history.md"], "budget": 2000}
+{"query": "person forecast history table", "intent": "lookup", "relevant_paths": ["entities/fact-person-forecast-history.md"], "budget": 4000}
+{"query": "worker dimension", "intent": "lookup", "relevant_paths": ["entities/worker-dimension.md"], "budget": 4000}
+{"query": "FactPublicHoliday", "intent": "lookup", "relevant_paths": ["entities/fact-public-holiday.md"], "budget": 2000}
+{"query": "public holiday calendar table", "intent": "lookup", "relevant_paths": ["entities/fact-public-holiday.md"], "budget": 4000}
+{"query": "schema drift detection", "intent": "lookup", "relevant_paths": ["concepts/schema-drift-and-versioning.md"], "budget": 4000}
+{"query": "orchestration and scheduling", "intent": "lookup", "relevant_paths": ["concepts/orchestration-and-scheduling.md"], "budget": 4000}
+{"query": "main orchestrator", "intent": "lookup", "relevant_paths": ["concepts/orchestration-and-scheduling.md"], "budget": 4000}
+{"query": "CDF platform overview", "intent": "lookup", "relevant_paths": ["projects/cdf-platform.md"], "budget": 4000}
+{"query": "taxonomy tags", "intent": "lookup", "relevant_paths": ["_meta/taxonomy.md"], "budget": 4000}
+{"query": "how does BigHand relate to FactPersonForecastHistory", "intent": "connection", "relevant_paths": ["entities/bighand.md", "entities/fact-person-forecast-history.md"], "budget": 4000}
+{"query": "relationship between worker dimension and forecast fact table", "intent": "connection", "relevant_paths": ["entities/worker-dimension.md", "entities/fact-person-forecast-history.md"], "budget": 4000}
+{"query": "how do contracts relate to schema drift", "intent": "connection", "relevant_paths": ["concepts/contract-generation.md", "concepts/schema-drift-and-versioning.md"], "budget": 4000}
+{"query": "medallion layers and worker data mart connection", "intent": "connection", "relevant_paths": ["concepts/medallion-layers.md", "concepts/worker-data-mart.md"], "budget": 4000}
+{"query": "ingestion egress and orchestration relationship", "intent": "connection", "relevant_paths": ["concepts/ingestion-vs-egress.md", "concepts/orchestration-and-scheduling.md"], "budget": 4000}
+{"query": "FactPublicHoliday and forecast utilisation", "intent": "connection", "relevant_paths": ["entities/fact-public-holiday.md", "entities/fact-person-forecast-history.md"], "budget": 4000}
+{"query": "BigHand and schema drift", "intent": "connection", "relevant_paths": ["entities/bighand.md", "concepts/schema-drift-and-versioning.md"], "budget": 4000}
+{"query": "CDF platform and worker data mart", "intent": "connection", "relevant_paths": ["projects/cdf-platform.md", "concepts/worker-data-mart.md"], "budget": 4000}
+{"query": "gold layer fact tables", "intent": "connection", "relevant_paths": ["concepts/medallion-layers.md", "entities/fact-person-forecast-history.md", "entities/fact-public-holiday.md"], "budget": 4000}
+{"query": "contract generation and ingestion pipelines", "intent": "connection", "relevant_paths": ["concepts/contract-generation.md", "concepts/ingestion-vs-egress.md"], "budget": 4000}
+{"query": "how to author a new ingestion pipeline", "intent": "onboarding", "relevant_paths": ["skills/ingestion-pipeline-authoring.md"], "budget": 4000}
+{"query": "onboarding a new source feed", "intent": "onboarding", "relevant_paths": ["skills/ingestion-pipeline-authoring.md"], "budget": 4000}
+{"query": "how to review a schema contract", "intent": "onboarding", "relevant_paths": ["skills/contract-schema-review.md"], "budget": 4000}
+{"query": "registering a pipeline with the orchestrator", "intent": "onboarding", "relevant_paths": ["skills/ingestion-pipeline-authoring.md", "concepts/orchestration-and-scheduling.md"], "budget": 4000}
+{"query": "getting started with the CDF platform", "intent": "onboarding", "relevant_paths": ["projects/cdf-platform.md"], "budget": 4000}
+{"query": "where do new pipelines land data first", "intent": "onboarding", "relevant_paths": ["concepts/medallion-layers.md", "skills/ingestion-pipeline-authoring.md"], "budget": 4000}
+{"query": "contract review before promotion to silver", "intent": "onboarding", "relevant_paths": ["skills/contract-schema-review.md"], "budget": 4000}
+{"query": "troubleshooting failed loads", "intent": "troubleshoot", "relevant_paths": ["skills/troubleshooting-failed-loads.md"], "budget": 4000}
+{"query": "BigHand feed failure", "intent": "troubleshoot", "relevant_paths": ["entities/bighand.md", "skills/troubleshooting-failed-loads.md"], "budget": 4000}
+{"query": "contract validation error on load", "intent": "troubleshoot", "relevant_paths": ["skills/troubleshooting-failed-loads.md", "concepts/contract-generation.md"], "budget": 4000}
+{"query": "orchestrator retry exhausted", "intent": "troubleshoot", "relevant_paths": ["skills/troubleshooting-failed-loads.md", "concepts/orchestration-and-scheduling.md"], "budget": 4000}
+{"query": "inflated utilisation figures missing holiday", "intent": "troubleshoot", "relevant_paths": ["entities/fact-public-holiday.md", "skills/troubleshooting-failed-loads.md"], "budget": 4000}
+{"query": "unresolved schema drift alert", "intent": "troubleshoot", "relevant_paths": ["concepts/schema-drift-and-versioning.md", "skills/troubleshooting-failed-loads.md"], "budget": 4000}
+{"query": "escalating a breaking contract change", "intent": "troubleshoot", "relevant_paths": ["skills/contract-schema-review.md", "skills/troubleshooting-failed-loads.md"], "budget": 4000}
+{"query": "forecast fact table not refreshing", "intent": "troubleshoot", "relevant_paths": ["entities/fact-person-forecast-history.md", "skills/troubleshooting-failed-loads.md"], "budget": 4000}
+{"query":"integration","intent":"lookup","relevant_paths":["concepts/ingestion-vs-egress.md"],"budget":4000}

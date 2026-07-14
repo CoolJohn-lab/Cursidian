@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rankSearchResults } from '../../src/lib/search-ranking.js';
+import { rankSearchResults, RANK_WEIGHTS } from '../../src/lib/search-ranking.js';
 import type { VaultIndex } from '../../src/lib/vault-index.js';
 
 describe('rankSearchResults', () => {
@@ -291,5 +291,187 @@ describe('rankSearchResults', () => {
     );
 
     expect(ranked[0].matchReasons.some((r) => r === 'basename:deployment')).toBe(true);
+  });
+});
+
+describe('RANK_WEIGHTS', () => {
+  it('exposes typed, tunable weights used by scoring', () => {
+    expect(RANK_WEIGHTS.titleExact).toBe(120);
+    expect(RANK_WEIGHTS.aliasExact).toBe(100);
+    expect(RANK_WEIGHTS.titleAllTokens).toBe(110);
+    expect(RANK_WEIGHTS.operationalPenalty).toBe(40);
+    expect(RANK_WEIGHTS.staleDaysDefault).toBe(90);
+    expect(RANK_WEIGHTS.expandedTokenMultiplier).toBeGreaterThan(0);
+    expect(RANK_WEIGHTS.expandedTokenMultiplier).toBeLessThan(1);
+  });
+});
+
+describe('vocabulary-expansion scoring', () => {
+  const index: VaultIndex = new Map();
+
+  it('scores an expansion-only hit below a literal hit for the same term', () => {
+    const ranked = rankSearchResults(
+      [
+        {
+          path: 'projects/demo/concepts/ingestion-overview.md',
+          content: '---\ntitle: Ingestion Overview\n---\n\n# Ingestion Overview\n\nIngestion details here.',
+          matchCount: 2,
+          snippets: [],
+        },
+      ],
+      'integration',
+      false,
+      index,
+      { expandedTokens: new Set(['ingestion']) },
+    );
+
+    expect(ranked[0].matchReasons).toContain('vocab-expand:ingestion');
+    expect(ranked[0].relevanceScore).toBeGreaterThan(0);
+    expect(ranked[0].matchReasons).not.toContain('title-exact');
+    expect(ranked[0].matchReasons).not.toContain('title-all-tokens');
+  });
+
+  it('ranks a page with the literal term above one that only matches via expansion', () => {
+    const ranked = rankSearchResults(
+      [
+        {
+          path: 'projects/demo/concepts/integration-guide.md',
+          content: '---\ntitle: Integration Guide\n---\n\n# Integration Guide\n\nIntegration steps.',
+          matchCount: 2,
+          snippets: [],
+        },
+        {
+          path: 'projects/demo/concepts/ingestion-overview.md',
+          content: '---\ntitle: Ingestion Overview\n---\n\n# Ingestion Overview\n\nIngestion details here.',
+          matchCount: 2,
+          snippets: [],
+        },
+      ],
+      'integration',
+      false,
+      index,
+      { expandedTokens: new Set(['ingestion']) },
+    );
+
+    expect(ranked[0].path).toContain('integration-guide');
+    expect(ranked[0].relevanceScore).toBeGreaterThan(ranked[1].relevanceScore);
+    expect(ranked[1].matchReasons).toContain('vocab-expand:ingestion');
+  });
+
+  it('does not score expanded tokens that duplicate a literal query token', () => {
+    const ranked = rankSearchResults(
+      [
+        {
+          path: 'projects/demo/concepts/integration-guide.md',
+          content: '---\ntitle: Integration Guide\n---\n\n# Integration Guide\n\nIntegration steps.',
+          matchCount: 1,
+          snippets: [],
+        },
+      ],
+      'integration',
+      false,
+      index,
+      { expandedTokens: new Set(['integration']) },
+    );
+
+    expect(ranked[0].matchReasons).not.toContain('vocab-expand:integration');
+  });
+
+  it('is a no-op when no expandedTokens are supplied (backward-compatible default)', () => {
+    const ranked = rankSearchResults(
+      [
+        {
+          path: 'projects/demo/concepts/ingestion-overview.md',
+          content: '---\ntitle: Ingestion Overview\n---\n\nIngestion details here.',
+          matchCount: 1,
+          snippets: [],
+        },
+      ],
+      'ingestion',
+      false,
+      index,
+    );
+
+    expect(ranked[0].matchReasons.some((r) => r.startsWith('vocab-expand'))).toBe(false);
+  });
+});
+
+describe('freshness weights', () => {
+  const index: VaultIndex = new Map();
+
+  it('gives a mild boost to lifecycle: verified pages', () => {
+    const staleDate = new Date().toISOString();
+    const [verified, plain] = rankSearchResults(
+      [
+        {
+          path: 'projects/demo/concepts/widget-verified.md',
+          content: `---\ntitle: Widget Verified\nlifecycle: verified\nupdated: ${staleDate}\n---\n\nWidget details.`,
+          matchCount: 1,
+          snippets: [],
+        },
+        {
+          path: 'projects/demo/concepts/widget-plain.md',
+          content: `---\ntitle: Widget Plain\nupdated: ${staleDate}\n---\n\nWidget details.`,
+          matchCount: 1,
+          snippets: [],
+        },
+      ],
+      'widget',
+      false,
+      index,
+    );
+
+    expect(verified.matchReasons).toContain('freshness-verified');
+    expect(plain.matchReasons).not.toContain('freshness-verified');
+    expect(verified.relevanceScore).toBeGreaterThan(plain.relevanceScore);
+  });
+
+  it('gives a mild penalty to pages not updated within staleDaysDefault days', () => {
+    const oldDate = new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString();
+    const recentDate = new Date().toISOString();
+    const ranked = rankSearchResults(
+      [
+        {
+          path: 'projects/demo/concepts/widget-old.md',
+          content: `---\ntitle: Widget Old\nupdated: ${oldDate}\n---\n\nWidget details.`,
+          matchCount: 1,
+          snippets: [],
+        },
+        {
+          path: 'projects/demo/concepts/widget-recent.md',
+          content: `---\ntitle: Widget Recent\nupdated: ${recentDate}\n---\n\nWidget details.`,
+          matchCount: 1,
+          snippets: [],
+        },
+      ],
+      'widget',
+      false,
+      index,
+    );
+
+    const old = ranked.find((r) => r.path.includes('widget-old'))!;
+    const recent = ranked.find((r) => r.path.includes('widget-recent'))!;
+    expect(old.matchReasons).toContain('freshness-stale');
+    expect(recent.matchReasons).not.toContain('freshness-stale');
+    expect(recent.relevanceScore).toBeGreaterThan(old.relevanceScore);
+  });
+
+  it('does not apply freshness scoring when lifecycle/updated are absent', () => {
+    const ranked = rankSearchResults(
+      [
+        {
+          path: 'projects/demo/concepts/widget-bare.md',
+          content: '---\ntitle: Widget Bare\n---\n\nWidget details.',
+          matchCount: 1,
+          snippets: [],
+        },
+      ],
+      'widget',
+      false,
+      index,
+    );
+
+    expect(ranked[0].matchReasons).not.toContain('freshness-verified');
+    expect(ranked[0].matchReasons).not.toContain('freshness-stale');
   });
 });

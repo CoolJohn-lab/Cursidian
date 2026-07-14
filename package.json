@@ -31,6 +31,7 @@
     "test:fast": "vitest run",
     "test:file": "vitest run --coverage.enabled=false",
     "test:watch": "vitest",
+    "eval": "node tests/eval/eval.mjs",
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
@@ -41,7 +42,9 @@
     "bump": "node scripts/bump-version.mjs",
     "skills:install": "node scripts/install-skills.mjs",
     "skills:install:dry": "node scripts/install-skills.mjs --dry-run",
-    "skills:check": "node scripts/check-skills.mjs"
+    "skills:check": "node scripts/check-skills.mjs",
+    "skills:doctor": "node scripts/skills-doctor.mjs",
+    "eval:report": "node scripts/eval-report.mjs"
   },
   "keywords": [
     "mcp",

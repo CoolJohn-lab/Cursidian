@@ -18,7 +18,7 @@ export class SectionEditError extends Error {
  * Parses a markdown heading line into its level (1-6) and text.
  * Returns null when the line is not an ATX-style heading.
  */
-function parseHeadingLine(line: string): { level: number; text: string } | null {
+export function parseHeadingLine(line: string): { level: number; text: string } | null {
   const match = line.match(/^(#{1,6})\s+(.+?)\s*$/);
   if (!match) {
     return null;
@@ -42,7 +42,7 @@ function parseHeadingArg(heading: string): { text: string; level: number | null 
 /**
  * Normalises heading text for case-insensitive comparison.
  */
-function normaliseHeading(text: string): string {
+export function normaliseHeading(text: string): string {
   return text.trim().toLowerCase();
 }
 

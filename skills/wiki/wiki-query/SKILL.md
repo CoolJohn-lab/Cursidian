@@ -17,37 +17,14 @@ Create or modify **nothing** - no pages, no `index.md`, no `hot.md`, not even `l
 
 ## Protocol
 
-Follow the retrieval ladder from `llm-wiki/SKILL.md` - cheapest call first, escalate only when it can't answer.
+Prefer `context` over hand-rolling the search -> read -> `graph` ladder. It composes `search`/`graph` internally, budgets tokens, deduplicates overlapping passages, and carries provenance/staleness warnings that a raw search result does not - see "Context bundle" in `llm-wiki/SKILL.md`.
 
-1. **Context.**
-   - **Normal mode:** `note` action `read` on `hot.md` (recent activity) and `index.md` (scope). These alone answer many questions.
-   - **Index-only mode** ("quick answer", "just scan", "don't read the pages"): **skip `hot.md`**. Use `index.md` plus compact search only.
-
-2. **Search.** Prefer 2-3 specific keywords. Use `search` with `action: "content"`, `format: "compact"`, `limit: 10` first - it returns `title`/`summary`/`tags`/`relevanceScore` cheaply. **If `truncated` is true, follow `nextCursor` until complete** (or until you have enough high-relevance hits to answer). Never treat a single top-10 compact page as the full result set.
-
-   Disclose when the server applied **OR-fallback** or **typo correction** (if the response indicates either fired). Stopwords are stripped automatically.
-
-   If `incomplete: true` or `skipped` is non-empty, say the scan was incomplete.
-
-   **Index-only mode** stops here: answer from summaries and index entries, labelled *"(index-only answer - page bodies not read)"*.
-
-3. **Read.** `note` action `read` the 1-3 most promising candidates in full. Follow at most one hop of wikilinks (`graph`) when the answer spans pages. On `graph`, use resolved outgoing links and backlinks; **skip neighbors with null `resolvedPath`**; follow `nextCursor` on large backlink sets.
-
-4. **Connection questions** ("how is X related to Y"). Run the multi-hop walk below, then synthesize.
-
-5. **Synthesize.** Cite pages as `[[wikilinks]]`. Present contradictions from both sides. Say explicitly what the wiki does *not* cover and which sources might fill the gap. Flag stale citations (pages not updated in 90+ days) inline.
-
-### Multi-hop walk (BFS, depth <= 3)
-
-`graph` is depth-1 only. For connection questions:
-
-1. Resolve start and goal pages via `search` action `content` / `index.md` (get vault-relative paths; paginate search if `truncated`).
-2. BFS from start: for each frontier page, call `graph` once. Neighbours = unique non-null `outgoingLinks[].resolvedPath` ∪ `backlinks[].path`. Ignore unresolved outgoing (null `resolvedPath`) for traversal; you may still mention them as gaps.
-3. Record parent pointers so you can reconstruct the path.
-4. Stop when you reach the goal, or when depth = 3, or when you have made **8 neighborhood calls** (whichever first). Paginate backlinks within a neighborhood call when `truncated`.
-5. If a path exists, report it as `A -> B -> C` with one-line role for each hop. If not, say no path within 3 hops and list the closest frontier pages checked.
-
-Do **not** ask for server-side depth>1 - stay within this client-side walk.
+1. **Normal mode.** Call `context` `action: "assemble"` with the user's question as `query` (or `action: "for_task"` with `task` when the ask is really "help me understand X so I can do Y"). Let `intent` infer from phrasing unless the question is clearly connection-shaped (step 3). The default `tokenBudget` (4000) covers most questions; raise it if `warnings` says content was dropped and the user needs more.
+2. **Index-only mode** ("quick answer", "just scan", "don't read the pages"): call `context` `assemble` with a small `tokenBudget` (300-500) so the bundle stays to frontmatter summaries. Answer from the returned `items`/`citations` only, labelled *"(index-only answer - page bodies not read)"*. If the bundle is empty, fall back once to `search` `action: "content"`, `format: "compact"`, `limit: 10`.
+3. **Connection questions** ("how is X related to Y"). Call `context` with `intent: "connection"` - the server runs the bounded multi-hop walk (depth<=3, <=8 neighborhood calls) and returns the frontier/path as items. Use `coverage.includedPaths` and each item's `reasons` (look for `neighbor-of:<path>`) to reconstruct the hop sequence for the answer. Do not hand-roll `graph` calls for this - the walk is a server-side detail you consume through `context`, not one you re-implement client-side.
+4. **Thin or low-confidence bundles.** If `bundleConfidence` is low or coverage looks partial, call `context` `action: "expand"` with the returned `nextCursor` and a fresh `tokenBudget` before falling back to manual search. If a bundle was genuinely wrong for the question once you've worked with it, point the user at `wiki-context`'s feedback action rather than logging it yourself - this skill stays read-only.
+5. **Metadata-only questions** ("what tags exist", "what's in `_meta/`") don't need `context` - use `search` `action: "tags"` or `action: "by_tags"` directly, or `note` `read` on `index.md`/`hot.md`.
+6. **Synthesize.** Cite pages as `[[wikilinks]]` (the bundle's `citations` array already has these). Present contradictions from both sides - a contradicted page's counterpart is already pulled into the bundle where budget allows. Say explicitly what the wiki does *not* cover. Flag stale citations (`staleDays` > 90, or a bundle warning naming the page) inline. Never strip `^[inferred]`/`^[ambiguous]` markers from item text.
 
 ## Answer format
 
@@ -55,6 +32,6 @@ Do **not** ask for server-side depth>1 - stay within this client-side walk.
 >
 > **Pages consulted:** [[page-a]], [[page-b]]
 >
-> **Gaps:** [what the wiki doesn't cover]
+> **Confidence / gaps:** [`bundleConfidence` if from `context`, plus what the wiki doesn't cover]
 >
-> **Search notes:** [OR-fallback / typo correction / incomplete scan / pagination continued - omit if none]
+> **Notes:** [OR-fallback / typo correction / incomplete scan / stale or heavily-inferred sources / dropped-for-budget - omit if none]

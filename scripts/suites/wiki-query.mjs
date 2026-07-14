@@ -24,7 +24,7 @@ export async function runWikiQuerySuite(ctx) {
     }, ctx),
   );
 
-  // Intent pages only — never the project hub (hub is bootstrap, not ranking golden).
+  // Intent pages only - never the project hub (hub is bootstrap, not ranking golden).
   const queries = [
     {
       query: 'ADF pipeline orchestrator',

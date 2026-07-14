@@ -17,6 +17,7 @@ const skillsRoot = path.join(repoRoot, 'skills', 'wiki');
 const SKILL_NAMES = [
   'llm-wiki',
   'wiki-query',
+  'wiki-context',
   'wiki-lint',
   'wiki-setup',
   'wiki-ingest',

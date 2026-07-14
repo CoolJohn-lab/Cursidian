@@ -11,120 +11,120 @@ const REPORT_PATH = path.join(REPO_ROOT, 'docs/validation/MCP-VALIDATION-REPORT-
  * Loads a JSON artifact if present.
  */
 async function loadJson(relPath) {
-  const full = path.join(REPO_ROOT, relPath);
-  const raw = await fs.readFile(full, 'utf-8');
-  return JSON.parse(raw);
+ const full = path.join(REPO_ROOT, relPath);
+ const raw = await fs.readFile(full, 'utf-8');
+ return JSON.parse(raw);
 }
 
 /**
  * Formats a percentage for markdown tables.
  */
 function pct(value) {
-  return value == null ? '—' : `${value}%`;
+ return value == null ? '—' : `${value}%`;
 }
 
 /**
  * Builds the validation report markdown from replay artifacts.
  */
 async function buildReport() {
-  const classification = await loadJson('docs/validation/corpus/corpus-classification.json');
-  const search = await loadJson('docs/validation/corpus/search-replay-results.json');
-  const reads = await loadJson('docs/validation/corpus/read-replay-results.json');
-  const writes = await loadJson('docs/validation/corpus/write-dryrun-results.json');
-  const benchmarks = await loadJson('docs/validation/corpus/benchmark-comparison.json');
+ const classification = await loadJson('docs/validation/corpus/corpus-classification.json');
+ const search = await loadJson('docs/validation/corpus/search-replay-results.json');
+ const reads = await loadJson('docs/validation/corpus/read-replay-results.json');
+ const writes = await loadJson('docs/validation/corpus/write-dryrun-results.json');
+ const benchmarks = await loadJson('docs/validation/corpus/benchmark-comparison.json');
 
-  const curated = search.summary.curatedWikiQuerySuite;
-  const exHub = search.summary.excludingHubGolden;
-  const top3New = exHub.top3.new;
-  const top3Patched = exHub.top3.old_patched;
-  const top3Upstream = exHub.top3.old_upstream;
-  const searchPass = curated.top3.new >= curated.top3.old_patched && curated.top3.old_patched >= curated.top3.old_upstream;
+ const curated = search.summary.curatedWikiQuerySuite;
+ const exHub = search.summary.excludingHubGolden;
+ const top3New = exHub.top3.new;
+ const top3Patched = exHub.top3.old_patched;
+ const top3Upstream = exHub.top3.old_upstream;
+ const searchPass = curated.top3.new >= curated.top3.old_patched && curated.top3.old_patched >= curated.top3.old_upstream;
 
-  const bighandBootstrap = search.results.find((r) =>
-    r.query.toLowerCase().includes('bighand factpublicholiday'),
-  );
-  const bighandRetry = search.results.find((r) => r.query.toLowerCase() === 'bighand');
-  const factPublicHoliday = search.results.find((r) => r.query === 'FactPublicHoliday');
+ const bighandBootstrap = search.results.find((r) =>
+ r.query.toLowerCase().includes('bighand factpublicholiday'),
+ );
+ const bighandRetry = search.results.find((r) => r.query.toLowerCase() === 'bighand');
+ const factPublicHoliday = search.results.find((r) => r.query === 'FactPublicHoliday');
 
-  const indexRead = reads.topReadPaths.find((r) => r.path === 'index');
-  const hubRead = reads.topReadPaths.find((r) => r.path.includes('data-platform-dlz'));
+ const indexRead = reads.topReadPaths.find((r) => r.path === 'index');
+ const hubRead = reads.topReadPaths.find((r) => r.path.includes('data-platform-dlz'));
 
-  const regressions = search.summary.newWorseThanPatched ?? [];
+ const regressions = search.summary.newWorseThanPatched ?? [];
 
-  const recommendations = [
-    {
-      priority: 'P0',
-      area: 'Agent skill',
-      item: 'Discourage default `mode:"replace"` for partial edits',
-      evidence: `${classification.replaceCount} replace calls; ${writes.patchAlternativeCandidates} could use patch/section`,
-    },
-    {
-      priority: 'P0',
-      area: 'MCP',
-      item: 'Size guard on replace (shipped)',
-      evidence: `${writes.blockedBySizeGuard}/${writes.simulated} historical replaces would be blocked today`,
-    },
-    {
-      priority: 'P1',
-      area: 'MCP',
-      item: 'Folder-scoped search',
-      evidence: 'Agents pair list_notes + global search_content in bootstrap flows',
-    },
-    {
-      priority: 'P1',
-      area: 'MCP',
-      item: 'Phrase proximity / coherence ranking',
-      evidence: `${classification.searchRetries} search retry patterns in corpus`,
-    },
-    {
-      priority: 'P1',
-      area: 'Agent skill',
-      item: 'Use outgoingLinks from read_note instead of manual index hops',
-      evidence: `${classification.toolCounts.read_note ?? 0} read_note calls vs ${classification.toolCounts.get_backlinks ?? 0} get_backlinks`,
-    },
-    {
-      priority: 'P2',
-      area: 'MCP',
-      item: 'search_by_tags',
-      evidence: '0 transcript calls; wiki-query skill references tag-style discovery',
-    },
-    {
-      priority: 'P2',
-      area: 'MCP',
-      item: 'Resolve alias/display wikilinks in outgoingLinks',
-      evidence: indexRead
-        ? `${indexRead.resolutionRate}% resolved on index.md`
-        : 'index read not sampled',
-    },
-  ];
+ const recommendations = [
+ {
+ priority: 'P0',
+ area: 'Agent skill',
+ item: 'Discourage default `mode:"replace"` for partial edits',
+ evidence: `${classification.replaceCount} replace calls; ${writes.patchAlternativeCandidates} could use patch/section`,
+ },
+ {
+ priority: 'P0',
+ area: 'MCP',
+ item: 'Size guard on replace (shipped)',
+ evidence: `${writes.blockedBySizeGuard}/${writes.simulated} historical replaces would be blocked today`,
+ },
+ {
+ priority: 'P1',
+ area: 'MCP',
+ item: 'Folder-scoped search',
+ evidence: 'Agents pair list_notes + global search_content in bootstrap flows',
+ },
+ {
+ priority: 'P1',
+ area: 'MCP',
+ item: 'Phrase proximity / coherence ranking',
+ evidence: `${classification.searchRetries} search retry patterns in corpus`,
+ },
+ {
+ priority: 'P1',
+ area: 'Agent skill',
+ item: 'Use outgoingLinks from read_note instead of manual index hops',
+ evidence: `${classification.toolCounts.read_note ?? 0} read_note calls vs ${classification.toolCounts.get_backlinks ?? 0} get_backlinks`,
+ },
+ {
+ priority: 'P2',
+ area: 'MCP',
+ item: 'search_by_tags',
+ evidence: '0 transcript calls; wiki-query skill references tag-style discovery',
+ },
+ {
+ priority: 'P2',
+ area: 'MCP',
+ item: 'Resolve alias/display wikilinks in outgoingLinks',
+ evidence: indexRead
+ ? `${indexRead.resolutionRate}% resolved on index.md`
+ : 'index read not sampled',
+ },
+ ];
 
-  const reconciliationTable = classification.reconciliation
-    .filter((row) => row.planCount > 0 || row.actual > 0)
-    .map(
-      (row) =>
-        `| \`${row.tool}\` | ${row.planCount} | ${row.actual} | ${row.deltaPct == null ? '—' : `${row.deltaPct}%`} |`,
-    )
-    .join('\n');
+ const reconciliationTable = classification.reconciliation
+ .filter((row) => row.planCount > 0 || row.actual > 0)
+ .map(
+ (row) =>
+ `| \`${row.tool}\` | ${row.planCount} | ${row.actual} | ${row.deltaPct == null ? '—' : `${row.deltaPct}%`} |`,
+ )
+ .join('\n');
 
-  const benchmarkRows = benchmarks.newStandardTimings
-    .map((row) => {
-      const cmp = benchmarks.comparisonToStoredBaseline.find((c) => c.label === row.label);
-      return `| ${row.label} | ${cmp?.baselineMs ?? '—'} | ${row.ms} | ${cmp?.deltaMs ?? '—'} |`;
-    })
-    .join('\n');
+ const benchmarkRows = benchmarks.newStandardTimings
+ .map((row) => {
+ const cmp = benchmarks.comparisonToStoredBaseline.find((c) => c.label === row.label);
+ return `| ${row.label} | ${cmp?.baselineMs ?? '—'} | ${row.ms} | ${cmp?.deltaMs ?? '—'} |`;
+ })
+ .join('\n');
 
-  const searchExamples = search.results
-    .filter((r) => r.goldenPath)
-    .slice(0, 8)
-    .map((r) => {
-      return `| ${r.query.slice(0, 45)}${r.query.length > 45 ? '…' : ''} | ${r.baselines.old_upstream.goldenRank ?? '—'} | ${r.baselines.old_patched.goldenRank ?? '—'} | ${r.baselines.new.goldenRank ?? '—'} | ${r.baselines.new.top1 ?? '—'} |`;
-    })
-    .join('\n');
+ const searchExamples = search.results
+ .filter((r) => r.goldenPath)
+ .slice(0, 8)
+ .map((r) => {
+ return `| ${r.query.slice(0, 45)}${r.query.length > 45 ? '…' : ''} | ${r.baselines.old_upstream.goldenRank ?? '—'} | ${r.baselines.old_patched.goldenRank ?? '—'} | ${r.baselines.new.goldenRank ?? '—'} | ${r.baselines.new.top1 ?? '—'} |`;
+ })
+ .join('\n');
 
-  const report = `# MCP Real-World Validation Report
+ const report = `# MCP Real-World Validation Report
 
-**Date:** 2026-07-08  
-**Vault:** WorkStuff (\`${benchmarks.vaultPath}\`)  
+**Date:** 2026-07-08 
+**Vault:** WorkStuff (\`${benchmarks.vaultPath}\`) 
 **Scope:** Post-remediation replay of 30-day DLZ agent transcripts after MCP validation fixes (2026-07-08).
 
 ---
@@ -134,7 +134,7 @@ async function buildReport() {
 | Criterion | Result |
 |-----------|--------|
 | Corpus coverage | ${classification.totalCalls} MCP calls from ${classification.sessionsWithMcp} sessions (plan baseline ±10% on major tools — see §2) |
-| Search top-3 accuracy (curated wiki-query set) | Old-upstream ${pct(curated.top3.old_upstream)} → Old-patched ${pct(curated.top3.old_patched)} → **New ${pct(curated.top3.new)}** ${searchPass ? '✅' : '⚠️'} |
+| Search top-3 accuracy (curated wiki-query set) | Old-upstream ${pct(curated.top3.old_upstream)} → Old-patched ${pct(curated.top3.old_patched)} → **New ${pct(curated.top3.new)}** ${searchPass ? '' : ''} |
 | BigHand bootstrap query | New top-1: \`${bighandBootstrap?.baselines.new.top1 ?? '—'}\` (intent page: factpublicholiday) |
 | f681a293 fragment replaces blocked | ${writes.f681a293.blocked}/${writes.f681a293.fragmentReplaces} shrink-ratio cases blocked by size guard |
 | New regressions vs old-patched | ${regressions.length} queries rank worse |
@@ -155,7 +155,7 @@ async function buildReport() {
 
 ## 2. Corpus statistics
 
-**Window:** transcripts with session start ≥ 2026-06-08  
+**Window:** transcripts with session start ≥ 2026-06-08 
 **Source:** DLZ \`agent-transcripts/\` (Obsidian-MCP-For-Cursor sessions excluded)
 
 | Tool | Plan (30d) | Extracted | Δ |
@@ -229,12 +229,12 @@ ${regressions.length > 0 ? `### Regressions (new worse than old-patched)\n\n${re
 | Path | Calls | outgoingLinks | Resolved % | contentHash |
 |------|------:|-------------:|-----------:|:-----------:|
 ${reads.topReadPaths
-  .slice(0, 10)
-  .map(
-    (r) =>
-      `| \`${r.path}\` | ${r.corpusCount} | ${r.outgoingLinkCount} | ${r.resolutionRate ?? '—'} | ${r.hasContentHash ? '✅' : '—'} |`,
-  )
-  .join('\n')}
+ .slice(0, 10)
+ .map(
+ (r) =>
+ `| \`${r.path}\` | ${r.corpusCount} | ${r.outgoingLinkCount} | ${r.resolutionRate ?? '—'} | ${r.hasContentHash ? '' : '—'} |`,
+ )
+ .join('\n')}
 
 Hub page (\`data-platform-dlz\`): ${hubRead ? `${hubRead.resolutionRate}% link resolution` : 'not in top-20'}
 
@@ -263,9 +263,9 @@ Simulated **${writes.simulated}** historical \`replace\` calls against **current
 | Line | Path | Shrink ratio | New guard |
 |------|------|-------------:|-----------|
 ${writes.f681a293.cases
-  .slice(0, 6)
-  .map((c) => `| ${c.line_number} | \`${c.path}\` | ${Math.round((c.shrinkRatio ?? 0) * 100)}% | ${c.new_guard} |`)
-  .join('\n')}
+ .slice(0, 6)
+ .map((c) => `| ${c.line_number} | \`${c.path}\` | ${Math.round((c.shrinkRatio ?? 0) * 100)}% | ${c.new_guard} |`)
+ .join('\n')}
 
 **Note:** Line-18-style fragment table-row replace is flagged when proposed content ≪ current body. On today's vault (post-recovery), some f681 replaces appear \`allowed\` because the agent already restored full pages.
 
@@ -328,12 +328,12 @@ ${recommendations.map((r) => `| ${r.priority} | ${r.area} | ${r.item} | ${r.evid
 *Generated ${new Date().toISOString()} by validation pipeline.*
 `;
 
-  await fs.mkdir(path.dirname(REPORT_PATH), { recursive: true });
-  await fs.writeFile(REPORT_PATH, report, 'utf-8');
-  console.log(`Report written: ${REPORT_PATH}`);
+ await fs.mkdir(path.dirname(REPORT_PATH), { recursive: true });
+ await fs.writeFile(REPORT_PATH, report, 'utf-8');
+ console.log(`Report written: ${REPORT_PATH}`);
 }
 
 buildReport().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
+ console.error(error instanceof Error ? error.message : String(error));
+ process.exit(1);
 });

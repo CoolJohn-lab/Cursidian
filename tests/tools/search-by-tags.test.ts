@@ -37,4 +37,130 @@ describe('search (by_tags)', () => {
     expect(data.results.length).toBe(1);
     expect(data.results[0].path).toContain('n1');
   });
+
+  it('rejects an empty tags array with invalid_args', async () => {
+    const result = await callTool(ctx.client, 'search', { action: 'by_tags', tags: [] });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as {
+      error: string;
+      details?: { missing?: string[] };
+      recovery?: { tool: string; arguments: Record<string, unknown> };
+    };
+    expect(data.error).toBe('invalid_args');
+    expect(data.details?.missing).toContain('tags');
+    expect(data.recovery?.tool).toBe('search');
+  });
+
+  it('rejects whitespace-only tag strings with invalid_args', async () => {
+    const result = await callTool(ctx.client, 'search', {
+      action: 'by_tags',
+      tags: ['shared', '   '],
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as {
+      error: string;
+      details?: { rejected?: string[] };
+      recovery?: { arguments: { tags?: string[] } };
+    };
+    expect(data.error).toBe('invalid_args');
+    expect(data.details?.rejected).toContain('tags');
+    expect(data.recovery?.arguments.tags).toEqual(['shared']);
+  });
+
+  it('returns an empty result set for a tag that matches nothing', async () => {
+    const result = await callTool(ctx.client, 'search', {
+      action: 'by_tags',
+      tags: ['does-not-exist-anywhere'],
+    });
+    expect(result.isError).toBeFalsy();
+    const data = parseResult(result) as {
+      results: unknown[];
+      totalMatches: number;
+      truncated: boolean;
+      nextCursor?: string;
+    };
+    expect(data.results).toEqual([]);
+    expect(data.totalMatches).toBe(0);
+    expect(data.truncated).toBe(false);
+    expect(data.nextCursor).toBeUndefined();
+  });
+
+  it('paginates matching notes with limit=1 across every page', async () => {
+    await writeNote(ctx.vault, 'concepts/page-a.md', '---\ntags: [pageable]\n---\n\nA');
+    await writeNote(ctx.vault, 'concepts/page-b.md', '---\ntags: [pageable]\n---\n\nB');
+    await writeNote(ctx.vault, 'concepts/page-c.md', '---\ntags: [pageable]\n---\n\nC');
+
+    const seenPaths = new Set<string>();
+    let cursor: string | undefined;
+    let pages = 0;
+
+    for (let i = 0; i < 10; i++) {
+      const result = await callTool(ctx.client, 'search', {
+        action: 'by_tags',
+        tags: ['pageable'],
+        limit: 1,
+        cursor,
+      });
+      expect(result.isError).toBeFalsy();
+      const data = parseResult(result) as {
+        results: Array<{ path: string }>;
+        totalMatches: number;
+        truncated: boolean;
+        nextCursor?: string;
+        effectiveLimit: number;
+      };
+      expect(data.effectiveLimit).toBe(1);
+      expect(data.totalMatches).toBe(3);
+      expect(data.results).toHaveLength(1);
+      seenPaths.add(data.results[0].path);
+      pages += 1;
+
+      if (!data.truncated) {
+        expect(data.nextCursor).toBeUndefined();
+        break;
+      }
+      expect(data.nextCursor).toBeTruthy();
+      cursor = data.nextCursor;
+    }
+
+    expect(pages).toBe(3);
+    expect(seenPaths).toEqual(
+      new Set(['concepts/page-a.md', 'concepts/page-b.md', 'concepts/page-c.md']),
+    );
+  });
+
+  it('reports a structured error for a stale or forged cursor', async () => {
+    const result = await callTool(ctx.client, 'search', {
+      action: 'by_tags',
+      tags: ['shared'],
+      cursor: 'not-a-real-cursor',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; retryable?: boolean };
+    expect(data.error).toBe('invalid_args');
+    expect(data.retryable).toBe(true);
+  });
+
+  it('excludes operational pages (index/log/hot) even when tagged', async () => {
+    const tag = 'operational-exclusion-test';
+    await writeNote(ctx.vault, 'index.md', `---\ntags: [${tag}]\n---\n\n# Index`);
+    await writeNote(ctx.vault, 'log.md', `---\ntags: [${tag}]\n---\n\n# Log`);
+    await writeNote(ctx.vault, 'hot.md', `---\ntags: [${tag}]\n---\n\n# Hot`);
+    await writeNote(ctx.vault, 'concepts/regular.md', `---\ntags: [${tag}]\n---\n\n# Regular`);
+
+    const result = await callTool(ctx.client, 'search', { action: 'by_tags', tags: [tag] });
+    expect(result.isError).toBeFalsy();
+    const data = parseResult(result) as {
+      results: Array<{ path: string }>;
+      totalMatches: number;
+      includeOperational: boolean;
+    };
+    expect(data.includeOperational).toBe(false);
+    expect(data.totalMatches).toBe(1);
+    expect(data.results).toHaveLength(1);
+    expect(data.results[0].path).toBe('concepts/regular.md');
+    expect(data.results.some((r) => ['index.md', 'log.md', 'hot.md'].includes(r.path))).toBe(
+      false,
+    );
+  });
 });

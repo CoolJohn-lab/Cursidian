@@ -35,7 +35,7 @@ That is a **read-only** guard: it fails if the `cursidian` server entry is missi
 Every vault MCP call must set **both**:
 
 - `server: "user-cursidian"`
-- `toolName`: exactly one of `note` | `search` | `graph` | `vault`
+- `toolName`: exactly one of `note` | `search` | `graph` | `vault` | `context`
 
 Never send only `arguments` + `description` (missing `server` / `toolName` fails before Cursidian runs). Discover schemas with `GetMcpTools` first. On verify steps, re-read with a well-formed call - do not mark verify complete after a malformed invocation.
 
@@ -49,7 +49,9 @@ After changing files under `skills/wiki/`, or when Cursor agents still call reti
 npm run skills:install
 ```
 
-That **removes then copies** the 9 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills. Details: `skills/wiki/INSTALL.md`. Use the **wiki-slop** skill for deslop / repo `slop:*` / vault `slop_check`+`deslop`.
+That **removes then copies** the 10 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills - Cursor caches skill text per chat, so an existing chat keeps teaching the old version, including retired tool names, until restarted. Details: `skills/wiki/INSTALL.md`. Use the **wiki-slop** skill for deslop / repo `slop:*` / vault `slop_check`+`deslop`.
+
+If you are not sure whether `~/.cursor/skills/` is stale relative to this repo, run `npm run skills:doctor` - it fingerprints each skill folder against its installed copy and names exactly which ones need `skills:install`.
 
 ## Version bumps
 

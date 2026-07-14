@@ -26,7 +26,8 @@ Emjoy! John.
 
 ## Features
 
-- **4 MCP tools** - `note`, `search`, `graph`, `vault` (action-dispatch surface)
+- **5 MCP tools** - `note`, `search`, `graph`, `vault`, `context` (action-dispatch surface)
+- **Context Generation Engine** - `context` `assemble`/`for_task` returns a token-budgeted, deduplicated, provenance-tagged bundle instead of raw search hits; `expand` continues it, `feedback` logs a bad bundle locally
 - **Safe writes** - `patch` inferred when `old_string`/`new_string` are set; `replace_section` for heading edits
 - **Agent-friendly search** - default limit 10, compact format, stopwords stripped, token-AND with OR/typo fallback; hits include `title`/`summary`/`tags`
 - **Auto timestamps** - `note` create/update/frontmatter set `created`/`updated` automatically
@@ -35,7 +36,7 @@ Emjoy! John.
 - **Typed manifest** - `vault` `manifest` for `_meta/manifest.md` (no hand-edited ledger lines)
 - **Signature-based caches** - index and search snapshots invalidate when files change on disk (including Obsidian edits)
 - **Deslop gate** - `npm run build` runs `slop:check` first; strips AI typography and decorative emoji from the repo (and optionally the wiki vault)
-- **Wiki skills** - nine Cursor skills that drive the MCP tools for ingest, query, lint, capture, update, status, and deslop
+- **Wiki skills** - ten Cursor skills that drive the MCP tools for context assembly, ingest, query, lint, capture, update, status, and deslop
 - **Skill contract gate** - `npm run skills:check` rejects retired tool names, phantom health fields, and read-only write leaks
 
 ## Tools
@@ -115,7 +116,7 @@ Cursidian is a **two-layer** product:
 | **MCP server** | Runtime vault I/O for agents | Published `cursidian` package / local `dist/` |
 | **Wiki skills** | Workflow instructions (ingest, query, lint, ...) | [`skills/wiki/`](skills/wiki/) copied into `~/.cursor/skills/` |
 
-The MCP server is the only way agents read or write vault markdown. Skills do **not** open vault files with the IDE filesystem tools or shell - they call **`user-cursidian`** (`note`, `search`, `graph`, `vault`). If an MCP call fails, the skill reports the failure and **stops** (no silent filesystem fallback).
+The MCP server is the only way agents read or write vault markdown. Skills do **not** open vault files with the IDE filesystem tools or shell - they call **`user-cursidian`** (`note`, `search`, `graph`, `vault`, `context`). If an MCP call fails, the skill reports the failure and **stops** (no silent filesystem fallback).
 
 Source documents **outside** the vault (PDFs, repo files, URLs) may be read with normal tools for ingest; the moment content enters the vault, it is MCP-only.
 
@@ -136,17 +137,18 @@ npm run skills:install
 npx cursidian-skills
 ```
 
-That **removes then copies** the nine skill folders into `~/.cursor/skills/` (never symlink; copying into an existing folder nests `skill/skill/SKILL.md`). Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes, then start a **new** agent chat so Cursor re-discovers them.
+That **removes then copies** the ten skill folders into `~/.cursor/skills/` (never symlink; copying into an existing folder nests `skill/skill/SKILL.md`). Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes, then start a **new** agent chat so Cursor re-discovers them. Run `npm run skills:doctor` first if you're not sure the installed copy is stale.
 
 Exception: none for vault writes. **wiki-slop** uses MCP `vault` `slop_check` / `deslop` for the vault; npm `slop:*` remains for the **repo** build gate (and optional human/CI `*:wiki` CLIs).
 
 | Skill | Purpose | Typical MCP use |
 |-------|---------|-----------------|
 | `llm-wiki` | Theory, schema, MCP contract | Reference for other skills |
-| `wiki-query` | Read-only Q&A | `search` -> optional `note` read / `graph` (no writes) |
+| `wiki-query` | Read-only Q&A | `context` `assemble`/`for_task` (no writes) |
+| `wiki-context` | Assemble a cited, budgeted context bundle for a task | `context` `for_task`/`assemble`/`expand` (no vault writes) |
 | `wiki-lint` | Vault health / consolidate | `vault` `health`, then `note`/`vault` fixes |
 | `wiki-setup` | Bootstrap vault structure | `vault` folders, `note` create special files |
-| `wiki-ingest` | Distill docs/URLs into pages | `search` + `note` create/update + `vault` manifest/log/sync |
+| `wiki-ingest` | Distill docs/URLs into pages | `context` `for_task` preflight + `search` + `note` create/update + `vault` manifest/log/sync |
 | `wiki-capture` | Save session findings | `note` create/update (`_raw/` or full pages); merge on duplicate |
 | `wiki-update` | Sync a project into the wiki | git delta outside vault; writes via `note`/`vault` manifest |
 | `wiki-status` | Delta / what next / hot.md | `vault` manifest read; `_raw/` with `includeOperational`; hot refresh on request |
@@ -246,6 +248,7 @@ Legacy `.obsidian-mcp-trash` entries are **migrated** into `.cursidian-trash/_le
 | `OBSIDIAN_MAX_FILE_SIZE` | No | Max file size in bytes (default 10 MB) |
 | `OBSIDIAN_BACKUP_ENABLED` | No | Pre-write backups to `.cursidian-trash` (default `true`; set `false` to disable) |
 | `OBSIDIAN_LOG_LEVEL` | No | `debug`, `info`, `warn`, `error` (default `info`) |
+| `OBSIDIAN_CONTEXT_TELEMETRY` | No | Set to `true` to append local-only JSONL telemetry (query shape, intent, budget, latency) for every `context` call; default off, never sent over the network or to stdout |
 
 ## Development
 
@@ -260,7 +263,10 @@ npm run build    # slop:check (prebuild), then tsc
 npm run verify   # lint + typecheck + test + build + MCP integration + skills check + fixture smoke
 npm run smoke    # live smoke against OBSIDIAN_VAULT_PATH (unique path, finally cleanup)
 npm run skills:check
+npm run skills:doctor  # is ~/.cursor/skills/ stale vs skills/wiki/?
 npm run mcp:test -- suite smoke
+npm run eval           # retrieval eval scorecard against tests/eval/golden-vault
+npm run eval:report    # writes tests/eval/snapshots/scorecard.md
 ```
 
 

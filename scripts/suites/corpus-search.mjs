@@ -2,7 +2,7 @@
  * Curated search cases with strict expected top-1 paths.
  *
  * Ranking goldens must be intent pages (entity / concept / skill that answers the query).
- * Project hub paths (e.g. data-platform-dlz.md) are invalid here — hubs are for session
+ * Project hub paths (e.g. data-platform-dlz.md) are invalid here - hubs are for session
  * bootstrap, not ranking quality. Historical hub goldens in replay-matrix.json are
  * transcript archaeology and must not be copied into this suite.
  */
@@ -119,7 +119,7 @@ export function resolveExpectTopPaths(testCase) {
 }
 
 /**
- * Builds a map of query → primary intent page path for replay golden-label overrides.
+ * Builds a map of query -> primary intent page path for replay golden-label overrides.
  */
 export function buildIntentGoldenMap() {
   const map = new Map();

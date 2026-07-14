@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 const SKILL_NAMES = [
   'llm-wiki',
   'wiki-query',
+  'wiki-context',
   'wiki-lint',
   'wiki-setup',
   'wiki-ingest',
@@ -31,6 +32,14 @@ const SKILL_NAMES = [
 /** Legacy MCP tool names that must not appear in installed skills. */
 const LEGACY_TOOL_RE =
   /\b(read_note|search_content|get_note_neighborhood|get_backlinks|touch_wiki_meta|create_note|update_note|list_notes|list_recent|list_tags|search_by_tags|manage_frontmatter|manage_folders|delete_note|rename_note|vault_health)\b/;
+
+/**
+ * Skills that must reference the `context` MCP tool - the CGE surface added
+ * alongside this skill set. Catches a skills:install that silently drifts
+ * back to teaching the pre-context 4-tool surface.
+ */
+const CONTEXT_TOOL_REQUIRED_IN = ['llm-wiki', 'wiki-context'];
+const CONTEXT_TOOL_RE = /\bcontext\b/;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
@@ -85,6 +94,8 @@ function collectSkillMarkdown(dir) {
 
 function verifyInstalled(destRoot) {
   const problems = [];
+  let sawContextTool = false;
+
   for (const name of SKILL_NAMES) {
     const skillDir = path.join(destRoot, name);
     const skillMd = path.join(skillDir, 'SKILL.md');
@@ -98,14 +109,27 @@ function verifyInstalled(destRoot) {
       problems.push(`${name}: nested duplicate ${path.join(name, name, 'SKILL.md')} - remove and reinstall`);
     }
 
+    let sawContextInSkill = false;
     for (const file of collectSkillMarkdown(skillDir)) {
       const text = fs.readFileSync(file, 'utf8');
       const match = text.match(LEGACY_TOOL_RE);
       if (match) {
         problems.push(`${path.relative(destRoot, file)}: legacy tool name "${match[1]}"`);
       }
+      if (CONTEXT_TOOL_RE.test(text)) {
+        sawContextTool = true;
+        sawContextInSkill = true;
+      }
+    }
+    if (CONTEXT_TOOL_REQUIRED_IN.includes(name) && !sawContextInSkill) {
+      problems.push(`${name}: no markdown file mentions the "context" MCP tool`);
     }
   }
+
+  if (!sawContextTool) {
+    problems.push('No installed skill mentions the "context" MCP tool - the 5-tool surface is not taught');
+  }
+
   return problems;
 }
 

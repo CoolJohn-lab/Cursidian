@@ -79,4 +79,34 @@ describe('vault-index', () => {
 
     await cleanupVault(ctx.vault);
   });
+
+  it('resolves a hyphenated basename via space-to-hyphen slug fallback', async () => {
+    const ctx = await createTestVault();
+    await writeNote(ctx.vault, 'entities/dev-server-alpha.md', '# Dev Server Alpha\n\nNo frontmatter title.');
+
+    const index = await buildVaultIndex(ctx.vault);
+    expect(resolveWikilinkTarget('Dev Server Alpha', index)).toBe('entities/dev-server-alpha.md');
+    await cleanupVault(ctx.vault);
+  });
+
+  it('resolves a nested path suffix via endsWith fallback', async () => {
+    const ctx = await createTestVault();
+    await writeNote(ctx.vault, 'entities/legacy/dev-server-beta.md', '# Dev Server Beta');
+
+    const index = await buildVaultIndex(ctx.vault);
+    expect(resolveWikilinkTarget('legacy/dev-server-beta', index)).toBe(
+      'entities/legacy/dev-server-beta.md',
+    );
+    await cleanupVault(ctx.vault);
+  });
+
+  it('returns null for an ambiguous nested-path suffix match', async () => {
+    const ctx = await createTestVault();
+    await writeNote(ctx.vault, 'entities/legacy/dev-server-gamma.md', '# Gamma One');
+    await writeNote(ctx.vault, 'archive/legacy/dev-server-gamma.md', '# Gamma Two');
+
+    const index = await buildVaultIndex(ctx.vault);
+    expect(resolveWikilinkTarget('legacy/dev-server-gamma', index)).toBeNull();
+    await cleanupVault(ctx.vault);
+  });
 });

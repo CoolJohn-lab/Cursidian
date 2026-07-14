@@ -27,8 +27,19 @@ Wiki skills are tracked under `skills/wiki/` (not under `.cursor/`, which is git
 - Full unit suite with coverage: `npm test`
 - Focused test file: `npm run test:file -- tests/tools/foo.test.ts`
 - Cursor/sandbox coverage run with npm env cleanup: `npm run test:clean`
+- Retrieval eval: `npm run eval` (writes `tests/eval/snapshots/baseline.json`); soft regression gate: `npm run eval -- --gate` (compares nDCG@10 to `tests/eval/snapshots/gate-baseline.json`, epsilon 0.05)
+- Scorecard markdown: `npm run eval:report`
 - Live smoke (requires `OBSIDIAN_VAULT_PATH`): run `npm run build`, then `npm run smoke`
-- Synthetic fixtures: `tests/fixtures/test-vault/`, `tests/fixtures/wiki-vault/`
+- Synthetic fixtures: `tests/fixtures/test-vault/`, `tests/fixtures/wiki-vault/`, `tests/eval/golden-vault/`
+
+### Golden-query maintenance
+
+When a real query returns a bad search ranking or thin context bundle:
+
+1. Add a labelled line to `tests/eval/queries.jsonl` with the correct `relevant_paths`.
+2. Re-run `npm run eval` and inspect the scorecard.
+3. If ranking/weights change and improve the metric deliberately, update `tests/eval/snapshots/gate-baseline.json` in the same PR.
+4. Optionally record the miss via `context` `feedback` (`insufficient` / `off_target`) so the local telemetry log accumulates real failures.
 
 ## Version bumps
 

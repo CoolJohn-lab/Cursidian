@@ -67,9 +67,19 @@ npm run skills:install
 npm run skills:install:dry
 ```
 
-This deletes each of the 9 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates or legacy tool names (`read_note`, `search_content`, ...).
+This deletes each of the 10 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates, no legacy tool names (`read_note`, `search_content`, ...), and that `llm-wiki`/`wiki-context` still teach the `context` MCP tool.
 
-Installed skills: `llm-wiki`, `wiki-query`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`.
+Installed skills: `llm-wiki`, `wiki-query`, `wiki-context`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`.
+
+### After any surface change
+
+Whenever `skills/wiki/` or the MCP tool surface changes, run `npm run skills:install` and then start a **new** Cursor agent chat - Cursor caches skill discovery per chat, so an existing chat keeps teaching the previous skill text (including retired tool names) until it is restarted. If you are not sure whether `~/.cursor/skills/` is stale, run:
+
+```bash
+npm run skills:doctor
+```
+
+It fingerprints each skill folder under `skills/wiki/` against its installed copy and tells you exactly which ones are stale or missing, and what to run next.
 
 ### Manual (Windows PowerShell)
 
@@ -78,7 +88,7 @@ $src = "C:\path\to\Cursidian\skills\wiki"
 $dst = "$env:USERPROFILE\.cursor\skills"
 New-Item -ItemType Directory -Force -Path $dst | Out-Null
 foreach ($name in @(
-  'llm-wiki','wiki-query','wiki-lint','wiki-setup',
+  'llm-wiki','wiki-query','wiki-context','wiki-lint','wiki-setup',
   'wiki-ingest','wiki-capture','wiki-update','wiki-status','wiki-slop'
 )) {
   Remove-Item -Recurse -Force "$dst\$name" -ErrorAction SilentlyContinue
@@ -92,17 +102,17 @@ foreach ($name in @(
 SRC=/path/to/Cursidian/skills/wiki
 DST="$HOME/.cursor/skills"
 mkdir -p "$DST"
-for name in llm-wiki wiki-query wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status wiki-slop; do
+for name in llm-wiki wiki-query wiki-context wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status wiki-slop; do
   rm -rf "$DST/$name"
   cp -R "$SRC/$name" "$DST/$name"
 done
 ```
 
-After MCP tool-surface changes (e.g. the 4-tool consolidation), re-run `npm run skills:install` so Cursor does not keep teaching retired tool names.
+After MCP tool-surface changes (e.g. the 4-tool consolidation, or the later `context` tool addition), re-run `npm run skills:install` so Cursor does not keep teaching retired tool names or an outdated tool count.
 
 ## 4. Verify
 
-1. In Cursor, confirm `user-cursidian` tools are listed (`note`, `search`, `graph`, `vault`) - not a leftover `obsidian` / `user-obsidian` server.
-2. Ask the agent to call `search` with `action: "list"`. Every `CallMcpTool` must set `server: "user-cursidian"` and `toolName` (`note` | `search` | `graph` | `vault`); never `arguments` + `description` alone.
+1. In Cursor, confirm `user-cursidian` tools are listed (`note`, `search`, `graph`, `vault`, `context`) - not a leftover `obsidian` / `user-obsidian` server.
+2. Ask the agent to call `search` with `action: "list"`. Every `CallMcpTool` must set `server: "user-cursidian"` and `toolName` (`note` | `search` | `graph` | `vault` | `context`); never `arguments` + `description` alone.
 3. For a fresh vault, run the `wiki-setup` skill; otherwise run `wiki-status`.
 4. If Cursor still walks retired tool allowlist entries (`read_note`, `search_content`, ...), clean them up per [`docs/MCP-HOST-HYGIENE.md`](../../docs/MCP-HOST-HYGIENE.md).

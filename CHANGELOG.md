@@ -6,13 +6,32 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `context` MCP tool (5th tool, `src/tools/context.ts`) - the Context Generation Engine surface. `action=assemble` (default): token-budgeted, deduplicated, provenance-tagged context bundle for a query. `action=for_task`: same assembly phrased as a task description, with intent presets (`lookup`, `connection`, `onboarding`, `troubleshoot`, `ingest-prep`) inferred from phrasing when omitted. `action=expand`: continue a prior bundle from its `nextCursor` within a fresh token budget. `action=feedback`: record an insufficient/off-target bundle to a local `.cursidian/context-feedback.jsonl` log
+- `lib/context-assembler.ts` - `assembleContext`/`expandContext`: composes `search`/`graph` internally (one shared vault snapshot; read-only, inherits existing caching/security), selects the cheapest sufficient passage per candidate (summary -> best section -> full body), greedily fills the token budget by value-per-token, deduplicates >60% shingle-overlapping passages, surfaces staleness/provenance/contradiction warnings, and computes a 0-1 `bundleConfidence`
+- `lib/token-estimate.ts` - `estimateTokens`: fast chars/4 heuristic with a mild bump for code fences/tables (no BPE tokenizer dependency)
+- `lib/section-read.ts` - `listSections`/`extractSection`/`findBestSection`: read-only ATX-heading slicing, reusing the section-edit heading parser
 - `npm run mcp:check` (`scripts/check-mcp-config.mjs`) - read-only guard that `~/.cursor/mcp.json` uses `cursidian`, not `Obsidian-MCP-For-Cursor`, with an absolute vault path
 - `docs/MCP-HOST-HYGIENE.md` - clean up stale `user-obsidian` / legacy tool allowlist noise after cutover
+- `tests/tools/tool-surface.test.ts` - snapshot test locking the registered MCP tool names, retired-tool denylist (`read_note`, `search_content`, `list_notes`, `get_backlinks`), and the `search`/`note`/`vault` action enums
+- Expanded `tests/tools/get-note-neighborhood.test.ts` and `tests/tools/search-by-tags.test.ts` to full statement/branch coverage: pagination across every page, empty neighbourhoods, unresolved outgoing links, invalid paths, `invalid_args` on empty/whitespace tags, and operational-path (`index`/`log`/`hot`) exclusion from tag search
+- `tests/eval/` retrieval eval harness - a synthetic CDF-flavoured `golden-vault/` (projects/concepts/entities/skills covering ingestion vs egress, contract generation, medallion layers, the worker data mart, BigHand, and `FactPersonForecastHistory`), 45 labelled queries in `queries.jsonl` (lookup/connection/onboarding/troubleshoot intents), and `eval.mjs` scoring the real `search` tool's ranked results with nDCG@10, Recall@10, and MRR against a `snapshots/baseline.json` scorecard
+- `npm run eval` (`node tests/eval/eval.mjs`) - run the retrieval eval standalone; `--report-only` never exits non-zero; `--gate` fails when nDCG@10 drops more than 0.05 vs `snapshots/gate-baseline.json`
+- Non-blocking `eval-report` step in `scripts/run-verify-inner.mjs` (after `test`); blocking `eval-gate` step after `build`
+- `npm run eval:report` - writes `tests/eval/snapshots/scorecard.md`
+- `vault` `vocabulary` action (`read`/`upsert`/`remove`) managing `_meta/vocabulary.md`; `lib/vocabulary.ts` loads synonym groups and directional pairings for query-side expansion at reduced ranking weight
+- `lib/query-understanding.ts` - `parseQuery` (quoted phrases, hyphen-preserving normalisation, intent inference)
+- Exported `RANK_WEIGHTS` in `search-ranking.ts` (centralised additive weights plus mild freshness verified/stale factors)
+- `wiki-context` skill - assemble/for_task/expand/feedback workflow for task briefings
+- `npm run skills:doctor` - detect stale `~/.cursor/skills/` vs repo
+- Opt-in context telemetry behind `OBSIDIAN_CONTEXT_TELEMETRY=true` (local JSONL only, never stdout)
 
 ### Changed
 
 - Operational `INFO`/`DEBUG` logs no longer write to stderr by default (Cursor MCP host was labeling them `[error]`); optional `OBSIDIAN_LOG_FILE` or `OBSIDIAN_LOG_STDERR_INFO=true`; `WARN`/`ERROR` stay on stderr; stdout remains MCP JSON-RPC only
 - `AGENTS.md` / `skills/wiki/INSTALL.md` - `mcp:check`, CallMcpTool `server`+`toolName` checklist, host hygiene pointer
+- Tool surface is now 5 tools (`note`, `search`, `graph`, `vault`, `context`); `AGENTS.md` and `skills/wiki/llm-wiki/SKILL.md` MCP Contract updated accordingly
+- `wiki-query` / `wiki-ingest` / `wiki-update` prefer `context` assembly (and vocabulary consult/upsert) over hand-rolled search ladders
+- Skills install set is 10 folders (adds `wiki-context`); install verification requires `context` mentions in `llm-wiki` and `wiki-context`
 
 ## [2.11.4] - 2026-07-13
 

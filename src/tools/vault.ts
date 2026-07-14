@@ -8,6 +8,7 @@ import { touchWikiMetaHandler } from './touch-wiki-meta.js';
 import { operationHistoryHandler } from './operation-history.js';
 import { undoOperationHandler } from './undo-operation.js';
 import { manageManifestHandler } from './manage-manifest.js';
+import { manageVocabularyHandler } from './manage-vocabulary.js';
 import { vaultDeslopHandler, vaultSlopCheckHandler } from './vault-slop.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
 import { MAX_LOG_LINE_LENGTH } from '../lib/limits.js';
@@ -17,7 +18,7 @@ export function registerVault(server: McpServer, config: Config): void {
     'vault',
     {
       description:
-        'Vault maintenance. action=health: structured report (orphans, broken links, index drift, stale pages). action=sync_index: regenerate index.md from frontmatter. action=slop_check: read-only LLM-slop report (body + frontmatter). action=deslop: journaled char/emoji auto-fix (confirm: true; dryRun preview). action=create_folder/list_folders/delete_folder: folder ops (delete requires confirm, empty folders only). action=log: append to log.md and optionally hot.md (wiki bookkeeping). action=history: list journaled operations. action=undo: reverse a journaled operation (requires confirm: true). action=manifest: typed read/upsert/remove for _meta/manifest.md ingest ledger.',
+        'Vault maintenance. action=health: structured report (orphans, broken links, index drift, stale pages). action=sync_index: regenerate index.md from frontmatter. action=slop_check: read-only LLM-slop report (body + frontmatter). action=deslop: journaled char/emoji auto-fix (confirm: true; dryRun preview). action=create_folder/list_folders/delete_folder: folder ops (delete requires confirm, empty folders only). action=log: append to log.md and optionally hot.md (wiki bookkeeping). action=history: list journaled operations. action=undo: reverse a journaled operation (requires confirm: true). action=manifest: typed read/upsert/remove for _meta/manifest.md ingest ledger. action=vocabulary: typed read/upsert/remove for _meta/vocabulary.md domain synonyms and pairings, used by search query expansion.',
       inputSchema: {
         action: z
           .enum([
@@ -32,6 +33,7 @@ export function registerVault(server: McpServer, config: Config): void {
             'history',
             'undo',
             'manifest',
+            'vocabulary',
           ])
           .describe('Selects a vault maintenance action'),
         manifestOperation: z
@@ -47,11 +49,21 @@ export function registerVault(server: McpServer, config: Config): void {
         projectLastCommit: z.string().optional().describe('Used by manifest upsert_project only'),
         projectSynced: z.string().optional().describe('Used by manifest upsert_project only'),
         removeKind: z
-          .enum(['source', 'project'])
+          .enum(['source', 'project', 'synonym', 'pairing'])
           .optional()
-          .describe('Used by manifest remove only'),
-        removeKey: z.string().optional().describe('Used by manifest remove only'),
+          .describe('Used by manifest remove and vocabulary remove'),
+        removeKey: z.string().optional().describe('Used by manifest remove and vocabulary remove'),
         expectedRevision: z.string().optional().describe('Used by manifest mutations only'),
+        vocabularyOperation: z
+          .enum(['read', 'upsert', 'remove'])
+          .optional()
+          .describe('Used by vocabulary action only'),
+        synonymGroup: z
+          .array(z.string())
+          .optional()
+          .describe('Used by vocabulary upsert only - 2+ interchangeable words/phrases'),
+        pairingKey: z.string().optional().describe('Used by vocabulary upsert only'),
+        pairingValues: z.array(z.string()).optional().describe('Used by vocabulary upsert only'),
         path: z.string().optional().describe('Used by create_folder, list_folders, and delete_folder actions'),
         staleDays: z
           .number()
@@ -127,6 +139,17 @@ export function registerVault(server: McpServer, config: Config): void {
           required: ['manifestOperation', 'removeKind', 'removeKey'],
         },
       };
+      const vocabularySpecs: Record<string, { allowed: string[]; required?: string[] }> = {
+        read: { allowed: ['vocabularyOperation'] },
+        upsert: {
+          allowed: ['vocabularyOperation', 'synonymGroup', 'pairingKey', 'pairingValues'],
+          required: ['vocabularyOperation'],
+        },
+        remove: {
+          allowed: ['vocabularyOperation', 'removeKind', 'removeKey'],
+          required: ['vocabularyOperation', 'removeKind', 'removeKey'],
+        },
+      };
 
       if (args.action === 'manifest') {
         if (!args.manifestOperation) {
@@ -161,6 +184,40 @@ export function registerVault(server: McpServer, config: Config): void {
         });
         if (manifestValidation) {
           return manifestValidation;
+        }
+      } else if (args.action === 'vocabulary') {
+        if (!args.vocabularyOperation) {
+          return invalidArgsError({
+            tool: 'vault',
+            action: 'vocabulary',
+            message: 'vocabulary requires vocabularyOperation',
+            required: ['vocabularyOperation'],
+            missing: ['vocabularyOperation'],
+            rejected: [],
+            arguments: { action: 'vocabulary', vocabularyOperation: 'read' },
+          });
+        }
+        const vocabularySpec = vocabularySpecs[args.vocabularyOperation];
+        if (!vocabularySpec) {
+          return invalidArgsError({
+            tool: 'vault',
+            action: 'vocabulary',
+            message: `Unknown vocabularyOperation: ${args.vocabularyOperation}`,
+            required: ['vocabularyOperation'],
+            missing: [],
+            rejected: ['vocabularyOperation'],
+            arguments: { action: 'vocabulary', vocabularyOperation: 'read' },
+          });
+        }
+        const vocabularyValidation = validateActionArguments({
+          tool: 'vault',
+          action: 'vocabulary',
+          args,
+          allowed: vocabularySpec.allowed,
+          required: vocabularySpec.required,
+        });
+        if (vocabularyValidation) {
+          return vocabularyValidation;
         }
       } else {
         const spec = specs[args.action];
@@ -202,6 +259,10 @@ export function registerVault(server: McpServer, config: Config): void {
         removeKind,
         removeKey,
         expectedRevision,
+        vocabularyOperation,
+        synonymGroup,
+        pairingKey,
+        pairingValues,
       } = args;
 
       switch (action) {
@@ -268,7 +329,18 @@ export function registerVault(server: McpServer, config: Config): void {
             projectCwd,
             projectLastCommit,
             projectSynced,
-            removeKind,
+            removeKind:
+              removeKind === 'source' || removeKind === 'project' ? removeKind : undefined,
+            removeKey,
+          });
+        case 'vocabulary':
+          return manageVocabularyHandler(config)({
+            vocabularyOperation: vocabularyOperation as 'read' | 'upsert' | 'remove',
+            synonymGroup,
+            pairingKey,
+            pairingValues,
+            removeKind:
+              removeKind === 'synonym' || removeKind === 'pairing' ? removeKind : undefined,
             removeKey,
           });
         default:

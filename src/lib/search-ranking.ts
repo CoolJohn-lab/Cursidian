@@ -27,12 +27,116 @@ export interface RankedSearchHit extends SearchCandidate {
   titleDensity?: number;
 }
 
+export interface RankOptions {
+  /**
+   * Vocabulary-expanded tokens (lowercased) not present in the literal query -
+   * see `expandQueryTokens` in `vocabulary.ts`. Scored at a reduced multiplier so a
+   * literal match always outranks a page that only matches via expansion.
+   */
+  expandedTokens?: Set<string>;
+}
+
 interface RankContext {
   query: string;
   tokens: string[];
   caseSensitive: boolean;
   index: VaultIndex;
+  expandedTokens?: Set<string>;
 }
+
+/**
+ * Named, tunable scoring weights for `scoreSearchCandidate`. Grouped here instead of
+ * inlined so the ranking model can be read, adjusted, and tested as one surface.
+ * Values are additive score contributions unless the name says otherwise
+ * (multiplier/cap/threshold/days).
+ */
+export interface RankWeights {
+  titleExact: number;
+  aliasExact: number;
+  aliasTokenPerHit: number;
+  titleAllTokens: number;
+  titleWordMatch: number;
+  titleTokenPerHit: number;
+  pathAllTokens: number;
+  pathTokenPerHit: number;
+  compoundBasenamePerHit: number;
+  compoundBasenameAllBonus: number;
+  basenameTokenHit: number;
+  basenamePrimaryBonus: number;
+  stemAffinityPerHit: number;
+  /** Multiplier applied to title-token density (0-1) for the specificity bonus. */
+  titleSpecificityMultiplier: number;
+  surfaceTokenPerHit: number;
+  surfaceAllTokensBonus: number;
+  tagsBase: number;
+  tagsPerHit: number;
+  summaryMatchAll: number;
+  summaryTokenPerHit: number;
+  tagsAllTokensNoSummary: number;
+  indexSummaryMatch: number;
+  headingPerHit: number;
+  headingHitCap: number;
+  bodySnippetCapTitleAll: number;
+  bodySnippetCapTitlePartial: number;
+  bodySnippetCapDefault: number;
+  proximityClose: number;
+  proximityMedium: number;
+  proximityFar: number;
+  operationalPenalty: number;
+  snippetDensityPenaltyCap: number;
+  hubDilutionPenaltyCap: number;
+  /** Base per-hit contribution for a vocabulary-expanded (non-literal) token match. */
+  expandedTokenBase: number;
+  /** Multiplier applied to `expandedTokenBase` - keeps expansion hits below literal hits. */
+  expandedTokenMultiplier: number;
+  /** Mild boost for `lifecycle: verified` pages. */
+  verifiedBoost: number;
+  /** Mild penalty for pages not updated within `staleDaysDefault` days. */
+  stalePenalty: number;
+  /** Days since `updated` after which the stale penalty applies. */
+  staleDaysDefault: number;
+}
+
+export const RANK_WEIGHTS: RankWeights = {
+  titleExact: 120,
+  aliasExact: 100,
+  aliasTokenPerHit: 30,
+  titleAllTokens: 110,
+  titleWordMatch: 95,
+  titleTokenPerHit: 35,
+  pathAllTokens: 70,
+  pathTokenPerHit: 30,
+  compoundBasenamePerHit: 28,
+  compoundBasenameAllBonus: 40,
+  basenameTokenHit: 25,
+  basenamePrimaryBonus: 45,
+  stemAffinityPerHit: 35,
+  titleSpecificityMultiplier: 50,
+  surfaceTokenPerHit: 22,
+  surfaceAllTokensBonus: 35,
+  tagsBase: 15,
+  tagsPerHit: 5,
+  summaryMatchAll: 35,
+  summaryTokenPerHit: 18,
+  tagsAllTokensNoSummary: 28,
+  indexSummaryMatch: 12,
+  headingPerHit: 10,
+  headingHitCap: 30,
+  bodySnippetCapTitleAll: 12,
+  bodySnippetCapTitlePartial: 8,
+  bodySnippetCapDefault: 4,
+  proximityClose: 40,
+  proximityMedium: 24,
+  proximityFar: 12,
+  operationalPenalty: 40,
+  snippetDensityPenaltyCap: 25,
+  hubDilutionPenaltyCap: 30,
+  expandedTokenBase: 30,
+  expandedTokenMultiplier: 0.45,
+  verifiedBoost: 8,
+  stalePenalty: 6,
+  staleDaysDefault: 90,
+};
 
 /**
  * Returns the basename segment or substring that matched a query token.
@@ -216,15 +320,82 @@ function phraseProximityScore(content: string, tokens: string[], caseSensitive: 
 
   const span = Math.max(...positions) - Math.min(...positions);
   if (span <= 40) {
-    return 40;
+    return RANK_WEIGHTS.proximityClose;
   }
   if (span <= 120) {
-    return 24;
+    return RANK_WEIGHTS.proximityMedium;
   }
   if (span <= 400) {
-    return 12;
+    return RANK_WEIGHTS.proximityFar;
   }
   return 0;
+}
+
+/**
+ * Scores vocabulary-expanded token hits (title/basename/tags/summary/aliases/body)
+ * at a reduced multiplier so literal matches always outrank expansion-only matches.
+ * Skips any expanded token that coincides with a literal query token (already scored).
+ */
+function scoreExpandedTokens(
+  expandedTokens: Set<string> | undefined,
+  literalTokens: string[],
+  surfaceText: string,
+  content: string,
+  caseSensitive: boolean,
+): { score: number; reasons: string[] } {
+  if (!expandedTokens || expandedTokens.size === 0) {
+    return { score: 0, reasons: [] };
+  }
+
+  const literalSet = new Set(literalTokens.map((t) => normaliseKey(t)));
+  const reasons: string[] = [];
+  let score = 0;
+  const perHit = Math.round(RANK_WEIGHTS.expandedTokenBase * RANK_WEIGHTS.expandedTokenMultiplier);
+
+  for (const expandedToken of expandedTokens) {
+    const tok = normaliseKey(expandedToken);
+    if (!tok || literalSet.has(tok)) {
+      continue;
+    }
+    const surfaceHit = tokenMatchesInText(expandedToken, surfaceText, false);
+    const bodyHit = !surfaceHit && tokenMatchesInText(expandedToken, content, caseSensitive);
+    if (surfaceHit || bodyHit) {
+      score += perHit;
+      reasons.push(`vocab-expand:${tok}`);
+    }
+  }
+
+  return { score, reasons };
+}
+
+/**
+ * Mild freshness adjustment: small boost for `lifecycle: verified`, small penalty
+ * when `updated` is older than `staleDaysDefault` days. Deliberately kept small so
+ * relevance signals still dominate ranking order.
+ */
+function scoreFreshness(data: Record<string, unknown>): { score: number; reasons: string[] } {
+  const reasons: string[] = [];
+  let score = 0;
+
+  const lifecycle = typeof data.lifecycle === 'string' ? data.lifecycle : undefined;
+  if (lifecycle === 'verified') {
+    score += RANK_WEIGHTS.verifiedBoost;
+    reasons.push('freshness-verified');
+  }
+
+  const updated = typeof data.updated === 'string' ? data.updated : undefined;
+  if (updated) {
+    const parsed = new Date(updated);
+    if (!Number.isNaN(parsed.getTime())) {
+      const staleDays = Math.floor((Date.now() - parsed.getTime()) / (24 * 60 * 60 * 1000));
+      if (staleDays > RANK_WEIGHTS.staleDaysDefault) {
+        score -= RANK_WEIGHTS.stalePenalty;
+        reasons.push('freshness-stale');
+      }
+    }
+  }
+
+  return { score, reasons };
 }
 
 /**
@@ -249,7 +420,7 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
   const pathNorm = normaliseKey(candidate.path);
 
   if (titleNorm === queryNorm || basenameNorm === queryNorm || pathNorm.endsWith(`/${queryNorm}`)) {
-    score += 120;
+    score += RANK_WEIGHTS.titleExact;
     reasons.push('title-exact');
   }
 
@@ -257,7 +428,7 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
 
   const aliasesNorm = aliases.map((a) => normaliseKey(a));
   if (aliasesNorm.includes(queryNorm)) {
-    score += 100;
+    score += RANK_WEIGHTS.aliasExact;
     reasons.push('alias-exact');
   }
 
@@ -269,7 +440,7 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     }
   }
   if (aliasTokenHits > 0) {
-    score += aliasTokenHits * 30;
+    score += aliasTokenHits * RANK_WEIGHTS.aliasTokenPerHit;
     reasons.push(`alias-tokens:${aliasTokenHits}`);
   }
 
@@ -295,30 +466,30 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
   }
 
   if (titleTokenHits === semanticTokens.length && titleTokenHits > 0) {
-    score += 110;
+    score += RANK_WEIGHTS.titleAllTokens;
     reasons.push('title-all-tokens');
   } else if (titleWordHits === semanticTokens.length && titleWordHits > 0) {
-    score += 95;
+    score += RANK_WEIGHTS.titleWordMatch;
     reasons.push('title-word-match');
   } else if (titleTokenHits > 0) {
-    score += titleTokenHits * 35;
+    score += titleTokenHits * RANK_WEIGHTS.titleTokenPerHit;
     reasons.push(`title-tokens:${titleTokenHits}`);
   }
 
   if (pathTokenHits === semanticTokens.length && pathTokenHits > 0) {
-    score += 70;
+    score += RANK_WEIGHTS.pathAllTokens;
     reasons.push('path-all-tokens');
   } else if (pathTokenHits > 0) {
-    score += pathTokenHits * 30;
+    score += pathTokenHits * RANK_WEIGHTS.pathTokenPerHit;
     reasons.push(`path-tokens:${pathTokenHits}`);
   }
 
   // Compound basename: reward pages whose hyphenated name covers distinct query tokens.
   const compoundHits = compoundBasenameCoverage(basename, context.tokens);
   if (compoundHits > 0) {
-    score += compoundHits * 28;
+    score += compoundHits * RANK_WEIGHTS.compoundBasenamePerHit;
     if (compoundHits === semanticTokens.length && semanticTokens.length >= 2) {
-      score += 40;
+      score += RANK_WEIGHTS.compoundBasenameAllBonus;
       reasons.push('compound-basename-all');
     } else {
       reasons.push(`compound-basename:${compoundHits}`);
@@ -342,13 +513,13 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     if (!basenameHit) {
       continue;
     }
-    score += 25;
+    score += RANK_WEIGHTS.basenameTokenHit;
     reasons.push(`basename:${basenameMatchLabel(primary, basenameNorm, segments)}`);
     const primarySegmentHit = segments.some(
       (seg) => seg === primary || (primary.length >= 5 && seg.startsWith(primary)),
     );
     if (primarySegmentHit) {
-      score += 45;
+      score += RANK_WEIGHTS.basenamePrimaryBonus;
       reasons.push('basename-primary');
     }
     break;
@@ -372,14 +543,14 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     }
   }
   if (stemHits > 0) {
-    score += stemHits * 35;
+    score += stemHits * RANK_WEIGHTS.stemAffinityPerHit;
     reasons.push(`stem-affinity:${stemHits}`);
   }
 
   // Title specificity: high matched-token density favours focused titles over broad hubs.
   const { density: titleDensity, wordCount: titleWordCount } = titleTokenDensity(title, semanticTokens);
   if (titleDensity > 0 && titleWordCount > 0) {
-    const specificityBonus = Math.round(titleDensity * 50);
+    const specificityBonus = Math.round(titleDensity * RANK_WEIGHTS.titleSpecificityMultiplier);
     score += specificityBonus;
     reasons.push(`title-specificity:${titleDensity.toFixed(2)}`);
   }
@@ -393,9 +564,9 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     }
   }
   if (surfaceHits > 0 && semanticTokens.length >= 2) {
-    score += surfaceHits * 22;
+    score += surfaceHits * RANK_WEIGHTS.surfaceTokenPerHit;
     if (surfaceHits === semanticTokens.length) {
-      score += 35;
+      score += RANK_WEIGHTS.surfaceAllTokensBonus;
       reasons.push('surface-all-tokens');
     } else {
       reasons.push(`surface-tokens:${surfaceHits}`);
@@ -412,12 +583,12 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     }),
   );
   if (matchedTags.length > 0) {
-    score += 15 + matchedTags.length * 5;
+    score += RANK_WEIGHTS.tagsBase + matchedTags.length * RANK_WEIGHTS.tagsPerHit;
     reasons.push(`tags:${matchedTags.slice(0, 3).join(',')}`);
   }
 
   if (summary && allTokensPresent(summary, context.tokens, context.caseSensitive)) {
-    score += 35;
+    score += RANK_WEIGHTS.summaryMatchAll;
     reasons.push('summary-match');
   } else if (summary) {
     let summaryHits = 0;
@@ -427,11 +598,11 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
       }
     }
     if (summaryHits > 0) {
-      score += summaryHits * 18;
+      score += summaryHits * RANK_WEIGHTS.summaryTokenPerHit;
       reasons.push(`summary-tokens:${summaryHits}`);
     }
   } else if (tags.length > 0 && allTokensPresent(tags.join(' '), context.tokens, context.caseSensitive)) {
-    score += 28;
+    score += RANK_WEIGHTS.tagsAllTokensNoSummary;
     reasons.push('tags-all-tokens');
   }
 
@@ -461,25 +632,25 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     titleTokenHits < context.tokens.length &&
     candidate.matchCount > 6
   ) {
-    score -= Math.min(25, candidate.matchCount - 6);
+    score -= Math.min(RANK_WEIGHTS.snippetDensityPenaltyCap, candidate.matchCount - 6);
     reasons.push('snippet-density-penalty');
   }
 
   // Hub dilution: low title/basename focus + many body hits -> mild penalty.
   const focusScore = Math.max(titleDensity, compoundHits / Math.max(context.tokens.length, 1));
   if (!isFocused && focusScore < 0.25 && candidate.matchCount > 8 && context.tokens.length >= 2) {
-    score -= Math.min(30, candidate.matchCount - 8);
+    score -= Math.min(RANK_WEIGHTS.hubDilutionPenaltyCap, candidate.matchCount - 8);
     reasons.push('hub-dilution');
   }
 
   const indexEntry = context.index.get(pathNorm) ?? context.index.get(basenameNorm);
   if (indexEntry?.summary && allTokensPresent(indexEntry.summary, context.tokens, context.caseSensitive)) {
-    score += 12;
+    score += RANK_WEIGHTS.indexSummaryMatch;
     reasons.push('index-summary');
   }
 
   if (headingHits > 0) {
-    score += Math.min(headingHits * 10, 30);
+    score += Math.min(headingHits * RANK_WEIGHTS.headingPerHit, RANK_WEIGHTS.headingHitCap);
     reasons.push('heading-match');
   }
 
@@ -489,14 +660,33 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     reasons.push('phrase-proximity');
   }
 
-  const bodyCap = titleTokenHits === context.tokens.length ? 12 : titleTokenHits > 0 ? 8 : 4;
+  const bodyCap =
+    titleTokenHits === context.tokens.length
+      ? RANK_WEIGHTS.bodySnippetCapTitleAll
+      : titleTokenHits > 0
+        ? RANK_WEIGHTS.bodySnippetCapTitlePartial
+        : RANK_WEIGHTS.bodySnippetCapDefault;
   score += Math.min(candidate.matchCount, bodyCap);
   if (candidate.matchCount > 0) {
     reasons.push('body-snippets');
   }
 
+  const expandedResult = scoreExpandedTokens(
+    context.expandedTokens,
+    context.tokens,
+    surfaceText,
+    content,
+    context.caseSensitive,
+  );
+  score += expandedResult.score;
+  reasons.push(...expandedResult.reasons);
+
+  const freshnessResult = scoreFreshness(data);
+  score += freshnessResult.score;
+  reasons.push(...freshnessResult.reasons);
+
   if (OPERATIONAL_BASENAMES.has(basenameNorm) && !reasons.includes('title-exact')) {
-    score -= 40;
+    score -= RANK_WEIGHTS.operationalPenalty;
     reasons.push('operational-penalty');
   }
 
@@ -517,9 +707,16 @@ export function rankSearchResults(
   query: string,
   caseSensitive: boolean,
   index: VaultIndex,
+  options?: RankOptions,
 ): RankedSearchHit[] {
   const tokens = tokeniseQuery(query);
-  const context: RankContext = { query, tokens, caseSensitive, index };
+  const context: RankContext = {
+    query,
+    tokens,
+    caseSensitive,
+    index,
+    expandedTokens: options?.expandedTokens,
+  };
   const ranked = candidates.map((candidate) => scoreSearchCandidate(candidate, context));
 
   return ranked.sort(

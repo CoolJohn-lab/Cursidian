@@ -1,0 +1,920 @@
+{
+  "generatedAt": "2026-07-14T15:18:05.999Z",
+  "topK": 10,
+  "overall": {
+    "n": 46,
+    "ndcg": 0.9281559411828645,
+    "recall": 0.9456521739130435,
+    "mrr": 0.967391304347826
+  },
+  "byIntent": {
+    "connection": {
+      "n": 10,
+      "ndcg": 0.8839441578296373,
+      "recall": 0.9,
+      "mrr": 0.95
+    },
+    "lookup": {
+      "n": 21,
+      "ndcg": 0.9824252263605456,
+      "recall": 1,
+      "mrr": 0.9761904761904762
+    },
+    "onboarding": {
+      "n": 7,
+      "ndcg": 0.8920109923338452,
+      "recall": 0.9285714285714286,
+      "mrr": 0.9285714285714286
+    },
+    "troubleshoot": {
+      "n": 8,
+      "ndcg": 0.872590627025877,
+      "recall": 0.875,
+      "mrr": 1
+    }
+  },
+  "queries": [
+    {
+      "query": "medallion layers",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/medallion-layers.md"
+      ],
+      "rankedTopK": [
+        "concepts/medallion-layers.md",
+        "projects/cdf-platform.md",
+        "concepts/orchestration-and-scheduling.md",
+        "concepts/worker-data-mart.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "_meta/taxonomy.md",
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "bronze silver gold layers",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/medallion-layers.md"
+      ],
+      "rankedTopK": [
+        "concepts/medallion-layers.md",
+        "concepts/orchestration-and-scheduling.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "projects/cdf-platform.md",
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "worker data mart",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/worker-data-mart.md"
+      ],
+      "rankedTopK": [
+        "concepts/worker-data-mart.md",
+        "entities/worker-dimension.md",
+        "entities/fact-person-forecast-history.md",
+        "projects/cdf-platform.md",
+        "entities/fact-public-holiday.md",
+        "entities/bighand.md",
+        "concepts/medallion-layers.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "WDM",
+      "intent": "lookup",
+      "budget": 2000,
+      "relevantPaths": [
+        "concepts/worker-data-mart.md"
+      ],
+      "rankedTopK": [
+        "concepts/worker-data-mart.md",
+        "projects/cdf-platform.md",
+        "entities/fact-person-forecast-history.md",
+        "entities/worker-dimension.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "contract generation",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/contract-generation.md"
+      ],
+      "rankedTopK": [
+        "concepts/contract-generation.md",
+        "skills/contract-schema-review.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/schema-drift-and-versioning.md",
+        "projects/cdf-platform.md",
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/ingestion-vs-egress.md",
+        "concepts/medallion-layers.md",
+        "entities/bighand.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "schema contracts",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/contract-generation.md"
+      ],
+      "rankedTopK": [
+        "skills/contract-schema-review.md",
+        "concepts/contract-generation.md",
+        "concepts/schema-drift-and-versioning.md",
+        "skills/troubleshooting-failed-loads.md",
+        "entities/bighand.md",
+        "_meta/taxonomy.md",
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "ndcg": 0.6309297535714575,
+      "recall": 1,
+      "mrr": 0.5
+    },
+    {
+      "query": "ingestion vs egress",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "rankedTopK": [
+        "concepts/ingestion-vs-egress.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/orchestration-and-scheduling.md",
+        "projects/cdf-platform.md",
+        "concepts/contract-generation.md",
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/medallion-layers.md",
+        "entities/bighand.md",
+        "entities/fact-person-forecast-history.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "egress pipelines",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "rankedTopK": [
+        "concepts/ingestion-vs-egress.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/orchestration-and-scheduling.md",
+        "concepts/contract-generation.md",
+        "projects/cdf-platform.md",
+        "concepts/medallion-layers.md",
+        "entities/bighand.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "BigHand",
+      "intent": "lookup",
+      "budget": 2000,
+      "relevantPaths": [
+        "entities/bighand.md"
+      ],
+      "rankedTopK": [
+        "entities/bighand.md",
+        "skills/troubleshooting-failed-loads.md",
+        "_meta/taxonomy.md",
+        "concepts/contract-generation.md",
+        "concepts/ingestion-vs-egress.md",
+        "concepts/orchestration-and-scheduling.md",
+        "concepts/schema-drift-and-versioning.md",
+        "entities/fact-person-forecast-history.md",
+        "entities/fact-public-holiday.md",
+        "projects/cdf-platform.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "BigHand source system",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/bighand.md"
+      ],
+      "rankedTopK": [
+        "entities/bighand.md",
+        "concepts/ingestion-vs-egress.md",
+        "projects/cdf-platform.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "FactPersonForecastHistory",
+      "intent": "lookup",
+      "budget": 2000,
+      "relevantPaths": [
+        "entities/fact-person-forecast-history.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-person-forecast-history.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "person forecast history table",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/fact-person-forecast-history.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-person-forecast-history.md",
+        "entities/fact-public-holiday.md",
+        "concepts/worker-data-mart.md",
+        "entities/worker-dimension.md",
+        "concepts/medallion-layers.md",
+        "projects/cdf-platform.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "worker dimension",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/worker-dimension.md"
+      ],
+      "rankedTopK": [
+        "entities/worker-dimension.md",
+        "concepts/worker-data-mart.md",
+        "entities/fact-person-forecast-history.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "FactPublicHoliday",
+      "intent": "lookup",
+      "budget": 2000,
+      "relevantPaths": [
+        "entities/fact-public-holiday.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-public-holiday.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "public holiday calendar table",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/fact-public-holiday.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-public-holiday.md",
+        "entities/fact-person-forecast-history.md",
+        "concepts/worker-data-mart.md",
+        "concepts/medallion-layers.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "schema drift detection",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/schema-drift-and-versioning.md"
+      ],
+      "rankedTopK": [
+        "concepts/schema-drift-and-versioning.md",
+        "skills/contract-schema-review.md",
+        "concepts/contract-generation.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "orchestration and scheduling",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/orchestration-and-scheduling.md"
+      ],
+      "rankedTopK": [
+        "concepts/orchestration-and-scheduling.md",
+        "skills/troubleshooting-failed-loads.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "main orchestrator",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/orchestration-and-scheduling.md"
+      ],
+      "rankedTopK": [
+        "concepts/orchestration-and-scheduling.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "CDF platform overview",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "projects/cdf-platform.md"
+      ],
+      "rankedTopK": [
+        "projects/cdf-platform.md",
+        "_meta/taxonomy.md",
+        "entities/bighand.md",
+        "concepts/ingestion-vs-egress.md",
+        "concepts/medallion-layers.md",
+        "skills/ingestion-pipeline-authoring.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "taxonomy tags",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "_meta/taxonomy.md"
+      ],
+      "rankedTopK": [
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "how does BigHand relate to FactPersonForecastHistory",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/bighand.md",
+        "entities/fact-person-forecast-history.md"
+      ],
+      "rankedTopK": [
+        "entities/bighand.md",
+        "entities/fact-person-forecast-history.md",
+        "skills/troubleshooting-failed-loads.md",
+        "_meta/taxonomy.md",
+        "concepts/contract-generation.md",
+        "concepts/ingestion-vs-egress.md",
+        "concepts/orchestration-and-scheduling.md",
+        "concepts/schema-drift-and-versioning.md",
+        "entities/fact-public-holiday.md",
+        "projects/cdf-platform.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "relationship between worker dimension and forecast fact table",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/worker-dimension.md",
+        "entities/fact-person-forecast-history.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-person-forecast-history.md",
+        "entities/worker-dimension.md",
+        "concepts/worker-data-mart.md",
+        "entities/fact-public-holiday.md",
+        "projects/cdf-platform.md",
+        "entities/bighand.md",
+        "concepts/medallion-layers.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "how do contracts relate to schema drift",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/contract-generation.md",
+        "concepts/schema-drift-and-versioning.md"
+      ],
+      "rankedTopK": [
+        "concepts/schema-drift-and-versioning.md",
+        "skills/contract-schema-review.md",
+        "concepts/contract-generation.md",
+        "skills/troubleshooting-failed-loads.md",
+        "_meta/taxonomy.md",
+        "entities/bighand.md"
+      ],
+      "ndcg": 0.9197207891481876,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "medallion layers and worker data mart connection",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/medallion-layers.md",
+        "concepts/worker-data-mart.md"
+      ],
+      "rankedTopK": [
+        "concepts/worker-data-mart.md",
+        "concepts/medallion-layers.md",
+        "entities/worker-dimension.md",
+        "projects/cdf-platform.md",
+        "entities/fact-person-forecast-history.md",
+        "entities/fact-public-holiday.md",
+        "entities/bighand.md",
+        "concepts/ingestion-vs-egress.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "ingestion egress and orchestration relationship",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/ingestion-vs-egress.md",
+        "concepts/orchestration-and-scheduling.md"
+      ],
+      "rankedTopK": [
+        "concepts/ingestion-vs-egress.md",
+        "concepts/orchestration-and-scheduling.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "skills/troubleshooting-failed-loads.md",
+        "projects/cdf-platform.md",
+        "concepts/contract-generation.md",
+        "concepts/medallion-layers.md",
+        "entities/bighand.md",
+        "_meta/taxonomy.md",
+        "concepts/schema-drift-and-versioning.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "FactPublicHoliday and forecast utilisation",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/fact-public-holiday.md",
+        "entities/fact-person-forecast-history.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-public-holiday.md",
+        "concepts/worker-data-mart.md"
+      ],
+      "ndcg": 0.6131471927654584,
+      "recall": 0.5,
+      "mrr": 1
+    },
+    {
+      "query": "BigHand and schema drift",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/bighand.md",
+        "concepts/schema-drift-and-versioning.md"
+      ],
+      "rankedTopK": [
+        "concepts/schema-drift-and-versioning.md",
+        "entities/bighand.md",
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/contract-generation.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "CDF platform and worker data mart",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "projects/cdf-platform.md",
+        "concepts/worker-data-mart.md"
+      ],
+      "rankedTopK": [
+        "projects/cdf-platform.md",
+        "entities/bighand.md",
+        "concepts/medallion-layers.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 0.6131471927654584,
+      "recall": 0.5,
+      "mrr": 1
+    },
+    {
+      "query": "gold layer fact tables",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/medallion-layers.md",
+        "entities/fact-person-forecast-history.md",
+        "entities/fact-public-holiday.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-person-forecast-history.md",
+        "entities/fact-public-holiday.md",
+        "concepts/medallion-layers.md",
+        "concepts/worker-data-mart.md",
+        "projects/cdf-platform.md",
+        "entities/worker-dimension.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "contract generation and ingestion pipelines",
+      "intent": "connection",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/contract-generation.md",
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "rankedTopK": [
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/contract-generation.md",
+        "concepts/ingestion-vs-egress.md",
+        "concepts/orchestration-and-scheduling.md",
+        "projects/cdf-platform.md",
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/schema-drift-and-versioning.md",
+        "concepts/medallion-layers.md",
+        "entities/bighand.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 0.6934264036172708,
+      "recall": 1,
+      "mrr": 0.5
+    },
+    {
+      "query": "how to author a new ingestion pipeline",
+      "intent": "onboarding",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/ingestion-pipeline-authoring.md"
+      ],
+      "rankedTopK": [
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/ingestion-vs-egress.md",
+        "concepts/orchestration-and-scheduling.md",
+        "projects/cdf-platform.md",
+        "concepts/contract-generation.md",
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/medallion-layers.md",
+        "entities/bighand.md",
+        "_meta/taxonomy.md",
+        "concepts/schema-drift-and-versioning.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "onboarding a new source feed",
+      "intent": "onboarding",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/ingestion-pipeline-authoring.md"
+      ],
+      "rankedTopK": [
+        "entities/bighand.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "projects/cdf-platform.md",
+        "concepts/contract-generation.md",
+        "concepts/schema-drift-and-versioning.md",
+        "skills/contract-schema-review.md",
+        "concepts/orchestration-and-scheduling.md",
+        "entities/fact-public-holiday.md",
+        "skills/troubleshooting-failed-loads.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 0.6309297535714575,
+      "recall": 1,
+      "mrr": 0.5
+    },
+    {
+      "query": "how to review a schema contract",
+      "intent": "onboarding",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/contract-schema-review.md"
+      ],
+      "rankedTopK": [
+        "skills/contract-schema-review.md",
+        "concepts/contract-generation.md",
+        "concepts/schema-drift-and-versioning.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "registering a pipeline with the orchestrator",
+      "intent": "onboarding",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/orchestration-and-scheduling.md"
+      ],
+      "rankedTopK": [
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/orchestration-and-scheduling.md",
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "getting started with the CDF platform",
+      "intent": "onboarding",
+      "budget": 4000,
+      "relevantPaths": [
+        "projects/cdf-platform.md"
+      ],
+      "rankedTopK": [
+        "projects/cdf-platform.md",
+        "_meta/taxonomy.md",
+        "entities/bighand.md",
+        "concepts/ingestion-vs-egress.md",
+        "concepts/medallion-layers.md",
+        "skills/ingestion-pipeline-authoring.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "where do new pipelines land data first",
+      "intent": "onboarding",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/medallion-layers.md",
+        "skills/ingestion-pipeline-authoring.md"
+      ],
+      "rankedTopK": [
+        "skills/ingestion-pipeline-authoring.md",
+        "projects/cdf-platform.md",
+        "concepts/contract-generation.md",
+        "entities/bighand.md"
+      ],
+      "ndcg": 0.6131471927654584,
+      "recall": 0.5,
+      "mrr": 1
+    },
+    {
+      "query": "contract review before promotion to silver",
+      "intent": "onboarding",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/contract-schema-review.md"
+      ],
+      "rankedTopK": [
+        "skills/contract-schema-review.md",
+        "concepts/contract-generation.md",
+        "concepts/medallion-layers.md",
+        "concepts/schema-drift-and-versioning.md",
+        "projects/cdf-platform.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "troubleshooting failed loads",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/troubleshooting-failed-loads.md"
+      ],
+      "rankedTopK": [
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/orchestration-and-scheduling.md",
+        "concepts/schema-drift-and-versioning.md",
+        "concepts/contract-generation.md",
+        "entities/fact-public-holiday.md",
+        "entities/bighand.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "BigHand feed failure",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/bighand.md",
+        "skills/troubleshooting-failed-loads.md"
+      ],
+      "rankedTopK": [
+        "entities/bighand.md",
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/contract-generation.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "contract validation error on load",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/contract-generation.md"
+      ],
+      "rankedTopK": [
+        "concepts/contract-generation.md",
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/schema-drift-and-versioning.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "entities/bighand.md",
+        "concepts/medallion-layers.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "orchestrator retry exhausted",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/orchestration-and-scheduling.md"
+      ],
+      "rankedTopK": [
+        "concepts/orchestration-and-scheduling.md",
+        "skills/troubleshooting-failed-loads.md",
+        "skills/ingestion-pipeline-authoring.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "inflated utilisation figures missing holiday",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/fact-public-holiday.md",
+        "skills/troubleshooting-failed-loads.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-public-holiday.md"
+      ],
+      "ndcg": 0.6131471927654584,
+      "recall": 0.5,
+      "mrr": 1
+    },
+    {
+      "query": "unresolved schema drift alert",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/schema-drift-and-versioning.md",
+        "skills/troubleshooting-failed-loads.md"
+      ],
+      "rankedTopK": [
+        "concepts/schema-drift-and-versioning.md",
+        "skills/contract-schema-review.md",
+        "concepts/contract-generation.md",
+        "skills/troubleshooting-failed-loads.md",
+        "_meta/taxonomy.md",
+        "entities/bighand.md"
+      ],
+      "ndcg": 0.8772153153380493,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "escalating a breaking contract change",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/contract-schema-review.md",
+        "skills/troubleshooting-failed-loads.md"
+      ],
+      "rankedTopK": [
+        "skills/contract-schema-review.md",
+        "concepts/contract-generation.md",
+        "concepts/schema-drift-and-versioning.md",
+        "skills/troubleshooting-failed-loads.md",
+        "entities/bighand.md",
+        "concepts/medallion-layers.md"
+      ],
+      "ndcg": 0.8772153153380493,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "forecast fact table not refreshing",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "relevantPaths": [
+        "entities/fact-person-forecast-history.md",
+        "skills/troubleshooting-failed-loads.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-person-forecast-history.md",
+        "entities/fact-public-holiday.md",
+        "concepts/worker-data-mart.md",
+        "entities/worker-dimension.md",
+        "_meta/taxonomy.md",
+        "concepts/ingestion-vs-egress.md",
+        "concepts/medallion-layers.md",
+        "entities/bighand.md",
+        "projects/cdf-platform.md"
+      ],
+      "ndcg": 0.6131471927654584,
+      "recall": 0.5,
+      "mrr": 1
+    },
+    {
+      "query": "integration",
+      "intent": "lookup",
+      "budget": 4000,
+      "relevantPaths": [
+        "concepts/ingestion-vs-egress.md"
+      ],
+      "rankedTopK": [
+        "concepts/ingestion-vs-egress.md",
+        "concepts/orchestration-and-scheduling.md",
+        "projects/cdf-platform.md",
+        "skills/ingestion-pipeline-authoring.md",
+        "concepts/contract-generation.md",
+        "concepts/medallion-layers.md",
+        "entities/bighand.md",
+        "_meta/taxonomy.md",
+        "entities/fact-person-forecast-history.md",
+        "skills/troubleshooting-failed-loads.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    }
+  ]
+}

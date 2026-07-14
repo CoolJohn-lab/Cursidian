@@ -16,6 +16,7 @@ import {
 } from '../lib/search-tokens.js';
 import { rankSearchResults, type SearchCandidate } from '../lib/search-ranking.js';
 import { correctTokensAgainstVocabulary } from '../lib/edit-distance.js';
+import { loadVocabulary, expandQueryTokens } from '../lib/vocabulary.js';
 import { isOperationalPath } from '../lib/operational-paths.js';
 import { uniqueIndexEntries } from '../lib/tags.js';
 import { MAX_QUERY_LENGTH } from '../lib/limits.js';
@@ -355,8 +356,43 @@ export function searchContentHandler(config: Config) {
           }
         }
 
+        // Vocabulary expansion: OR-extra candidate discovery so a synonym/pairing (e.g.
+        // "integration" -> "ingestion") finds pages the literal query would miss, without
+        // weakening the literal AND/OR result set already computed above. Ranking scores
+        // expansion-only hits at a reduced weight (see RANK_WEIGHTS.expandedTokenMultiplier).
+        let expandedTokens: Set<string> | undefined;
+        const vocabulary = await loadVocabulary(config.vaultPath, config.maxFileSize);
+        const expansion = expandQueryTokens(tokens, vocabulary);
+        if (expansion.expandedFrom.size > 0) {
+          const expansionTokens = [...expansion.expandedFrom.keys()];
+          const expansionCandidates = collectCandidates(
+            vaultFiles,
+            expansionTokens,
+            effectiveCaseSensitive,
+            tagFilter,
+            'or',
+            1,
+            effectiveIncludeOperational,
+            effectiveVerbose,
+            index,
+          );
+          if (expansionCandidates.length > 0) {
+            const existingPaths = new Set(candidates.map((c) => normaliseKey(c.path)));
+            for (const candidate of expansionCandidates) {
+              const key = normaliseKey(candidate.path);
+              if (!existingPaths.has(key)) {
+                candidates.push(candidate);
+                existingPaths.add(key);
+              }
+            }
+            expandedTokens = new Set(expansionTokens.map((t) => t.toLowerCase()));
+          }
+        }
+
         const rankingQuery = tokens.join(' ');
-        const ranked = rankSearchResults(candidates, rankingQuery, effectiveCaseSensitive, index);
+        const ranked = rankSearchResults(candidates, rankingQuery, effectiveCaseSensitive, index, {
+          expandedTokens,
+        });
         const allResults = mapSearchResults(ranked, index, effectiveVerbose, effectiveFormat);
 
         basePayload = {

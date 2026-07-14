@@ -11,7 +11,7 @@ const CHAINS = path.join(REPO_ROOT, 'docs/validation/corpus/search-read-chains.j
 const OUT = path.join(REPO_ROOT, 'docs/validation/corpus/replay-set.json');
 
 /**
- * Builds deduplicated replay matrix from search→read chains and standalone searches.
+ * Builds deduplicated replay matrix from search->read chains and standalone searches.
  */
 async function main() {
   const corpus = (await fs.readFile(CORPUS, 'utf-8'))

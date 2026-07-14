@@ -17,7 +17,7 @@ Keep `operationStack: string[]` for every successful write's `operationId`. On f
 ## Preflight (no writes)
 
 1. **Collect source directories from the user** before creating anything. Absolute paths only. These go into `_meta/manifest.md` `source_dirs`. If the user is unsure, ask once; do not invent paths.
-2. `search` action `list` with `recursive: true`, `includeOperational: true`. Follow `nextCursor` while `truncated`. Note which special files already exist (`index.md`, `log.md`, `hot.md`, `_meta/manifest.md`, `_meta/taxonomy.md`).
+2. `search` action `list` with `recursive: true`, `includeOperational: true`. Follow `nextCursor` while `truncated`. Note which special files already exist (`index.md`, `log.md`, `hot.md`, `_meta/manifest.md`, `_meta/taxonomy.md`, `_meta/vocabulary.md`).
 3. `vault` action `list_folders` (and nested as needed) to see which category / `_meta` / `_raw` / `_archives` / `projects` folders already exist.
 4. Build a create-only-missing plan. If `index.md` and the category folders already exist, this is a repair - say so.
 
@@ -43,6 +43,8 @@ Push every returned `operationId` onto `operationStack`.
 **`_meta/manifest.md`** - if missing, `note` `create` with frontmatter `title: Wiki Manifest` and `source_dirs:` set to the directories-collected absolute paths; body with empty `## Sources` and `## Projects` sections (schema in `llm-wiki`). Later ingest/update mutations use `vault` `manifest` upserts, which preserve `source_dirs`. Confirm with `vault` `manifest` `read` afterward.
 
 **`_meta/taxonomy.md`** - starter tag vocabulary; a few grouped tags the user cares about. Skills consult this before inventing new tags.
+
+**`_meta/vocabulary.md`** - empty scaffold for domain synonyms/pairings (search query expansion). Create via `note` `create` with frontmatter `title: Wiki Vocabulary`, `synonyms: []`, `pairings: {}`, and a short body pointing editors at `vault` `vocabulary` upsert/remove. Later mutations use `vault` `vocabulary`, not hand-edits.
 
 ## Verification
 

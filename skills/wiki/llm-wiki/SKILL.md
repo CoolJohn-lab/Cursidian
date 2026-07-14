@@ -17,7 +17,7 @@ You maintain a persistent, compounding knowledge base. The wiki is a **compiled 
 **All vault access goes through the `user-cursidian` MCP server. There is no other path.**
 
 1. **Never** touch vault files with filesystem tools (`Read`, `Write`, `StrReplace`, `Grep`, `Glob`) or shell commands (`cat`, `sed`, `echo >`, `mkdir`, `mv`, `rm`, ...). This covers every file in the vault: pages, `index.md`, `log.md`, `hot.md`, `_meta/`, `_raw/` - everything.
-2. Reads use `search` (actions: `content`, `by_tags`, `list`, `recent`, `tags`), `note` (action: `read`), `graph`, `vault` (actions: `health`, `slop_check`, `history`, `manifest` with `manifestOperation: "read"`, `list_folders`), `context` (actions: `assemble`, `for_task`, `expand` - always read-only). Writes use `note` (actions: `create`, `update`, `delete`, `rename`, `frontmatter`), `vault` (actions: `sync_index`, `deslop`, `create_folder`, `delete_folder`, `log`, `undo`, `manifest` mutations), `context` (action: `feedback` - local telemetry log only, no vault content changes).
+2. Reads use `search` (actions: `content`, `by_tags`, `list`, `recent`, `tags`), `note` (action: `read`), `graph`, `vault` (actions: `health`, `slop_check`, `history`, `manifest` with `manifestOperation: "read"`, `vocabulary` with `vocabularyOperation: "read"`, `list_folders`), `context` (actions: `assemble`, `for_task`, `expand` - always read-only). Writes use `note` (actions: `create`, `update`, `delete`, `rename`, `frontmatter`), `vault` (actions: `sync_index`, `deslop`, `create_folder`, `delete_folder`, `log`, `undo`, `manifest` mutations, `vocabulary` mutations), `context` (action: `feedback` - local telemetry log only, no vault content changes).
 3. Edits follow the safe-write protocol: `note` with `action: "read"` -> note the `revisionHash` (and legacy `contentHash`) -> mutate with `expectedRevision`. Prefer surgical modes for small edits (`patch` > `replace_section` > `append`/`prepend`); for wholesale page rewrites (version sync, multi-section overhaul) use a single `replace` instead of chained `replace_section`. Prefer one combined `note` `update` that carries both body and `frontmatter` (merge). If body and frontmatter must be separate ops, update body first, then `frontmatter` with the post-body `revisionHash` - never both in one parallel batch. Serialize per path: `read` -> immediate write with that `revisionHash` -> use the **response** `revisionHash` for any further write to that path. Never parallel `note` mutations (or read-then-batch-write) for the same path. Prefer `expectedRevision` over deprecated `expectedHash`.
 4. Mutating skills keep an **operation-ID stack**: after every successful write that returns `operationId`, push it. Clear the stack only after final verification succeeds. On failure after any successful write, roll back with `vault` `undo` in reverse order (see Failure handling).
 5. **If an MCP call fails after the recovery rules below are exhausted: stop.** Tell the user which tool was called, with what arguments, what came back (`code`, `sideEffects`, `recovery`, `operationId`s already stacked), and wait. Do not retry with different tools, do not fall back to the filesystem, do not improvise.
@@ -33,7 +33,7 @@ The only files read outside MCP are **source documents that live outside the vau
 | `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | `content`: default `limit: 10`; `format: "compact"` for index-only hits; follow `nextCursor` while `truncated` is true. Operational files (`index`/`log`/`hot`/`_raw`/`_archives`) excluded unless `includeOperational: true`. Stopwords stripped; AND then OR-fallback; typo correction when zero hits (disclose when either fired). `list`/`recent`: same exclusion; `list` fails loud (`not_found`) on a missing folder. `tags`: full tag vocabulary with counts; accepts **no** other arguments (no `limit`/`cursor`). Responses may set `incomplete: true` with `skipped` paths when the scan could not read every file. |
 | `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | `read`: body, frontmatter, `contentHash`, `revisionHash`, `outgoingLinks`. Mutations return `operationId` / `undoAvailable` when journaling is on. Pass `expectedRevision` on `update`, `frontmatter`, `delete`, `rename`, and `create` with `overwrite: true`. `expectedHash` still works as a deprecated alias. `update` modes: `patch`, `replace_section`, `append`, `prepend`, `replace`; optional `frontmatter` merge on the same `update` (one journaled op for body + metadata). Prefer that combined update over separate body then `frontmatter` calls. `rename`: `newPath`; rewrites backlinks under one journaled operation. `delete`: `confirm: true`. |
 | `graph` | - | One-hop neighborhood: resolved outgoing, **unresolved** outgoing, paginated backlinks (`truncated` / `nextCursor`). Skip neighbors whose `resolvedPath` is null. |
-| `vault` | `health`, `sync_index`, `slop_check`, `deslop`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest` | `health`: orphans / broken links / missing frontmatter / summary warnings / index drift / ambiguous keys / stale / skipped (`incomplete`). `sync_index`: rebuild `index.md` (`dryRun: true` for preview). `slop_check`: read-only body+frontmatter LLM-slop report. `deslop`: journaled char/emoji fix (`dryRun` / `confirm: true`); may sync index when summaries change. `log`: append `log.md` + optional `hot.md`. `history`: list journaled ops. `undo`: requires `operationId` + `confirm: true` (optional `force: true`). `manifest`: `manifestOperation` `read` / `upsert_source` / `upsert_project` / `remove` - typed ledger edits; do not hand-edit `_meta/manifest.md` lines. There is no `vocabulary` action yet - domain-synonym expansion is planned but not wired into `vault` or `search`; do not call it and do not tell users to. |
+| `vault` | `health`, `sync_index`, `slop_check`, `deslop`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest`, `vocabulary` | `health`: orphans / broken links / missing frontmatter / summary warnings / index drift / ambiguous keys / stale / skipped (`incomplete`). `sync_index`: rebuild `index.md` (`dryRun: true` for preview). `slop_check`: read-only body+frontmatter LLM-slop report. `deslop`: journaled char/emoji fix (`dryRun` / `confirm: true`); may sync index when summaries change. `log`: append `log.md` + optional `hot.md`. `history`: list journaled ops. `undo`: requires `operationId` + `confirm: true` (optional `force: true`). `manifest`: `manifestOperation` `read` / `upsert_source` / `upsert_project` / `remove` - typed ledger edits; do not hand-edit `_meta/manifest.md` lines. `vocabulary`: `vocabularyOperation` `read` / `upsert` / `remove` - typed edits to `_meta/vocabulary.md` domain synonyms (symmetric groups) and pairings (directional, key -> values); `search` `content` expands query tokens against it, scoring expansion-only hits below literal hits; do not hand-edit `_meta/vocabulary.md` lines. |
 | `context` | `assemble` (default), `for_task`, `expand`, `feedback` | The Context Generation Engine. `assemble`/`for_task`: `query`/`task` + `tokenBudget` (default 4000) + optional `intent` (`lookup`, `connection`, `onboarding`, `troubleshoot`, `ingest-prep`; inferred from phrasing when omitted). Returns a `ContextBundle`: `items` ordered highest-value-first (`kind`: `summary`/`section`/`body`/`neighbor-note`, `score`, `reasons`, `provenance`, `lifecycle`, `updated`, `staleDays`, `tokens`), `coverage` (`includedPaths`/`consideredPaths`/`droppedForBudget`), `warnings` (staleness, heavy-inference, contradictions, incomplete scans), `citations` (`[[wikilinks]]`), `bundleConfidence` (0-1), and `nextCursor`. Never exceeds `tokenBudget`; composes `search`/`graph` internally (read-only, no new write path). `expand`: continue a prior bundle from its `nextCursor` with a fresh `tokenBudget`. `feedback`: record `feedbackQuery` + `feedbackVerdict` (`insufficient`/`off_target`) to a local `.cursidian/context-feedback.jsonl` log (rejected in read-only vaults). |
 
 ### Context bundle (retrieval-ladder-as-cost-model)
@@ -127,6 +127,7 @@ Project-specific knowledge goes under `projects/<name>/<category>/`; general kno
 | `log.md` | Append-only operation log: `- [ISO-timestamp] INGEST source="..." pages_created=N pages_updated=M` |
 | `hot.md` | ~500-word session cache: Recent Activity, Active Threads, Key Takeaways, Flagged Contradictions. Refresh after material changes when the workflow says so. |
 | `_meta/manifest.md` | Ingest ledger - mutate only via `vault` `manifest` |
+| `_meta/vocabulary.md` | Domain synonyms/pairings for search expansion - mutate only via `vault` `vocabulary` |
 
 ### `_meta/manifest.md`
 
@@ -151,6 +152,24 @@ source_dirs:
 ```
 
 Source keys are absolute paths, one canonical form (forward slashes, case-preserved), never mixed with `~`-relative paths. Prefer `vault` `manifest` so Windows path normalization stays consistent.
+
+### `_meta/vocabulary.md`
+
+Domain synonyms and word pairings that widen `search` `content` recall - e.g. a query for "integration" also finding pages that only say "ingestion". A normal markdown note, read via `vault` `vocabulary` (`vocabularyOperation: "read"`) or `note` `read`, and written **only** via `vault` `vocabulary` upsert/remove.
+
+```markdown
+---
+title: Wiki Vocabulary
+synonyms:
+  - [ingestion, ingest, "inbound source"]
+pairings:
+  integration: [ingestion, egress]
+---
+
+# Wiki Vocabulary
+```
+
+`synonyms` groups are symmetric (any member expands to every other member); `pairings` are directional (the key expands to its values, not the reverse). Missing or malformed vocabulary degrades to no expansion - search still works normally. Expansion-only matches are scored below literal matches, so a page containing the literal query term always outranks one found only through expansion.
 
 ## Page Template
 

@@ -275,6 +275,101 @@ describe('assembleContext', () => {
     await expect(expandContext(config, 'not-a-real-cursor', 4000)).rejects.toThrow(InvalidContextCursorError);
   });
 
+  it('boosts manifest-touched pages for the ingest-prep intent', async () => {
+    await writeNote(
+      config.vaultPath,
+      'uniqueingestprepmarker-touched.md',
+      '---\ntitle: UniqueIngestPrepMarker Touched\nsummary: A page the manifest says was touched by ingestion.\n---\n\nBody.',
+    );
+    await writeNote(
+      config.vaultPath,
+      'uniqueingestprepmarker-untouched.md',
+      '---\ntitle: UniqueIngestPrepMarker Untouched\nsummary: A same-topic page the manifest does not mention.\n---\n\nBody.',
+    );
+    await writeNote(
+      config.vaultPath,
+      '_meta/manifest.md',
+      [
+        '---',
+        'title: Ingest Manifest',
+        '---',
+        '',
+        '## Sources',
+        '',
+        '- `/tmp/source.pdf` | ingested: 2026-07-12T16:00:00Z | pages: [[uniqueingestprepmarker-touched]]',
+        '',
+        '## Projects',
+        '',
+      ].join('\n'),
+    );
+    const bundle = await assembleContext(config, {
+      query: 'UniqueIngestPrepMarker',
+      intent: 'ingest-prep',
+      tokenBudget: 4000,
+    });
+    const touched = bundle.items.find((i) => i.path.includes('touched'));
+    expect(touched).toBeDefined();
+    expect(touched!.reasons).toContain('manifest-touched');
+  });
+
+  it('degrades gracefully for ingest-prep when the manifest is missing', async () => {
+    await writeNote(
+      config.vaultPath,
+      'uniqueingestprepnomanifest.md',
+      '---\ntitle: No Manifest Page\nsummary: UniqueIngestPrepNoManifest summary.\n---\n\nBody.',
+    );
+    const bundle = await assembleContext(config, {
+      query: 'UniqueIngestPrepNoManifest',
+      intent: 'ingest-prep',
+      tokenBudget: 4000,
+    });
+    expect(bundle.items.length).toBeGreaterThan(0);
+    expect(bundle.items[0]!.reasons).not.toContain('manifest-touched');
+  });
+
+  it('enriches connection-intent bundles with one-hop neighbour notes', async () => {
+    await writeNote(
+      config.vaultPath,
+      'uniqueconnectionmarker-hub.md',
+      '---\ntitle: UniqueConnectionMarker Hub\nsummary: The hub page for UniqueConnectionMarker.\n---\n\nSee also [[uniqueconnectionmarker-neighbour]].',
+    );
+    await writeNote(
+      config.vaultPath,
+      'uniqueconnectionmarker-neighbour.md',
+      '---\ntitle: Neighbour Page\nsummary: A linked neighbour with unrelated wording.\n---\n\nNeighbour body.',
+    );
+    const bundle = await assembleContext(config, {
+      query: 'UniqueConnectionMarker',
+      intent: 'connection',
+      tokenBudget: 4000,
+    });
+    const neighbour = bundle.items.find((i) => i.path.includes('uniqueconnectionmarker-neighbour'));
+    expect(neighbour).toBeDefined();
+    expect(neighbour!.kind).toBe('neighbor-note');
+    expect(neighbour!.reasons.some((r) => r.startsWith('neighbor-of:'))).toBe(true);
+  });
+
+  it('enriches onboarding-intent bundles with one-hop neighbour notes', async () => {
+    await writeNote(
+      config.vaultPath,
+      'uniqueonboardingmarker-hub.md',
+      '---\ntitle: UniqueOnboardingMarker Hub\nsummary: The onboarding hub for UniqueOnboardingMarker.\n---\n\nStart with [[uniqueonboardingmarker-neighbour]].',
+    );
+    await writeNote(
+      config.vaultPath,
+      'uniqueonboardingmarker-neighbour.md',
+      '---\ntitle: Onboarding Neighbour\nsummary: A linked onboarding neighbour.\n---\n\nNeighbour body.',
+    );
+    const bundle = await assembleContext(config, {
+      query: 'UniqueOnboardingMarker',
+      intent: 'onboarding',
+      tokenBudget: 4000,
+    });
+    const neighbour = bundle.items.find((i) => i.path.includes('uniqueonboardingmarker-neighbour'));
+    expect(neighbour).toBeDefined();
+    expect(neighbour!.kind).toBe('neighbor-note');
+  });
+
   it('reports incomplete scans as a warning', async () => {
     await writeNote(
       config.vaultPath,

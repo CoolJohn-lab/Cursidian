@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { checkMcpConfig, isAbsolutePath } from '../../scripts/check-mcp-config.mjs';
+import fsp from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import { checkMcpConfig, checkToolSurface, isAbsolutePath } from '../../scripts/check-mcp-config.mjs';
 
 describe('isAbsolutePath', () => {
   it('accepts POSIX and Windows absolute paths', () => {
@@ -44,5 +47,58 @@ describe('checkMcpConfig', () => {
     const raw = JSON.stringify({ mcpServers: { obsidian: { command: 'npx' } } });
     const problems = checkMcpConfig(raw, { expectedDistEntry: expectedDist });
     expect(problems.some((p) => /cursidian entry is missing/.test(p))).toBe(true);
+  });
+});
+
+describe('checkToolSurface', () => {
+  it('passes when the file registers all five tools', async () => {
+    const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-toolsurface-'));
+    const distPath = path.join(dir, 'index.js');
+    await fsp.writeFile(
+      distPath,
+      "registerNote(server, config);\nregisterSearch(server, config);\nregisterGraph(server, config);\nregisterVault(server, config);\nregisterContext(server, config);\n",
+      'utf8',
+    );
+    const result = checkToolSurface({ distPath, srcPath: path.join(dir, 'missing.ts') });
+    expect(result.ok).toBe(true);
+    expect(result.problems).toEqual([]);
+    await fsp.rm(dir, { recursive: true, force: true });
+  });
+
+  it('flags a missing context tool registration', async () => {
+    const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-toolsurface-'));
+    const distPath = path.join(dir, 'index.js');
+    await fsp.writeFile(
+      distPath,
+      'registerNote(server, config);\nregisterSearch(server, config);\nregisterGraph(server, config);\nregisterVault(server, config);\n',
+      'utf8',
+    );
+    const result = checkToolSurface({ distPath, srcPath: path.join(dir, 'missing.ts') });
+    expect(result.ok).toBe(false);
+    expect(result.problems.some((p) => /registerContext/.test(p))).toBe(true);
+    await fsp.rm(dir, { recursive: true, force: true });
+  });
+
+  it('skips gracefully when neither dist nor src tools index exists', () => {
+    const result = checkToolSurface({
+      distPath: '/nonexistent/dist/tools/index.js',
+      srcPath: '/nonexistent/src/tools/index.ts',
+    });
+    expect(result.ok).toBe(true);
+    expect(result.skipped).toBeTruthy();
+  });
+
+  it('falls back to the src tools index when dist has not been built', async () => {
+    const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-toolsurface-'));
+    const srcPath = path.join(dir, 'index.ts');
+    await fsp.writeFile(
+      srcPath,
+      'registerNote(server, config);\nregisterSearch(server, config);\nregisterGraph(server, config);\nregisterVault(server, config);\nregisterContext(server, config);\n',
+      'utf8',
+    );
+    const result = checkToolSurface({ distPath: path.join(dir, 'missing.js'), srcPath });
+    expect(result.ok).toBe(true);
+    expect(result.skipped).toBeNull();
+    await fsp.rm(dir, { recursive: true, force: true });
   });
 });

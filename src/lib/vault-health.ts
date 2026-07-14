@@ -11,6 +11,9 @@ export { isHealthExcludedPath } from './operational-paths.js';
 
 const REQUIRED_FRONTMATTER = ['title', 'category', 'tags', 'summary', 'updated'] as const;
 
+/** Matches `> Contradicts [[other-page]]` callouts. Mirrors `CONTRADICTS_RE` in context-assembler.ts. */
+const CONTRADICTS_RE = /^>\s*Contradicts\s+\[\[([^\]]+)\]\]/gim;
+
 export interface VaultHealthReport {
   generatedAt: string;
   noteCount: number;
@@ -26,6 +29,12 @@ export interface VaultHealthReport {
   /** Title/alias/basename keys claimed by more than one note. */
   ambiguousKeys: Array<{ key: string; paths: string[] }>;
   stale: Array<{ path: string; updated: string; backlinkCount: number }>;
+  /**
+   * `> Contradicts [[other-page]]` callouts found in note bodies. Detection only -
+   * never auto-resolved. `counterpart` is the resolved path when the target links
+   * to a known note, otherwise the raw wikilink target.
+   */
+  contradictions: Array<{ path: string; counterpart: string; resolved: boolean }>;
   counts: {
     orphans: number;
     brokenLinks: number;
@@ -35,6 +44,7 @@ export interface VaultHealthReport {
     ambiguousKeys: number;
     stale: number;
     skipped: number;
+    contradictions: number;
   };
   incomplete: boolean;
   skipped: Array<{ path: string; reason: string }>;
@@ -103,6 +113,7 @@ export async function computeVaultHealth(
   const summaryWarnings: Array<{ path: string; issue: 'missing' | 'too_long'; length?: number }> = [];
   const stale: Array<{ path: string; updated: string; backlinkCount: number }> = [];
   const skipped: Array<{ path: string; reason: string }> = [];
+  const contradictions: Array<{ path: string; counterpart: string; resolved: boolean }> = [];
   const catalogPaths = new Set<string>();
 
   for (const file of files) {
@@ -147,6 +158,19 @@ export async function computeVaultHealth(
       if (link.resolvedPath === null) {
         brokenLinks.push({ path: relativePath, raw: link.raw });
       }
+    }
+
+    for (const match of content.matchAll(CONTRADICTS_RE)) {
+      const target = match[1]?.trim();
+      if (!target) {
+        continue;
+      }
+      const resolved = resolveWikilinkTarget(target, index);
+      contradictions.push({
+        path: relativePath,
+        counterpart: resolved ?? target,
+        resolved: resolved !== null,
+      });
     }
 
     const backlinkCount = inboundCounts.get(relativePath) ?? 0;
@@ -232,6 +256,7 @@ export async function computeVaultHealth(
     indexDrift,
     ambiguousKeys,
     stale,
+    contradictions,
     incomplete: skipped.length > 0,
     skipped,
     counts: {
@@ -243,6 +268,7 @@ export async function computeVaultHealth(
       ambiguousKeys: ambiguousKeys.length,
       stale: stale.length,
       skipped: skipped.length,
+      contradictions: contradictions.length,
     },
   };
 }

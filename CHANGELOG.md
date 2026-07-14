@@ -24,6 +24,12 @@ All notable changes to this project will be documented in this file.
 - `wiki-context` skill - assemble/for_task/expand/feedback workflow for task briefings
 - `npm run skills:doctor` - detect stale `~/.cursor/skills/` vs repo
 - Opt-in context telemetry behind `OBSIDIAN_CONTEXT_TELEMETRY=true` (local JSONL only, never stdout)
+- `vault` `health` action (`lib/vault-health.ts`) now detects `> Contradicts [[other-page]]` callouts and reports them as `contradictions` (source path, resolved/raw counterpart, `resolved` flag) - detection only, never auto-resolved
+- `tests/eval/eval.mjs` also scores `context assemble` bundles for every labelled query: token efficiency (tokens on labelled-relevant items / `tokensUsed`) and budget adherence (`tokensUsed <= budget`), written to `tests/eval/snapshots/bundle-baseline.json`
+- `npm run eval -- --sweep` - sweeps `RANK_WEIGHTS.expandedTokenMultiplier` against the compiled ranker and prints which value scores best on nDCG@10 without regressing MRR; read-only, never edits source or writes a snapshot
+- `npm run eval:report` now folds context bundle metrics into `tests/eval/snapshots/scorecard.md`
+- `mcp:check` (`scripts/check-mcp-config.mjs`) now also does a read-only, source-text check that the registered tool surface still includes all 5 tools (`registerNote`/`registerSearch`/`registerGraph`/`registerVault`/`registerContext`), scanning `dist/tools/index.js` when built or falling back to `src/tools/index.ts`
+- Latency guardrail test: `assembleContext` on a 15-note fixture vault completes well under a generous 5s budget and reuses one cached vault snapshot across its internal search + passage-extraction calls (`tests/lib/context-assembler.test.ts`)
 
 ### Changed
 

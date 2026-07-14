@@ -88,4 +88,47 @@ describe('vault (health)', () => {
     expect(data.indexDrift.deadIndexEntries).toContain('concepts/dead-entry');
     expect(data.indexDrift.missingFromIndex.some((p) => p.includes('incomplete'))).toBe(true);
   });
+
+  it('reports contradiction callouts with resolved counterparts', async () => {
+    await writeNote(
+      ctx.vault,
+      'concepts/claim-a.md',
+      '---\ntitle: Claim A\ncategory: concepts\ntags: [x]\nsummary: Claim A.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n> Contradicts [[concepts/claim-b]]\n\nBody of claim A.\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'concepts/claim-b.md',
+      '---\ntitle: Claim B\ncategory: concepts\ntags: [x]\nsummary: Claim B.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nBody of claim B.\n',
+    );
+
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
+    const data = parseResult(result) as {
+      contradictions: Array<{ path: string; counterpart: string; resolved: boolean }>;
+      counts: { contradictions: number };
+    };
+
+    const hit = data.contradictions.find((c) => c.path === 'concepts/claim-a.md');
+    expect(hit).toBeDefined();
+    expect(hit!.counterpart).toBe('concepts/claim-b.md');
+    expect(hit!.resolved).toBe(true);
+    expect(data.counts.contradictions).toBeGreaterThan(0);
+  });
+
+  it('reports an unresolved contradiction target without resolving it', async () => {
+    await writeNote(
+      ctx.vault,
+      'concepts/dangling-contradiction.md',
+      '---\ntitle: Dangling Contradiction\ncategory: concepts\ntags: [x]\nsummary: Points at nothing.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n> Contradicts [[concepts/does-not-exist]]\n\nBody.\n',
+    );
+
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
+    const data = parseResult(result) as {
+      contradictions: Array<{ path: string; counterpart: string; resolved: boolean }>;
+    };
+
+    const hit = data.contradictions.find((c) => c.path === 'concepts/dangling-contradiction.md');
+    expect(hit).toBeDefined();
+    expect(hit!.resolved).toBe(false);
+    expect(hit!.counterpart).toBe('concepts/does-not-exist');
+  });
 });

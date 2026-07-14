@@ -1,0 +1,446 @@
+{
+  "generatedAt": "2026-07-14T15:43:10.411Z",
+  "overall": {
+    "n": 46,
+    "avgTokenEfficiency": 0.5379210325503723,
+    "budgetAdherenceRate": 1
+  },
+  "byIntent": {
+    "connection": {
+      "n": 10,
+      "avgTokenEfficiency": 0.360699127257034,
+      "budgetAdherenceRate": 1
+    },
+    "lookup": {
+      "n": 21,
+      "avgTokenEfficiency": 0.644594433374168,
+      "budgetAdherenceRate": 1
+    },
+    "onboarding": {
+      "n": 7,
+      "avgTokenEfficiency": 0.2753315534678607,
+      "budgetAdherenceRate": 1
+    },
+    "troubleshoot": {
+      "n": 8,
+      "avgTokenEfficiency": 0.7091965312017786,
+      "budgetAdherenceRate": 1
+    }
+  },
+  "queries": [
+    {
+      "query": "medallion layers",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 396,
+      "relevantTokens": 205,
+      "tokenEfficiency": 0.5176767676767676,
+      "budgetOk": true
+    },
+    {
+      "query": "bronze silver gold layers",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 338,
+      "relevantTokens": 205,
+      "tokenEfficiency": 0.606508875739645,
+      "budgetOk": true
+    },
+    {
+      "query": "worker data mart",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 418,
+      "relevantTokens": 200,
+      "tokenEfficiency": 0.4784688995215311,
+      "budgetOk": true
+    },
+    {
+      "query": "WDM",
+      "intent": "lookup",
+      "budget": 2000,
+      "tokensUsed": 306,
+      "relevantTokens": 200,
+      "tokenEfficiency": 0.6535947712418301,
+      "budgetOk": true
+    },
+    {
+      "query": "contract generation",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 441,
+      "relevantTokens": 223,
+      "tokenEfficiency": 0.5056689342403629,
+      "budgetOk": true
+    },
+    {
+      "query": "schema contracts",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 356,
+      "relevantTokens": 34,
+      "tokenEfficiency": 0.09550561797752809,
+      "budgetOk": true
+    },
+    {
+      "query": "ingestion vs egress",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 465,
+      "relevantTokens": 240,
+      "tokenEfficiency": 0.5161290322580645,
+      "budgetOk": true
+    },
+    {
+      "query": "egress pipelines",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 431,
+      "relevantTokens": 240,
+      "tokenEfficiency": 0.5568445475638051,
+      "budgetOk": true
+    },
+    {
+      "query": "BigHand",
+      "intent": "lookup",
+      "budget": 2000,
+      "tokensUsed": 407,
+      "relevantTokens": 191,
+      "tokenEfficiency": 0.4692874692874693,
+      "budgetOk": true
+    },
+    {
+      "query": "BigHand source system",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 282,
+      "relevantTokens": 191,
+      "tokenEfficiency": 0.6773049645390071,
+      "budgetOk": true
+    },
+    {
+      "query": "FactPersonForecastHistory",
+      "intent": "lookup",
+      "budget": 2000,
+      "tokensUsed": 197,
+      "relevantTokens": 197,
+      "tokenEfficiency": 1,
+      "budgetOk": true
+    },
+    {
+      "query": "person forecast history table",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 370,
+      "relevantTokens": 197,
+      "tokenEfficiency": 0.5324324324324324,
+      "budgetOk": true
+    },
+    {
+      "query": "worker dimension",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 230,
+      "relevantTokens": 162,
+      "tokenEfficiency": 0.7043478260869566,
+      "budgetOk": true
+    },
+    {
+      "query": "FactPublicHoliday",
+      "intent": "lookup",
+      "budget": 2000,
+      "tokensUsed": 166,
+      "relevantTokens": 166,
+      "tokenEfficiency": 1,
+      "budgetOk": true
+    },
+    {
+      "query": "public holiday calendar table",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 258,
+      "relevantTokens": 166,
+      "tokenEfficiency": 0.6434108527131783,
+      "budgetOk": true
+    },
+    {
+      "query": "schema drift detection",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 248,
+      "relevantTokens": 189,
+      "tokenEfficiency": 0.7620967741935484,
+      "budgetOk": true
+    },
+    {
+      "query": "orchestration and scheduling",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 276,
+      "relevantTokens": 181,
+      "tokenEfficiency": 0.6557971014492754,
+      "budgetOk": true
+    },
+    {
+      "query": "main orchestrator",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 181,
+      "relevantTokens": 181,
+      "tokenEfficiency": 1,
+      "budgetOk": true
+    },
+    {
+      "query": "CDF platform overview",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 368,
+      "relevantTokens": 232,
+      "tokenEfficiency": 0.6304347826086957,
+      "budgetOk": true
+    },
+    {
+      "query": "taxonomy tags",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 140,
+      "relevantTokens": 140,
+      "tokenEfficiency": 1,
+      "budgetOk": true
+    },
+    {
+      "query": "how does BigHand relate to FactPersonForecastHistory",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 711,
+      "relevantTokens": 222,
+      "tokenEfficiency": 0.31223628691983124,
+      "budgetOk": true
+    },
+    {
+      "query": "relationship between worker dimension and forecast fact table",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 530,
+      "relevantTokens": 232,
+      "tokenEfficiency": 0.4377358490566038,
+      "budgetOk": true
+    },
+    {
+      "query": "how do contracts relate to schema drift",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 558,
+      "relevantTokens": 223,
+      "tokenEfficiency": 0.3996415770609319,
+      "budgetOk": true
+    },
+    {
+      "query": "medallion layers and worker data mart connection",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 615,
+      "relevantTokens": 224,
+      "tokenEfficiency": 0.3642276422764228,
+      "budgetOk": true
+    },
+    {
+      "query": "ingestion egress and orchestration relationship",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 596,
+      "relevantTokens": 272,
+      "tokenEfficiency": 0.4563758389261745,
+      "budgetOk": true
+    },
+    {
+      "query": "FactPublicHoliday and forecast utilisation",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 467,
+      "relevantTokens": 197,
+      "tokenEfficiency": 0.42184154175588867,
+      "budgetOk": true
+    },
+    {
+      "query": "BigHand and schema drift",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 634,
+      "relevantTokens": 219,
+      "tokenEfficiency": 0.34542586750788645,
+      "budgetOk": true
+    },
+    {
+      "query": "CDF platform and worker data mart",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 707,
+      "relevantTokens": 269,
+      "tokenEfficiency": 0.38048090523338046,
+      "budgetOk": true
+    },
+    {
+      "query": "gold layer fact tables",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 682,
+      "relevantTokens": 258,
+      "tokenEfficiency": 0.3782991202346041,
+      "budgetOk": true
+    },
+    {
+      "query": "contract generation and ingestion pipelines",
+      "intent": "connection",
+      "budget": 4000,
+      "tokensUsed": 578,
+      "relevantTokens": 64,
+      "tokenEfficiency": 0.11072664359861592,
+      "budgetOk": true
+    },
+    {
+      "query": "how to author a new ingestion pipeline",
+      "intent": "onboarding",
+      "budget": 4000,
+      "tokensUsed": 574,
+      "relevantTokens": 164,
+      "tokenEfficiency": 0.2857142857142857,
+      "budgetOk": true
+    },
+    {
+      "query": "onboarding a new source feed",
+      "intent": "onboarding",
+      "budget": 4000,
+      "tokensUsed": 701,
+      "relevantTokens": 31,
+      "tokenEfficiency": 0.0442225392296719,
+      "budgetOk": true
+    },
+    {
+      "query": "how to review a schema contract",
+      "intent": "onboarding",
+      "budget": 4000,
+      "tokensUsed": 530,
+      "relevantTokens": 173,
+      "tokenEfficiency": 0.3264150943396226,
+      "budgetOk": true
+    },
+    {
+      "query": "registering a pipeline with the orchestrator",
+      "intent": "onboarding",
+      "budget": 4000,
+      "tokensUsed": 519,
+      "relevantTokens": 196,
+      "tokenEfficiency": 0.37764932562620424,
+      "budgetOk": true
+    },
+    {
+      "query": "getting started with the CDF platform",
+      "intent": "onboarding",
+      "budget": 4000,
+      "tokensUsed": 670,
+      "relevantTokens": 232,
+      "tokenEfficiency": 0.34626865671641793,
+      "budgetOk": true
+    },
+    {
+      "query": "where do new pipelines land data first",
+      "intent": "onboarding",
+      "budget": 4000,
+      "tokensUsed": 636,
+      "relevantTokens": 188,
+      "tokenEfficiency": 0.29559748427672955,
+      "budgetOk": true
+    },
+    {
+      "query": "contract review before promotion to silver",
+      "intent": "onboarding",
+      "budget": 4000,
+      "tokensUsed": 688,
+      "relevantTokens": 173,
+      "tokenEfficiency": 0.251453488372093,
+      "budgetOk": true
+    },
+    {
+      "query": "troubleshooting failed loads",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "tokensUsed": 342,
+      "relevantTokens": 175,
+      "tokenEfficiency": 0.5116959064327485,
+      "budgetOk": true
+    },
+    {
+      "query": "BigHand feed failure",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "tokensUsed": 259,
+      "relevantTokens": 225,
+      "tokenEfficiency": 0.8687258687258688,
+      "budgetOk": true
+    },
+    {
+      "query": "contract validation error on load",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "tokensUsed": 376,
+      "relevantTokens": 257,
+      "tokenEfficiency": 0.6835106382978723,
+      "budgetOk": true
+    },
+    {
+      "query": "orchestrator retry exhausted",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "tokensUsed": 246,
+      "relevantTokens": 215,
+      "tokenEfficiency": 0.8739837398373984,
+      "budgetOk": true
+    },
+    {
+      "query": "inflated utilisation figures missing holiday",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "tokensUsed": 166,
+      "relevantTokens": 166,
+      "tokenEfficiency": 1,
+      "budgetOk": true
+    },
+    {
+      "query": "unresolved schema drift alert",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "tokensUsed": 333,
+      "relevantTokens": 223,
+      "tokenEfficiency": 0.6696696696696697,
+      "budgetOk": true
+    },
+    {
+      "query": "escalating a breaking contract change",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "tokensUsed": 329,
+      "relevantTokens": 207,
+      "tokenEfficiency": 0.6291793313069909,
+      "budgetOk": true
+    },
+    {
+      "query": "forecast fact table not refreshing",
+      "intent": "troubleshoot",
+      "budget": 4000,
+      "tokensUsed": 451,
+      "relevantTokens": 197,
+      "tokenEfficiency": 0.43680709534368073,
+      "budgetOk": true
+    },
+    {
+      "query": "integration",
+      "intent": "lookup",
+      "budget": 4000,
+      "tokensUsed": 452,
+      "relevantTokens": 240,
+      "tokenEfficiency": 0.5309734513274337,
+      "budgetOk": true
+    }
+  ]
+}

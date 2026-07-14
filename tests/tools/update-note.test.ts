@@ -88,6 +88,116 @@ describe('note (update)', () => {
     expect(result.isError).toBe(true);
   });
 
+  it('rejects an empty frontmatter merge object', async () => {
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+      frontmatter: {},
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string };
+    expect(data.error).toBe('invalid_args');
+  });
+
+  it('rejects a frontmatter merge with too many keys (zod schema guard)', async () => {
+    // The zod inputSchema already refines frontmatter to <= MAX_FRONTMATTER_KEYS, so this
+    // is caught before updateNoteHandler's own defense-in-depth check runs.
+    const tooMany = Object.fromEntries(Array.from({ length: 129 }, (_, i) => [`k${i}`, i]));
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+      frontmatter: tooMany,
+    });
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('exceeds');
+  });
+
+  it('rejects mode "patch" missing old_string', async () => {
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+      mode: 'patch',
+      new_string: 'delta',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_args');
+    expect(data.message).toContain('old_string and new_string');
+  });
+
+  it('rejects mode "replace_section" missing heading', async () => {
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+      mode: 'replace_section',
+      content: 'x',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_args');
+    expect(data.message).toContain('requires heading');
+  });
+
+  it('rejects mode "replace_section" missing content', async () => {
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+      mode: 'replace_section',
+      heading: 'Details',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_args');
+    expect(data.message).toContain('requires content');
+  });
+
+  it('rejects mode "replace" missing content', async () => {
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+      mode: 'replace',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_args');
+    expect(data.message).toContain('requires content');
+  });
+
+  it('rejects mode "append" missing content', async () => {
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+      mode: 'append',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_args');
+    expect(data.message).toContain('requires content');
+  });
+
+  it('rejects mode "prepend" missing content', async () => {
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+      mode: 'prepend',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_args');
+    expect(data.message).toContain('requires content');
+  });
+
+  it('rejects update with neither a body edit nor a frontmatter merge', async () => {
+    const result = await callTool(ctx.client, 'note', {
+      action: 'update',
+      path: 'editable',
+    });
+    expect(result.isError).toBe(true);
+    const data = parseResult(result) as { error: string; message: string };
+    expect(data.error).toBe('invalid_args');
+    expect(data.message).toContain('requires a body edit');
+  });
+
   it('rejects in read-only mode', async () => {
     const { registerNote: reg } = await import('../../src/tools/note.js');
     const roClient = await createTestClient({ ...ctx.config, readOnly: true }, (server, config) => {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -12,6 +12,7 @@ import {
 } from '../../src/lib/context-assembler.js';
 import { writeNote, cleanupVault } from '../tools/helpers.js';
 import { clearAllSearchCaches } from '../../src/lib/vault-index.js';
+import * as vaultSnapshot from '../../src/lib/vault-snapshot.js';
 
 async function makeConfig(overrides: Partial<Config> = {}): Promise<Config> {
   const vault = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-context-'));
@@ -368,6 +369,31 @@ describe('assembleContext', () => {
     const neighbour = bundle.items.find((i) => i.path.includes('uniqueonboardingmarker-neighbour'));
     expect(neighbour).toBeDefined();
     expect(neighbour!.kind).toBe('neighbor-note');
+  });
+
+  it('completes within a generous latency budget and takes one vault snapshot per call', async () => {
+    for (let i = 0; i < 15; i++) {
+      await writeNote(
+        config.vaultPath,
+        `latency-note-${i}.md`,
+        `---\ntitle: Latency Note ${i}\nsummary: UniqueLatencyMarker summary number ${i}.\n---\n\n## Details\n\nUniqueLatencyMarker body content for note ${i} with [[latency-note-${(i + 1) % 15}]] cross-links.\n`,
+      );
+    }
+    const snapshotSpy = vi.spyOn(vaultSnapshot, 'getVaultSnapshot');
+    const startedAt = Date.now();
+    const bundle = await assembleContext(config, { query: 'UniqueLatencyMarker', tokenBudget: 4000 });
+    const elapsedMs = Date.now() - startedAt;
+    // Generous guardrail: catches a regression that makes assembly pathologically slow
+    // (e.g. re-scanning the vault per candidate) without being flaky on slower CI machines.
+    expect(elapsedMs).toBeLessThan(5000);
+    expect(bundle.items.length).toBeGreaterThan(0);
+    // assembleContext composes searchContentHandler (which snapshots internally) and then
+    // takes its own snapshot for passage extraction; the vault-snapshot cache means both
+    // resolve to the identical cached object rather than re-scanning the vault twice.
+    const results = await Promise.all(snapshotSpy.mock.results.map((r) => r.value));
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(new Set(results).size).toBe(1);
+    snapshotSpy.mockRestore();
   });
 
   it('reports incomplete scans as a warning', async () => {

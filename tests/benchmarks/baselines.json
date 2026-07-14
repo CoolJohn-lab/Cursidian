@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-07-08T20:05:00.000Z",
+  "vaultPath": "/Users/jeddowes/Library/CloudStorage/OneDrive-Freshfields/Obsidian/WorkStuff",
+  "note": "Median of 3 runs on npm 11.18.0 / Node 26.4.0 after pre-serialised search cache + corrected benchmark order (cached_repeat immediately after adf_pipeline).",
+  "timings": [
+    {
+      "label": "list_notes.root",
+      "ms": 11.01
+    },
+    {
+      "label": "search_content.adf_pipeline",
+      "ms": 76.58
+    },
+    {
+      "label": "search_content.cached_repeat",
+      "ms": 0.07
+    },
+    {
+      "label": "search_content.factpublicholiday",
+      "ms": 37.48
+    },
+    {
+      "label": "read_note.index",
+      "ms": 17.13
+    },
+    {
+      "label": "get_backlinks.project_hub",
+      "ms": 28.7
+    }
+  ]
+}

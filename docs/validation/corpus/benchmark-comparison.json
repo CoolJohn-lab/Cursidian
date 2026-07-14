@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2026-07-08T18:06:57.906Z",
+  "vaultPath": "/Users/jeddowes/Library/CloudStorage/OneDrive-Freshfields/Obsidian/WorkStuff",
+  "newStandardTimings": [
+    {
+      "label": "list_notes.root",
+      "ms": 0.52
+    },
+    {
+      "label": "search_content.adf_pipeline",
+      "ms": 29.55
+    },
+    {
+      "label": "search_content.factpublicholiday",
+      "ms": 24.69
+    },
+    {
+      "label": "read_note.index",
+      "ms": 11.2
+    },
+    {
+      "label": "get_backlinks.project_hub",
+      "ms": 22.43
+    },
+    {
+      "label": "search_content.cached_repeat",
+      "ms": 28.52
+    }
+  ],
+  "comparisonToStoredBaseline": [
+    {
+      "label": "list_notes.root",
+      "currentMs": 0.52,
+      "baselineMs": 12.09,
+      "deltaMs": -11.57
+    },
+    {
+      "label": "search_content.adf_pipeline",
+      "currentMs": 29.55,
+      "baselineMs": 50.92,
+      "deltaMs": -21.37
+    },
+    {
+      "label": "search_content.factpublicholiday",
+      "currentMs": 24.69,
+      "baselineMs": 36.83,
+      "deltaMs": -12.14
+    },
+    {
+      "label": "read_note.index",
+      "currentMs": 11.2,
+      "baselineMs": 17.89,
+      "deltaMs": -6.69
+    },
+    {
+      "label": "get_backlinks.project_hub",
+      "currentMs": 22.43,
+      "baselineMs": 32.53,
+      "deltaMs": -10.1
+    },
+    {
+      "label": "search_content.cached_repeat",
+      "currentMs": 28.52,
+      "baselineMs": 14.12,
+      "deltaMs": 14.4
+    }
+  ],
+  "corpusWeighted": {
+    "queries": [
+      "bighand",
+      "BigHand deploy sequence",
+      "FactPerson naming",
+      "monitoring failures",
+      "curated",
+      "factpersoncalendar",
+      "workerdatamart",
+      "fbd-d-euw-data-dmlz-kv",
+      "FactPerson",
+      "deploy sequence"
+    ],
+    "iterationsPerQuery": 5,
+    "p50": {
+      "old_upstream": 12.24,
+      "old_patched": 12.33,
+      "new": 26.33100000000013
+    },
+    "p95": {
+      "old_upstream": 13.76,
+      "old_patched": 13.09,
+      "new": 30.17033399999991
+    }
+  }
+}

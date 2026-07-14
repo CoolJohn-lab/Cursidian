@@ -1,0 +1,143 @@
+{
+  "generatedAt": "2026-07-08T18:04:28.367Z",
+  "sinceDate": "2026-06-08T00:00:00.000Z",
+  "sessionsWithMcp": 21,
+  "totalCalls": 447,
+  "toolCounts": {
+    "read_note": 163,
+    "search_content": 77,
+    "update_note": 111,
+    "manage_frontmatter": 63,
+    "list_notes": 12,
+    "create_note": 12,
+    "manage_folders": 1,
+    "list_recent": 2,
+    "delete_note": 4,
+    "get_backlinks": 2
+  },
+  "replaceCount": 41,
+  "searchRetries": 13,
+  "truncationCases": 6,
+  "topSessions": [
+    {
+      "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "mcp_calls": 63
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "mcp_calls": 59
+    },
+    {
+      "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
+      "mcp_calls": 36
+    },
+    {
+      "transcript_id": "53abd6fb-5c3b-4f72-969d-a8b7d23177b9",
+      "mcp_calls": 34
+    },
+    {
+      "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "mcp_calls": 33
+    },
+    {
+      "transcript_id": "c63bf7c6-8498-4737-b632-1e5e1d14136e",
+      "mcp_calls": 27
+    },
+    {
+      "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
+      "mcp_calls": 27
+    },
+    {
+      "transcript_id": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
+      "mcp_calls": 25
+    },
+    {
+      "transcript_id": "e91fdbcf-6d94-4d96-af56-201d873ac2e8",
+      "mcp_calls": 22
+    },
+    {
+      "transcript_id": "bac02dac-8dbb-413f-b724-5ee65fb18cc6",
+      "mcp_calls": 21
+    }
+  ],
+  "reconciliation": [
+    {
+      "tool": "read_note",
+      "planCount": 209,
+      "actual": 163,
+      "deltaPct": -22
+    },
+    {
+      "tool": "update_note",
+      "planCount": 131,
+      "actual": 111,
+      "deltaPct": -15
+    },
+    {
+      "tool": "search_content",
+      "planCount": 87,
+      "actual": 77,
+      "deltaPct": -11
+    },
+    {
+      "tool": "manage_frontmatter",
+      "planCount": 80,
+      "actual": 63,
+      "deltaPct": -21
+    },
+    {
+      "tool": "list_notes",
+      "planCount": 45,
+      "actual": 12,
+      "deltaPct": -73
+    },
+    {
+      "tool": "create_note",
+      "planCount": 28,
+      "actual": 12,
+      "deltaPct": -57
+    },
+    {
+      "tool": "get_backlinks",
+      "planCount": 6,
+      "actual": 2,
+      "deltaPct": -67
+    },
+    {
+      "tool": "list_recent",
+      "planCount": 4,
+      "actual": 2,
+      "deltaPct": -50
+    },
+    {
+      "tool": "delete_note",
+      "planCount": 2,
+      "actual": 4,
+      "deltaPct": 100
+    },
+    {
+      "tool": "manage_folders",
+      "planCount": 1,
+      "actual": 1,
+      "deltaPct": 0
+    },
+    {
+      "tool": "get_graph",
+      "planCount": 0,
+      "actual": 0,
+      "deltaPct": null
+    },
+    {
+      "tool": "search_by_tags",
+      "planCount": 0,
+      "actual": 0,
+      "deltaPct": null
+    },
+    {
+      "tool": "move_note",
+      "planCount": 0,
+      "actual": 0,
+      "deltaPct": null
+    }
+  ]
+}

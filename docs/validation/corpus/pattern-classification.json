@@ -1,0 +1,166 @@
+{
+  "generatedAt": "2026-07-08T17:38:50.895Z",
+  "corpusSize": 599,
+  "frictionCounts": {
+    "read_before_write": 209,
+    "multi_word_search": 58,
+    "search_then_read": 87,
+    "get_backlinks": 9,
+    "frontmatter_merge": 80,
+    "replace_accident": 56,
+    "replace_tiny_fragment": 4
+  },
+  "topMcpSessions": [
+    {
+      "sessionId": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "mcpCallCount": 97
+    },
+    {
+      "sessionId": "c9b5bf53-96b7-40f9-a705-aba913aa4d08",
+      "mcpCallCount": 61
+    },
+    {
+      "sessionId": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "mcpCallCount": 59
+    },
+    {
+      "sessionId": "38be576b-f89e-45cb-8047-d545e650da69",
+      "mcpCallCount": 45
+    },
+    {
+      "sessionId": "60edd405-8836-4c14-8e3b-34419eb4b594",
+      "mcpCallCount": 36
+    },
+    {
+      "sessionId": "53abd6fb-5c3b-4f72-969d-a8b7d23177b9",
+      "mcpCallCount": 34
+    },
+    {
+      "sessionId": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "mcpCallCount": 33
+    },
+    {
+      "sessionId": "f9e64c2d-1d36-41b8-9c04-c2b527b8861d",
+      "mcpCallCount": 28
+    },
+    {
+      "sessionId": "c63bf7c6-8498-4737-b632-1e5e1d14136e",
+      "mcpCallCount": 27
+    },
+    {
+      "sessionId": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
+      "mcpCallCount": 27
+    }
+  ],
+  "deepSessionAnalysis": {
+    "sessionId": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+    "totalCalls": 59,
+    "byTool": {
+      "read_note": 24,
+      "search_content": 4,
+      "update_note": 21,
+      "manage_frontmatter": 9,
+      "create_note": 1
+    },
+    "replaceAccidents": 6,
+    "multiWordSearches": [
+      "bighand FactPublicHoliday public holidays",
+      "FactPersonForecast bighand entity",
+      "FactPersonCalendar person date calendar"
+    ],
+    "narrative": "BigHand public holidays session: agent used replace for partial edits 4+ times, recovered from read_note/transcript. Multi-word searches (e.g. \"bighand FactPublicHoliday public holidays\") would fail on upstream phrase search."
+  },
+  "searchReadChainCount": 31,
+  "taggedSample": [
+    {
+      "sessionId": "f9e64c2d-1d36-41b8-9c04-c2b527b8861d",
+      "subagentId": null,
+      "transcriptKind": "main",
+      "lineIndex": 27,
+      "timestamp": "2026-06-23T11:59:53.655Z",
+      "toolName": "list_notes",
+      "arguments": {},
+      "description": null,
+      "frictionTags": []
+    },
+    {
+      "sessionId": "f9e64c2d-1d36-41b8-9c04-c2b527b8861d",
+      "subagentId": null,
+      "transcriptKind": "main",
+      "lineIndex": 27,
+      "timestamp": "2026-06-23T11:59:53.655Z",
+      "toolName": "read_note",
+      "arguments": {
+        "path": "John's Work Brain"
+      },
+      "description": null,
+      "frictionTags": [
+        {
+          "id": "read_before_write",
+          "severity": "info",
+          "note": "Read before write pattern"
+        }
+      ]
+    },
+    {
+      "sessionId": "f9e64c2d-1d36-41b8-9c04-c2b527b8861d",
+      "subagentId": null,
+      "transcriptKind": "main",
+      "lineIndex": 39,
+      "timestamp": "2026-06-23T11:59:53.655Z",
+      "toolName": "create_note",
+      "arguments": {
+        "path": "Learning/Databricks Asset Bundles",
+        "content": "# Databricks Asset Bundles\n\n## Source\n\n[[Attachments/Databricks Asset Bundles.pptx]] — deck by John Woods (last updated June 2026).\n\n## What this is about\n\nThe deck explains **Databricks Asset Bundles** (now also called **Declarative Automation Bundles**) as the answer to a common problem: a job built and proven in **Development** still needs a reliable path into **Testing** and **Production** without manual rework or environment drift — the \"Databricks shuffle.\"\n\nBundles let you define Databricks project resources once in **YAML** and deploy them consistently across environments using the **Databricks CLI**.\n\n## Key concepts\n\n### The problem bundles solve\n\n- Teams build and validate work in a dev workspace.\n- Promotion to test/prod introduces inconsistency, manual steps, and config drift.\n- Bundles standardise how projects move through environments.\n\n### What a bundle is\n\n- **Declarative YAML** describing artifacts, resources, and project configuration.\n- A feature of the **Databricks CLI** — not a separate product.\n- Core lifecycle commands: **`bundle validate`**, **`bundle deploy`**, **`bundle run`**.\n- **Targets** (`-t <environment>`) select which environment (e.g. dev, test, prod) to act on.\n\n### Naming change (March 2026)\n\n- Renamed from *Databricks Asset Bundles* to **Declarative Automation Bundles**.\n- Rationale: clearer intent; the word \"assets\" was ambiguous in Databricks terminology.\n- **Non-breaking** — `bundle` CLI commands and existing YAML config remain valid.\n\n### Timeline (from deck)\n\n| Date | Milestone |\n|------|-----------|\n| October 2023 | Public preview |\n| April 2024 | General availability |\n| March 2026 | Renamed to Declarative Automation Bundles |\n\n### How bundles fit CI/CD\n\nSlide 7 shows a high-level **development + CI/CD pipeline** with bundles at the centre (diagram not reproduced here — see source PPTX).\n\nTypical pipeline stages for a bundle-based project:\n\n1. **Validate** — `databricks bundle validate -t <environment>`\n2. **Deploy** — `databricks bundle deploy -t <environment>`\n3. **Run** — `databricks bundle run <job_name> -t <environment>`\n\n### Freshfields example: Data Quality (DQX)\n\nThe **Data Quality Project (DQX)** is adopting bundles. Reported benefits:\n\n- **Consistency** across Development, Testing, and Production — less drift.\n- **Repeatable deployments** — same project definition redeployed reliably.\n- **Config lives with code** — environment config embedded in YAML alongside the repo.\n- **Cleaner CI/CD** — faster, more predictable deployment loops.\n- **Pre-flight validation** — bundles can be validated before deploy or run.\n\n### Azure DevOps pattern (from deck)\n\nDQX pipelines use **AzureCLI@2** tasks with `workingDirectory` set to the bundle project folder (e.g. `dataQuality`), setting:\n\n- `DATABRICKS_HOST` from the target workspace URL\n- `DATABRICKS_TOKEN` from a pipeline/workspace token\n\nThen invoking the bundle CLI with a target parameter, e.g.:\n\n```powershell\ndatabricks bundle validate -t <environment>\ndatabricks bundle deploy -t <environment>\ndatabricks bundle run deploy_data_quality -t <environment>\n```\n\n## Takeaways\n\n- **Define once, deploy everywhere** — bundles are the structured way to promote Databricks work across envs.\n- **YAML + CLI** is the core model; CI/CD pipelines orchestrate validate → deploy → run.\n- **DQX is the internal reference** for how Freshfields is applying bundles in Azure DevOps.\n- The **March 2026 rename** is cosmetic for practitioners — keep using `databricks bundle` and existing `databricks.yml` patterns.\n- For **DLZ**: this repo currently uses notebook/ADF-style deployment (no root `databricks.yml` bundle yet) — bundles are the direction of travel when we want repeatable multi-env promotion similar to DQX.\n\n## Questions / follow-up\n\n- How does DQX structure `databricks.yml` and environment targets compared to our DLZ layout?\n- Can we adopt OAuth/service principal patterns in pipelines instead of long-lived tokens where possible?\n- What bundle resources would DLZ need first (jobs, pipelines, schemas, or notebooks)?\n",
+        "frontmatter": {
+          "title": "Databricks Asset Bundles",
+          "tags": [
+            "learning",
+            "databricks",
+            "dab",
+            "dqx",
+            "cicd"
+          ],
+          "created": "2026-06-23",
+          "source": "Attachments/Databricks Asset Bundles.pptx",
+          "author": "John Woods"
+        }
+      },
+      "description": null,
+      "frictionTags": []
+    },
+    {
+      "sessionId": "f9e64c2d-1d36-41b8-9c04-c2b527b8861d",
+      "subagentId": null,
+      "transcriptKind": "main",
+      "lineIndex": 40,
+      "timestamp": "2026-06-23T11:59:53.655Z",
+      "toolName": "read_note",
+      "arguments": {
+        "path": "Learning/Databricks Asset Bundles"
+      },
+      "description": null,
+      "frictionTags": [
+        {
+          "id": "read_before_write",
+          "severity": "info",
+          "note": "Read before write pattern"
+        }
+      ]
+    },
+    {
+      "sessionId": "f9e64c2d-1d36-41b8-9c04-c2b527b8861d",
+      "subagentId": null,
+      "transcriptKind": "main",
+      "lineIndex": 51,
+      "timestamp": "2026-06-23T11:59:53.655Z",
+      "toolName": "manage_folders",
+      "arguments": {
+        "operation": "create",
+        "path": "Learning/Awesome Databricks"
+      },
+      "description": null,
+      "frictionTags": []
+    }
+  ]
+}

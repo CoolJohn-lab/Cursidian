@@ -1,0 +1,742 @@
+{
+  "generatedAt": "2026-07-08T17:38:53.651Z",
+  "summary": {
+    "upstream": {
+      "labelledCases": 29,
+      "top1Hits": 1,
+      "top1Accuracy": 3.4,
+      "zeroResultQueries": [
+        "ingestion pipeline deployment",
+        "secrets BaseUrl variable group",
+        "Databricks command execution context cluster",
+        "agent toolkit plugins MCP",
+        "Unity Catalog deploy orchestrator metastore",
+        "FactForecasts curated_factforecasts FactQualifications",
+        "BigHand deploy",
+        "BigHand integration ingest",
+        "FactPersonForecast bighand entity",
+        "FactPersonCalendar person date calendar"
+      ]
+    },
+    "patched": {
+      "labelledCases": 29,
+      "top1Hits": 1,
+      "top1Accuracy": 3.4,
+      "zeroResultQueries": [
+        "FactForecasts curated_factforecasts FactQualifications"
+      ]
+    },
+    "new": {
+      "labelledCases": 29,
+      "top1Hits": 6,
+      "top1Accuracy": 20.7,
+      "zeroResultQueries": [
+        "FactForecasts curated_factforecasts FactQualifications"
+      ]
+    }
+  },
+  "results": {
+    "upstream": [
+      {
+        "id": "sr-1",
+        "query": "data product",
+        "goldenPath": "cdf knowledge base/cdf knowledge base index",
+        "top1": "index",
+        "totalMatches": 18,
+        "hit": false
+      },
+      {
+        "id": "sr-2",
+        "query": "ingestion pipeline deployment",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-3",
+        "query": "secrets BaseUrl variable group",
+        "goldenPath": "projects/data-platform-dlz/entities/source-systems",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-4",
+        "query": "workerdatamart",
+        "goldenPath": "projects/data-platform-dlz/concepts/worker-data-mart",
+        "top1": "hot",
+        "totalMatches": 19,
+        "hit": false
+      },
+      {
+        "id": "sr-5",
+        "query": "curated",
+        "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
+        "top1": "hot",
+        "totalMatches": 32,
+        "hit": false
+      },
+      {
+        "id": "sr-6",
+        "query": "Databricks command execution context cluster",
+        "goldenPath": "skills/databricks-asset-bundles",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-7",
+        "query": "execution context",
+        "goldenPath": "skills/databricks-run-commands-via-execution-context",
+        "top1": "skills/databricks-run-commands-via-execution-context",
+        "totalMatches": 1,
+        "hit": true
+      },
+      {
+        "id": "sr-8",
+        "query": "agent toolkit plugins MCP",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-9",
+        "query": "Learning/Awesome Databricks",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": "log",
+        "totalMatches": 2,
+        "hit": false
+      },
+      {
+        "id": "sr-10",
+        "query": "_archives",
+        "goldenPath": "_archives/pre-wiki-migration/john's work brain",
+        "top1": "index",
+        "totalMatches": 2,
+        "hit": false
+      },
+      {
+        "id": "sr-11",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "top1": "hot",
+        "totalMatches": 15,
+        "hit": false
+      },
+      {
+        "id": "sr-12",
+        "query": "Benevity",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "index",
+        "totalMatches": 12,
+        "hit": false
+      },
+      {
+        "id": "sr-13",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "hot",
+        "totalMatches": 20,
+        "hit": false
+      },
+      {
+        "id": "sr-14",
+        "query": "bighand",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "hot",
+        "totalMatches": 20,
+        "hit": false
+      },
+      {
+        "id": "sr-15",
+        "query": "medallion",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "index",
+        "totalMatches": 9,
+        "hit": false
+      },
+      {
+        "id": "sr-16",
+        "query": "Unity Catalog deploy orchestrator metastore",
+        "goldenPath": "projects/data-platform-dlz/entities/data-products",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-17",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "hot",
+        "totalMatches": 31,
+        "hit": false
+      },
+      {
+        "id": "sr-18",
+        "query": "bighand",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "hot",
+        "totalMatches": 30,
+        "hit": false
+      },
+      {
+        "id": "sr-19",
+        "query": "workerdatamart",
+        "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "top1": "hot",
+        "totalMatches": 19,
+        "hit": false
+      },
+      {
+        "id": "sr-20",
+        "query": "Unity Catalog pipeline",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "projects/data-platform-dlz/concepts/backfill-and-operational-playbooks",
+        "totalMatches": 1,
+        "hit": false
+      },
+      {
+        "id": "sr-21",
+        "query": "ADF debug mode",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "projects/data-platform-dlz/skills/adf-debug-mode-monitoring",
+        "totalMatches": 1,
+        "hit": false
+      },
+      {
+        "id": "sr-22",
+        "query": "FactForecasts curated_factforecasts FactQualifications",
+        "goldenPath": "projects/data-platform-dlz/synthesis/bighand-to-workerdatamart-migration-2026-07",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-23",
+        "query": "deploy",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "hot",
+        "totalMatches": 20,
+        "hit": false
+      },
+      {
+        "id": "sr-24",
+        "query": "BigHand deploy",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-25",
+        "query": "BigHand integration ingest",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-26",
+        "query": "holidays",
+        "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
+        "top1": "hot",
+        "totalMatches": 11,
+        "hit": false
+      },
+      {
+        "id": "sr-27",
+        "query": "BigHand API",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "projects/data-platform-dlz/concepts/adf-pipeline-catalog",
+        "totalMatches": 5,
+        "hit": false
+      },
+      {
+        "id": "sr-28",
+        "query": "FactPersonForecast bighand entity",
+        "goldenPath": "projects/data-platform-dlz/entities/source-systems",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-29",
+        "query": "FactPersonCalendar person date calendar",
+        "goldenPath": "index",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      }
+    ],
+    "patched": [
+      {
+        "id": "sr-1",
+        "query": "data product",
+        "goldenPath": "cdf knowledge base/cdf knowledge base index",
+        "top1": "hot",
+        "totalMatches": 39,
+        "hit": false
+      },
+      {
+        "id": "sr-2",
+        "query": "ingestion pipeline deployment",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "index",
+        "totalMatches": 16,
+        "hit": false
+      },
+      {
+        "id": "sr-3",
+        "query": "secrets BaseUrl variable group",
+        "goldenPath": "projects/data-platform-dlz/entities/source-systems",
+        "top1": "projects/data-platform-dlz/concepts/data-contracts-and-metadata",
+        "totalMatches": 2,
+        "hit": false
+      },
+      {
+        "id": "sr-4",
+        "query": "workerdatamart",
+        "goldenPath": "projects/data-platform-dlz/concepts/worker-data-mart",
+        "top1": "hot",
+        "totalMatches": 19,
+        "hit": false
+      },
+      {
+        "id": "sr-5",
+        "query": "curated",
+        "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
+        "top1": "hot",
+        "totalMatches": 32,
+        "hit": false
+      },
+      {
+        "id": "sr-6",
+        "query": "Databricks command execution context cluster",
+        "goldenPath": "skills/databricks-asset-bundles",
+        "top1": "index",
+        "totalMatches": 5,
+        "hit": false
+      },
+      {
+        "id": "sr-7",
+        "query": "execution context",
+        "goldenPath": "skills/databricks-run-commands-via-execution-context",
+        "top1": "index",
+        "totalMatches": 3,
+        "hit": false
+      },
+      {
+        "id": "sr-8",
+        "query": "agent toolkit plugins MCP",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": "index",
+        "totalMatches": 5,
+        "hit": false
+      },
+      {
+        "id": "sr-9",
+        "query": "Learning/Awesome Databricks",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": "log",
+        "totalMatches": 2,
+        "hit": false
+      },
+      {
+        "id": "sr-10",
+        "query": "_archives",
+        "goldenPath": "_archives/pre-wiki-migration/john's work brain",
+        "top1": "index",
+        "totalMatches": 2,
+        "hit": false
+      },
+      {
+        "id": "sr-11",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "top1": "hot",
+        "totalMatches": 15,
+        "hit": false
+      },
+      {
+        "id": "sr-12",
+        "query": "Benevity",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "index",
+        "totalMatches": 12,
+        "hit": false
+      },
+      {
+        "id": "sr-13",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "hot",
+        "totalMatches": 20,
+        "hit": false
+      },
+      {
+        "id": "sr-14",
+        "query": "bighand",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "hot",
+        "totalMatches": 20,
+        "hit": false
+      },
+      {
+        "id": "sr-15",
+        "query": "medallion",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "index",
+        "totalMatches": 9,
+        "hit": false
+      },
+      {
+        "id": "sr-16",
+        "query": "Unity Catalog deploy orchestrator metastore",
+        "goldenPath": "projects/data-platform-dlz/entities/data-products",
+        "top1": "index",
+        "totalMatches": 11,
+        "hit": false
+      },
+      {
+        "id": "sr-17",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "hot",
+        "totalMatches": 31,
+        "hit": false
+      },
+      {
+        "id": "sr-18",
+        "query": "bighand",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "hot",
+        "totalMatches": 30,
+        "hit": false
+      },
+      {
+        "id": "sr-19",
+        "query": "workerdatamart",
+        "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "top1": "hot",
+        "totalMatches": 19,
+        "hit": false
+      },
+      {
+        "id": "sr-20",
+        "query": "Unity Catalog pipeline",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "index",
+        "totalMatches": 10,
+        "hit": false
+      },
+      {
+        "id": "sr-21",
+        "query": "ADF debug mode",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "index",
+        "totalMatches": 6,
+        "hit": false
+      },
+      {
+        "id": "sr-22",
+        "query": "FactForecasts curated_factforecasts FactQualifications",
+        "goldenPath": "projects/data-platform-dlz/synthesis/bighand-to-workerdatamart-migration-2026-07",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-23",
+        "query": "deploy",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "hot",
+        "totalMatches": 20,
+        "hit": false
+      },
+      {
+        "id": "sr-24",
+        "query": "BigHand deploy",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": "hot",
+        "totalMatches": 10,
+        "hit": false
+      },
+      {
+        "id": "sr-25",
+        "query": "BigHand integration ingest",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "index",
+        "totalMatches": 9,
+        "hit": false
+      },
+      {
+        "id": "sr-26",
+        "query": "holidays",
+        "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
+        "top1": "hot",
+        "totalMatches": 11,
+        "hit": false
+      },
+      {
+        "id": "sr-27",
+        "query": "BigHand API",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "hot",
+        "totalMatches": 20,
+        "hit": false
+      },
+      {
+        "id": "sr-28",
+        "query": "FactPersonForecast bighand entity",
+        "goldenPath": "projects/data-platform-dlz/entities/source-systems",
+        "top1": "log",
+        "totalMatches": 10,
+        "hit": false
+      },
+      {
+        "id": "sr-29",
+        "query": "FactPersonCalendar person date calendar",
+        "goldenPath": "index",
+        "top1": "index",
+        "totalMatches": 5,
+        "hit": true
+      }
+    ],
+    "new": [
+      {
+        "id": "sr-1",
+        "query": "data product",
+        "goldenPath": "cdf knowledge base/cdf knowledge base index",
+        "top1": "projects/data-platform-dlz/entities/data-products",
+        "totalMatches": 39,
+        "hit": false
+      },
+      {
+        "id": "sr-2",
+        "query": "ingestion pipeline deployment",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "totalMatches": 16,
+        "hit": false
+      },
+      {
+        "id": "sr-3",
+        "query": "secrets BaseUrl variable group",
+        "goldenPath": "projects/data-platform-dlz/entities/source-systems",
+        "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "totalMatches": 2,
+        "hit": false
+      },
+      {
+        "id": "sr-4",
+        "query": "workerdatamart",
+        "goldenPath": "projects/data-platform-dlz/concepts/worker-data-mart",
+        "top1": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration",
+        "totalMatches": 19,
+        "hit": false
+      },
+      {
+        "id": "sr-5",
+        "query": "curated",
+        "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
+        "top1": "projects/data-platform-dlz/concepts/curated-and-model-layers",
+        "totalMatches": 32,
+        "hit": false
+      },
+      {
+        "id": "sr-6",
+        "query": "Databricks command execution context cluster",
+        "goldenPath": "skills/databricks-asset-bundles",
+        "top1": "skills/databricks-run-commands-via-execution-context",
+        "totalMatches": 5,
+        "hit": false
+      },
+      {
+        "id": "sr-7",
+        "query": "execution context",
+        "goldenPath": "skills/databricks-run-commands-via-execution-context",
+        "top1": "skills/databricks-run-commands-via-execution-context",
+        "totalMatches": 5,
+        "hit": true
+      },
+      {
+        "id": "sr-8",
+        "query": "agent toolkit plugins MCP",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "totalMatches": 6,
+        "hit": true
+      },
+      {
+        "id": "sr-9",
+        "query": "Learning/Awesome Databricks",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": "_meta/migration-map",
+        "totalMatches": 2,
+        "hit": false
+      },
+      {
+        "id": "sr-10",
+        "query": "_archives",
+        "goldenPath": "_archives/pre-wiki-migration/john's work brain",
+        "top1": "log",
+        "totalMatches": 2,
+        "hit": false
+      },
+      {
+        "id": "sr-11",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "top1": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "totalMatches": 31,
+        "hit": false
+      },
+      {
+        "id": "sr-12",
+        "query": "Benevity",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "projects/data-platform-dlz/concepts/benevity-integration",
+        "totalMatches": 12,
+        "hit": false
+      },
+      {
+        "id": "sr-13",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "totalMatches": 31,
+        "hit": false
+      },
+      {
+        "id": "sr-14",
+        "query": "bighand",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "totalMatches": 31,
+        "hit": false
+      },
+      {
+        "id": "sr-15",
+        "query": "medallion",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "projects/data-platform-dlz/concepts/curation-pipeline",
+        "totalMatches": 9,
+        "hit": false
+      },
+      {
+        "id": "sr-16",
+        "query": "Unity Catalog deploy orchestrator metastore",
+        "goldenPath": "projects/data-platform-dlz/entities/data-products",
+        "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "totalMatches": 11,
+        "hit": false
+      },
+      {
+        "id": "sr-17",
+        "query": "BigHand",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "totalMatches": 31,
+        "hit": true
+      },
+      {
+        "id": "sr-18",
+        "query": "bighand",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "totalMatches": 31,
+        "hit": true
+      },
+      {
+        "id": "sr-19",
+        "query": "workerdatamart",
+        "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "top1": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration",
+        "totalMatches": 19,
+        "hit": false
+      },
+      {
+        "id": "sr-20",
+        "query": "Unity Catalog pipeline",
+        "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+        "top1": "projects/data-platform-dlz/concepts/curation-pipeline",
+        "totalMatches": 22,
+        "hit": false
+      },
+      {
+        "id": "sr-21",
+        "query": "ADF debug mode",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "projects/data-platform-dlz/skills/adf-debug-mode-monitoring",
+        "totalMatches": 6,
+        "hit": false
+      },
+      {
+        "id": "sr-22",
+        "query": "FactForecasts curated_factforecasts FactQualifications",
+        "goldenPath": "projects/data-platform-dlz/synthesis/bighand-to-workerdatamart-migration-2026-07",
+        "top1": null,
+        "totalMatches": 0,
+        "hit": false
+      },
+      {
+        "id": "sr-23",
+        "query": "deploy",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+        "totalMatches": 33,
+        "hit": false
+      },
+      {
+        "id": "sr-24",
+        "query": "BigHand deploy",
+        "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+        "top1": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "totalMatches": 20,
+        "hit": false
+      },
+      {
+        "id": "sr-25",
+        "query": "BigHand integration ingest",
+        "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "top1": "projects/data-platform-dlz/concepts/adf-pipeline-catalog",
+        "totalMatches": 9,
+        "hit": false
+      },
+      {
+        "id": "sr-26",
+        "query": "holidays",
+        "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
+        "top1": "projects/data-platform-dlz/entities/factpersoncalendar",
+        "totalMatches": 11,
+        "hit": true
+      },
+      {
+        "id": "sr-27",
+        "query": "BigHand API",
+        "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "top1": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "totalMatches": 24,
+        "hit": true
+      },
+      {
+        "id": "sr-28",
+        "query": "FactPersonForecast bighand entity",
+        "goldenPath": "projects/data-platform-dlz/entities/source-systems",
+        "top1": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "totalMatches": 10,
+        "hit": false
+      },
+      {
+        "id": "sr-29",
+        "query": "FactPersonCalendar person date calendar",
+        "goldenPath": "index",
+        "top1": "projects/data-platform-dlz/entities/factpersoncalendar",
+        "totalMatches": 10,
+        "hit": false
+      }
+    ]
+  }
+}

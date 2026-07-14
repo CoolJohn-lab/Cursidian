@@ -1,0 +1,827 @@
+{
+  "generatedAt": "2026-07-08T18:06:55.257Z",
+  "totalReplaceCalls": 41,
+  "simulated": 41,
+  "blockedBySizeGuard": 7,
+  "wouldTruncateOldUpstream": 7,
+  "patchAlternativeCandidates": 6,
+  "f681a293": {
+    "total": 17,
+    "blocked": 5,
+    "fragmentReplaces": 5,
+    "cases": [
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 17,
+        "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "existingLen": 7777,
+        "proposedLen": 8245,
+        "shrinkRatio": 1.06,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 18,
+        "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "existingLen": 7777,
+        "proposedLen": 136,
+        "shrinkRatio": 0.017,
+        "old_upstream_would_truncate": true,
+        "new_guard": "blocked",
+        "could_use_patch_or_section": true,
+        "friction_tags": [
+          "full_replace",
+          "suspected_fragment_replace"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 19,
+        "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "existingLen": 7777,
+        "proposedLen": 8240,
+        "shrinkRatio": 1.06,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace",
+          "truncation_recovery"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 21,
+        "path": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
+        "existingLen": 7161,
+        "proposedLen": 7161,
+        "shrinkRatio": 1,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace",
+          "full_replace",
+          "full_replace"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 21,
+        "path": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+        "existingLen": 2941,
+        "proposedLen": 2941,
+        "shrinkRatio": 1,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": []
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 21,
+        "path": "hot",
+        "existingLen": 1808,
+        "proposedLen": 1498,
+        "shrinkRatio": 0.829,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": []
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 22,
+        "path": "projects/data-platform-dlz/entities/source-systems",
+        "existingLen": 4525,
+        "proposedLen": 4525,
+        "shrinkRatio": 1,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace",
+          "full_replace"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 22,
+        "path": "projects/data-platform-dlz/entities/data-products",
+        "existingLen": 5038,
+        "proposedLen": 5038,
+        "shrinkRatio": 1,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": []
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 24,
+        "path": "projects/data-platform-dlz/entities/factpersoncalendar",
+        "existingLen": 5956,
+        "proposedLen": 5722,
+        "shrinkRatio": 0.961,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 73,
+        "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "existingLen": 7777,
+        "proposedLen": 579,
+        "shrinkRatio": 0.074,
+        "old_upstream_would_truncate": true,
+        "new_guard": "blocked",
+        "could_use_patch_or_section": true,
+        "friction_tags": [
+          "full_replace"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 75,
+        "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+        "existingLen": 7777,
+        "proposedLen": 7777,
+        "shrinkRatio": 1,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace",
+          "truncation_recovery",
+          "full_replace",
+          "suspected_fragment_replace",
+          "truncation_recovery"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 75,
+        "path": "projects/data-platform-dlz/entities/factpersoncalendar",
+        "existingLen": 5956,
+        "proposedLen": 252,
+        "shrinkRatio": 0.042,
+        "old_upstream_would_truncate": true,
+        "new_guard": "blocked",
+        "could_use_patch_or_section": true,
+        "friction_tags": []
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 79,
+        "path": "projects/data-platform-dlz/entities/factpersoncalendar",
+        "existingLen": 5956,
+        "proposedLen": 5956,
+        "shrinkRatio": 1,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace",
+          "full_replace",
+          "suspected_fragment_replace"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 79,
+        "path": "index",
+        "existingLen": 5880,
+        "proposedLen": 131,
+        "shrinkRatio": 0.022,
+        "old_upstream_would_truncate": true,
+        "new_guard": "blocked",
+        "could_use_patch_or_section": true,
+        "friction_tags": []
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 80,
+        "path": "index",
+        "existingLen": 5880,
+        "proposedLen": 5880,
+        "shrinkRatio": 1,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace",
+          "truncation_recovery",
+          "truncation_recovery",
+          "full_replace",
+          "truncation_recovery"
+        ]
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 80,
+        "path": "projects/data-platform-dlz/data-platform-dlz",
+        "existingLen": 7127,
+        "proposedLen": 552,
+        "shrinkRatio": 0.077,
+        "old_upstream_would_truncate": true,
+        "new_guard": "blocked",
+        "could_use_patch_or_section": true,
+        "friction_tags": []
+      },
+      {
+        "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+        "line_number": 82,
+        "path": "projects/data-platform-dlz/data-platform-dlz",
+        "existingLen": 7127,
+        "proposedLen": 7127,
+        "shrinkRatio": 1,
+        "old_upstream_would_truncate": false,
+        "new_guard": "allowed",
+        "could_use_patch_or_section": false,
+        "friction_tags": [
+          "full_replace"
+        ]
+      }
+    ]
+  },
+  "results": [
+    {
+      "transcript_id": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
+      "line_number": 30,
+      "path": "hot",
+      "existingLen": 1808,
+      "proposedLen": 1108,
+      "shrinkRatio": 0.613,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
+      "line_number": 31,
+      "path": "index",
+      "existingLen": 5880,
+      "proposedLen": 3177,
+      "shrinkRatio": 0.54,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "33db22c8-3a67-43b1-bcdd-7733023b1704",
+      "line_number": 113,
+      "path": "projects/data-platform-dlz/skills/cursor-plugins-and-tooling-status",
+      "existingLen": 7611,
+      "proposedLen": 6697,
+      "shrinkRatio": 0.88,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "53abd6fb-5c3b-4f72-969d-a8b7d23177b9",
+      "line_number": 35,
+      "path": "hot",
+      "existingLen": 1808,
+      "proposedLen": 3947,
+      "shrinkRatio": 2.183,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "53abd6fb-5c3b-4f72-969d-a8b7d23177b9",
+      "line_number": 38,
+      "path": "index",
+      "existingLen": 5880,
+      "proposedLen": 5604,
+      "shrinkRatio": 0.953,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
+      "line_number": 55,
+      "path": "projects/data-platform-dlz/entities/data-products",
+      "existingLen": 5038,
+      "proposedLen": 4889,
+      "shrinkRatio": 0.97,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
+      "line_number": 56,
+      "path": "projects/data-platform-dlz/concepts/curated-and-model-layers",
+      "existingLen": 3968,
+      "proposedLen": 2844,
+      "shrinkRatio": 0.717,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
+      "line_number": 58,
+      "path": "hot",
+      "existingLen": 1808,
+      "proposedLen": 3530,
+      "shrinkRatio": 1.952,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "line_number": 14,
+      "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "existingLen": 7777,
+      "proposedLen": 11611,
+      "shrinkRatio": 1.493,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "line_number": 14,
+      "path": "projects/data-platform-dlz/concepts/curated-and-model-layers",
+      "existingLen": 3968,
+      "proposedLen": 3942,
+      "shrinkRatio": 0.993,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "line_number": 15,
+      "path": "projects/data-platform-dlz/concepts/worker-data-mart",
+      "existingLen": 4298,
+      "proposedLen": 3793,
+      "shrinkRatio": 0.883,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "line_number": 17,
+      "path": "projects/data-platform-dlz/concepts/curation-pipeline",
+      "existingLen": 5086,
+      "proposedLen": 676,
+      "shrinkRatio": 0.133,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
+      "could_use_patch_or_section": true,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "line_number": 19,
+      "path": "projects/data-platform-dlz/concepts/curation-pipeline",
+      "existingLen": 5086,
+      "proposedLen": 4698,
+      "shrinkRatio": 0.924,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "truncation_recovery",
+        "truncation_recovery"
+      ]
+    },
+    {
+      "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "line_number": 22,
+      "path": "hot",
+      "existingLen": 1808,
+      "proposedLen": 4295,
+      "shrinkRatio": 2.376,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "b01b889f-4a09-4a25-a9d2-3e66fe27c400",
+      "line_number": 57,
+      "path": "index",
+      "existingLen": 5880,
+      "proposedLen": 3573,
+      "shrinkRatio": 0.608,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "b01b889f-4a09-4a25-a9d2-3e66fe27c400",
+      "line_number": 57,
+      "path": "hot",
+      "existingLen": 1808,
+      "proposedLen": 1744,
+      "shrinkRatio": 0.965,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "c63bf7c6-8498-4737-b632-1e5e1d14136e",
+      "line_number": 40,
+      "path": "index",
+      "existingLen": 5880,
+      "proposedLen": 3360,
+      "shrinkRatio": 0.571,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "line_number": 100,
+      "path": "projects/data-platform-dlz/concepts/worker-data-mart",
+      "existingLen": 4298,
+      "proposedLen": 1588,
+      "shrinkRatio": 0.369,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "line_number": 101,
+      "path": "projects/data-platform-dlz/concepts/worker-data-mart",
+      "existingLen": 4298,
+      "proposedLen": 5429,
+      "shrinkRatio": 1.263,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "truncation_recovery",
+        "truncation_recovery"
+      ]
+    },
+    {
+      "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "line_number": 257,
+      "path": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+      "existingLen": 5970,
+      "proposedLen": 5969,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 17,
+      "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "existingLen": 7777,
+      "proposedLen": 8245,
+      "shrinkRatio": 1.06,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 18,
+      "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "existingLen": 7777,
+      "proposedLen": 136,
+      "shrinkRatio": 0.017,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
+      "could_use_patch_or_section": true,
+      "friction_tags": [
+        "full_replace",
+        "suspected_fragment_replace"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 19,
+      "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "existingLen": 7777,
+      "proposedLen": 8240,
+      "shrinkRatio": 1.06,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "truncation_recovery"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 21,
+      "path": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
+      "existingLen": 7161,
+      "proposedLen": 7161,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "full_replace",
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 21,
+      "path": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+      "existingLen": 2941,
+      "proposedLen": 2941,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 21,
+      "path": "hot",
+      "existingLen": 1808,
+      "proposedLen": 1498,
+      "shrinkRatio": 0.829,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 22,
+      "path": "projects/data-platform-dlz/entities/source-systems",
+      "existingLen": 4525,
+      "proposedLen": 4525,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 22,
+      "path": "projects/data-platform-dlz/entities/data-products",
+      "existingLen": 5038,
+      "proposedLen": 5038,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 24,
+      "path": "projects/data-platform-dlz/entities/factpersoncalendar",
+      "existingLen": 5956,
+      "proposedLen": 5722,
+      "shrinkRatio": 0.961,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 73,
+      "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "existingLen": 7777,
+      "proposedLen": 579,
+      "shrinkRatio": 0.074,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
+      "could_use_patch_or_section": true,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 75,
+      "path": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "existingLen": 7777,
+      "proposedLen": 7777,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "truncation_recovery",
+        "full_replace",
+        "suspected_fragment_replace",
+        "truncation_recovery"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 75,
+      "path": "projects/data-platform-dlz/entities/factpersoncalendar",
+      "existingLen": 5956,
+      "proposedLen": 252,
+      "shrinkRatio": 0.042,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
+      "could_use_patch_or_section": true,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 79,
+      "path": "projects/data-platform-dlz/entities/factpersoncalendar",
+      "existingLen": 5956,
+      "proposedLen": 5956,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "full_replace",
+        "suspected_fragment_replace"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 79,
+      "path": "index",
+      "existingLen": 5880,
+      "proposedLen": 131,
+      "shrinkRatio": 0.022,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
+      "could_use_patch_or_section": true,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 80,
+      "path": "index",
+      "existingLen": 5880,
+      "proposedLen": 5880,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace",
+        "truncation_recovery",
+        "truncation_recovery",
+        "full_replace",
+        "truncation_recovery"
+      ]
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 80,
+      "path": "projects/data-platform-dlz/data-platform-dlz",
+      "existingLen": 7127,
+      "proposedLen": 552,
+      "shrinkRatio": 0.077,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
+      "could_use_patch_or_section": true,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "line_number": 82,
+      "path": "projects/data-platform-dlz/data-platform-dlz",
+      "existingLen": 7127,
+      "proposedLen": 7127,
+      "shrinkRatio": 1,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
+      "line_number": 25,
+      "path": "projects/data-platform-dlz/entities/data-products",
+      "existingLen": 5038,
+      "proposedLen": 5131,
+      "shrinkRatio": 1.018,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
+      "line_number": 32,
+      "path": "index",
+      "existingLen": 5880,
+      "proposedLen": 4029,
+      "shrinkRatio": 0.685,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    },
+    {
+      "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
+      "line_number": 33,
+      "path": "hot",
+      "existingLen": 1808,
+      "proposedLen": 4481,
+      "shrinkRatio": 2.478,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": []
+    },
+    {
+      "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
+      "line_number": 35,
+      "path": "projects/data-platform-dlz/data-platform-dlz",
+      "existingLen": 7127,
+      "proposedLen": 5192,
+      "shrinkRatio": 0.728,
+      "old_upstream_would_truncate": false,
+      "new_guard": "allowed",
+      "could_use_patch_or_section": false,
+      "friction_tags": [
+        "full_replace"
+      ]
+    }
+  ]
+}

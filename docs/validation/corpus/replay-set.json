@@ -1,0 +1,552 @@
+{
+  "generatedAt": "2026-07-08T17:38:50.988Z",
+  "totalCases": 68,
+  "labelledCases": 29,
+  "unlabelledCases": 39,
+  "cases": [
+    {
+      "id": "sr-1",
+      "query": "data product",
+      "limit": 50,
+      "goldenPath": "cdf knowledge base/cdf knowledge base index",
+      "sourceSession": "55b7f0bc-3db0-442c-b05a-2ee18e02f2ae",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-2",
+      "query": "ingestion pipeline deployment",
+      "limit": 30,
+      "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+      "sourceSession": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-3",
+      "query": "secrets BaseUrl variable group",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/entities/source-systems",
+      "sourceSession": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-4",
+      "query": "workerdatamart",
+      "limit": 50,
+      "goldenPath": "projects/data-platform-dlz/concepts/worker-data-mart",
+      "sourceSession": "c63bf7c6-8498-4737-b632-1e5e1d14136e",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-5",
+      "query": "curated",
+      "limit": 50,
+      "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
+      "sourceSession": "c63bf7c6-8498-4737-b632-1e5e1d14136e",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-6",
+      "query": "Databricks command execution context cluster",
+      "limit": 10,
+      "goldenPath": "skills/databricks-asset-bundles",
+      "sourceSession": "33db22c8-3a67-43b1-bcdd-7733023b1704",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-7",
+      "query": "execution context",
+      "limit": 3,
+      "goldenPath": "skills/databricks-run-commands-via-execution-context",
+      "sourceSession": "33db22c8-3a67-43b1-bcdd-7733023b1704",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-8",
+      "query": "agent toolkit plugins MCP",
+      "limit": 5,
+      "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+      "sourceSession": "33db22c8-3a67-43b1-bcdd-7733023b1704",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-9",
+      "query": "Learning/Awesome Databricks",
+      "limit": 30,
+      "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+      "sourceSession": "38be576b-f89e-45cb-8047-d545e650da69",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-10",
+      "query": "_archives",
+      "limit": 50,
+      "goldenPath": "_archives/pre-wiki-migration/john's work brain",
+      "sourceSession": "38be576b-f89e-45cb-8047-d545e650da69",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-11",
+      "query": "BigHand",
+      "limit": 15,
+      "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+      "sourceSession": "bf5e9ea2-e5ec-4264-be9c-b595c77161ae",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-12",
+      "query": "Benevity",
+      "limit": 50,
+      "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+      "sourceSession": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-13",
+      "query": "BigHand",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+      "sourceSession": "60b76432-4a5d-4da7-87c6-119d2f785fee",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-14",
+      "query": "bighand",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+      "sourceSession": "04340747-0b69-48cf-b2af-6a9d9738577d",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-15",
+      "query": "medallion",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+      "sourceSession": "1f4b4178-63fe-4907-b436-3cb9813f2e49",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-16",
+      "query": "Unity Catalog deploy orchestrator metastore",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/entities/data-products",
+      "sourceSession": "60edd405-8836-4c14-8e3b-34419eb4b594",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-17",
+      "query": "BigHand",
+      "limit": 50,
+      "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "sourceSession": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-18",
+      "query": "bighand",
+      "limit": 30,
+      "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "sourceSession": "2d09626e-3c3f-49af-aae0-ac928a6e08df",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-19",
+      "query": "workerdatamart",
+      "limit": 30,
+      "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-20",
+      "query": "Unity Catalog pipeline",
+      "limit": 10,
+      "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-21",
+      "query": "ADF debug mode",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-22",
+      "query": "FactForecasts curated_factforecasts FactQualifications",
+      "limit": 30,
+      "goldenPath": "projects/data-platform-dlz/synthesis/bighand-to-workerdatamart-migration-2026-07",
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-23",
+      "query": "deploy",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-24",
+      "query": "BigHand deploy",
+      "limit": 10,
+      "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-25",
+      "query": "BigHand integration ingest",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
+      "sourceSession": "003067a5-ba6a-4b83-bd4e-de4620f05c64",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-26",
+      "query": "holidays",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
+      "sourceSession": "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-27",
+      "query": "BigHand API",
+      "limit": 20,
+      "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
+      "sourceSession": "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-28",
+      "query": "FactPersonForecast bighand entity",
+      "limit": 15,
+      "goldenPath": "projects/data-platform-dlz/entities/source-systems",
+      "sourceSession": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sr-29",
+      "query": "FactPersonCalendar person date calendar",
+      "limit": 5,
+      "goldenPath": "index",
+      "sourceSession": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "labelType": "search_then_read"
+    },
+    {
+      "id": "sq-30",
+      "query": "AD group",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "55b7f0bc-3db0-442c-b05a-2ee18e02f2ae",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-31",
+      "query": "A-account",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "668f9f41-03cf-4008-b19f-2e2ff875c6ed",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-32",
+      "query": "data contract BaseURL deployment pipeline",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-33",
+      "query": "data contract deploy metadata",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-34",
+      "query": "factpersoncalendar",
+      "limit": 50,
+      "goldenPath": null,
+      "sourceSession": "c63bf7c6-8498-4737-b632-1e5e1d14136e",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-35",
+      "query": "person calendar",
+      "limit": 50,
+      "goldenPath": null,
+      "sourceSession": "c63bf7c6-8498-4737-b632-1e5e1d14136e",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-36",
+      "query": "fbd-d-euw-data-dmlz-kv",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "ced314c6-010e-478f-8a37-a1b1c3be35a0",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-37",
+      "query": "dmlz-kv",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "ced314c6-010e-478f-8a37-a1b1c3be35a0",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-38",
+      "query": "dmlz",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "ced314c6-010e-478f-8a37-a1b1c3be35a0",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-39",
+      "query": "west europe uksouth migration dlz",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "ced314c6-010e-478f-8a37-a1b1c3be35a0",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-40",
+      "query": "CDF",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "d99722c2-4149-42f0-9a92-420e7adf12bc",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-41",
+      "query": "metastore schema evolution",
+      "limit": 5,
+      "goldenPath": null,
+      "sourceSession": "33db22c8-3a67-43b1-bcdd-7733023b1704",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-42",
+      "query": "CDF Knowledge Base",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "38be576b-f89e-45cb-8047-d545e650da69",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-43",
+      "query": "Learning/",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "38be576b-f89e-45cb-8047-d545e650da69",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-44",
+      "query": "BigHand working arrangements qualifications API",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "bf5e9ea2-e5ec-4264-be9c-b595c77161ae",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-45",
+      "query": "BigHand ingestion",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "04340747-0b69-48cf-b2af-6a9d9738577d",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-46",
+      "query": "CURATED view medallion architecture",
+      "limit": 15,
+      "goldenPath": null,
+      "sourceSession": "1f4b4178-63fe-4907-b436-3cb9813f2e49",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-47",
+      "query": "BigHand forecasts working arrangements",
+      "limit": 15,
+      "goldenPath": null,
+      "sourceSession": "1f4b4178-63fe-4907-b436-3cb9813f2e49",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-48",
+      "query": "silver temp enriched staging",
+      "limit": 10,
+      "goldenPath": null,
+      "sourceSession": "1f4b4178-63fe-4907-b436-3cb9813f2e49",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-49",
+      "query": "BigHand gold layer curated forecasts FactPersonCapacity workerdatamart",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-50",
+      "query": "BigHand pre-deployment folderExists dbutils",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "53abd6fb-5c3b-4f72-969d-a8b7d23177b9",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-51",
+      "query": "BigHand naming conventions workerdatamart temp",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "e91fdbcf-6d94-4d96-af56-201d873ac2e8",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-52",
+      "query": "naming convention workerdatamart curated",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "e91fdbcf-6d94-4d96-af56-201d873ac2e8",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-53",
+      "query": "BigHand deploy sequence",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-54",
+      "query": "FactPerson naming",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-55",
+      "query": "ADO pipeline order",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-56",
+      "query": "monitoring failures",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-57",
+      "query": "FactPerson",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-58",
+      "query": "Metadata Transformation Unity Catalog",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-59",
+      "query": "notebookErrorMessage",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-60",
+      "query": "deploy sequence",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-61",
+      "query": "FactForecasts curated_factforecasts BigHand.FactPersonCapacity migration decommission legacy",
+      "limit": 50,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-62",
+      "query": "FactPersonForecast bighand enriched_workerdatamart",
+      "limit": 50,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-63",
+      "query": "BigHand deploy FactPerson Metadata Transformation Unity Catalog",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-64",
+      "query": "monitoring error logs ADF debug mode",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "f05dd98a-2a87-4999-9183-66134c47a684",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-65",
+      "query": "public holidays API",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-66",
+      "query": "BigHand API PublicHolidays",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-67",
+      "query": "public holidays",
+      "limit": 20,
+      "goldenPath": null,
+      "sourceSession": "a4e1e31a-e8b9-45e7-a111-6f00402224d6",
+      "labelType": "search_only"
+    },
+    {
+      "id": "sq-68",
+      "query": "bighand FactPublicHoliday public holidays",
+      "limit": 30,
+      "goldenPath": null,
+      "sourceSession": "f681a293-0729-4f69-93e9-cd5da9b4572a",
+      "labelType": "search_only"
+    }
+  ]
+}

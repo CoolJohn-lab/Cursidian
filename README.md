@@ -125,7 +125,7 @@ Source documents **outside** the vault (PDFs, repo files, URLs) may be read with
 1. Cursor loads skills from `~/.cursor/skills/` when the user asks something matching a skill description (e.g. "add this to the wiki", "what do I know about X").
 2. The skill tells the agent which MCP actions to call, in what order (cheap search first, full `note` read only when needed).
 3. Writes follow the safe-write protocol: `note` `read` -> `revisionHash` -> narrowest `note` `update` with `expectedRevision`. Mutating skills keep an operation-ID stack and call `vault` `undo` in reverse on failure after writes.
-4. After multi-page edits, skills typically call `vault` `sync_index` (rebuild `index.md`) and `vault` `log` (append `log.md` / optional `hot.md`), then verify with `sync_index` `dryRun: true` expecting `wouldWrite: false`.
+4. After multi-page edits, skills typically call `vault` `sync_index` (flat: rebuild leaf catalog; hub: refresh router blurbs) and `vault` `log` (append `log.md` / optional `hot.md`), then verify with `sync_index` `dryRun: true` expecting `wouldWrite: false`. Set `indexMode: hub` on `index.md` frontmatter for curated hub-router vaults.
 
 Shared schema and the full MCP contract live in the `llm-wiki` skill.
 

@@ -14,14 +14,29 @@ const REQUIRED_FRONTMATTER = ['title', 'category', 'tags', 'summary', 'updated']
 /** Matches `> Contradicts [[other-page]]` callouts. Mirrors `CONTRADICTS_RE` in context-assembler.ts. */
 const CONTRADICTS_RE = /^>\s*Contradicts\s+\[\[([^\]]+)\]\]/gim;
 
+/** Catalog line with summary: `- [[path]] - blurb` or em dash. */
+const CATALOG_WITH_SUMMARY_RE =
+  /^(\s*-\s*\[\[)([^\]|]+)(\|[^\]]+)?(\]\])(\s*(?:\u2014|-)\s*)(.*)$/;
+
+/** Link-only catalog line: `- [[path]]` (optional alias). */
+const CATALOG_LINK_ONLY_RE = /^(\s*-\s*\[\[)([^\]|]+)(\|[^\]]+)?(\]\])(\s*)$/;
+
+export type IndexMode = 'flat' | 'hub';
+
 export interface VaultHealthReport {
   generatedAt: string;
+  /** Index policy from index.md frontmatter (`indexMode`); default `flat`. */
+  indexMode: IndexMode;
   noteCount: number;
   orphans: Array<{ path: string }>;
   brokenLinks: Array<{ path: string; raw: string }>;
   missingFrontmatter: Array<{ path: string; missing: string[] }>;
   summaryWarnings: Array<{ path: string; issue: 'missing' | 'too_long'; length?: number }>;
   indexDrift: {
+    /**
+     * Flat mode: every catalog note absent from index.md.
+     * Hub mode: catalog notes neither listed on index.md nor linked from a listed hub.
+     */
     missingFromIndex: string[];
     deadIndexEntries: string[];
     summaryMismatches: Array<{ path: string; indexSummary: string; pageSummary: string }>;
@@ -50,47 +65,149 @@ export interface VaultHealthReport {
   skipped: Array<{ path: string; reason: string }>;
 }
 
-interface IndexEntryParsed {
+export interface IndexEntryParsed {
   target: string;
   summary: string;
 }
 
+export interface IndexSyncResult {
+  markdown: string;
+  noteCount: number;
+  categories: string[];
+  indexMode: IndexMode;
+}
+
 /**
- * Parses index.md body for wikilink catalog entries.
+ * Reads `indexMode` from index frontmatter. Unknown / missing => `flat`.
+ */
+export function parseIndexMode(data: Record<string, unknown>): IndexMode {
+  const raw = data.indexMode;
+  if (typeof raw === 'string' && raw.trim().toLowerCase() === 'hub') {
+    return 'hub';
+  }
+  return 'flat';
+}
+
+function stripTagSuffix(summary: string): string {
+  let cleaned = summary;
+  const tagIdx = cleaned.indexOf('(#');
+  if (tagIdx >= 0) {
+    cleaned = cleaned.slice(0, tagIdx).trim();
+  }
+  const parenTagIdx = cleaned.indexOf('( #');
+  if (parenTagIdx >= 0) {
+    cleaned = cleaned.slice(0, parenTagIdx).trim();
+  }
+  return cleaned;
+}
+
+/**
+ * Parses index.md body for wikilink catalog entries (with or without summary).
  */
 export function parseIndexEntries(body: string): IndexEntryParsed[] {
   const entries: IndexEntryParsed[] = [];
-  // Accept ASCII hyphen or legacy em dash (U+2014) between wikilink and summary.
-  const lineRe = /^-\s*\[\[([^\]|]+)(?:\|[^\]]+)?\]\]\s*(?:\u2014|-)\s*(.*)$/;
 
   for (const line of body.split('\n')) {
-    const match = line.trim().match(lineRe);
-    if (!match) {
+    const trimmed = line.trim();
+    const withSummary = trimmed.match(CATALOG_WITH_SUMMARY_RE);
+    if (withSummary) {
+      entries.push({
+        target: withSummary[2]!.trim(),
+        summary: stripTagSuffix(withSummary[6]?.trim() ?? ''),
+      });
       continue;
     }
-    const target = match[1]!.trim();
-    let summary = match[2]?.trim() ?? '';
-    const tagIdx = summary.indexOf('(#');
-    if (tagIdx >= 0) {
-      summary = summary.slice(0, tagIdx).trim();
+    const linkOnly = trimmed.match(CATALOG_LINK_ONLY_RE);
+    if (linkOnly) {
+      entries.push({
+        target: linkOnly[2]!.trim(),
+        summary: '',
+      });
     }
-    const parenTagIdx = summary.indexOf('( #');
-    if (parenTagIdx >= 0) {
-      summary = summary.slice(0, parenTagIdx).trim();
-    }
-    entries.push({ target, summary });
   }
 
   return entries;
 }
 
-function resolveIndexTarget(target: string, index: VaultIndex): string | null {
+export function resolveIndexTarget(target: string, index: VaultIndex): string | null {
   const resolved = resolveWikilinkTarget(target, index);
   if (resolved) {
     return resolved;
   }
   const withMd = target.endsWith('.md') ? target : `${target}.md`;
   return resolveWikilinkTarget(withMd, index);
+}
+
+/**
+ * Hub mode: preserve curated structure. Catalog lines (including short blurbs and
+ * em-dash separators) stay as written; dead targets keep their original text.
+ * Flat rebuild is never used here.
+ */
+export async function refreshIndexMarkdown(
+  vaultPath: string,
+  existingBody: string,
+  _maxFileSize = 10_485_760,
+): Promise<{ markdown: string; noteCount: number; categories: string[] }> {
+  const vaultIndex = await getVaultIndex(vaultPath);
+  const categoriesSet = new Set<string>();
+  let noteCount = 0;
+  const lines = existingBody.replace(/\r\n/g, '\n').split('\n');
+
+  for (const line of lines) {
+    const withSummary = line.match(CATALOG_WITH_SUMMARY_RE);
+    const linkOnly = !withSummary ? line.match(CATALOG_LINK_ONLY_RE) : null;
+    const match = withSummary ?? linkOnly;
+    if (!match) {
+      continue;
+    }
+    noteCount += 1;
+    const target = match[2]!.trim();
+    const resolved = resolveIndexTarget(target, vaultIndex);
+    if (resolved) {
+      const cat = resolved.split('/')[0]?.replace(/\.md$/, '') ?? 'uncategorized';
+      categoriesSet.add(cat);
+    }
+  }
+
+  let markdown = lines.join('\n');
+  if (!markdown.endsWith('\n')) {
+    markdown += '\n';
+  }
+  return {
+    markdown,
+    noteCount,
+    categories: [...categoriesSet].sort((a, b) => a.localeCompare(b)),
+  };
+}
+
+/**
+ * Resolves the next index.md body for sync_index / deslop according to vault indexMode.
+ */
+export async function buildIndexSyncPayload(
+  vaultPath: string,
+  maxFileSize = 10_485_760,
+): Promise<IndexSyncResult> {
+  const indexPath = path.join(vaultPath, 'index.md');
+  let indexMode: IndexMode = 'flat';
+  let existingBody = '';
+
+  try {
+    const raw = await readFileBounded(indexPath, maxFileSize);
+    const parsed = parseFrontmatter(raw);
+    indexMode = parseIndexMode(parsed.data);
+    existingBody = parsed.content;
+  } catch {
+    // Missing index => flat rebuild creates it
+    indexMode = 'flat';
+  }
+
+  if (indexMode === 'hub' && existingBody.trim()) {
+    const refreshed = await refreshIndexMarkdown(vaultPath, existingBody, maxFileSize);
+    return { ...refreshed, indexMode };
+  }
+
+  const flat = await buildIndexMarkdown(vaultPath, maxFileSize);
+  return { ...flat, indexMode: indexMode === 'hub' ? 'hub' : 'flat' };
 }
 
 /**
@@ -115,6 +232,7 @@ export async function computeVaultHealth(
   const skipped: Array<{ path: string; reason: string }> = [];
   const contradictions: Array<{ path: string; counterpart: string; resolved: boolean }> = [];
   const catalogPaths = new Set<string>();
+  const bodyByPath = new Map<string, string>();
 
   for (const file of files) {
     const relativePath = path.relative(vaultPath, file).split(path.sep).join('/');
@@ -132,6 +250,7 @@ export async function computeVaultHealth(
       continue;
     }
     const { data, content } = parseFrontmatter(raw);
+    bodyByPath.set(relativePath, content);
 
     const missing: string[] = [];
     for (const key of REQUIRED_FRONTMATTER) {
@@ -193,11 +312,14 @@ export async function computeVaultHealth(
     summaryMismatches: [] as Array<{ path: string; indexSummary: string; pageSummary: string }>,
   };
 
+  let indexMode: IndexMode = 'flat';
   const indexPath = path.join(vaultPath, 'index.md');
   let indexBody = '';
   try {
     const indexRaw = await readFileBounded(indexPath, maxFileSize);
-    indexBody = parseFrontmatter(indexRaw).content;
+    const parsed = parseFrontmatter(indexRaw);
+    indexMode = parseIndexMode(parsed.data);
+    indexBody = parsed.content;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     skipped.push({ path: 'index.md', reason: message });
@@ -216,19 +338,46 @@ export async function computeVaultHealth(
       }
       indexedPaths.add(resolved);
 
-      const indexEntry = [...index.values()].find((e) => e.path === resolved);
-      const pageSummary = indexEntry?.summary ?? '';
-      if (entry.summary && pageSummary && entry.summary !== pageSummary) {
-        indexDrift.summaryMismatches.push({
-          path: resolved,
-          indexSummary: entry.summary,
-          pageSummary,
-        });
+      // Hub indexes use curated short blurbs; do not require equality with page summary.
+      if (indexMode === 'flat') {
+        const indexEntry = [...index.values()].find((e) => e.path === resolved);
+        const pageSummary = indexEntry?.summary ?? '';
+        if (entry.summary && pageSummary && entry.summary !== pageSummary) {
+          indexDrift.summaryMismatches.push({
+            path: resolved,
+            indexSummary: entry.summary,
+            pageSummary,
+          });
+        }
+      }
+    }
+
+    const covered = new Set<string>(indexedPaths);
+
+    if (indexMode === 'hub') {
+      // Depth-2 outbound from index hubs: hub -> catalog page -> leaves
+      // (e.g. ADO queue -> TMS suite -> individual ticket leaves).
+      let frontier = [...indexedPaths];
+      for (let depth = 0; depth < 2; depth += 1) {
+        const next: string[] = [];
+        for (const hubPath of frontier) {
+          const hubBody = bodyByPath.get(hubPath);
+          if (!hubBody) {
+            continue;
+          }
+          for (const link of resolveOutgoingLinks(hubBody, index)) {
+            if (link.resolvedPath && catalogPaths.has(link.resolvedPath) && !covered.has(link.resolvedPath)) {
+              covered.add(link.resolvedPath);
+              next.push(link.resolvedPath);
+            }
+          }
+        }
+        frontier = next;
       }
     }
 
     for (const catalogPath of catalogPaths) {
-      if (!indexedPaths.has(catalogPath)) {
+      if (!covered.has(catalogPath)) {
         indexDrift.missingFromIndex.push(catalogPath);
       }
     }
@@ -248,6 +397,7 @@ export async function computeVaultHealth(
 
   return {
     generatedAt: new Date().toISOString(),
+    indexMode,
     noteCount: catalogPaths.size,
     orphans,
     brokenLinks,
@@ -281,7 +431,7 @@ export function isCatalogNote(relativePath: string): boolean {
 }
 
 /**
- * Builds index.md body grouped by category.
+ * Builds index.md body grouped by category (flat mode).
  */
 export async function buildIndexMarkdown(
   vaultPath: string,

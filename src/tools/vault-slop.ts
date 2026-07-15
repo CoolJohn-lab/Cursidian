@@ -2,7 +2,7 @@ import { type Config } from '../config.js';
 import { assertNotReadOnly, assertSafePathAsync, readFileBounded } from '../lib/security.js';
 import { atomicReplaceLocked } from '../lib/vault-io.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
-import { buildIndexMarkdown } from '../lib/vault-health.js';
+import { buildIndexSyncPayload } from '../lib/vault-health.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
 import { resolvePath } from '../lib/vault.js';
@@ -169,8 +169,8 @@ export function vaultDeslopHandler(config: Config) {
 
           let indexSynced = false;
           if (summariesChanged && indexAbsolute) {
-            // Rebuild from disk after note writes so catalog matches cleaned summaries.
-            const rebuilt = await buildIndexMarkdown(config.vaultPath, config.maxFileSize);
+            // Flat: rebuild leaf catalog. Hub: refresh existing router blurbs only.
+            const rebuilt = await buildIndexSyncPayload(config.vaultPath, config.maxFileSize);
             let existingFm: Record<string, unknown> = { title: 'Wiki Index' };
             try {
               const raw = await readFileBounded(indexAbsolute, config.maxFileSize);
@@ -178,7 +178,11 @@ export function vaultDeslopHandler(config: Config) {
             } catch {
               // create index.md
             }
-            const frontmatter = withUpdatedTimestamp({ ...existingFm, title: 'Wiki Index' });
+            const frontmatter = withUpdatedTimestamp({
+              ...existingFm,
+              title: 'Wiki Index',
+              ...(rebuilt.indexMode === 'hub' ? { indexMode: 'hub' } : {}),
+            });
             const body = stringifyFrontmatter(frontmatter, rebuilt.markdown);
             await fs.mkdir(path.dirname(indexAbsolute), { recursive: true });
             await atomicReplaceLocked(config.vaultPath, indexAbsolute, body, config.maxFileSize);

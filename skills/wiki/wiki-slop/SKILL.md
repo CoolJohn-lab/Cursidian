@@ -36,7 +36,7 @@ CLI `npm run slop:check:wiki` / `slop:fix:wiki` remain for humans/CI but **agent
    - Prefer `deslop` with `dryRun: true`, then `deslop` with `confirm: true`
    - Push returned `operationId` onto the operation stack; undo with `vault` `undo` on failure
    - `deslop` is one vault call (server-side multi-file journal); do not parallel it with other same-path vault mutations. For leftover **phrase** hits, serialize `note` updates one note at a time and chain response `revisionHash`
-   - When `summariesChanged` / `indexSynced` is true, catalogs are already rebuilt inside `deslop`; otherwise run `vault` `sync_index` if you still see index drift
+   - When `summariesChanged` / `indexSynced` is true, index blurbs are already updated inside `deslop` (flat rebuild or hub refresh); otherwise run `vault` `sync_index` if you still see real index drift (respect `indexMode`)
    - Re-check with `slop_check` and optionally `vault` `health` (expect zero `summaryMismatches`)
 3. **Repo cleanup (npm)**
    - Prefer `slop:fix` then `slop:check`

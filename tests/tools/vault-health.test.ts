@@ -80,13 +80,106 @@ describe('vault (health)', () => {
 
     const result = await callTool(ctx.client, 'vault', { action: 'health' });
     const data = parseResult(result) as {
+      indexMode: string;
       missingFrontmatter: Array<{ path: string }>;
       indexDrift: { deadIndexEntries: string[]; missingFromIndex: string[] };
     };
 
+    expect(data.indexMode).toBe('flat');
     expect(data.missingFrontmatter.some((m) => m.path.includes('incomplete'))).toBe(true);
     expect(data.indexDrift.deadIndexEntries).toContain('concepts/dead-entry');
     expect(data.indexDrift.missingFromIndex.some((p) => p.includes('incomplete'))).toBe(true);
+  });
+
+  it('hub indexMode treats hub-linked leaves as catalogued', async () => {
+    await writeNote(
+      ctx.vault,
+      'projects/hub.md',
+      '---\ntitle: Hub\ncategory: projects\ntags: [hub]\nsummary: Project hub.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n| Page | Role |\n| --- | --- |\n| [[projects/leaf]] | Leaf detail |\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'projects/leaf.md',
+      '---\ntitle: Leaf\ncategory: projects\ntags: [leaf]\nsummary: A leaf.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nLeaf body. See [[projects/hub]].\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'concepts/uncatalogued.md',
+      '---\ntitle: Uncatalogued\ncategory: concepts\ntags: [x]\nsummary: Not on hub.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nAlone.\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'index.md',
+      '---\ntitle: Wiki Index\nindexMode: hub\n---\n\n# Wiki Index\n\n## Projects\n\n- [[projects/hub]] - Project hub. ( #hub)\n',
+    );
+
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
+    const data = parseResult(result) as {
+      indexMode: string;
+      indexDrift: { missingFromIndex: string[]; deadIndexEntries: string[]; summaryMismatches: unknown[] };
+    };
+
+    expect(data.indexMode).toBe('hub');
+    expect(data.indexDrift.missingFromIndex).not.toContain('projects/leaf.md');
+    expect(data.indexDrift.missingFromIndex).not.toContain('projects/hub.md');
+    expect(data.indexDrift.missingFromIndex.some((p) => p.includes('uncatalogued'))).toBe(true);
+  });
+
+  it('accepts link-only index lines for coverage', async () => {
+    await writeNote(
+      ctx.vault,
+      'concepts/router-hub.md',
+      '---\ntitle: Router Hub\ncategory: concepts\ntags: [hub]\nsummary: Hub page.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nSee [[concepts/child-note]].\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'concepts/child-note.md',
+      '---\ntitle: Child\ncategory: concepts\ntags: [child]\nsummary: Child page.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nChild.\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'index.md',
+      '---\ntitle: Wiki Index\nindexMode: hub\n---\n\n# Wiki Index\n\n- [[concepts/router-hub]]\n',
+    );
+
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
+    const data = parseResult(result) as {
+      indexDrift: { missingFromIndex: string[] };
+    };
+
+    expect(data.indexDrift.missingFromIndex).not.toContain('concepts/router-hub.md');
+    expect(data.indexDrift.missingFromIndex).not.toContain('concepts/child-note.md');
+  });
+
+  it('hub depth-2 coverage reaches grandchildren of indexed hubs', async () => {
+    await writeNote(
+      ctx.vault,
+      'projects/queue-hub.md',
+      '---\ntitle: Queue Hub\ncategory: projects\ntags: [hub]\nsummary: Queue hub.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nSee [[projects/suite-page]].\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'projects/suite-page.md',
+      '---\ntitle: Suite\ncategory: projects\ntags: [suite]\nsummary: Suite consolidator.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n- [[projects/ticket-leaf]]\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'projects/ticket-leaf.md',
+      '---\ntitle: Ticket\ncategory: projects\ntags: [ticket]\nsummary: Individual ticket.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nTicket body.\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'index.md',
+      '---\ntitle: Wiki Index\nindexMode: hub\n---\n\n# Wiki Index\n\n- [[projects/queue-hub]] - Queue hub.\n',
+    );
+
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
+    const data = parseResult(result) as {
+      indexDrift: { missingFromIndex: string[] };
+    };
+
+    expect(data.indexDrift.missingFromIndex).not.toContain('projects/suite-page.md');
+    expect(data.indexDrift.missingFromIndex).not.toContain('projects/ticket-leaf.md');
   });
 
   it('reports contradiction callouts with resolved counterparts', async () => {

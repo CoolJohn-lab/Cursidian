@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `indexMode` on `index.md` frontmatter (`flat` default | `hub`) - vault-scoped index policy for curated hub-router wikis
+- Hub-mode `vault` `health`: leaves within 2 outbound hops of pages listed on `index.md` count as catalogued; `missingFromIndex` only for truly uncovered notes; health report includes `indexMode`; hub mode skips summary-mismatch checks
+- Hub-mode `vault` `sync_index` / `deslop`: preserve curated `index.md` body (never dump every leaf; hub router blurbs stay intentional)
+- Hub-mode health skips summary-mismatch checks (curated short blurbs are not required to match frontmatter `summary`)
+- Index parser accepts link-only catalog lines (`- [[path]]`) in addition to `- [[path]] - summary`
 - `context` MCP tool (5th tool, `src/tools/context.ts`) - the Context Generation Engine surface. `action=assemble` (default): token-budgeted, deduplicated, provenance-tagged context bundle for a query. `action=for_task`: same assembly phrased as a task description, with intent presets (`lookup`, `connection`, `onboarding`, `troubleshoot`, `ingest-prep`) inferred from phrasing when omitted. `action=expand`: continue a prior bundle from its `nextCursor` within a fresh token budget. `action=feedback`: record an insufficient/off-target bundle to a local `.cursidian/context-feedback.jsonl` log
 - `lib/context-assembler.ts` - `assembleContext`/`expandContext`: composes `search`/`graph` internally (one shared vault snapshot; read-only, inherits existing caching/security), selects the cheapest sufficient passage per candidate (summary -> best section -> full body), greedily fills the token budget by value-per-token, deduplicates >60% shingle-overlapping passages, surfaces staleness/provenance/contradiction warnings, and computes a 0-1 `bundleConfidence`
 - `lib/token-estimate.ts` - `estimateTokens`: fast chars/4 heuristic with a mild bump for code fences/tables (no BPE tokenizer dependency)
@@ -33,6 +38,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Wiki skills (`llm-wiki`, ingest/capture/update/lint) document flat vs hub index behavior so agents stop treating hub-router sparsity as drift
+- `vault` tool description notes flat vs hub `sync_index` behavior
 - Operational `INFO`/`DEBUG` logs no longer write to stderr by default (Cursor MCP host was labeling them `[error]`); optional `OBSIDIAN_LOG_FILE` or `OBSIDIAN_LOG_STDERR_INFO=true`; `WARN`/`ERROR` stay on stderr; stdout remains MCP JSON-RPC only
 - `AGENTS.md` / `skills/wiki/INSTALL.md` - `mcp:check`, CallMcpTool `server`+`toolName` checklist, host hygiene pointer
 - Tool surface is now 5 tools (`note`, `search`, `graph`, `vault`, `context`); `AGENTS.md` and `skills/wiki/llm-wiki/SKILL.md` MCP Contract updated accordingly

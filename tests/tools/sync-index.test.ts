@@ -50,12 +50,55 @@ describe('vault (sync_index)', () => {
     );
 
     const result = await callTool(ctx.client, 'vault', { action: 'sync_index' });
-    const data = parseResult(result) as { updated: string; noteCount: number; categories: string[] };
+    const data = parseResult(result) as {
+      updated: string;
+      noteCount: number;
+      categories: string[];
+      indexMode: string;
+    };
     expect(data.updated).toBe('index.md');
+    expect(data.indexMode).toBe('flat');
 
     const raw = await fs.readFile(path.join(ctx.vault, 'index.md'), 'utf-8');
     expect(raw).toContain('## Entities');
     expect(raw).toContain('[[entities/beta]]');
     expect(raw).toContain('Entity note.');
+  });
+
+  it('hub mode preserves curated router without dumping every leaf', async () => {
+    await writeNote(
+      ctx.vault,
+      'projects/dlz-hub.md',
+      '---\ntitle: DLZ Hub\ncategory: projects\ntags: [hub]\nsummary: Hub page for DLZ.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n| [[projects/dlz-leaf]] | Leaf |\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'projects/dlz-leaf.md',
+      '---\ntitle: DLZ Leaf\ncategory: projects\ntags: [leaf]\nsummary: Should stay off root index.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nLeaf.\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'index.md',
+      '---\ntitle: Wiki Index\nindexMode: hub\n---\n\n# Wiki Index\n\n## Projects\n\nCurated router only.\n\n- [[projects/dlz-hub]] - short blurb ( #hub)\n',
+    );
+
+    const dryBefore = parseResult(
+      await callTool(ctx.client, 'vault', { action: 'sync_index', dryRun: true }),
+    ) as { wouldWrite: boolean; markdown: string; indexMode: string; noteCount: number };
+
+    expect(dryBefore.indexMode).toBe('hub');
+    expect(dryBefore.wouldWrite).toBe(false);
+    expect(dryBefore.markdown).toContain('short blurb');
+    expect(dryBefore.markdown).not.toContain('[[projects/dlz-leaf]]');
+    expect(dryBefore.markdown).toContain('Curated router only.');
+    expect(dryBefore.noteCount).toBe(1);
+
+    const health = parseResult(await callTool(ctx.client, 'vault', { action: 'health' })) as {
+      indexMode: string;
+      indexDrift: { missingFromIndex: string[]; summaryMismatches: unknown[] };
+    };
+    expect(health.indexMode).toBe('hub');
+    expect(health.indexDrift.missingFromIndex).not.toContain('projects/dlz-leaf.md');
+    expect(health.indexDrift.summaryMismatches).toEqual([]);
   });
 });

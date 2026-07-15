@@ -23,7 +23,7 @@ Map **only** fields that `vault` health actually returns:
 1. **Orphans** - `orphans` / `counts.orphans` (pages with zero incoming links; health already excludes operational paths).
 2. **Broken wikilinks** - `brokenLinks` / `counts.brokenLinks`.
 3. **Missing frontmatter** - `missingFrontmatter` / `counts.missingFrontmatter` (required: `title`, `category`, `tags`, `summary`, `updated`). Soft issues live in `summaryWarnings` / `counts.summaryWarnings` (missing or >200 chars).
-4. **Index drift** - `indexDrift` / `counts.indexDrift` (missing from index, dead entries, summary mismatches).
+4. **Index drift** - `indexDrift` / `counts.indexDrift` (missing from index, dead entries, summary mismatches). Respect `indexMode`: under `hub`, missing means uncovered by root index **and** hub links, not "absent from a flat leaf dump."
 5. **Ambiguous keys** - `ambiguousKeys` / `counts.ambiguousKeys` (title/alias/basename collisions).
 6. **Stale pages** - `stale` / `counts.stale` (old `updated` with enough backlinks; default window from `staleDays`).
 7. **Incomplete scan** - if `incomplete: true` or `counts.skipped` / `skipped` is non-empty, list skipped paths and reasons; never claim a clean vault.
@@ -59,7 +59,7 @@ After confirmation, apply via `note` actions `update` / `frontmatter` with `expe
 1. **Fix broken links** - rewrite to the closest unambiguous existing page; if no clear match, unlink to plain text. Never create a page just to satisfy a link.
 2. **Rescue orphans** - find plain-text mentions of the orphan's title in other pages (`search` action `content`, paginate if `truncated`) and wikilink them; max 3 insertions per orphan. If no mentions exist, add one line to the most closely related page's Related section.
 3. **Repair frontmatter** - fill missing `summary`/`tags` from page content; normalize tags against `_meta/taxonomy.md`. Prefer `fmOperation: "merge"` unless `replaceAll` is intentionally required.
-4. **Sync `index.md`** - call `vault` action `sync_index` (preview with `dryRun: true` first to show the planned catalog).
+4. **Sync `index.md`** - call `vault` action `sync_index` (preview with `dryRun: true` first). Flat mode rebuilds the leaf catalog; hub mode only refreshes existing router blurbs - never flatten a curated hub-router index.
 5. **Flag contradictions** - this is consolidate-only. Search for opposing claims with `search` `content`; add a one-line `> Contradicts [[other-page]]` callout to both pages. Flag, never resolve. Contradiction discovery is **not** part of report-only and is **not** a `vault` health field.
 
 Never merge or delete pages automatically - flag duplicates for the user.

@@ -4,7 +4,7 @@ import { type Config } from '../config.js';
 import { resolvePath, toRelativePath } from '../lib/vault.js';
 import { assertNotReadOnly, assertSafePathAsync, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
-import { buildIndexMarkdown } from '../lib/vault-health.js';
+import { buildIndexSyncPayload } from '../lib/vault-health.js';
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
 import { atomicWriteLocked } from '../lib/vault-io.js';
@@ -20,7 +20,7 @@ export function syncIndexHandler(config: Config) {
   return async ({ dryRun }: { dryRun?: boolean }) => {
     try {
       const effectiveDryRun = dryRun ?? false;
-      const { markdown, noteCount, categories } = await buildIndexMarkdown(
+      const { markdown, noteCount, categories, indexMode } = await buildIndexSyncPayload(
         config.vaultPath,
         config.maxFileSize,
       );
@@ -38,7 +38,10 @@ export function syncIndexHandler(config: Config) {
         } catch {
           wouldWrite = true;
         }
-        return ok({ wouldWrite, markdown, noteCount, categories }, { action: 'sync_index', changed: false });
+        return ok(
+          { wouldWrite, markdown, noteCount, categories, indexMode },
+          { action: 'sync_index', changed: false },
+        );
       }
 
       assertNotReadOnly(config.readOnly);
@@ -51,7 +54,11 @@ export function syncIndexHandler(config: Config) {
         // index.md will be created
       }
 
-      const frontmatter = withUpdatedTimestamp({ ...existingFm, title: 'Wiki Index' });
+      const frontmatter = withUpdatedTimestamp({
+        ...existingFm,
+        title: 'Wiki Index',
+        ...(indexMode === 'hub' ? { indexMode: 'hub' } : {}),
+      });
       const body = stringifyFrontmatter(frontmatter, markdown);
 
       const journaled = await runJournaledMultiFileOperation(config, {
@@ -68,6 +75,7 @@ export function syncIndexHandler(config: Config) {
             updated: toRelativePath(config.vaultPath, resolved),
             noteCount,
             categories,
+            indexMode,
           };
         },
       });

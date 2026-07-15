@@ -35,7 +35,7 @@ Push every `operationId`. Follow `llm-wiki` write sequencing: one note at a time
 
 1. **Create or merge** via MCP using the Page Template from `llm-wiki/SKILL.md` (`sources: [conversation:<ISO-date>]`, `summary`, >=2 wikilinks). Prefer merge when the duplicate search found a hit. Prefer one combined `note` `update` with body + `frontmatter` merge when both change.
 2. **Read back** the changed page with `note` `read` before bookkeeping. If the body or frontmatter is wrong, fix with `update` (or combined update) + `expectedRevision` from that read-back before continuing.
-3. **Bookkeeping:** `vault` `sync_index` (flat rebuild or hub blurb refresh); then `vault` `log` with `logLine: CAPTURE page="<path>" title="<title>"` and `hotActivity: CAPTURE - saved [[path]]`.
+3. **Bookkeeping:** `vault` `sync_index` (flat rebuild or hub preserve); then `vault` `log` with `logLine: CAPTURE page="<path>" title="<title>"` and `hotActivity: CAPTURE - saved [[path]]`.
 
 ### Verification
 

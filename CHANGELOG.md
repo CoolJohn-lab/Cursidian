@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 - Hub-mode `vault` `sync_index` / `deslop`: preserve curated `index.md` body (never dump every leaf; hub router blurbs stay intentional)
 - Hub-mode health skips summary-mismatch checks (curated short blurbs are not required to match frontmatter `summary`)
 - Index parser accepts link-only catalog lines (`- [[path]]`) in addition to `- [[path]] - summary`
+- Wiki skills / README / vault tool description: hub `sync_index` documented as **preserve**, not blurb-refresh from frontmatter
+- `wiki-setup` documents optional `indexMode: hub` for hub-router vaults
+- WorkStuff A+ rule requires `indexMode: hub` on `index.md`
 - `context` MCP tool (5th tool, `src/tools/context.ts`) - the Context Generation Engine surface. `action=assemble` (default): token-budgeted, deduplicated, provenance-tagged context bundle for a query. `action=for_task`: same assembly phrased as a task description, with intent presets (`lookup`, `connection`, `onboarding`, `troubleshoot`, `ingest-prep`) inferred from phrasing when omitted. `action=expand`: continue a prior bundle from its `nextCursor` within a fresh token budget. `action=feedback`: record an insufficient/off-target bundle to a local `.cursidian/context-feedback.jsonl` log
 - `lib/context-assembler.ts` - `assembleContext`/`expandContext`: composes `search`/`graph` internally (one shared vault snapshot; read-only, inherits existing caching/security), selects the cheapest sufficient passage per candidate (summary -> best section -> full body), greedily fills the token budget by value-per-token, deduplicates >60% shingle-overlapping passages, surfaces staleness/provenance/contradiction warnings, and computes a 0-1 `bundleConfidence`
 - `lib/token-estimate.ts` - `estimateTokens`: fast chars/4 heuristic with a mild bump for code fences/tables (no BPE tokenizer dependency)

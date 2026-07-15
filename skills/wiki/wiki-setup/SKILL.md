@@ -28,7 +28,7 @@ Push every returned `operationId` onto `operationStack`.
 1. Via `vault` action `create_folder`, create missing folders only: `concepts`, `entities`, `skills`, `references`, `synthesis`, `journal`, `projects`, `_meta`, `_raw`, `_archives`.
 2. Via `note` action `create` (never `overwrite: true` unless the user explicitly asked to replace a broken file and you passed `expectedRevision`):
 
-**`index.md`** - frontmatter `title: Wiki Index`; body with a `## <Category>` heading per category and a note that the index is auto-maintained.
+**`index.md`** - frontmatter `title: Wiki Index` (default flat catalog). For hub-router vaults set `indexMode: hub` and keep the body as a thin hub list; do not auto-dump every leaf. Flat default: body with a `## <Category>` heading per category and a note that the index is auto-maintained.
 
 **`log.md`** - frontmatter `title: Wiki Log`; body:
 

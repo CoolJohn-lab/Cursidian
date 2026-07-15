@@ -56,7 +56,7 @@ For each planned page:
 ### 4. Bookkeeping (all via MCP)
 
 - `vault` `manifest` `upsert_source` (or `upsert_project` when applicable) - one call per source with path, ingested timestamp, mtime, pages touched. Pass `expectedRevision` from the prior manifest read when updating. Do **not** hand-edit ledger lines with `note` `update`.
-- `vault` `sync_index` - flat: regenerate the catalog from frontmatter; hub (`indexMode: hub`): refresh existing router blurbs only (leaves stay on hubs).
+- `vault` `sync_index` - flat: regenerate the catalog from frontmatter; hub (`indexMode: hub`): preserve curated router (leaves stay on hubs).
 - `vault` `log` - `logLine: INGEST source="<path>" pages_created=N pages_updated=M mode=<mode>` and `hotActivity` summarizing the ingest (keeps last 3 Recent Activity bullets). Prefer this over separate `note` update appends on `log.md`/`hot.md`.
 
 ### 5. Verification

@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-07-22
+
+### Changed
+
+- **Major 3.0 baseline.** Declares the Cursor Obsidian LLM-wiki agent platform shipped across 2.11-2.12 as the supported public contract: five MCP tools (`note`, `search`, `graph`, `vault`, `context` with `focus`/`guidance`); protocol skill named `vault` (not `llm-wiki`); machine-wide **rule -> skill -> wiki** golden standard (no project `.cursor/rules`); hub `indexMode` for curated vault indexes; package-owned `slop` in the 11-skill install set
+- Semver major so consumers can treat pre-3.x (discrete-tool / `user-obsidian` / `llm-wiki` skill naming / root `hot`+`log` session cache) as outside the supported upgrade path without a cutover checklist
+
+### Migration
+
+- Cut over to the five-tool surface and skill `vault` before expecting 3.x behaviour; restart `user-cursidian` after upgrading `dist/`
+- Fold any remaining vault `hot.md` / `log.md` into project hubs, then delete those files; set `indexMode: hub` on `index.md` when using a curated hub router
+- After install: `npm run skills:install`, `npm run mcp:check`, start a **new** agent chat so Cursor reloads skill text
+
+### Added
+
+- Companion workstation planes (Azure nine-tool MCP XOR helpers; Databricks Skills plugin XOR `dlzpipe`) are documented for the cursor tools bundle (wiki / TD-011) - not shipped inside this npm package, but part of the same agent-platform story agents load beside Cursidian
+
 ## [2.12.1] - 2026-07-22
 
 ### Added

@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.12.1] - 2026-07-22
+
 ### Added
 
 - `slop` skill + `scripts/deslop.mjs` under `skills/wiki/slop/` (on-disk deslop); included in `skills:install` / doctor / check

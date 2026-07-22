@@ -4,21 +4,19 @@ import { type Config } from '../config.js';
 import { vaultHealthHandler } from './vault-health.js';
 import { syncIndexHandler } from './sync-index.js';
 import { manageFoldersHandler } from './manage-folders.js';
-import { touchWikiMetaHandler } from './touch-wiki-meta.js';
 import { operationHistoryHandler } from './operation-history.js';
 import { undoOperationHandler } from './undo-operation.js';
 import { manageManifestHandler } from './manage-manifest.js';
 import { manageVocabularyHandler } from './manage-vocabulary.js';
 import { vaultDeslopHandler, vaultSlopCheckHandler } from './vault-slop.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
-import { MAX_LOG_LINE_LENGTH } from '../lib/limits.js';
 
 export function registerVault(server: McpServer, config: Config): void {
   server.registerTool(
     'vault',
     {
       description:
-        'Vault maintenance. action=health: structured report (orphans, broken links, index drift, stale pages; respects index.md indexMode flat|hub). action=sync_index: flat rebuild of index.md from frontmatter, or hub mode preserve curated body (never dump every leaf). action=slop_check: read-only LLM-slop report (body + frontmatter). action=deslop: journaled char/emoji auto-fix (confirm: true; dryRun preview). action=create_folder/list_folders/delete_folder: folder ops (delete requires confirm, empty folders only). action=log: append to log.md and optionally hot.md (wiki bookkeeping). action=history: list journaled operations. action=undo: reverse a journaled operation (requires confirm: true). action=manifest: typed read/upsert/remove for _meta/manifest.md ingest ledger. action=vocabulary: typed read/upsert/remove for _meta/vocabulary.md domain synonyms and pairings, used by search query expansion.',
+        'Vault maintenance. action=health: structured report (orphans, broken links, index drift, stale pages; respects index.md indexMode flat|hub). action=sync_index: flat rebuild of index.md from frontmatter, or hub mode preserve curated body (never dump every leaf). action=slop_check: read-only LLM-slop report (body + frontmatter). action=deslop: journaled char/emoji auto-fix (confirm: true; dryRun preview). action=create_folder/list_folders/delete_folder: folder ops (delete requires confirm, empty folders only). action=history: list journaled operations. action=undo: reverse a journaled operation (requires confirm: true). action=manifest: typed read/upsert/remove for _meta/manifest.md ingest ledger. action=vocabulary: typed read/upsert/remove for _meta/vocabulary.md domain synonyms and pairings, used by search query expansion.',
       inputSchema: {
         action: z
           .enum([
@@ -29,7 +27,6 @@ export function registerVault(server: McpServer, config: Config): void {
             'create_folder',
             'list_folders',
             'delete_folder',
-            'log',
             'history',
             'undo',
             'manifest',
@@ -76,10 +73,6 @@ export function registerVault(server: McpServer, config: Config): void {
           .boolean()
           .optional()
           .describe('Used by delete_folder, undo, and deslop actions; must be true'),
-        logLine: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Used by log action only'),
-        hotActivity: z.string().max(MAX_LOG_LINE_LENGTH).optional().describe('Used by log action only'),
-        expectedLogHash: z.string().optional().describe('Used by log action only'),
-        expectedHotHash: z.string().optional().describe('Used by log action only'),
         operationId: z.string().optional().describe('Used by undo action only'),
         force: z.boolean().optional().describe('Used by undo action only'),
         limit: z
@@ -100,10 +93,6 @@ export function registerVault(server: McpServer, config: Config): void {
         create_folder: { allowed: ['path'], required: ['path'] },
         list_folders: { allowed: ['path'] },
         delete_folder: { allowed: ['path', 'confirm'], required: ['path', 'confirm'] },
-        log: {
-          allowed: ['logLine', 'hotActivity', 'expectedLogHash', 'expectedHotHash'],
-          required: ['logLine'],
-        },
         history: { allowed: ['limit'] },
         undo: {
           allowed: ['operationId', 'confirm', 'force'],
@@ -240,10 +229,6 @@ export function registerVault(server: McpServer, config: Config): void {
         staleDays,
         dryRun,
         confirm,
-        logLine,
-        hotActivity,
-        expectedLogHash,
-        expectedHotHash,
         operationId,
         force,
         limit,
@@ -292,13 +277,6 @@ export function registerVault(server: McpServer, config: Config): void {
             });
           }
           return manageFoldersHandler(config)({ operation: 'delete', path: path as string, confirm: true });
-        case 'log':
-          return touchWikiMetaHandler(config)({
-            logLine: logLine as string,
-            hotActivity,
-            expectedLogHash,
-            expectedHotHash,
-          });
         case 'history':
           return operationHistoryHandler(config)({ limit });
         case 'undo':

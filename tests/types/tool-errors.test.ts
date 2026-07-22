@@ -32,7 +32,7 @@ describe('structured tool errors', () => {
     const result = toolError({
       error: 'hash_mismatch',
       message: 'Note content has changed since read (hash mismatch).',
-      path: 'log.md',
+      path: 'concepts/missing.md',
       hint: 'Re-read and retry.',
     });
     expect(result.isError).toBe(true);
@@ -42,7 +42,7 @@ describe('structured tool errors', () => {
     expect(payload.retryable).toBe(false);
     expect(payload.sideEffects).toBe('none');
     expect(payload.details).toEqual({});
-    expect(payload.path).toBe('log.md');
+    expect(payload.path).toBe('concepts/missing.md');
     expect(payload.hint).toBe('Re-read and retry.');
   });
 

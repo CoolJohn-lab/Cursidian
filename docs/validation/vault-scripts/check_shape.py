@@ -2,7 +2,7 @@
 """Flag content pages missing a TL;DR or Related section. Read-only."""
 import os
 ROOT=os.environ.get("VAULT_ROOT") or os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".."))
-SKIP={"index.md","hot.md","log.md"}
+SKIP={"index.md"}
 for dp,_,fns in os.walk(ROOT):
     if os.sep+"." in dp: continue
     for fn in fns:

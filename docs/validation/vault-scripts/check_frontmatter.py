@@ -3,7 +3,7 @@
 import os, re
 ROOT = os.environ.get("VAULT_ROOT") or os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".."))
 REQ = ["title","category","tags","status","updated","summary"]
-SKIP = {"index.md","hot.md","log.md"}
+SKIP = {"index.md"}
 def files():
     for dp,_,fns in os.walk(ROOT):
         if os.sep+"." in dp: continue

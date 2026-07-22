@@ -27,7 +27,7 @@ def main():
             if tgt in names and names[tgt] != r: inbound[names[tgt]] += 1
             elif tgt not in names: reports["broken_links"].append({"in": r, "link": m.strip()})
     for r, n in inbound.items():
-        if n == 0 and r.split("/")[-1].lower() not in ("index.md","hot.md","log.md"):
+        if n == 0 and r.split("/")[-1].lower() not in ("index.md",):
             reports["orphans"].append(r)
     print(json.dumps(reports, indent=2))
 if __name__ == "__main__": main()

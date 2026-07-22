@@ -196,6 +196,52 @@ describe('context (telemetry)', () => {
   });
 });
 
+describe('context (logdump)', () => {
+  let dumpDir: string;
+
+  beforeAll(async () => {
+    dumpDir = await fsp.mkdtemp(path.join(path.dirname(ctx.vault), 'context-logdump-'));
+  });
+
+  afterAll(async () => {
+    delete process.env.OBSIDIAN_CONTEXT_LOGDUMP;
+    delete process.env.OBSIDIAN_CONTEXT_LOGDUMP_DIR;
+    process.env.OBSIDIAN_CONTEXT_LOGDUMP = 'false';
+    await fsp.rm(dumpDir, { recursive: true, force: true });
+  });
+
+  it('writes full input + output to the logdump directory when enabled', async () => {
+    process.env.OBSIDIAN_CONTEXT_LOGDUMP = 'true';
+    process.env.OBSIDIAN_CONTEXT_LOGDUMP_DIR = dumpDir;
+
+    await callTool(ctx.client, 'context', {
+      action: 'assemble',
+      query: 'UniqueContextToolMarker',
+      tokenBudget: 2000,
+      intent: 'lookup',
+    });
+
+    const files = await fsp.readdir(dumpDir);
+    const jsonl = files.find((f) => f.endsWith('.jsonl'));
+    expect(jsonl).toBeTruthy();
+    const raw = await fsp.readFile(path.join(dumpDir, jsonl!), 'utf-8');
+    const entry = JSON.parse(raw.trim().split('\n').at(-1)!) as {
+      status: string;
+      input: { action: string; query: string; intent: string; tokenBudget: number };
+      output: { query: string; tokensUsed: number; items: unknown[] };
+    };
+    expect(entry.status).toBe('success');
+    expect(entry.input).toMatchObject({
+      action: 'assemble',
+      query: 'UniqueContextToolMarker',
+      intent: 'lookup',
+      tokenBudget: 2000,
+    });
+    expect(entry.output.query).toBe('UniqueContextToolMarker');
+    expect(entry.output.items.length).toBeGreaterThan(0);
+  });
+});
+
 describe('context (feedback)', () => {
   it('records feedback to a local vault file and returns changed: true', async () => {
     const result = await callTool(ctx.client, 'context', {

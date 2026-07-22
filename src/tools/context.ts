@@ -8,6 +8,7 @@ import {
   expandContext,
   InvalidContextCursorError,
 } from '../lib/context-assembler.js';
+import { recordContextLogdump } from '../lib/context-logdump.js';
 import { assertNotReadOnly } from '../lib/security.js';
 import { logger } from '../lib/logger.js';
 import { MAX_QUERY_LENGTH } from '../lib/limits.js';
@@ -158,6 +159,17 @@ export function registerContext(server: McpServer, config: Config): void {
 
       const { query, task, intent, tokenBudget, cursor, feedbackQuery, feedbackVerdict, feedbackNote } = args;
       const effectiveTokenBudget = tokenBudget ?? DEFAULT_TOKEN_BUDGET;
+      const logInput = (): Record<string, unknown> => ({
+        action,
+        ...(query !== undefined ? { query } : {}),
+        ...(task !== undefined ? { task } : {}),
+        ...(intent !== undefined ? { intent } : {}),
+        ...(tokenBudget !== undefined ? { tokenBudget } : { tokenBudget: effectiveTokenBudget }),
+        ...(cursor !== undefined ? { cursor } : {}),
+        ...(feedbackQuery !== undefined ? { feedbackQuery } : {}),
+        ...(feedbackVerdict !== undefined ? { feedbackVerdict } : {}),
+        ...(feedbackNote !== undefined ? { feedbackNote } : {}),
+      });
 
       try {
         switch (action) {
@@ -168,7 +180,14 @@ export function registerContext(server: McpServer, config: Config): void {
               intent: intent as ContextIntent | undefined,
               tokenBudget: effectiveTokenBudget,
             });
-            await recordContextTelemetry(config, action, bundle, Date.now() - startedAt);
+            const latencyMs = Date.now() - startedAt;
+            await recordContextTelemetry(config, action, bundle, latencyMs);
+            await recordContextLogdump({
+              latencyMs,
+              status: 'success',
+              input: logInput(),
+              output: bundle,
+            });
             return ok(bundle, {
               action,
               changed: false,
@@ -183,7 +202,14 @@ export function registerContext(server: McpServer, config: Config): void {
               intent: intent as ContextIntent | undefined,
               tokenBudget: effectiveTokenBudget,
             });
-            await recordContextTelemetry(config, action, bundle, Date.now() - startedAt);
+            const latencyMs = Date.now() - startedAt;
+            await recordContextTelemetry(config, action, bundle, latencyMs);
+            await recordContextLogdump({
+              latencyMs,
+              status: 'success',
+              input: logInput(),
+              output: bundle,
+            });
             return ok(bundle, {
               action,
               changed: false,
@@ -195,7 +221,14 @@ export function registerContext(server: McpServer, config: Config): void {
             const startedAt = Date.now();
             try {
               const bundle = await expandContext(config, cursor as string, effectiveTokenBudget);
-              await recordContextTelemetry(config, action, bundle, Date.now() - startedAt);
+              const latencyMs = Date.now() - startedAt;
+              await recordContextTelemetry(config, action, bundle, latencyMs);
+              await recordContextLogdump({
+                latencyMs,
+                status: 'success',
+                input: logInput(),
+                output: bundle,
+              });
               return ok(bundle, {
                 action,
                 changed: false,
@@ -204,7 +237,7 @@ export function registerContext(server: McpServer, config: Config): void {
               });
             } catch (e) {
               if (e instanceof InvalidContextCursorError) {
-                return invalidArgsError({
+                const errResult = invalidArgsError({
                   tool: 'context',
                   action,
                   message: e.message,
@@ -213,15 +246,29 @@ export function registerContext(server: McpServer, config: Config): void {
                   rejected: ['cursor'],
                   arguments: { action: 'assemble', query: '<query>' },
                 });
+                await recordContextLogdump({
+                  latencyMs: Date.now() - startedAt,
+                  status: 'error',
+                  input: logInput(),
+                  output: JSON.parse(errResult.content[0]?.text ?? '{}') as unknown,
+                });
+                return errResult;
               }
               throw e;
             }
           }
           case 'feedback': {
+            const startedAt = Date.now();
             const result = await recordContextFeedback(config, {
               query: feedbackQuery as string,
               verdict: feedbackVerdict as 'insufficient' | 'off_target',
               note: feedbackNote,
+            });
+            await recordContextLogdump({
+              latencyMs: Date.now() - startedAt,
+              status: 'success',
+              input: logInput(),
+              output: result,
             });
             return ok(result, { action, changed: true, paths: [result.path] });
           }
@@ -235,11 +282,18 @@ export function registerContext(server: McpServer, config: Config): void {
             });
         }
       } catch (e) {
-        return mapToolError(e, {
+        const errResult = mapToolError(e, {
           tool: 'context',
           action,
           arguments: { action, query, task, cursor },
         });
+        await recordContextLogdump({
+          latencyMs: 0,
+          status: 'error',
+          input: logInput(),
+          output: JSON.parse(errResult.content[0]?.text ?? '{}') as unknown,
+        });
+        return errResult;
       }
     },
   );

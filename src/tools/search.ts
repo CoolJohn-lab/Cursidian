@@ -14,7 +14,7 @@ export function registerSearch(server: McpServer, config: Config): void {
     'search',
     {
       description:
-        'Find notes. action=content (default): full-text search, prefer 2-3 keywords, token-AND with OR fallback and typo correction, format=compact for index-only results. action=by_tags: frontmatter tag filter (AND). action=list: enumerate notes by folder (missing folder -> not_found). action=recent: newest first. action=tags: full tag vocabulary with counts; accepts no other arguments. content/by_tags/list/recent support cursor/truncated/nextCursor (stale cursor -> structured error with details.changedPaths). Responses may set incomplete+skipped when the vault scan could not read every file. list/recent/content exclude index/log/hot/_raw/_archives unless includeOperational=true.',
+        'Find notes. action=content (default): full-text search, prefer 2-3 keywords, token-AND with OR fallback and typo correction, format=compact for index-only results. action=by_tags: frontmatter tag filter (AND). action=list: enumerate notes by folder (missing folder -> not_found). action=recent: newest first. action=tags: full tag vocabulary with counts; accepts no other arguments. content/by_tags/list/recent support cursor/truncated/nextCursor (stale cursor -> structured error with details.changedPaths). Responses may set incomplete+skipped when the vault scan could not read every file. list/recent/content exclude index/_raw unless includeOperational=true.',
       inputSchema: {
         action: z
           .enum(['content', 'by_tags', 'list', 'recent', 'tags'])

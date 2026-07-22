@@ -17,28 +17,18 @@ Keep `operationStack: string[]` for every successful write's `operationId`. On f
 ## Preflight (no writes)
 
 1. **Collect source directories from the user** before creating anything. Absolute paths only. These go into `_meta/manifest.md` `source_dirs`. If the user is unsure, ask once; do not invent paths.
-2. `search` action `list` with `recursive: true`, `includeOperational: true`. Follow `nextCursor` while `truncated`. Note which special files already exist (`index.md`, `log.md`, `hot.md`, `_meta/manifest.md`, `_meta/taxonomy.md`, `_meta/vocabulary.md`).
-3. `vault` action `list_folders` (and nested as needed) to see which category / `_meta` / `_raw` / `_archives` / `projects` folders already exist.
+2. `search` action `list` with `recursive: true`, `includeOperational: true`. Follow `nextCursor` while `truncated`. Note which special files already exist (`index.md`, `_meta/manifest.md`, `_meta/taxonomy.md`, `_meta/vocabulary.md`).
+3. `vault` action `list_folders` (and nested as needed) to see which category / `_meta` / `_raw` / `projects` folders already exist.
 4. Build a create-only-missing plan. If `index.md` and the category folders already exist, this is a repair - say so.
 
 ## Writes (only what is missing)
 
 Push every returned `operationId` onto `operationStack`.
 
-1. Via `vault` action `create_folder`, create missing folders only: `concepts`, `entities`, `skills`, `references`, `synthesis`, `journal`, `projects`, `_meta`, `_raw`, `_archives`.
+1. Via `vault` action `create_folder`, create missing folders only: `concepts`, `entities`, `skills`, `references`, `journal`, `projects`, `_meta`, `_raw`. Do not create root `synthesis/` or `_archives/` (archive drafts under `_raw/_archived/` after ingest).
 2. Via `note` action `create` (never `overwrite: true` unless the user explicitly asked to replace a broken file and you passed `expectedRevision`):
 
 **`index.md`** - frontmatter `title: Wiki Index` (default flat catalog). For hub-router vaults set `indexMode: hub` and keep the body as a thin hub list; do not auto-dump every leaf. Flat default: body with a `## <Category>` heading per category and a note that the index is auto-maintained.
-
-**`log.md`** - frontmatter `title: Wiki Log`; body:
-
-```markdown
-# Wiki Log
-
-- [<ISO timestamp>] INIT categories=concepts,entities,skills,references,synthesis,journal
-```
-
-**`hot.md`** - frontmatter `title: Hot Cache`, `updated: <ISO timestamp>`; body with empty sections: Recent Activity, Active Threads, Key Takeaways, Flagged Contradictions.
 
 **`_meta/manifest.md`** - if missing, `note` `create` with frontmatter `title: Wiki Manifest` and `source_dirs:` set to the directories-collected absolute paths; body with empty `## Sources` and `## Projects` sections (schema in `vault`). Later ingest/update mutations use `vault` `manifest` upserts, which preserve `source_dirs`. Confirm with `vault` `manifest` `read` afterward.
 

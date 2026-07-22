@@ -44,25 +44,25 @@ npm run mcp:test -- suite smoke
 
 1. Ask: "What is Alpha?"
 2. Expect: `search` actions `content` / `by_tags` (paginate while `truncated`), then `note` action `read` on `concepts/alpha.md`.
-3. Index-only mode skips `hot.md` and answers from compact summaries.
-4. Answer cites the fixture; **zero writes** (not even `log.md`). Disclose OR-fallback / typo correction when they fired.
+3. Index-only mode answers from compact summaries.
+4. Answer cites the fixture; **zero writes**. Disclose OR-fallback / typo correction when they fired.
 
 ### wiki-lint
 
 1. Run a read-only health check.
-2. Expect: `vault` action `health` once, report presented from real health fields only - **zero writes** (no `vault` `log` in report-only).
-3. `--consolidate`: dry-run list shown and confirmation requested before any `note` update; contradiction flags only in consolidate; finish with `vault` `sync_index` and `vault` `log` `LINT_CONSOLIDATE`.
+2. Expect: `vault` action `health` once, report presented from real health fields only - **zero writes**.
+3. `--consolidate`: dry-run list shown and confirmation requested before any `note` update; contradiction flags only in consolidate; finish with `vault` `sync_index`.
 
 ### wiki-capture
 
 1. Capture a short session note into `_raw/` (quick) or a concept page (full).
 2. Full mode: compact duplicate search before create; merge when a page exists; read back before bookkeeping.
-3. Expect: `note` create/update with `expectedRevision`; full mode also calls `vault` `sync_index`, then `vault` `log`.
+3. Expect: `note` create/update with `expectedRevision`; full mode also calls `vault` `sync_index`.
 
 ### wiki-ingest
 
 1. Ingest a tiny markdown source into the fixture vault.
-2. Expect: pages via MCP; ledger via `vault` `manifest` upsert (not hand-edited lines); `vault` `log` for bookkeeping.
+2. Expect: pages via MCP; ledger via `vault` `manifest` upsert (not hand-edited lines); chat report for bookkeeping.
 3. Raw mode: `search` `list` `folder: "_raw"` with `includeOperational: true`; archive via single `note` `rename` to `_raw/_archived/`.
 
 ### wiki-update
@@ -76,7 +76,7 @@ npm run mcp:test -- suite smoke
 
 1. Run status against the fixture.
 2. Expect: `vault` `manifest` `read` (or `note` read fallback), `search` `list` / `recent`; `_raw/` via `includeOperational: true` excluding `_archived/`.
-3. Report `hot.md` staleness beyond 48h; rewrite only on explicit refresh request.
+3. Report hub working-set / manifest project sync.
 
 ### wiki-slop
 

@@ -375,11 +375,9 @@ describe('assembleContext', () => {
     await writeNote(
       config.vaultPath,
       'uniqueneighfilter-hub.md',
-      '---\ntitle: UniqueNeighFilter Hub\nsummary: Hub for UniqueNeighFilter.\n---\n\nSee [[index]] [[hot]] [[log]] [[_meta/manifest]] [[uniqueneighfilter-a]] [[uniqueneighfilter-b]] [[uniqueneighfilter-c]] [[uniqueneighfilter-d]] [[uniqueneighfilter-e]].',
+      '---\ntitle: UniqueNeighFilter Hub\nsummary: Hub for UniqueNeighFilter.\n---\n\nSee [[index]] [[_meta/manifest]] [[uniqueneighfilter-a]] [[uniqueneighfilter-b]] [[uniqueneighfilter-c]] [[uniqueneighfilter-d]] [[uniqueneighfilter-e]].',
     );
     await writeNote(config.vaultPath, 'index.md', '---\ntitle: Index\nsummary: Operational index.\n---\n\nIndex body.');
-    await writeNote(config.vaultPath, 'hot.md', '---\ntitle: Hot\nsummary: Operational hot.\n---\n\nHot body.');
-    await writeNote(config.vaultPath, 'log.md', '---\ntitle: Log\nsummary: Operational log.\n---\n\nLog body.');
     await writeNote(
       config.vaultPath,
       '_meta/manifest.md',
@@ -400,7 +398,7 @@ describe('assembleContext', () => {
     const neighbourPaths = bundle.items
       .filter((i) => i.kind === 'neighbor-note')
       .map((i) => i.path.replace(/\\/g, '/').toLowerCase());
-    expect(neighbourPaths.some((p) => p === 'index.md' || p === 'hot.md' || p === 'log.md')).toBe(false);
+    expect(neighbourPaths.some((p) => p === 'index.md' || p.startsWith('_meta/'))).toBe(false);
     expect(neighbourPaths.some((p) => p.startsWith('_meta/'))).toBe(false);
     expect(neighbourPaths.length).toBeLessThanOrEqual(4);
   });

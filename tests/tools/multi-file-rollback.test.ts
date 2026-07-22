@@ -77,16 +77,6 @@ describe('multi-file rollback', () => {
       'index.md',
       '---\ntitle: Wiki Index\n---\n\n# Wiki Index\n\n- [[concepts/source]] - Source note.\n',
     );
-    await writeNote(
-      ctx.vault,
-      'log.md',
-      '---\ntitle: Wiki Log\n---\n\n# Wiki Log\n\n- [2026-01-01T00:00:00Z] INIT\n',
-    );
-    await writeNote(
-      ctx.vault,
-      'hot.md',
-      '---\ntitle: Hot Cache\nupdated: 2026-01-01T00:00:00Z\n---\n\n# Hot Cache\n\n## Recent Activity\n\n- [2026-01-01T00:00:00Z] INIT\n',
-    );
   });
 
   afterAll(async () => {
@@ -109,31 +99,6 @@ describe('multi-file rollback', () => {
     });
 
     renameSpy.mockRestore();
-    expect(result.isError).toBe(true);
-
-    const after = await readVaultFiles(ctx.vault);
-    expect(mapsEqual(before, after)).toBe(true);
-  });
-
-  it('rolls back vault log when hot.md write fails', async () => {
-    const before = await readVaultFiles(ctx.vault);
-    const originalReplace = vaultIo.atomicReplaceLocked;
-    const replaceSpy = vi
-      .spyOn(vaultIo, 'atomicReplaceLocked')
-      .mockImplementation(async (vaultPath, targetPath, body, maxBytes) => {
-        if (targetPath.replace(/\\/g, '/').endsWith('hot.md')) {
-          throw new Error('hot write failed');
-        }
-        return originalReplace(vaultPath, targetPath, body, maxBytes);
-      });
-
-    const result = await callTool(ctx.client, 'vault', {
-      action: 'log',
-      logLine: 'ROLLBACK_TEST',
-      hotActivity: 'should rollback',
-    });
-
-    replaceSpy.mockRestore();
     expect(result.isError).toBe(true);
 
     const after = await readVaultFiles(ctx.vault);

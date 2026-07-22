@@ -18,8 +18,6 @@ beforeAll(async () => {
     registerSearch(server, config);
   });
   await seedVault(ctx.vault);
-  await writeNote(ctx.vault, 'log.md', '# Log\n');
-  await writeNote(ctx.vault, 'hot.md', '# Hot\n');
   await writeNote(ctx.vault, '_raw/draft.md', '# Draft\n');
 });
 
@@ -39,8 +37,6 @@ describe('search (list)', () => {
     const data = parseResult(result) as { notes: Array<{ path: string }> };
     const paths = data.notes.map((n) => n.path.replace(/\\/g, '/'));
     expect(paths).not.toContain('index.md');
-    expect(paths).not.toContain('log.md');
-    expect(paths).not.toContain('hot.md');
     expect(paths.some((p) => p.startsWith('_raw/'))).toBe(false);
   });
 
@@ -52,8 +48,6 @@ describe('search (list)', () => {
     const data = parseResult(result) as { notes: Array<{ path: string }> };
     const paths = data.notes.map((n) => n.path.replace(/\\/g, '/'));
     expect(paths).toContain('index.md');
-    expect(paths).toContain('log.md');
-    expect(paths).toContain('hot.md');
     expect(paths).toContain('_raw/draft.md');
   });
 

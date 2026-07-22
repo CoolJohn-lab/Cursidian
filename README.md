@@ -46,7 +46,7 @@ Emjoy! John.
 | `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | Note CRUD, safe edits, metadata; returns `revisionHash` / `operationId` |
 | `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | Find and enumerate notes (paginated; may report `incomplete`) |
 | `graph` | - | One-hop neighborhood (resolved + unresolved outgoing, paginated backlinks) |
-| `vault` | `health`, `sync_index`, `slop_check`, `deslop`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest`, `vocabulary` | Health, catalog, deslop, folders, bookkeeping, undo, ingest ledger, search vocabulary |
+| `vault` | `health`, `sync_index`, `slop_check`, `deslop`, `create_folder`, `list_folders`, `delete_folder`, `history`, `undo`, `manifest`, `vocabulary` | Health, catalog, deslop, folders, undo, ingest ledger, search vocabulary |
 | `context` | `assemble`, `for_task`, `expand`, `feedback` | Token-budgeted context bundles (CGE); `feedback` is local telemetry only |
 
 ## Requirements
@@ -128,7 +128,7 @@ Source documents **outside** the vault (PDFs, repo files, URLs) may be read with
 1. Cursor loads skills from `~/.cursor/skills/` when the user asks something matching a skill description (e.g. "add this to the wiki", "what do I know about X").
 2. The skill tells the agent which MCP actions to call, in what order (cheap search first, full `note` read only when needed).
 3. Writes follow the safe-write protocol: `note` `read` -> `revisionHash` -> narrowest `note` `update` with `expectedRevision`. Mutating skills keep an operation-ID stack and call `vault` `undo` in reverse on failure after writes.
-4. After multi-page edits, skills typically call `vault` `sync_index` (flat: rebuild leaf catalog; hub: preserve curated router) and `vault` `log` (append `log.md` / optional `hot.md`), then verify with `sync_index` `dryRun: true` expecting `wouldWrite: false`. Set `indexMode: hub` on `index.md` frontmatter for curated hub-router vaults.
+4. After multi-page edits, skills typically call `vault` `sync_index` (flat: rebuild leaf catalog; hub: preserve curated router), then verify with `sync_index` `dryRun: true` expecting `wouldWrite: false`. Set `indexMode: hub` on `index.md` frontmatter for curated hub-router vaults.
 
 Shared MCP **protocol** (contract, failure/undo, page template) lives in the `vault` skill. Durable tool tables and product notes live in the wiki (`projects/cursidian/cursidian`, `projects/cursidian/concepts/mcp-tool-surface`).
 
@@ -151,10 +151,10 @@ Exception: none for vault writes. **wiki-slop** uses MCP `vault` `slop_check` / 
 | `wiki-context` | Assemble a cited, budgeted context bundle for a task | `context` `for_task`/`assemble`/`expand` (no vault writes) |
 | `wiki-lint` | Vault health / consolidate | `vault` `health`, then `note`/`vault` fixes |
 | `wiki-setup` | Bootstrap vault structure | `vault` folders, `note` create special files |
-| `wiki-ingest` | Distill docs/URLs into pages | `context` `for_task` preflight + `search` + `note` create/update + `vault` manifest/log/sync |
+| `wiki-ingest` | Distill docs/URLs into pages | `context` `for_task` preflight + `search` + `note` create/update + `vault` manifest/sync |
 | `wiki-capture` | Save session findings | `note` create/update (`_raw/` or full pages); merge on duplicate |
 | `wiki-update` | Sync a project into the wiki | git delta outside vault; writes via `note`/`vault` manifest |
-| `wiki-status` | Delta / what next / hot.md | `vault` manifest read; `_raw/` with `includeOperational`; hot refresh on request |
+| `wiki-status` | Delta / what next / hubs | `vault` manifest read; `_raw/` with `includeOperational`; hub working-set on DLZ/ADO/Cursidian |
 | `wiki-slop` | Deslop repo or vault | Repo: npm `slop:*`. Vault: `vault` `slop_check` / `deslop` |
 
 ## Deslop (LLM-slop)
@@ -220,7 +220,7 @@ Cursidian is a **local stdio MCP server**. It trusts the Cursor process that lau
 | **Symlink-safe discovery** | Vault scans use `followSymbolicLinks: false` and filter results whose real path escapes the vault. |
 | **Atomic single-file writes** | Creates use exclusive open; updates use same-directory temp + rename under a per-path lock. |
 | **Optimistic concurrency** | `revisionHash` / `expectedRevision` checked under the mutation lock; frontmatter-only external edits are detected. |
-| **Multi-file rollback** | Rename (including source backup), backlink rewrites, and `vault log` (log + hot) journal together and roll back on failure; `partial_update` with `sideEffects: "partial"` only when rollback itself fails. |
+| **Multi-file rollback** | Rename (including source backup) and backlink rewrites journal together and roll back on failure; `partial_update` with `sideEffects: "partial"` only when rollback itself fails. |
 
 For untrusted agents or shared machines, run with `OBSIDIAN_READ_ONLY=true` and restrict vault directory ACLs to least privilege.
 
@@ -237,7 +237,6 @@ When `OBSIDIAN_BACKUP_ENABLED` is true (default), each mutating MCP call journal
 | `note` create (incl. overwrite) | Yes |
 | `vault` sync_index | Yes (`index.md`) |
 | `vault` deslop | Yes (each changed note; `index.md` when summaries change) |
-| `vault` log | Yes (`log.md`; `hot.md` when updated) |
 | `vault` manifest | Yes |
 
 Legacy `.obsidian-mcp-trash` entries are **migrated** into `.cursidian-trash/_legacy-migrated/` on first backup (not deleted). Retention keeps the newest **50** operation folders by default; older folders are pruned automatically. With backups disabled, mutations still succeed but return `undoAvailable: false`.
@@ -252,6 +251,8 @@ Legacy `.obsidian-mcp-trash` entries are **migrated** into `.cursidian-trash/_le
 | `OBSIDIAN_BACKUP_ENABLED` | No | Pre-write backups to `.cursidian-trash` (default `true`; set `false` to disable) |
 | `OBSIDIAN_LOG_LEVEL` | No | `debug`, `info`, `warn`, `error` (default `info`) |
 | `OBSIDIAN_CONTEXT_TELEMETRY` | No | Set to `true` to append local-only JSONL telemetry (query shape, intent, budget, latency) for every `context` call; default off, never sent over the network or to stdout |
+| `OBSIDIAN_CONTEXT_LOGDUMP` | No | Set to `false` / `off` to disable durable experiment dumps of every `context` call; default on |
+| `OBSIDIAN_CONTEXT_LOGDUMP_DIR` | No | Override dump directory (default `~/.cursor/logdump/ContextSearches`); writes daily `YYYY-MM-DD.jsonl` with full input + output |
 
 ## Development
 

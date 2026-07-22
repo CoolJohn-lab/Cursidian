@@ -4,14 +4,8 @@ export async function runWikiQuerySuite(ctx) {
   const results = [];
 
   results.push(
-    await runCase('bootstrap hot.md', async () => {
-      parseResult(await callTool(server, 'read_note', { path: 'hot' }));
-    }, ctx),
-  );
-
-  results.push(
     await runCase('bootstrap index.md', async () => {
-      const data = parseResult(await callTool(server, 'read_note', { path: 'index' }));
+      const data = parseResult(await callTool(server, 'note', { action: 'read', path: 'index' }));
       if (!data.outgoingLinks?.length) throw new Error('index should expose outgoing links');
     }, ctx),
   );
@@ -19,7 +13,7 @@ export async function runWikiQuerySuite(ctx) {
   results.push(
     await runCase('bootstrap project hub', async () => {
       parseResult(
-        await callTool(server, 'read_note', { path: 'projects/data-platform-dlz/data-platform-dlz' }),
+        await callTool(server, 'note', { action: 'read', path: 'projects/data-platform-dlz/data-platform-dlz' }),
       );
     }, ctx),
   );

@@ -66,11 +66,6 @@ describe('MCP skill contracts', () => {
     const body = parseResult(read) as { revisionHash?: string };
     expect(body.revisionHash).toBeTruthy();
 
-    // Zero-write mode must not touch log/hot via vault log.
-    const before = await fsp
-      .readFile(path.join(ctx.vault, 'log.md'), 'utf8')
-      .catch(() => null);
-    expect(before).toBeNull();
   });
 
   it('structured recovery on invalid_args and hash_mismatch', async () => {

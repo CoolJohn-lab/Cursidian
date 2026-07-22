@@ -10,7 +10,7 @@ sources: [synthetic-golden-vault]
 
 Connects [[projects/cdf-platform]] to [[concepts/worker-data-mart]].
 
-Also casually links operational files that should not dilute context bundles: [[index]] [[hot]] [[log]] [[_meta/manifest]].
+Also casually links operational files that should not dilute context bundles: [[index]] [[_meta/manifest]].
 
 ## Related
 

@@ -33,7 +33,6 @@ const MUTATING_SKILLS = [
   'wiki-capture',
   'wiki-update',
   'wiki-lint',
-  'wiki-status',
   'wiki-slop',
 ];
 
@@ -45,7 +44,7 @@ const PHANTOM_HEALTH_RE =
   /(?:vault[`'"]?\s*(?:action\s*)?[`'"]?health|health report)[\s\S]{0,400}\bContradictions\b/i;
 
 const FS_VAULT_ACCESS_RE =
-  /\b(?:use|using|via|call|with)\s+(?:Read|Write|StrReplace|Grep|Glob)\b[\s\S]{0,120}\b(?:index\.md|log\.md|hot\.md|_meta\/|_raw\/)/i;
+  /\b(?:use|using|via|call|with)\s+(?:Read|Write|StrReplace|Grep|Glob)\b[\s\S]{0,120}\b(?:index\.md|_meta\/|_raw\/)/i;
 
 const VAULT_SHELL_WRITE_RE =
   /\b(?:run|execute|use)\s+(?:cat|sed|mkdir|mv|rm)\b[\s\S]{0,80}\b(?:index\.md|_meta\/|_raw\/)/i;
@@ -141,13 +140,13 @@ function checkReadOnlyZeroWrites(name, text, problems) {
   if (name === 'wiki-query') {
     const hasWrite =
       /action:\s*["'](?:create|update|delete|rename|frontmatter)["']/.test(text) ||
-      /`vault`[^.\n]{0,40}(?:log|sync_index|undo|manifest)/.test(text);
+      /`vault`[^.\n]{0,40}(?:sync_index|undo|manifest)/.test(text);
     // Allow pointing users at other skills; forbid instructing writes in this skill's protocol.
     if (/## This skill is read-only[\s\S]*?## Protocol([\s\S]*?)## Answer format/.test(text)) {
       const protocol = RegExp.$1;
       if (
         /action:\s*["'](?:create|update|delete|rename)["']/.test(protocol) ||
-        /vault[`'"]?\s+action[`'"]?:\s*["'](?:log|sync_index|undo)["']/.test(protocol)
+        /vault[`'"]?\s+action[`'"]?:\s*["'](?:sync_index|undo)["']/.test(protocol)
       ) {
         problems.push(`${name}: protocol section instructs vault writes`);
       }
@@ -161,11 +160,6 @@ function checkReadOnlyZeroWrites(name, text, problems) {
   if (name === 'wiki-lint') {
     if (!/Report-only mode[\s\S]{0,400}Zero writes/i.test(text)) {
       problems.push(`${name}: report-only mode must state zero writes`);
-    }
-    // Report-only must not instruct vault log before consolidate section.
-    const reportOnly = text.split(/## Consolidate mode/i)[0] ?? text;
-    if (/vault[`'"]?\s+action[`'"]?\s+[`'"]?log|action:\s*["']log["']/.test(reportOnly)) {
-      problems.push(`${name}: report-only section still instructs vault log`);
     }
   }
 }

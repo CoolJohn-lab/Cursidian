@@ -84,7 +84,6 @@ describe('tool surface', () => {
         'create_folder',
         'list_folders',
         'delete_folder',
-        'log',
         'history',
         'undo',
         'manifest',

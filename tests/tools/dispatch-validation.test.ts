@@ -111,10 +111,6 @@ describe('dispatch validation', () => {
     expectInvalidArgs(result, { rejected: ['query'], recoveryTool: 'search' });
   });
 
-  it('vault log without logLine returns invalid_args', async () => {
-    const result = await callTool(ctx.client, 'vault', { action: 'log' });
-    expectInvalidArgs(result, { missing: ['logLine'], recoveryTool: 'vault' });
-  });
 
   it('vault delete_folder without confirm returns invalid_args', async () => {
     const result = await callTool(ctx.client, 'vault', {

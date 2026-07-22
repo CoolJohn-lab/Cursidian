@@ -14,7 +14,7 @@ Answer from the compiled wiki, citing pages. **All vault access is via the `user
 
 ## This skill is read-only
 
-Create or modify **nothing** - no pages, no `index.md`, no `hot.md`, not even `log.md`. No `vault` `undo`, `log`, `sync_index`, or `manifest` mutations. If the user's question contains a new finding or an action ("save this", "record that"), answer the question, then point them to `wiki-capture` or `wiki-update` for the write.
+Create or modify **nothing** - no pages, no `index.md`. No `vault` `undo`, `sync_index`, or `manifest` mutations. If the user's question contains a new finding or an action ("save this", "record that"), answer the question, then point them to `wiki-capture` or `wiki-update` for the write.
 
 ## Session-first: open with `context`
 
@@ -34,7 +34,7 @@ Treat "first" as: no prior successful `context` / `search` / `note` `read` of wi
    - `guidance.nextStep === "expand"` -> call `context` `action: "expand"` with `nextCursor` and `guidance.suggestedTokenBudget` (or a fresh budget) before falling back to manual search.
    - `guidance.nextStep === "refine_query"` -> narrow keywords or switch intent; do not treat a noisy neighbour-heavy fill as ground truth.
    If a bundle was genuinely wrong once you've worked with it, point the user at `wiki-context`'s feedback action - this skill stays read-only.
-5. **Metadata-only questions** ("what tags exist", "what's in `_meta/`") don't need `context` - use `search` `action: "tags"` or `action: "by_tags"` directly, or `note` `read` on `index.md`/`hot.md`.
+5. **Metadata-only questions** ("what tags exist", "what's in `_meta/`") don't need `context` - use `search` `action: "tags"` or `action: "by_tags"` directly, or `note` `read` on `index.md`.
 6. **Synthesize.** Lead with `focus` citations, then supporting items. Cite as `[[wikilinks]]` (the bundle's `citations` array already has these). Present contradictions from both sides. Say explicitly what the wiki does *not* cover. Flag stale citations (`staleDays` > 90, or a bundle warning naming the page) inline. Never strip `^[inferred]`/`^[ambiguous]` markers from item text.
 
 ## Answer format

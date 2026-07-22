@@ -13,7 +13,7 @@ Extract the *substance* of this conversation - the knowledge itself, not a summa
 
 ## Quick mode (`--quick`)
 
-Fast staging to `_raw/`, no index/log/hot updates - promotion via `wiki-ingest` handles those later.
+Fast staging to `_raw/`, no index updates - promotion via `wiki-ingest` handles those later.
 
 1. **Gate:** does this session hold reusable findings - a fix found through investigation, a non-obvious gotcha, a debugging conclusion, a reusable pattern? If it's just planning/Q&A with nothing surprising, say "Nothing worth capturing" and stop. Manual invocation leans KEEP; automatic invocation leans SKIP.
 2. **Cluster by topic** - one `_raw/` note per topic, not per finding.
@@ -26,7 +26,7 @@ Fast staging to `_raw/`, no index/log/hot updates - promotion via `wiki-ingest` 
 
 1. **Filter.** Worth keeping: decisions and their *why*, technical findings, frameworks or mental models developed, hard-won explanations. Skip logistics, dead-end exploration, and anything already in the wiki.
 2. **Duplicate search.** Before creating, run `search` action `content` with `format: "compact"` and 2-3 topic keywords. Follow `nextCursor` while `truncated`. If a page already covers the topic, plan a **merge** (`note` `update` with `expectedRevision`) instead of a new create.
-3. **Classify** the target folder: reasoning/analysis or a decision -> `synthesis/`; a definition or mental model -> `concepts/`; a summary of an external source -> `references/`; a multi-topic session record -> `journal/`. Project-specific content goes under `projects/<name>/<category>/` instead.
+3. **Classify** the target folder: a definition or mental model -> `concepts/`; a summary of an external source -> `references/` (use `*-synthesis.md` for distilled external reading); reasoning/decision for a project -> `projects/<name>/concepts/`; a multi-topic session record -> `journal/`. Do not create a root `synthesis/` folder.
 4. **Rewrite as declarative knowledge.** Not "we discussed X and decided..." but "X works by..." / "Y is preferred over Z because...". Present tense, no chat narration. Mark inferences `^[inferred]` and contested points `^[ambiguous]`.
 
 ### Writes
@@ -35,7 +35,7 @@ Push every `operationId`. Follow `vault` write sequencing: one note at a time; r
 
 1. **Create or merge** via MCP using the Page Template from `vault/SKILL.md` (`sources: [conversation:<ISO-date>]`, `summary`, >=2 wikilinks). Prefer merge when the duplicate search found a hit. Prefer one combined `note` `update` with body + `frontmatter` merge when both change.
 2. **Read back** the changed page with `note` `read` before bookkeeping. If the body or frontmatter is wrong, fix with `update` (or combined update) + `expectedRevision` from that read-back before continuing.
-3. **Bookkeeping:** `vault` `sync_index` (flat rebuild or hub preserve); then `vault` `log` with `logLine: CAPTURE page="<path>" title="<title>"` and `hotActivity: CAPTURE - saved [[path]]`.
+3. **Bookkeeping:** `vault` `sync_index` (flat rebuild or hub preserve). Report paths and operation IDs in chat.
 
 ### Verification
 

@@ -4,9 +4,6 @@ export const MAX_CONTENT_BYTES = 10_485_760;
 /** Maximum search query length (characters). */
 export const MAX_QUERY_LENGTH = 2_000;
 
-/** Maximum log line / hot activity length (characters). */
-export const MAX_LOG_LINE_LENGTH = 8_000;
-
 /** Maximum frontmatter keys in one request. */
 export const MAX_FRONTMATTER_KEYS = 128;
 

@@ -141,11 +141,11 @@ describe('rankSearchResults', () => {
     expect(ranked[0].path).toContain('deployment-and-ci-cd');
   });
 
-  it('penalises operational hot.md unless title exact', () => {
+  it('penalises operational index.md unless title exact', () => {
     const ranked = rankSearchResults(
       [
         {
-          path: 'hot.md',
+          path: 'index.md',
           content: '---\ntitle: Recent Activity\n---\n\nacme mentions everywhere acme acme',
           matchCount: 20,
           snippets: [{ lineNumber: 3, line: 'acme mentions', match: 'acme' }],
@@ -176,7 +176,7 @@ describe('rankSearchResults', () => {
           snippets: [],
         },
         {
-          path: 'hot.md',
+          path: 'index.md',
           content: '---\ntitle: Recent\n---\n\noffice coverage Alpha Beta scattered mentions',
           matchCount: 10,
           snippets: [],

@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-07-22T13:25:11.638Z",
+  "generatedAt": "2026-07-22T14:01:33.186Z",
   "overall": {
     "n": 49,
-    "avgTokenEfficiency": 0.5961593673337194,
+    "avgTokenEfficiency": 0.5960028853133387,
     "budgetAdherenceRate": 1
   },
   "byIntent": {
     "connection": {
       "n": 11,
-      "avgTokenEfficiency": 0.47009884016677506,
+      "avgTokenEfficiency": 0.46940178389417003,
       "budgetAdherenceRate": 1
     },
     "lookup": {
@@ -446,9 +446,9 @@
       "query": "how is platform wiki bridge related to worker data mart",
       "intent": "connection",
       "budget": 3500,
-      "tokensUsed": 371,
-      "relevantTokens": 110,
-      "tokenEfficiency": 0.29649595687331537,
+      "tokensUsed": 367,
+      "relevantTokens": 106,
+      "tokenEfficiency": 0.2888283378746594,
       "budgetOk": true
     },
     {

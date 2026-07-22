@@ -14,7 +14,7 @@ Find and fix the structural issues that degrade a wiki over time. **All vault ac
 
 ## Report-only mode (default)
 
-**Zero writes.** Do not call `note` create/update/delete/rename/frontmatter, do not call `vault` `log`, `sync_index`, `undo`, or `manifest` mutations. A LINT log line is **not** allowed in report-only; it belongs only in consolidate mode after confirmation.
+**Zero writes.** Do not call `note` create/update/delete/rename/frontmatter, do not call `vault` `sync_index`, `undo`, or `manifest` mutations.
 
 Call `vault` with `action: "health"` once and present its structured report. Do not reimplement these checks with dozens of MCP calls unless `vault` health is unavailable.
 
@@ -68,6 +68,6 @@ Never merge or delete pages automatically - flag duplicates for the user.
 
 `note` `read` each changed page; `vault` `sync_index` with `dryRun: true` expecting `wouldWrite: false`. Report residual drift. On failure after writes, undo reverse-order.
 
-### Final report + log
+### Final report
 
-Summary of changes, then `vault` action `log`: `logLine: LINT_CONSOLIDATE links_fixed=N orphans_rescued=N frontmatter=N index=N callouts=N` plus a short `hotActivity` bullet. Include operation IDs retained for later undo. Clear `operationStack` only after verification passes.
+Summary of changes in chat. Include operation IDs retained for later undo. Clear `operationStack` only after verification passes.

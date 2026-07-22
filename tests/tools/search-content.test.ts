@@ -94,13 +94,13 @@ describe('search (content)', () => {
   });
 
   it('includes operational files when includeOperational is true', async () => {
-    await writeNote(ctx.vault, 'log.md', '---\ntitle: Log\n---\n\nUniqueLogToken456\n');
+    await writeNote(ctx.vault, '_raw/op-log.md', '---\ntitle: Op Log\n---\n\nUniqueLogToken456\n');
     const result = await callTool(ctx.client, 'search', { action: 'content',
       query: 'UniqueLogToken456',
       includeOperational: true,
     });
     const data = parseResult(result) as { results: Array<{ path: string }> };
-    expect(data.results.some((r) => r.path.replace(/\\/g, '/').endsWith('log.md'))).toBe(true);
+    expect(data.results.some((r) => r.path.replace(/\\/g, '/').endsWith('_raw/op-log.md'))).toBe(true);
   });
 
   it('does not include frontmatter lines in snippets', async () => {

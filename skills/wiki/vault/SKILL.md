@@ -27,8 +27,8 @@ This skill is the **protocol** layer (hard rules agents must not violate). Wiki 
 
 **All vault access goes through the `user-cursidian` MCP server. There is no other path.**
 
-1. **Never** touch vault files with filesystem tools (`Read`, `Write`, `StrReplace`, `Grep`, `Glob`) or shell (`cat`, `sed`, `mkdir`, `mv`, `rm`, ...). Covers pages, `index.md`, `log.md`, `hot.md`, `_meta/`, `_raw/` - everything.
-2. **Reads:** `search` (`content`, `by_tags`, `list`, `recent`, `tags`), `note` `read`, `graph`, `vault` (`health`, `slop_check`, `history`, `manifest`/`vocabulary` read, `list_folders`), `context` (`assemble`, `for_task`, `expand`). **Writes:** `note` (`create`, `update`, `delete`, `rename`, `frontmatter`), `vault` (`sync_index`, `deslop`, `create_folder`, `delete_folder`, `log`, `undo`, `manifest`/`vocabulary` mutations), `context` `feedback` (local telemetry only).
+1. **Never** touch vault files with filesystem tools (`Read`, `Write`, `StrReplace`, `Grep`, `Glob`) or shell (`cat`, `sed`, `mkdir`, `mv`, `rm`, ...). Covers pages, `index.md`, `_meta/`, `_raw/` - everything.
+2. **Reads:** `search` (`content`, `by_tags`, `list`, `recent`, `tags`), `note` `read`, `graph`, `vault` (`health`, `slop_check`, `history`, `manifest`/`vocabulary` read, `list_folders`), `context` (`assemble`, `for_task`, `expand`). **Writes:** `note` (`create`, `update`, `delete`, `rename`, `frontmatter`), `vault` (`sync_index`, `deslop`, `create_folder`, `delete_folder`, `undo`, `manifest`/`vocabulary` mutations), `context` `feedback` (local telemetry only).
 3. **Safe write:** `note` `read` -> `revisionHash` -> mutate with `expectedRevision`. Prefer `patch` > `replace_section` > `append`/`prepend`; wholesale rewrite -> one `replace`. Prefer one combined `update` with body + `frontmatter` (merge). Serialize per path: `read` -> write -> use **response** `revisionHash` for the next write. Never parallel same-path mutations. Prefer `expectedRevision` over deprecated `expectedHash`.
 4. Keep an **operation-ID stack** (`operationStack`): push every returned `operationId`. Clear only after final verification. On failure after writes, `vault` `undo` reverse-order.
 5. After recovery rules are exhausted: **stop**. Report tool, args, `code` / `sideEffects` / `recovery` / stacked ids. No filesystem fallback.
@@ -44,7 +44,7 @@ Outside MCP: source docs **outside** the vault (ingest), and **repo** deslop via
 | `search` | `content` (default limit 10; `format: "compact"`; paginate `nextCursor`), `by_tags`, `list`, `recent`, `tags`. Operational paths excluded unless `includeOperational: true`. |
 | `note` | `read` (+ `revisionHash`), `create`/`update`/`delete`/`rename`/`frontmatter`. Mutations return `operationId`. `delete` needs `confirm: true`. |
 | `graph` | One-hop neighborhood; skip null `resolvedPath`; paginate backlinks. |
-| `vault` | `health`, `sync_index` (flat rebuild vs hub preserve - check `indexMode`), `slop_check`/`deslop`, folders, `log`, `history`/`undo`, `manifest`, `vocabulary`. |
+| `vault` | `health`, `sync_index` (flat rebuild vs hub preserve - check `indexMode`), `slop_check`/`deslop`, folders, `history`/`undo`, `manifest`, `vocabulary`. |
 | `context` | Prefer over hand-rolled search->read loops (session-first). `assemble`/`for_task` (+ `tokenBudget`, optional `intent`); returns `focus` + `guidance.nextStep`; `expand` via `nextCursor`; `feedback` for bad bundles. |
 
 Full action tables, retired names, and edge cases: wiki `projects/cursidian/concepts/mcp-tool-surface`.
@@ -81,20 +81,19 @@ Cheapest first: `search` `list`/`tags` -> compact `content` summaries -> `by_tag
 | Topic | Where |
 |-------|-------|
 | Categories / projects layout | Wiki + table below |
-| Special files (`index`/`log`/`hot`/`_meta`) | Brief below; hub vs flat from `vault` `health` `indexMode` |
+| Special files (`index` / `_meta`) | Brief below; hub vs flat from `vault` `health` `indexMode` |
 | Page frontmatter + body shape | Page Template |
 | Provenance markers | `^[inferred]` / `^[ambiguous]` |
 
 ### Vault layout (summary)
 
-Categories: `concepts/` `entities/` `skills/` `references/` `synthesis/` `journal/`. Project knowledge: `projects/<name>/<category>/` with overview `projects/<name>/<name>.md` (never `_project.md`). `_raw/` is a staging inbox, not Layer-1 sources.
+Categories: `concepts/` `entities/` `skills/` `references/` `journal/` (plus project trees). Project knowledge: `projects/<name>/<category>/` with overview `projects/<name>/<name>.md` (never `_project.md`). Decision/analysis pages belong under `concepts/` or `references/…/*-synthesis.md`, not a root `synthesis/` folder. `_raw/` is a staging inbox, not Layer-1 sources.
 
 ### Special files (summary)
 
 | File | Role |
 |------|------|
 | `index.md` | Flat: full leaf catalog via `sync_index`. Hub (`indexMode: hub`): curated router; `sync_index` preserves body; leaves catalogued if on index **or** within 2 hops of a listed page. |
-| `log.md` / `hot.md` | Append-only log; ~500-word session cache via `vault` `log`. |
 | `_meta/manifest.md` | Ingest ledger - **only** via `vault` `manifest`. |
 | `_meta/vocabulary.md` | Synonyms/pairings - **only** via `vault` `vocabulary`. |
 

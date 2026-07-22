@@ -4,16 +4,32 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.12.0] - 2026-07-22
+
+### Removed
+
+- `vault` action `log` and `log.md` / `hot.md` session-cache files (breaking)
+- `touch-wiki-meta` implementation; operational exclusion of `hot`/`log` / `_archives` basenames
+- Skills no longer teach root `synthesis/` or `_archives/` folders (use `concepts/` / `references/…/*-synthesis.md` and `_raw/_archived/`)
+
 ### Changed
 
+- Write skills bookkeeping ends at `vault` `sync_index` (+ `manifest` when needed) and a chat report
+- `wiki-status`: read-only hub + manifest + `_raw/` delta
+- `wiki-setup`: special files are `index` + `_meta/*`; folders omit `synthesis` / `_archives`
 - `context` assembler: denser session-first bundles - filter operational/`_meta` neighbours, cap neighbour count by intent, demote journal/ticket distractors, tighten onboarding seed limit, prefer non-neighbour seeds on ties
 - Search ranking: generic basename tokens (`failed`/`error`/...) no longer earn basename-primary elevation alone; mild `weak-basename` penalty for distractors
 - `wiki-query` / `wiki-context`: follow bundle `focus` and `guidance.nextStep` (`sufficient` | `expand` | `refine_query`)
+
+### Migration
+
+- Fold curated `hot.md` content into project hubs, then delete `hot.md` and `log.md` from the vault
 
 ### Added
 
 - `context` bundle fields `focus` (1-3 primary paths) and `guidance` for session-first agents
 - Recalibrated `bundleConfidence` penalties for neighbour-heavy / demoted fills
+- Always-on `context` logdump to `~/.cursor/logdump/ContextSearches/` (daily JSONL: full input args + output bundle/error); disable with `OBSIDIAN_CONTEXT_LOGDUMP=false`, override dir with `OBSIDIAN_CONTEXT_LOGDUMP_DIR`
 
 ## [2.11.6] - 2026-07-22
 

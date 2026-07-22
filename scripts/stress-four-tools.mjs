@@ -534,34 +534,6 @@ async function main() {
  expectOk('vault: sync_index dryRun', await callTool(server, 'vault', { action: 'sync_index', dryRun: true }));
  }
 
- {
- // log with and without hashes
- const logRead = await callTool(server, 'note', { action: 'read', path: 'log' });
- if (!logRead.isError) {
- const logData = JSON.parse(logRead.content[0].text);
- const bad = await callTool(server, 'vault', {
- action: 'log',
- logLine: 'STRESS_SHOULD_FAIL_HASH',
- expectedLogHash: '0'.repeat(64),
- });
- expectErr('vault: log bad hash rejected', bad, 'hash');
-
- const good = await callTool(server, 'vault', {
- action: 'log',
- logLine: `STRESS_PROBE ${probePrefix} (will leave a log line)`,
- expectedLogHash: logData.contentHash,
- });
- // logging is a real vault mutation - record result
- if (good.isError) {
- record('warn', 'vault: log with good hash failed', good.content[0].text.slice(0, 200));
- } else {
- record('ok', 'vault: log with expectedLogHash', null);
- }
- } else {
- record('warn', 'vault: could not read log.md for hash test', logRead.content[0].text.slice(0, 160));
- }
- }
-
  // --- Dispatch confusion / invalid combos ---
  {
  const combos = [

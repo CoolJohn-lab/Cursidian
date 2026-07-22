@@ -141,11 +141,9 @@ describe('search (by_tags)', () => {
     expect(data.retryable).toBe(true);
   });
 
-  it('excludes operational pages (index/log/hot) even when tagged', async () => {
+  it('excludes operational pages (index/_raw) even when tagged', async () => {
     const tag = 'operational-exclusion-test';
     await writeNote(ctx.vault, 'index.md', `---\ntags: [${tag}]\n---\n\n# Index`);
-    await writeNote(ctx.vault, 'log.md', `---\ntags: [${tag}]\n---\n\n# Log`);
-    await writeNote(ctx.vault, 'hot.md', `---\ntags: [${tag}]\n---\n\n# Hot`);
     await writeNote(ctx.vault, 'concepts/regular.md', `---\ntags: [${tag}]\n---\n\n# Regular`);
 
     const result = await callTool(ctx.client, 'search', { action: 'by_tags', tags: [tag] });
@@ -159,7 +157,7 @@ describe('search (by_tags)', () => {
     expect(data.totalMatches).toBe(1);
     expect(data.results).toHaveLength(1);
     expect(data.results[0].path).toBe('concepts/regular.md');
-    expect(data.results.some((r) => ['index.md', 'log.md', 'hot.md'].includes(r.path))).toBe(
+    expect(data.results.some((r) => r.path === 'index.md' || r.path.startsWith('_raw/'))).toBe(
       false,
     );
   });

@@ -44,7 +44,7 @@ Don't copy code. "Uses a debounced search with 300ms delay" is knowledge; the de
 
 - `vault` `manifest` with `manifestOperation: "upsert_project"` - cwd, current HEAD SHA, sync timestamp. Pass `expectedRevision` from the preflight manifest read. Do **not** hand-edit the project line with `note` `update`.
 - `vault` `sync_index` - flat: regenerate the catalog; hub: preserve curated router (no leaf dump).
-- `vault` `log` - `logLine: WIKI_UPDATE project=<name> pages_created=N pages_updated=M` and `hotActivity` for Recent Activity. If Active Threads / Key Takeaways need deeper edits, use `note` `update` on `hot.md` with `expectedRevision` after.
+- `vault` `manifest` upsert when syncing a project (cwd, HEAD SHA, timestamp). Report paths and operation IDs in chat.
 
 ## Verification
 

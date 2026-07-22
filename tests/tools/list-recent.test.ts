@@ -18,8 +18,6 @@ beforeAll(async () => {
   });
   await seedVault(ctx.vault);
   // Write operational files last so they are newest by mtime
-  await writeNote(ctx.vault, 'log.md', '# Log\n');
-  await writeNote(ctx.vault, 'hot.md', '# Hot\n');
   await writeNote(ctx.vault, 'index.md', '# Index\n');
 });
 
@@ -48,8 +46,6 @@ describe('search (recent)', () => {
     const data = parseResult(result) as { notes: Array<{ path: string }> };
     const paths = data.notes.map((n) => n.path.replace(/\\/g, '/'));
     expect(paths).not.toContain('index.md');
-    expect(paths).not.toContain('log.md');
-    expect(paths).not.toContain('hot.md');
   });
 
   it('includes operational files when includeOperational is true', async () => {
@@ -61,8 +57,6 @@ describe('search (recent)', () => {
     const data = parseResult(result) as { notes: Array<{ path: string }> };
     const paths = data.notes.map((n) => n.path.replace(/\\/g, '/'));
     expect(paths).toContain('index.md');
-    expect(paths).toContain('log.md');
-    expect(paths).toContain('hot.md');
   });
 
   it('respects limit', async () => {

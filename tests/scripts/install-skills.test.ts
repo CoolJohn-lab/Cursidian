@@ -12,8 +12,8 @@ describe('install-skills CLI', () => {
       encoding: 'utf8',
     });
     expect(result.status).toBe(0);
-    expect(result.stdout + result.stderr).toMatch(/llm-wiki/);
+    expect(result.stdout + result.stderr).toMatch(/vault/);
     expect(result.stdout + result.stderr).toMatch(/wiki-slop/);
-    expect(fs.existsSync(path.join(dest, 'llm-wiki'))).toBe(false);
+    expect(fs.existsSync(path.join(dest, 'vault'))).toBe(false);
   });
 });

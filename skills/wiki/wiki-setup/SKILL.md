@@ -8,11 +8,11 @@ description: >
 
 # Wiki Setup - Vault Initialization
 
-You are bootstrapping a new wiki vault (or repairing one). **All vault access is via the `user-cursidian` MCP server** - see the MCP Contract and Failure handling in `llm-wiki/SKILL.md`. If MCP is unavailable or recovery rules are exhausted, stop and report; never create vault files or folders with filesystem tools.
+You are bootstrapping a new wiki vault (or repairing one). **All vault access is via the `user-cursidian` MCP server** - see the MCP Contract and Failure handling in `vault/SKILL.md`. If MCP is unavailable or recovery rules are exhausted, stop and report; never create vault files or folders with filesystem tools.
 
 The MCP server already knows the vault path (`OBSIDIAN_VAULT_PATH` in the user's `mcp.json`). If `search` action `list` fails because the server isn't configured, point the user at `INSTALL.md` and stop.
 
-Keep `operationStack: string[]` for every successful write's `operationId`. On failure after writes, undo reverse-order per `llm-wiki`. Follow `llm-wiki` write sequencing: one note/folder op at a time; read immediately before each write that needs `expectedRevision`; chain response revisions when the same path is touched twice.
+Keep `operationStack: string[]` for every successful write's `operationId`. On failure after writes, undo reverse-order per `vault`. Follow `vault` write sequencing: one note/folder op at a time; read immediately before each write that needs `expectedRevision`; chain response revisions when the same path is touched twice.
 
 ## Preflight (no writes)
 
@@ -40,7 +40,7 @@ Push every returned `operationId` onto `operationStack`.
 
 **`hot.md`** - frontmatter `title: Hot Cache`, `updated: <ISO timestamp>`; body with empty sections: Recent Activity, Active Threads, Key Takeaways, Flagged Contradictions.
 
-**`_meta/manifest.md`** - if missing, `note` `create` with frontmatter `title: Wiki Manifest` and `source_dirs:` set to the directories-collected absolute paths; body with empty `## Sources` and `## Projects` sections (schema in `llm-wiki`). Later ingest/update mutations use `vault` `manifest` upserts, which preserve `source_dirs`. Confirm with `vault` `manifest` `read` afterward.
+**`_meta/manifest.md`** - if missing, `note` `create` with frontmatter `title: Wiki Manifest` and `source_dirs:` set to the directories-collected absolute paths; body with empty `## Sources` and `## Projects` sections (schema in `vault`). Later ingest/update mutations use `vault` `manifest` upserts, which preserve `source_dirs`. Confirm with `vault` `manifest` `read` afterward.
 
 **`_meta/taxonomy.md`** - starter tag vocabulary; a few grouped tags the user cares about. Skills consult this before inventing new tags.
 

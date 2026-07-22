@@ -9,7 +9,7 @@ description: >
 
 # Wiki Query - Knowledge Retrieval
 
-Answer from the compiled wiki, citing pages. **All vault access is via the `user-cursidian` MCP server** (MCP Contract in `llm-wiki/SKILL.md`). If an MCP call fails or returns something unexpected, stop and report it.
+Answer from the compiled wiki, citing pages. **All vault access is via the `user-cursidian` MCP server** (MCP Contract in `vault/SKILL.md`). If an MCP call fails or returns something unexpected, stop and report it.
 
 ## This skill is read-only
 
@@ -17,7 +17,7 @@ Create or modify **nothing** - no pages, no `index.md`, no `hot.md`, not even `l
 
 ## Protocol
 
-Prefer `context` over hand-rolling the search -> read -> `graph` ladder. It composes `search`/`graph` internally, budgets tokens, deduplicates overlapping passages, and carries provenance/staleness warnings that a raw search result does not - see "Context bundle" in `llm-wiki/SKILL.md`.
+Prefer `context` over hand-rolling the search -> read -> `graph` ladder. It composes `search`/`graph` internally, budgets tokens, deduplicates overlapping passages, and carries provenance/staleness warnings that a raw search result does not - see "Context bundle" in `vault/SKILL.md`.
 
 1. **Normal mode.** Call `context` `action: "assemble"` with the user's question as `query` (or `action: "for_task"` with `task` when the ask is really "help me understand X so I can do Y"). Let `intent` infer from phrasing unless the question is clearly connection-shaped (step 3). The default `tokenBudget` (4000) covers most questions; raise it if `warnings` says content was dropped and the user needs more.
 2. **Index-only mode** ("quick answer", "just scan", "don't read the pages"): call `context` `assemble` with a small `tokenBudget` (300-500) so the bundle stays to frontmatter summaries. Answer from the returned `items`/`citations` only, labelled *"(index-only answer - page bodies not read)"*. If the bundle is empty, fall back once to `search` `action: "content"`, `format: "compact"`, `limit: 10`.

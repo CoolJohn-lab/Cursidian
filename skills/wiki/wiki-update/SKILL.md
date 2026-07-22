@@ -8,7 +8,7 @@ description: >
 
 # Wiki Update - Sync a Project into the Wiki
 
-Distill the current project's knowledge into the vault. Reading the *project* (code, docs, git log) with normal tools is fine - it lives outside the vault. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract and Failure handling in `llm-wiki/SKILL.md`). Keep `operationStack`; on failure after writes, undo reverse-order; never write vault files directly.
+Distill the current project's knowledge into the vault. Reading the *project* (code, docs, git log) with normal tools is fine - it lives outside the vault. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Keep `operationStack`; on failure after writes, undo reverse-order; never write vault files directly.
 
 ## Preflight
 
@@ -30,9 +30,9 @@ Before the first mutation, send one short message listing the paths about to cre
 
 ## Writes
 
-Push every returned `operationId`. Follow write sequencing from `llm-wiki`: one note at a time; read immediately before each write (or chain the response `revisionHash`); never parallel same-path mutations or pre-read-all-then-write-all.
+Push every returned `operationId`. Follow write sequencing from `vault`: one note at a time; read immediately before each write (or chain the response `revisionHash`); never parallel same-path mutations or pre-read-all-then-write-all.
 
-Project-specific pages go under `projects/<name>/<category>/` with an overview at `projects/<name>/<name>.md` (never `_project.md`). General lessons go to global `concepts/` / `skills/` / `entities/`. Use the Page Template from `llm-wiki/SKILL.md`. Attach a provenance marker to every claim that is not a direct paraphrase of the source: `^[inferred]` for rationale you synthesized (git log + code shape, not a stated decision), `^[ambiguous]` where the codebase and commit history disagree. Default (no marker) means "the source states this directly" - do not mark plain restatements just to be safe, and do not skip marking a real inference either; both directions rot the wiki's trustworthiness.
+Project-specific pages go under `projects/<name>/<category>/` with an overview at `projects/<name>/<name>.md` (never `_project.md`). General lessons go to global `concepts/` / `skills/` / `entities/`. Use the Page Template from `vault/SKILL.md`. Attach a provenance marker to every claim that is not a direct paraphrase of the source: `^[inferred]` for rationale you synthesized (git log + code shape, not a stated decision), `^[ambiguous]` where the codebase and commit history disagree. Default (no marker) means "the source states this directly" - do not mark plain restatements just to be safe, and do not skip marking a real inference either; both directions rot the wiki's trustworthiness.
 
 Register any new colloquial term this project introduces (e.g. a team nickname for a known concept) via `vault` `vocabulary` upsert (`synonymGroup` or `pairingKey`/`pairingValues`) so search expands it project-wide. Prefer reusing terms already present in `_meta/vocabulary.md` / existing pages over inventing a parallel label.
 

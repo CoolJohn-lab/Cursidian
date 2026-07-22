@@ -1,5 +1,5 @@
 ---
-name: llm-wiki
+name: vault
 description: >
   The foundational knowledge distillation pattern for an AI-maintained Obsidian wiki, based on
   Andrej Karpathy's LLM Wiki architecture. Use when the user wants to understand the wiki pattern,

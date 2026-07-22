@@ -127,7 +127,7 @@ Source documents **outside** the vault (PDFs, repo files, URLs) may be read with
 3. Writes follow the safe-write protocol: `note` `read` -> `revisionHash` -> narrowest `note` `update` with `expectedRevision`. Mutating skills keep an operation-ID stack and call `vault` `undo` in reverse on failure after writes.
 4. After multi-page edits, skills typically call `vault` `sync_index` (flat: rebuild leaf catalog; hub: preserve curated router) and `vault` `log` (append `log.md` / optional `hot.md`), then verify with `sync_index` `dryRun: true` expecting `wouldWrite: false`. Set `indexMode: hub` on `index.md` frontmatter for curated hub-router vaults.
 
-Shared schema and the full MCP contract live in the `llm-wiki` skill.
+Shared schema and the full MCP contract live in the `vault` skill.
 
 ### Install skills
 
@@ -143,7 +143,7 @@ Exception: none for vault writes. **wiki-slop** uses MCP `vault` `slop_check` / 
 
 | Skill | Purpose | Typical MCP use |
 |-------|---------|-----------------|
-| `llm-wiki` | Theory, schema, MCP contract | Reference for other skills |
+| `vault` | Theory, schema, MCP contract | Reference for other skills |
 | `wiki-query` | Read-only Q&A | `context` `assemble`/`for_task` (no writes) |
 | `wiki-context` | Assemble a cited, budgeted context bundle for a task | `context` `for_task`/`assemble`/`expand` (no vault writes) |
 | `wiki-lint` | Vault health / consolidate | `vault` `health`, then `note`/`vault` fixes |

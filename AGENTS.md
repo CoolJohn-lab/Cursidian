@@ -39,7 +39,7 @@ Every vault MCP call must set **both**:
 
 Never send only `arguments` + `description` (missing `server` / `toolName` fails before Cursidian runs). Discover schemas with `GetMcpTools` first. On verify steps, re-read with a well-formed call - do not mark verify complete after a malformed invocation.
 
-Retired tool names (`read_note`, `search_content`, `list_notes`, ...) must not be called. See `skills/wiki/llm-wiki/SKILL.md` (MCP Contract) and `docs/MCP-HOST-HYGIENE.md` for stale Cursor allowlist cleanup.
+Retired tool names (`read_note`, `search_content`, `list_notes`, ...) must not be called. See `skills/wiki/vault/SKILL.md` (MCP Contract) and `docs/MCP-HOST-HYGIENE.md` for stale Cursor allowlist cleanup.
 
 ## Wiki skills refresh
 

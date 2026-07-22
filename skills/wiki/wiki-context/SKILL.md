@@ -8,7 +8,7 @@ description: >
 
 # Wiki Context - Assemble a Context Bundle
 
-Build the smallest, most relevant, most trustworthy context bundle for a task or question, via the `context` action on the `user-cursidian` MCP server (MCP Contract in `llm-wiki/SKILL.md`). If an MCP call fails or returns something unexpected, stop and report it.
+Build the smallest, most relevant, most trustworthy context bundle for a task or question, via the `context` action on the `user-cursidian` MCP server (MCP Contract in `vault/SKILL.md`). If an MCP call fails or returns something unexpected, stop and report it.
 
 ## Read-only for vault content
 

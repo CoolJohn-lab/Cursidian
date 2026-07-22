@@ -10,7 +10,7 @@ description: >
 
 # Wiki Ingest - Distill Sources into Pages
 
-Your job is not to write a summary - it is to **distill and integrate**: one source should update every wiki page it is relevant to. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract and Failure handling in `llm-wiki/SKILL.md`). Reading the *source documents* with `Read`/`Glob`/`WebFetch` is fine - they live outside the vault. Keep `operationStack`; on failure after writes, undo reverse-order; never fall back to editing vault files directly.
+Your job is not to write a summary - it is to **distill and integrate**: one source should update every wiki page it is relevant to. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Reading the *source documents* with `Read`/`Glob`/`WebFetch` is fine - they live outside the vault. Keep `operationStack`; on failure after writes, undo reverse-order; never fall back to editing vault files directly.
 
 ## Trust boundary
 
@@ -51,7 +51,7 @@ Push every returned `operationId` onto `operationStack`. Serialize per path: one
 For each planned page:
 
 - **Existing page:** `note` `read` first, merge the new information (don't just append), `note` `update` with `expectedRevision` (prefer combined body + `frontmatter` merge), add the source to `sources:` (`updated` is bumped automatically).
-- **New page:** `note` `create` with the Page Template from `llm-wiki/SKILL.md` - frontmatter with `summary` (<=200 chars), 2+ wikilinks to existing pages, provenance markers on inferred/ambiguous claims.
+- **New page:** `note` `create` with the Page Template from `vault/SKILL.md` - frontmatter with `summary` (<=200 chars), 2+ wikilinks to existing pages, provenance markers on inferred/ambiguous claims.
 
 ### 4. Bookkeeping (all via MCP)
 

@@ -17,7 +17,7 @@ import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const SKILL_NAMES = [
-  'llm-wiki',
+  'vault',
   'wiki-query',
   'wiki-context',
   'wiki-lint',
@@ -38,7 +38,7 @@ const LEGACY_TOOL_RE =
  * alongside this skill set. Catches a skills:install that silently drifts
  * back to teaching the pre-context 4-tool surface.
  */
-const CONTEXT_TOOL_REQUIRED_IN = ['llm-wiki', 'wiki-context'];
+const CONTEXT_TOOL_REQUIRED_IN = ['vault', 'wiki-context'];
 const CONTEXT_TOOL_RE = /\bcontext\b/;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

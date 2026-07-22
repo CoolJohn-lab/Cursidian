@@ -17,7 +17,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const SKILL_NAMES = [
-  'llm-wiki',
+  'vault',
   'wiki-query',
   'wiki-context',
   'wiki-lint',

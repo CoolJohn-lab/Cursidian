@@ -67,9 +67,9 @@ npm run skills:install
 npm run skills:install:dry
 ```
 
-This deletes each of the 10 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates, no legacy tool names (`read_note`, `search_content`, ...), and that `llm-wiki`/`wiki-context` still teach the `context` MCP tool.
+This deletes each of the 10 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates, no legacy tool names (`read_note`, `search_content`, ...), and that `vault`/`wiki-context` still teach the `context` MCP tool.
 
-Installed skills: `llm-wiki`, `wiki-query`, `wiki-context`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`.
+Installed skills: `vault`, `wiki-query`, `wiki-context`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`.
 
 ### After any surface change
 
@@ -88,7 +88,7 @@ $src = "C:\path\to\Cursidian\skills\wiki"
 $dst = "$env:USERPROFILE\.cursor\skills"
 New-Item -ItemType Directory -Force -Path $dst | Out-Null
 foreach ($name in @(
-  'llm-wiki','wiki-query','wiki-context','wiki-lint','wiki-setup',
+  'vault','wiki-query','wiki-context','wiki-lint','wiki-setup',
   'wiki-ingest','wiki-capture','wiki-update','wiki-status','wiki-slop'
 )) {
   Remove-Item -Recurse -Force "$dst\$name" -ErrorAction SilentlyContinue
@@ -102,7 +102,7 @@ foreach ($name in @(
 SRC=/path/to/Cursidian/skills/wiki
 DST="$HOME/.cursor/skills"
 mkdir -p "$DST"
-for name in llm-wiki wiki-query wiki-context wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status wiki-slop; do
+for name in vault wiki-query wiki-context wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status wiki-slop; do
   rm -rf "$DST/$name"
   cp -R "$SRC/$name" "$DST/$name"
 done

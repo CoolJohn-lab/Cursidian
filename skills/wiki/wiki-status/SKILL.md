@@ -9,7 +9,7 @@ description: >
 
 # Wiki Status - Delta & Dashboard
 
-Report the state of the wiki so the user can decide what to do next. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `llm-wiki/SKILL.md`). Scanning *source directories* (from the manifest's `source_dirs`) with `Glob` is fine - they live outside the vault. If an MCP call fails, stop and report.
+Report the state of the wiki so the user can decide what to do next. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Scanning *source directories* (from the manifest's `source_dirs`) with `Glob` is fine - they live outside the vault. If an MCP call fails, stop and report.
 
 Default status is **read-only**. The only optional write is an explicit `hot.md` refresh (see below). Keep `operationStack` only when that refresh runs.
 
@@ -62,4 +62,4 @@ When the user **explicitly** asks to refresh hot (not merely because it is stale
 3. `vault` action `log` with `logLine: STATUS_HOT refreshed=1` (omit hotActivity - you already rewrote Recent Activity).
 4. Verify with `note` `read` on `hot.md`. On failure after the write, undo reverse-order. Clear `operationStack` after success.
 
-This skill writes nothing else - ingestion belongs to `wiki-ingest` / `wiki-update`. Follow `llm-wiki` write sequencing (read immediately before each write; never parallel same-path mutations).
+This skill writes nothing else - ingestion belongs to `wiki-ingest` / `wiki-update`. Follow `vault` write sequencing (read immediately before each write; never parallel same-path mutations).

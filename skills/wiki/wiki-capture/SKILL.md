@@ -9,7 +9,7 @@ description: >
 
 # Wiki Capture - Conversation to Wiki Note
 
-Extract the *substance* of this conversation - the knowledge itself, not a summary of what was said. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `llm-wiki/SKILL.md`). Keep `operationStack` for mutating modes; if an MCP call fails after writes, undo reverse-order; never write vault files directly.
+Extract the *substance* of this conversation - the knowledge itself, not a summary of what was said. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Keep `operationStack` for mutating modes; if an MCP call fails after writes, undo reverse-order; never write vault files directly.
 
 ## Quick mode (`--quick`)
 
@@ -31,9 +31,9 @@ Fast staging to `_raw/`, no index/log/hot updates - promotion via `wiki-ingest` 
 
 ### Writes
 
-Push every `operationId`. Follow `llm-wiki` write sequencing: one note at a time; read immediately before each write; chain the response `revisionHash` for any follow-up edit to the same path.
+Push every `operationId`. Follow `vault` write sequencing: one note at a time; read immediately before each write; chain the response `revisionHash` for any follow-up edit to the same path.
 
-1. **Create or merge** via MCP using the Page Template from `llm-wiki/SKILL.md` (`sources: [conversation:<ISO-date>]`, `summary`, >=2 wikilinks). Prefer merge when the duplicate search found a hit. Prefer one combined `note` `update` with body + `frontmatter` merge when both change.
+1. **Create or merge** via MCP using the Page Template from `vault/SKILL.md` (`sources: [conversation:<ISO-date>]`, `summary`, >=2 wikilinks). Prefer merge when the duplicate search found a hit. Prefer one combined `note` `update` with body + `frontmatter` merge when both change.
 2. **Read back** the changed page with `note` `read` before bookkeeping. If the body or frontmatter is wrong, fix with `update` (or combined update) + `expectedRevision` from that read-back before continuing.
 3. **Bookkeeping:** `vault` `sync_index` (flat rebuild or hub preserve); then `vault` `log` with `logLine: CAPTURE page="<path>" title="<title>"` and `hotActivity: CAPTURE - saved [[path]]`.
 

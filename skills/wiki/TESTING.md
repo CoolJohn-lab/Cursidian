@@ -30,7 +30,7 @@ npm run mcp:test -- suite smoke
 
 ## Golden paths
 
-### llm-wiki
+### vault
 
 - Agent can state the MCP contract (MCP-only, `revisionHash` / `expectedRevision`, operation-ID stack, undo) and summarise the three-layer architecture.
 

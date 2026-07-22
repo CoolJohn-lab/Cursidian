@@ -15,7 +15,7 @@ const repoRoot = path.resolve(__dirname, '..');
 const skillsRoot = path.join(repoRoot, 'skills', 'wiki');
 
 const SKILL_NAMES = [
-  'llm-wiki',
+  'vault',
   'wiki-query',
   'wiki-context',
   'wiki-lint',
@@ -108,7 +108,7 @@ function checkLlmWikiCallHygiene(text, problems) {
     /toolName/.test(text) && (/user-cursidian/.test(text) || /CallMcpTool|GetMcpTools/.test(text));
   if (!hasToolName) {
     problems.push(
-      'llm-wiki: missing CallMcpTool hygiene (server user-cursidian + toolName)',
+      'vault: missing CallMcpTool hygiene (server user-cursidian + toolName)',
     );
   }
   if (
@@ -116,7 +116,7 @@ function checkLlmWikiCallHygiene(text, problems) {
       text,
     )
   ) {
-    problems.push('llm-wiki: missing same-path / one-note write sequencing language');
+    problems.push('vault: missing same-path / one-note write sequencing language');
   }
 }
 
@@ -127,8 +127,8 @@ function checkReplaceAllGuidance(name, text, problems) {
     /fmOperation`?\s+set\b/i.test(text) ||
     /frontmatter[^.\n]{0,40}\bset\b/i.test(text);
   if (!usesFmSet) return;
-  // llm-wiki tool map is enough as shared guidance when skill only says merge.
-  if (name === 'llm-wiki') return;
+  // vault tool map is enough as shared guidance when skill only says merge.
+  if (name === 'vault') return;
   if (/replaceAll/.test(text)) return;
   // Allow merge-only skills (prefer merge) without replaceAll.
   if (/fmOperation:\s*["']merge["']/.test(text) && !/fmOperation:\s*["']set["']/.test(text)) {
@@ -223,7 +223,7 @@ function main() {
   }
 
   // Shared contract must document undo/history/manifest and revisionHash.
-  const { text: llmWiki } = readSkill('llm-wiki');
+  const { text: llmWiki } = readSkill('vault');
   if (llmWiki) {
     checkLlmWikiCallHygiene(llmWiki, problems);
     for (const token of ['history', 'undo', 'manifest', 'revisionHash', 'expectedRevision', 'operationStack']) {
@@ -233,11 +233,11 @@ function main() {
           continue;
         }
         if (token === 'operationStack') continue;
-        problems.push(`llm-wiki: missing required contract token "${token}"`);
+        problems.push(`vault: missing required contract token "${token}"`);
       }
     }
     if (!/operation-ID stack|operationStack|operation stack/i.test(llmWiki)) {
-      problems.push('llm-wiki: missing operation stack rollback protocol');
+      problems.push('vault: missing operation stack rollback protocol');
     }
   }
 

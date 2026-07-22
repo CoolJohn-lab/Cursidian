@@ -10,7 +10,7 @@ description: >
 
 # Wiki Lint - Health Audit
 
-Find and fix the structural issues that degrade a wiki over time. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `llm-wiki/SKILL.md`). If an MCP call fails, stop and report; never inspect or repair vault files with filesystem tools.
+Find and fix the structural issues that degrade a wiki over time. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). If an MCP call fails, stop and report; never inspect or repair vault files with filesystem tools.
 
 ## Report-only mode (default)
 

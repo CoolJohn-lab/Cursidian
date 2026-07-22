@@ -21,3 +21,4 @@ Use this skill when onboarding a new source feed into the CDF platform.
 
 - [[concepts/ingestion-vs-egress]] - the pipeline category this skill covers
 - [[entities/bighand]] - a reference example of an existing ingestion feed
+- [[journal/bighand-onboarding-notes]] - scratch meeting notes (prefer this skill over the journal)

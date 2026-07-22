@@ -17,6 +17,7 @@ tags: [wiki, index]
 - [[concepts/worker-data-mart]]
 - [[concepts/schema-drift-and-versioning]]
 - [[concepts/orchestration-and-scheduling]]
+- [[concepts/platform-wiki-bridge]]
 
 ## Entities
 
@@ -30,3 +31,8 @@ tags: [wiki, index]
 - [[skills/ingestion-pipeline-authoring]]
 - [[skills/contract-schema-review]]
 - [[skills/troubleshooting-failed-loads]]
+
+## Journal
+
+- [[journal/failed-office-cutover]]
+- [[journal/bighand-onboarding-notes]]

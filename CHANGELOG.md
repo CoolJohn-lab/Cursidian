@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- `context` assembler: denser session-first bundles - filter operational/`_meta` neighbours, cap neighbour count by intent, demote journal/ticket distractors, tighten onboarding seed limit, prefer non-neighbour seeds on ties
+- Search ranking: generic basename tokens (`failed`/`error`/...) no longer earn basename-primary elevation alone; mild `weak-basename` penalty for distractors
+- `wiki-query` / `wiki-context`: follow bundle `focus` and `guidance.nextStep` (`sufficient` | `expand` | `refine_query`)
+
+### Added
+
+- `context` bundle fields `focus` (1-3 primary paths) and `guidance` for session-first agents
+- Recalibrated `bundleConfidence` penalties for neighbour-heavy / demoted fills
+
 ## [2.11.6] - 2026-07-22
 
 ### Changed

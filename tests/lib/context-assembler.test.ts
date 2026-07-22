@@ -371,6 +371,119 @@ describe('assembleContext', () => {
     expect(neighbour!.kind).toBe('neighbor-note');
   });
 
+  it('skips operational and _meta neighbours and caps neighbour count', async () => {
+    await writeNote(
+      config.vaultPath,
+      'uniqueneighfilter-hub.md',
+      '---\ntitle: UniqueNeighFilter Hub\nsummary: Hub for UniqueNeighFilter.\n---\n\nSee [[index]] [[hot]] [[log]] [[_meta/manifest]] [[uniqueneighfilter-a]] [[uniqueneighfilter-b]] [[uniqueneighfilter-c]] [[uniqueneighfilter-d]] [[uniqueneighfilter-e]].',
+    );
+    await writeNote(config.vaultPath, 'index.md', '---\ntitle: Index\nsummary: Operational index.\n---\n\nIndex body.');
+    await writeNote(config.vaultPath, 'hot.md', '---\ntitle: Hot\nsummary: Operational hot.\n---\n\nHot body.');
+    await writeNote(config.vaultPath, 'log.md', '---\ntitle: Log\nsummary: Operational log.\n---\n\nLog body.');
+    await writeNote(
+      config.vaultPath,
+      '_meta/manifest.md',
+      '---\ntitle: Manifest\nsummary: Meta manifest.\n---\n\n# Manifest\n',
+    );
+    for (const letter of ['a', 'b', 'c', 'd', 'e']) {
+      await writeNote(
+        config.vaultPath,
+        `uniqueneighfilter-${letter}.md`,
+        `---\ntitle: Neigh ${letter}\nsummary: Neighbour ${letter}.\n---\n\nBody ${letter}.`,
+      );
+    }
+    const bundle = await assembleContext(config, {
+      query: 'UniqueNeighFilter',
+      intent: 'connection',
+      tokenBudget: 4000,
+    });
+    const neighbourPaths = bundle.items
+      .filter((i) => i.kind === 'neighbor-note')
+      .map((i) => i.path.replace(/\\/g, '/').toLowerCase());
+    expect(neighbourPaths.some((p) => p === 'index.md' || p === 'hot.md' || p === 'log.md')).toBe(false);
+    expect(neighbourPaths.some((p) => p.startsWith('_meta/'))).toBe(false);
+    expect(neighbourPaths.length).toBeLessThanOrEqual(4);
+  });
+
+  it('demotes journal and ticket-like candidates', async () => {
+    await writeNote(
+      config.vaultPath,
+      'skills/uniquedemotemarker-debug.md',
+      '---\ntitle: UniqueDemoteMarker Debug\ncategory: skills\nsummary: How to debug UniqueDemoteMarker failures.\n---\n\nDebug UniqueDemoteMarker carefully.\n',
+    );
+    await writeNote(
+      config.vaultPath,
+      'journal/unique-demote-session.md',
+      '---\ntitle: UniqueDemoteMarker session\ncategory: journal\nsummary: Notes about UniqueDemoteMarker from a meeting.\n---\n\nJournal UniqueDemoteMarker chatter.\n',
+    );
+    await writeNote(
+      config.vaultPath,
+      'references/ado-12345.md',
+      '---\ntitle: ADO-12345 UniqueDemoteMarker\ncategory: references\ntags: [ticket, ado]\nsummary: Ticket about UniqueDemoteMarker.\n---\n\nTicket body UniqueDemoteMarker.\n',
+    );
+    const bundle = await assembleContext(config, {
+      query: 'UniqueDemoteMarker',
+      intent: 'troubleshoot',
+      tokenBudget: 4000,
+    });
+    const skill = bundle.items.find((i) => i.path.includes('uniquedemotemarker-debug'));
+    const journal = bundle.items.find((i) => i.path.includes('unique-demote-session'));
+    const ticket = bundle.items.find((i) => i.path.includes('ado-12345'));
+    expect(skill).toBeDefined();
+    if (journal) {
+      expect(journal.reasons).toContain('journal-demotion');
+      expect(journal.score).toBeLessThan(skill!.score);
+    }
+    if (ticket) {
+      expect(ticket.reasons).toContain('ticket-demotion');
+      expect(ticket.score).toBeLessThan(skill!.score);
+    }
+    expect(bundle.focus?.[0]).toContain('uniquedemotemarker-debug');
+  });
+
+  it('returns focus and guidance on successful assemble', async () => {
+    await writeNote(
+      config.vaultPath,
+      'uniquefocusmarker.md',
+      '---\ntitle: UniqueFocusMarker\nsummary: Primary UniqueFocusMarker page.\n---\n\n# UniqueFocusMarker\n\nBody about UniqueFocusMarker with enough text to promote.\n',
+    );
+    const bundle = await assembleContext(config, {
+      query: 'UniqueFocusMarker',
+      intent: 'lookup',
+      tokenBudget: 4000,
+    });
+    expect(bundle.focus).toBeDefined();
+    expect(bundle.focus!.length).toBeGreaterThan(0);
+    expect(bundle.focus![0]).toContain('uniquefocusmarker');
+    expect(bundle.guidance).toBeDefined();
+    expect(['sufficient', 'expand', 'refine_query']).toContain(bundle.guidance!.nextStep);
+    expect(bundle.guidance!.reason.length).toBeGreaterThan(0);
+  });
+
+  it('does not inflate confidence when the fill is neighbour-heavy', async () => {
+    await writeNote(
+      config.vaultPath,
+      'uniquenoisyhub.md',
+      '---\ntitle: UniqueNoisyHub\nsummary: Hub UniqueNoisyHub.\n---\n\nLinks [[uniquenoisy-a]] [[uniquenoisy-b]] [[uniquenoisy-c]] [[uniquenoisy-d]].',
+    );
+    for (const letter of ['a', 'b', 'c', 'd']) {
+      await writeNote(
+        config.vaultPath,
+        `uniquenoisy-${letter}.md`,
+        `---\ntitle: Noisy ${letter}\nsummary: Neighbour only.\n---\n\nBody.`,
+      );
+    }
+    const bundle = await assembleContext(config, {
+      query: 'UniqueNoisyHub',
+      intent: 'connection',
+      tokenBudget: 4000,
+    });
+    const neighborCount = bundle.items.filter((i) => i.kind === 'neighbor-note').length;
+    if (neighborCount / Math.max(bundle.items.length, 1) > 0.4) {
+      expect(bundle.bundleConfidence ?? 1).toBeLessThan(0.99);
+    }
+  });
+
   it('completes within a generous latency budget and takes one vault snapshot per call', async () => {
     for (let i = 0; i < 15; i++) {
       await writeNote(

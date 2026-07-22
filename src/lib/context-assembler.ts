@@ -10,13 +10,30 @@ import { estimateTokens } from './token-estimate.js';
 import { parseManifest, MANIFEST_RELATIVE_PATH } from './manifest.js';
 import { resolvePath } from './vault.js';
 import { readFileBounded } from './security.js';
-import type { ContextBundle, ContextIntent, ContextItem, SearchResult } from '../types/index.js';
+import { isHealthExcludedPath } from './operational-paths.js';
+import type {
+  ContextBundle,
+  ContextGuidance,
+  ContextIntent,
+  ContextItem,
+  SearchResult,
+} from '../types/index.js';
 
 const DEFAULT_TOKEN_BUDGET = 4000;
 const DEFAULT_STALE_DAYS = 90;
 const MAX_BODY_CHARS = 6000;
 const MAX_NEIGHBOR_CALLS = 8;
+const NEIGHBOR_CAP_CONNECTION = 4;
+const NEIGHBOR_CAP_ONBOARDING = 2;
+const JOURNAL_DEMOTION_FACTOR = 0.35;
+const TICKET_BASENAME_RE = /^(ado|ticket|wi|bug)-\d+/i;
+const TICKET_QUERY_ID_RE = /\b(?:ado|ticket|wi|bug)[-\s]?\d+\b/i;
 const CONTRADICTS_RE = /^>\s*Contradicts\s+\[\[([^\]]+)\]\]/gim;
+
+function basenameWithoutExt(relativePath: string): string {
+  const base = relativePath.replace(/\\/g, '/').split('/').pop() ?? relativePath;
+  return base.replace(/\.md$/i, '');
+}
 
 export interface AssembleContextOptions {
   query: string;
@@ -152,7 +169,7 @@ export function inferIntent(query: string): ContextIntent {
 function seedLimitForIntent(intent: ContextIntent): number {
   switch (intent) {
     case 'onboarding':
-      return 15;
+      return 6;
     case 'connection':
       return 6;
     case 'troubleshoot':
@@ -163,7 +180,15 @@ function seedLimitForIntent(intent: ContextIntent): number {
   }
 }
 
+function neighborCapForIntent(intent: ContextIntent): number {
+  return intent === 'onboarding' ? NEIGHBOR_CAP_ONBOARDING : NEIGHBOR_CAP_CONNECTION;
+}
+
 function emptyBundle(query: string, intent: ContextIntent, tokenBudget: number, warnings: string[]): ContextBundle {
+  const guidance: ContextGuidance = {
+    nextStep: 'refine_query',
+    reason: warnings[0] ?? 'No pages matched; refine the query or try different keywords.',
+  };
   return {
     query,
     intent,
@@ -174,6 +199,8 @@ function emptyBundle(query: string, intent: ContextIntent, tokenBudget: number, 
     warnings,
     citations: [],
     bundleConfidence: 0,
+    focus: [],
+    guidance,
   };
 }
 
@@ -213,10 +240,14 @@ async function enrichWithNeighbours(
   candidates: Map<string, Candidate>,
   seeds: SearchResult[],
   excludePaths: Set<string>,
+  intent: ContextIntent,
 ): Promise<void> {
+  const neighborCap = neighborCapForIntent(intent);
   let calls = 0;
+  let kept = 0;
+
   for (const seed of seeds) {
-    if (calls >= MAX_NEIGHBOR_CALLS) {
+    if (calls >= MAX_NEIGHBOR_CALLS || kept >= neighborCap) {
       break;
     }
     calls += 1;
@@ -241,6 +272,7 @@ async function enrichWithNeighbours(
       continue;
     }
 
+    // Prefer outgoing links over backlinks when capping.
     const neighbourPaths = [
       ...(payload.outgoingLinks ?? [])
         .map((link) => link.resolvedPath)
@@ -249,8 +281,14 @@ async function enrichWithNeighbours(
     ];
 
     for (const neighbourPath of neighbourPaths) {
+      if (kept >= neighborCap) {
+        break;
+      }
       const key = normaliseKey(neighbourPath);
       if (excludePaths.has(key) || candidates.has(key)) {
+        continue;
+      }
+      if (isHealthExcludedPath(neighbourPath)) {
         continue;
       }
       candidates.set(key, {
@@ -259,6 +297,45 @@ async function enrichWithNeighbours(
         reasons: [`neighbor-of:${seed.path}`],
         kind: 'neighbor-note',
       });
+      kept += 1;
+    }
+  }
+}
+
+/**
+ * Demotes journal pages and ticket-like distractors so they do not crowd session-first
+ * bundles unless the query explicitly asks for a ticket id.
+ */
+function demoteJournalAndTicketCandidates(
+  candidates: Map<string, Candidate>,
+  fileByPath: Map<string, VaultMarkdownFile>,
+  query: string,
+): void {
+  const queryAsksForTicket = TICKET_QUERY_ID_RE.test(query);
+
+  for (const candidate of candidates.values()) {
+    const key = normaliseKey(candidate.path);
+    const file = fileByPath.get(key);
+    const { data } = file ? parseFrontmatter(file.content) : { data: {} as Record<string, unknown> };
+    const title = typeof data.title === 'string' ? data.title : basenameWithoutExt(candidate.path);
+    const category = typeof data.category === 'string' ? data.category.toLowerCase() : '';
+    const tags = Array.isArray(data.tags)
+      ? data.tags.filter((t): t is string => typeof t === 'string').map((t) => t.toLowerCase())
+      : [];
+    const basename = basenameWithoutExt(candidate.path);
+    const underJournal = key.startsWith('journal/') || category === 'journal';
+    const ticketLike =
+      TICKET_BASENAME_RE.test(basename) ||
+      TICKET_BASENAME_RE.test(title) ||
+      tags.includes('ticket') ||
+      tags.includes('ado');
+
+    if (underJournal) {
+      candidate.score = Math.max(1, candidate.score * JOURNAL_DEMOTION_FACTOR);
+      candidate.reasons.push('journal-demotion');
+    } else if (ticketLike && !queryAsksForTicket) {
+      candidate.score = Math.max(1, candidate.score * JOURNAL_DEMOTION_FACTOR);
+      candidate.reasons.push('ticket-demotion');
     }
   }
 }
@@ -469,10 +546,20 @@ function extractedRatio(item: ContextItem): number {
 }
 
 /**
- * Orders items by value-per-token (highest first). Ties break on raw score, then on
- * provenance (prefer the less-inferred candidate), then path for determinism.
+ * Orders items for budget fill. Session-first density: non-neighbour seeds before
+ * neighbours, non-demoted before demoted, then value-per-token / score / provenance.
  */
 function compareItemsForSelection(a: ContextItem, b: ContextItem): number {
+  const aNeighbor = a.kind === 'neighbor-note' ? 1 : 0;
+  const bNeighbor = b.kind === 'neighbor-note' ? 1 : 0;
+  if (aNeighbor !== bNeighbor) {
+    return aNeighbor - bNeighbor;
+  }
+  const aDemoted = a.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion') ? 1 : 0;
+  const bDemoted = b.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion') ? 1 : 0;
+  if (aDemoted !== bDemoted) {
+    return aDemoted - bDemoted;
+  }
   return (
     valuePerToken(b) - valuePerToken(a) ||
     b.score - a.score ||
@@ -481,6 +568,11 @@ function compareItemsForSelection(a: ContextItem, b: ContextItem): number {
   );
 }
 
+/**
+ * Fills the budget. Demoted journal/ticket items are skipped unless no other
+ * candidates remain - they stay in consideredPaths for expand but do not dilute
+ * the primary bundle.
+ */
 function greedyFill(
   items: ContextItem[],
   tokenBudget: number,
@@ -488,7 +580,15 @@ function greedyFill(
   const included: ContextItem[] = [];
   const dropped: ContextItem[] = [];
   let tokensUsed = 0;
-  for (const item of items) {
+
+  const primary = items.filter(
+    (i) => !i.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion'),
+  );
+  const demoted = items.filter((i) =>
+    i.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion'),
+  );
+
+  for (const item of primary) {
     if (tokensUsed + item.tokens <= tokenBudget) {
       included.push(item);
       tokensUsed += item.tokens;
@@ -496,31 +596,63 @@ function greedyFill(
       dropped.push(item);
     }
   }
+
+  // Only pull demoted pages if the primary set left the bundle empty (rare).
+  if (included.length === 0) {
+    for (const item of demoted) {
+      if (tokensUsed + item.tokens <= tokenBudget) {
+        included.push(item);
+        tokensUsed += item.tokens;
+      } else {
+        dropped.push(item);
+      }
+    }
+  } else {
+    dropped.push(...demoted);
+  }
+
   return { included, dropped, tokensUsed };
 }
 
 /**
- * Promotes the single highest-scored included item from summary/section to full body
+ * Promotes the single highest-scored included seed item from summary/section to full body
  * when leftover budget allows - the "cheapest sufficient, upgrade the primary hit" rule.
+ * Neighbour notes never promote. Onboarding/connection allow at most one body.
  */
 function promoteTopItem(
   included: ContextItem[],
   fileByPath: Map<string, VaultMarkdownFile>,
   tokenBudget: number,
   tokensUsed: number,
+  intent: ContextIntent,
 ): { items: ContextItem[]; tokensUsed: number } {
   if (included.length === 0) {
     return { items: included, tokensUsed };
   }
 
-  let topIdx = 0;
-  for (let i = 1; i < included.length; i++) {
-    if (included[i]!.score > included[topIdx]!.score) {
+  if (
+    (intent === 'onboarding' || intent === 'connection') &&
+    included.some((i) => i.kind === 'body')
+  ) {
+    return { items: included, tokensUsed };
+  }
+
+  let topIdx = -1;
+  for (let i = 0; i < included.length; i++) {
+    const item = included[i]!;
+    if (item.kind === 'neighbor-note') {
+      continue;
+    }
+    if (topIdx < 0 || item.score > included[topIdx]!.score) {
       topIdx = i;
     }
   }
+  if (topIdx < 0) {
+    return { items: included, tokensUsed };
+  }
+
   const top = included[topIdx]!;
-  if (top.kind === 'body' || top.kind === 'neighbor-note') {
+  if (top.kind === 'body') {
     return { items: included, tokensUsed };
   }
 
@@ -593,8 +725,104 @@ function computeBundleConfidence(items: ContextItem[], consideredCount: number, 
   const provenanceScore =
     items.reduce((sum, i) => sum + (i.provenance ? extractedRatio(i) : 1), 0) / items.length;
   const warningPenalty = Math.min(0.3, warningCount * 0.05);
-  const confidence = 0.4 * coverage + 0.3 * freshnessScore + 0.3 * provenanceScore - warningPenalty;
+
+  const neighborFraction = items.filter((i) => i.kind === 'neighbor-note').length / items.length;
+  const demotedFraction =
+    items.filter((i) => i.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion')).length /
+    items.length;
+  const noisePenalty = Math.min(0.35, neighborFraction * 0.4 + demotedFraction * 0.35);
+
+  const confidence =
+    0.4 * coverage + 0.3 * freshnessScore + 0.3 * provenanceScore - warningPenalty - noisePenalty;
   return Math.max(0, Math.min(1, Number(confidence.toFixed(2))));
+}
+
+/**
+ * Primary paths for agents: body-promoted first, then highest-scored non-neighbour
+ * non-demoted seeds (max 3).
+ */
+function buildFocus(items: ContextItem[]): string[] {
+  const focus: string[] = [];
+  const body = items.find((i) => i.kind === 'body' && i.reasons.includes('promoted-to-body'));
+  if (body) {
+    focus.push(body.path);
+  } else {
+    const anyBody = items.find((i) => i.kind === 'body');
+    if (anyBody) {
+      focus.push(anyBody.path);
+    }
+  }
+
+  const scoredSeeds = [...items]
+    .filter(
+      (i) =>
+        i.kind !== 'neighbor-note' &&
+        !i.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion') &&
+        !focus.includes(i.path),
+    )
+    .sort((a, b) => b.score - a.score);
+
+  for (const item of scoredSeeds) {
+    if (focus.length >= 3) {
+      break;
+    }
+    focus.push(item.path);
+  }
+  return focus;
+}
+
+function buildGuidance(
+  items: ContextItem[],
+  focus: string[],
+  droppedForBudget: string[],
+  droppedItems: ContextItem[],
+  bundleConfidence: number,
+  tokenBudget: number,
+): ContextGuidance {
+  if (items.length === 0) {
+    return {
+      nextStep: 'refine_query',
+      reason: 'No pages matched; refine the query or try different keywords.',
+    };
+  }
+
+  const neighborFraction = items.filter((i) => i.kind === 'neighbor-note').length / items.length;
+  const demotedCount = items.filter((i) =>
+    i.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion'),
+  ).length;
+  const avgScore = items.reduce((sum, i) => sum + i.score, 0) / items.length;
+  const competitiveDrop = droppedItems.some((d) => d.score >= avgScore * 0.8);
+
+  if (focus.length === 0 || neighborFraction > 0.5) {
+    return {
+      nextStep: 'refine_query',
+      reason: 'Bundle is neighbour-heavy or lacks a clear focus path; narrow the query toward the SoT page or skill.',
+    };
+  }
+
+  if (avgScore < 25 && demotedCount === items.length) {
+    return {
+      nextStep: 'refine_query',
+      reason: 'Only demoted journal/ticket pages matched; refine toward skills or concepts.',
+    };
+  }
+
+  if (bundleConfidence < 0.7 || (droppedForBudget.length > 0 && competitiveDrop)) {
+    const suggested = Math.min(50_000, Math.max(tokenBudget + 2000, Math.ceil(tokenBudget * 1.5)));
+    return {
+      nextStep: 'expand',
+      reason:
+        bundleConfidence < 0.7
+          ? `Bundle confidence ${bundleConfidence} is below 0.7; expand with nextCursor for more coverage.`
+          : 'Competitive pages were dropped for budget; expand with nextCursor.',
+      suggestedTokenBudget: suggested,
+    };
+  }
+
+  return {
+    nextStep: 'sufficient',
+    reason: 'Focus paths cover the ask within budget; expand only if a follow-up needs more depth.',
+  };
 }
 
 /**
@@ -655,7 +883,7 @@ export async function assembleContext(config: Config, options: AssembleContextOp
   }
 
   if (intent === 'connection' || intent === 'onboarding') {
-    await enrichWithNeighbours(config, candidates, searchHits.slice(0, 3), excludePaths);
+    await enrichWithNeighbours(config, candidates, searchHits.slice(0, 3), excludePaths, intent);
   }
   if (intent === 'troubleshoot') {
     boostSkillsPages(candidates);
@@ -667,6 +895,8 @@ export async function assembleContext(config: Config, options: AssembleContextOp
   const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
   const fileByPath = new Map(snapshot.files.map((f) => [normaliseKey(f.relativePath), f]));
 
+  demoteJournalAndTicketCandidates(candidates, fileByPath, query);
+
   const contradictionPairs = collectContradictionCandidates(candidates, fileByPath, snapshot.index, excludePaths);
 
   const tokens = prepareSearchTokens(query).contentTokens;
@@ -675,7 +905,7 @@ export async function assembleContext(config: Config, options: AssembleContextOp
   items.sort(compareItemsForSelection);
 
   const filled = greedyFill(items, tokenBudget);
-  const promoted = promoteTopItem(filled.included, fileByPath, tokenBudget, filled.tokensUsed);
+  const promoted = promoteTopItem(filled.included, fileByPath, tokenBudget, filled.tokensUsed, intent);
 
   const finalItems = promoted.items;
   const consideredPaths = [...candidates.keys()];
@@ -691,7 +921,19 @@ export async function assembleContext(config: Config, options: AssembleContextOp
   }
 
   const citations = finalItems.map((item) => `[[${item.path.replace(/\.md$/i, '')}]]`);
-  const bundleConfidence = computeBundleConfidence(finalItems, consideredPaths.length, warnings.length);
+  const focus = buildFocus(finalItems);
+  let bundleConfidence = computeBundleConfidence(finalItems, consideredPaths.length, warnings.length);
+  if (focus.length === 0 && finalItems.length > 0) {
+    bundleConfidence = Math.min(bundleConfidence, 0.55);
+  }
+  const guidance = buildGuidance(
+    finalItems,
+    focus,
+    droppedForBudget,
+    filled.dropped,
+    bundleConfidence,
+    tokenBudget,
+  );
 
   const nextCursor = encodeContextCursor({
     query,
@@ -710,6 +952,8 @@ export async function assembleContext(config: Config, options: AssembleContextOp
     citations,
     nextCursor,
     bundleConfidence,
+    focus,
+    guidance,
   };
 }
 

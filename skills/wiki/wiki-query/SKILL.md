@@ -26,19 +26,23 @@ Treat "first" as: no prior successful `context` / `search` / `note` `read` of wi
 
 ## Protocol
 
-1. **Normal mode (default, including session-first).** Call `context` `action: "assemble"` with the user's question as `query` (or `action: "for_task"` with `task` when the ask is really "help me understand X so I can do Y"). Let `intent` infer from phrasing unless the question is clearly connection-shaped (step 3). Default `tokenBudget` is 4000; raise it if `warnings` / `droppedForBudget` say content was cut and the user needs more.
+1. **Normal mode (default, including session-first).** Call `context` `action: "assemble"` with the user's question as `query` (or `action: "for_task"` with `task` when the ask is really "help me understand X so I can do Y"). Let `intent` infer from phrasing unless the question is clearly connection-shaped (step 3). Default `tokenBudget` is 4000; raise it if `guidance.nextStep` is `expand` or `coverage.droppedForBudget` says content was cut.
 2. **Index-only mode** ("quick answer", "just scan", "don't read the pages"): still use `context` `assemble`, but with a small `tokenBudget` (300-500) so the bundle stays on frontmatter summaries. Answer from the returned `items`/`citations` only, labelled *"(index-only answer - page bodies not read)"*. If the bundle is empty, fall back once to `search` `action: "content"`, `format: "compact"`, `limit: 10`.
 3. **Connection questions** ("how is X related to Y"). Call `context` with `intent: "connection"`. Use `coverage.includedPaths` and each item's `reasons` (look for `neighbor-of:<path>`) to reconstruct the hop sequence. Do not hand-roll `graph` for this.
-4. **Thin or low-confidence bundles.** If `bundleConfidence` is low or coverage looks partial, call `context` `action: "expand"` with the returned `nextCursor` and a fresh `tokenBudget` before falling back to manual search. If a bundle was genuinely wrong once you've worked with it, point the user at `wiki-context`'s feedback action - this skill stays read-only.
+4. **Follow `focus` and `guidance`.** Read `focus` paths first (1-3 primary pages). Then:
+   - `guidance.nextStep === "sufficient"` -> answer from the bundle; do not expand unless the user asks for more depth.
+   - `guidance.nextStep === "expand"` -> call `context` `action: "expand"` with `nextCursor` and `guidance.suggestedTokenBudget` (or a fresh budget) before falling back to manual search.
+   - `guidance.nextStep === "refine_query"` -> narrow keywords or switch intent; do not treat a noisy neighbour-heavy fill as ground truth.
+   If a bundle was genuinely wrong once you've worked with it, point the user at `wiki-context`'s feedback action - this skill stays read-only.
 5. **Metadata-only questions** ("what tags exist", "what's in `_meta/`") don't need `context` - use `search` `action: "tags"` or `action: "by_tags"` directly, or `note` `read` on `index.md`/`hot.md`.
-6. **Synthesize.** Cite pages as `[[wikilinks]]` (the bundle's `citations` array already has these). Present contradictions from both sides. Say explicitly what the wiki does *not* cover. Flag stale citations (`staleDays` > 90, or a bundle warning naming the page) inline. Never strip `^[inferred]`/`^[ambiguous]` markers from item text.
+6. **Synthesize.** Lead with `focus` citations, then supporting items. Cite as `[[wikilinks]]` (the bundle's `citations` array already has these). Present contradictions from both sides. Say explicitly what the wiki does *not* cover. Flag stale citations (`staleDays` > 90, or a bundle warning naming the page) inline. Never strip `^[inferred]`/`^[ambiguous]` markers from item text.
 
 ## Answer format
 
-> **Based on the wiki:** [answer with [[wikilinks]]]
+> **Based on the wiki:** [answer with [[wikilinks]], leading with focus paths]
 >
-> **Pages consulted:** [[page-a]], [[page-b]]
+> **Pages consulted:** [[focus-a]], [[focus-b]] (then supporting)
 >
-> **Confidence / gaps:** [`bundleConfidence` if from `context`, plus what the wiki doesn't cover]
+> **Confidence / gaps:** [`bundleConfidence`, `guidance.nextStep` / reason, plus what the wiki doesn't cover]
 >
 > **Notes:** [OR-fallback / typo correction / incomplete scan / stale or heavily-inferred sources / dropped-for-budget - omit if none]

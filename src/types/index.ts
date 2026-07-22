@@ -57,6 +57,14 @@ export interface BacklinkResult {
 
 export type ContextIntent = 'lookup' | 'connection' | 'onboarding' | 'troubleshoot' | 'ingest-prep';
 
+export type ContextNextStep = 'sufficient' | 'expand' | 'refine_query';
+
+export interface ContextGuidance {
+  nextStep: ContextNextStep;
+  reason: string;
+  suggestedTokenBudget?: number;
+}
+
 export interface ContextBundle {
   query: string;
   intent: ContextIntent;
@@ -68,6 +76,10 @@ export interface ContextBundle {
   citations: string[];
   nextCursor?: string;
   bundleConfidence?: number;
+  /** 1-3 primary paths agents should read first (body-promoted + top scored seeds). */
+  focus?: string[];
+  /** Session-first guidance: trust, expand, or refine the query. */
+  guidance?: ContextGuidance;
 }
 
 export interface ContextItem {

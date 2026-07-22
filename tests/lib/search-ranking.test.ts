@@ -292,6 +292,38 @@ describe('rankSearchResults', () => {
 
     expect(ranked[0].matchReasons.some((r) => r === 'basename:deployment')).toBe(true);
   });
+
+  it('does not let a generic basename "failed" ticket beat a multi-signal skills page', () => {
+    const ranked = rankSearchResults(
+      [
+        {
+          path: 'journal/failed-office-cutover.md',
+          content:
+            '---\ntitle: Failed Office Cutover\ncategory: journal\ntags: [ticket]\nsummary: Unrelated ticket about an office move.\n---\n\nOffice cutover notes. Failed once.',
+          matchCount: 2,
+          snippets: [{ lineNumber: 5, line: 'Office cutover notes. Failed once.', match: 'failed' }],
+        },
+        {
+          path: 'skills/troubleshooting-failed-loads.md',
+          content:
+            '---\ntitle: Troubleshooting Failed Loads\ncategory: skills\ntags: [troubleshoot, bighand]\nsummary: How to debug BigHand failed loads and Main Orchestrator errors.\n---\n\n# Troubleshooting Failed Loads\n\nBigHand feed failure runbook.',
+          matchCount: 6,
+          snippets: [
+            { lineNumber: 6, line: 'BigHand feed failure runbook.', match: 'failed BigHand' },
+          ],
+        },
+      ],
+      'Main Orchestrator debug run failed for BigHand',
+      false,
+      new Map(),
+    );
+
+    expect(ranked[0].path).toContain('troubleshooting-failed-loads');
+    expect(ranked[1].path).toContain('failed-office-cutover');
+    expect(ranked[1].matchReasons.some((r) => r.startsWith('basename-generic:') || r === 'weak-basename')).toBe(
+      true,
+    );
+  });
 });
 
 describe('RANK_WEIGHTS', () => {
@@ -301,6 +333,7 @@ describe('RANK_WEIGHTS', () => {
     expect(RANK_WEIGHTS.titleAllTokens).toBe(110);
     expect(RANK_WEIGHTS.operationalPenalty).toBe(40);
     expect(RANK_WEIGHTS.staleDaysDefault).toBe(90);
+    expect(RANK_WEIGHTS.weakBasenamePenalty).toBe(20);
     expect(RANK_WEIGHTS.expandedTokenMultiplier).toBeGreaterThan(0);
     expect(RANK_WEIGHTS.expandedTokenMultiplier).toBeLessThan(1);
   });

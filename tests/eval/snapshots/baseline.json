@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-07-14T15:43:10.408Z",
+  "generatedAt": "2026-07-22T13:25:11.634Z",
   "topK": 10,
   "overall": {
-    "n": 46,
-    "ndcg": 0.9281559411828645,
-    "recall": 0.9456521739130435,
-    "mrr": 0.967391304347826
+    "n": 49,
+    "ndcg": 0.9205154406461931,
+    "recall": 0.9387755102040817,
+    "mrr": 0.9693877551020408
   },
   "byIntent": {
     "connection": {
-      "n": 10,
-      "ndcg": 0.8839441578296373,
-      "recall": 0.9,
-      "mrr": 0.95
+      "n": 11,
+      "ndcg": 0.8871965788585967,
+      "recall": 0.9090909090909091,
+      "mrr": 0.9545454545454546
     },
     "lookup": {
       "n": 21,
@@ -21,15 +21,15 @@
       "mrr": 0.9761904761904762
     },
     "onboarding": {
-      "n": 7,
-      "ndcg": 0.8920109923338452,
-      "recall": 0.9285714285714286,
-      "mrr": 0.9285714285714286
+      "n": 8,
+      "ndcg": 0.8901615327093707,
+      "recall": 0.9375,
+      "mrr": 0.9375
     },
     "troubleshoot": {
-      "n": 8,
-      "ndcg": 0.872590627025877,
-      "recall": 0.875,
+      "n": 9,
+      "ndcg": 0.8437635787747193,
+      "recall": 0.8333333333333334,
       "mrr": 1
     }
   },
@@ -83,6 +83,7 @@
         "concepts/worker-data-mart.md",
         "entities/worker-dimension.md",
         "entities/fact-person-forecast-history.md",
+        "concepts/platform-wiki-bridge.md",
         "projects/cdf-platform.md",
         "entities/fact-public-holiday.md",
         "entities/bighand.md",
@@ -103,6 +104,7 @@
       "rankedTopK": [
         "concepts/worker-data-mart.md",
         "projects/cdf-platform.md",
+        "concepts/platform-wiki-bridge.md",
         "entities/fact-person-forecast-history.md",
         "entities/worker-dimension.md"
       ],
@@ -166,10 +168,10 @@
         "projects/cdf-platform.md",
         "concepts/contract-generation.md",
         "skills/troubleshooting-failed-loads.md",
+        "_meta/manifest.md",
         "concepts/medallion-layers.md",
         "entities/bighand.md",
-        "entities/fact-person-forecast-history.md",
-        "_meta/taxonomy.md"
+        "entities/fact-person-forecast-history.md"
       ],
       "ndcg": 1,
       "recall": 1,
@@ -204,15 +206,15 @@
       ],
       "rankedTopK": [
         "entities/bighand.md",
+        "journal/bighand-onboarding-notes.md",
+        "skills/ingestion-pipeline-authoring.md",
         "skills/troubleshooting-failed-loads.md",
         "_meta/taxonomy.md",
         "concepts/contract-generation.md",
         "concepts/ingestion-vs-egress.md",
         "concepts/orchestration-and-scheduling.md",
         "concepts/schema-drift-and-versioning.md",
-        "entities/fact-person-forecast-history.md",
-        "entities/fact-public-holiday.md",
-        "projects/cdf-platform.md"
+        "entities/fact-person-forecast-history.md"
       ],
       "ndcg": 1,
       "recall": 1,
@@ -371,10 +373,12 @@
       ],
       "rankedTopK": [
         "projects/cdf-platform.md",
+        "concepts/platform-wiki-bridge.md",
         "_meta/taxonomy.md",
         "entities/bighand.md",
         "concepts/ingestion-vs-egress.md",
         "concepts/medallion-layers.md",
+        "journal/failed-office-cutover.md",
         "skills/ingestion-pipeline-authoring.md"
       ],
       "ndcg": 1,
@@ -405,17 +409,17 @@
       ],
       "rankedTopK": [
         "entities/bighand.md",
+        "journal/bighand-onboarding-notes.md",
         "entities/fact-person-forecast-history.md",
+        "journal/failed-office-cutover.md",
+        "skills/ingestion-pipeline-authoring.md",
         "skills/troubleshooting-failed-loads.md",
         "_meta/taxonomy.md",
         "concepts/contract-generation.md",
         "concepts/ingestion-vs-egress.md",
-        "concepts/orchestration-and-scheduling.md",
-        "concepts/schema-drift-and-versioning.md",
-        "entities/fact-public-holiday.md",
-        "projects/cdf-platform.md"
+        "concepts/orchestration-and-scheduling.md"
       ],
-      "ndcg": 1,
+      "ndcg": 0.9197207891481876,
       "recall": 1,
       "mrr": 1
     },
@@ -476,6 +480,7 @@
         "projects/cdf-platform.md",
         "entities/fact-person-forecast-history.md",
         "entities/fact-public-holiday.md",
+        "concepts/platform-wiki-bridge.md",
         "entities/bighand.md",
         "concepts/ingestion-vs-egress.md",
         "_meta/taxonomy.md"
@@ -499,10 +504,10 @@
         "skills/troubleshooting-failed-loads.md",
         "projects/cdf-platform.md",
         "concepts/contract-generation.md",
+        "_meta/manifest.md",
         "concepts/medallion-layers.md",
         "entities/bighand.md",
-        "_meta/taxonomy.md",
-        "concepts/schema-drift-and-versioning.md"
+        "journal/bighand-onboarding-notes.md"
       ],
       "ndcg": 1,
       "recall": 1,
@@ -553,6 +558,7 @@
       ],
       "rankedTopK": [
         "projects/cdf-platform.md",
+        "concepts/platform-wiki-bridge.md",
         "entities/bighand.md",
         "concepts/medallion-layers.md",
         "_meta/taxonomy.md"
@@ -598,9 +604,9 @@
         "projects/cdf-platform.md",
         "skills/troubleshooting-failed-loads.md",
         "concepts/schema-drift-and-versioning.md",
+        "_meta/manifest.md",
         "concepts/medallion-layers.md",
-        "entities/bighand.md",
-        "_meta/taxonomy.md"
+        "entities/bighand.md"
       ],
       "ndcg": 0.6934264036172708,
       "recall": 1,
@@ -619,11 +625,11 @@
         "concepts/orchestration-and-scheduling.md",
         "projects/cdf-platform.md",
         "concepts/contract-generation.md",
+        "journal/bighand-onboarding-notes.md",
+        "_meta/manifest.md",
         "skills/troubleshooting-failed-loads.md",
         "concepts/medallion-layers.md",
-        "entities/bighand.md",
-        "_meta/taxonomy.md",
-        "concepts/schema-drift-and-versioning.md"
+        "entities/bighand.md"
       ],
       "ndcg": 1,
       "recall": 1,
@@ -694,10 +700,12 @@
       ],
       "rankedTopK": [
         "projects/cdf-platform.md",
+        "concepts/platform-wiki-bridge.md",
         "_meta/taxonomy.md",
         "entities/bighand.md",
         "concepts/ingestion-vs-egress.md",
         "concepts/medallion-layers.md",
+        "journal/failed-office-cutover.md",
         "skills/ingestion-pipeline-authoring.md"
       ],
       "ndcg": 1,
@@ -913,6 +921,70 @@
         "skills/troubleshooting-failed-loads.md"
       ],
       "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "how is platform wiki bridge related to worker data mart",
+      "intent": "connection",
+      "budget": 3500,
+      "relevantPaths": [
+        "concepts/platform-wiki-bridge.md",
+        "concepts/worker-data-mart.md"
+      ],
+      "rankedTopK": [
+        "concepts/platform-wiki-bridge.md",
+        "concepts/worker-data-mart.md",
+        "projects/cdf-platform.md",
+        "entities/worker-dimension.md",
+        "entities/fact-person-forecast-history.md",
+        "entities/bighand.md",
+        "entities/fact-public-holiday.md",
+        "concepts/medallion-layers.md",
+        "concepts/ingestion-vs-egress.md",
+        "_meta/taxonomy.md"
+      ],
+      "ndcg": 1,
+      "recall": 1,
+      "mrr": 1
+    },
+    {
+      "query": "Main Orchestrator debug run failed for BigHand offices",
+      "intent": "troubleshoot",
+      "budget": 2500,
+      "relevantPaths": [
+        "skills/troubleshooting-failed-loads.md",
+        "entities/bighand.md"
+      ],
+      "rankedTopK": [
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/orchestration-and-scheduling.md"
+      ],
+      "ndcg": 0.6131471927654584,
+      "recall": 0.5,
+      "mrr": 1
+    },
+    {
+      "query": "getting started onboarding a BigHand ingestion pipeline",
+      "intent": "onboarding",
+      "budget": 4000,
+      "relevantPaths": [
+        "skills/ingestion-pipeline-authoring.md",
+        "entities/bighand.md"
+      ],
+      "rankedTopK": [
+        "skills/ingestion-pipeline-authoring.md",
+        "journal/bighand-onboarding-notes.md",
+        "concepts/ingestion-vs-egress.md",
+        "entities/bighand.md",
+        "concepts/orchestration-and-scheduling.md",
+        "concepts/contract-generation.md",
+        "projects/cdf-platform.md",
+        "_meta/manifest.md",
+        "skills/troubleshooting-failed-loads.md",
+        "concepts/medallion-layers.md"
+      ],
+      "ndcg": 0.8772153153380493,
       "recall": 1,
       "mrr": 1
     }

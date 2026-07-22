@@ -1,29 +1,29 @@
 {
-  "generatedAt": "2026-07-14T15:43:10.411Z",
+  "generatedAt": "2026-07-22T13:25:11.638Z",
   "overall": {
-    "n": 46,
-    "avgTokenEfficiency": 0.5379210325503723,
+    "n": 49,
+    "avgTokenEfficiency": 0.5961593673337194,
     "budgetAdherenceRate": 1
   },
   "byIntent": {
     "connection": {
-      "n": 10,
-      "avgTokenEfficiency": 0.360699127257034,
+      "n": 11,
+      "avgTokenEfficiency": 0.47009884016677506,
       "budgetAdherenceRate": 1
     },
     "lookup": {
       "n": 21,
-      "avgTokenEfficiency": 0.644594433374168,
+      "avgTokenEfficiency": 0.6433174797613306,
       "budgetAdherenceRate": 1
     },
     "onboarding": {
-      "n": 7,
-      "avgTokenEfficiency": 0.2753315534678607,
+      "n": 8,
+      "avgTokenEfficiency": 0.5015089756120288,
       "budgetAdherenceRate": 1
     },
     "troubleshoot": {
-      "n": 8,
-      "avgTokenEfficiency": 0.7091965312017786,
+      "n": 9,
+      "avgTokenEfficiency": 0.7243314308481725,
       "budgetAdherenceRate": 1
     }
   },
@@ -50,18 +50,18 @@
       "query": "worker data mart",
       "intent": "lookup",
       "budget": 4000,
-      "tokensUsed": 418,
+      "tokensUsed": 422,
       "relevantTokens": 200,
-      "tokenEfficiency": 0.4784688995215311,
+      "tokenEfficiency": 0.47393364928909953,
       "budgetOk": true
     },
     {
       "query": "WDM",
       "intent": "lookup",
       "budget": 2000,
-      "tokensUsed": 306,
+      "tokensUsed": 331,
       "relevantTokens": 200,
-      "tokenEfficiency": 0.6535947712418301,
+      "tokenEfficiency": 0.6042296072507553,
       "budgetOk": true
     },
     {
@@ -86,9 +86,9 @@
       "query": "ingestion vs egress",
       "intent": "lookup",
       "budget": 4000,
-      "tokensUsed": 465,
+      "tokensUsed": 444,
       "relevantTokens": 240,
-      "tokenEfficiency": 0.5161290322580645,
+      "tokenEfficiency": 0.5405405405405406,
       "budgetOk": true
     },
     {
@@ -104,9 +104,9 @@
       "query": "BigHand",
       "intent": "lookup",
       "budget": 2000,
-      "tokensUsed": 407,
+      "tokensUsed": 373,
       "relevantTokens": 191,
-      "tokenEfficiency": 0.4692874692874693,
+      "tokenEfficiency": 0.5120643431635389,
       "budgetOk": true
     },
     {
@@ -194,9 +194,9 @@
       "query": "CDF platform overview",
       "intent": "lookup",
       "budget": 4000,
-      "tokensUsed": 368,
+      "tokensUsed": 393,
       "relevantTokens": 232,
-      "tokenEfficiency": 0.6304347826086957,
+      "tokenEfficiency": 0.5903307888040712,
       "budgetOk": true
     },
     {
@@ -212,153 +212,153 @@
       "query": "how does BigHand relate to FactPersonForecastHistory",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 711,
+      "tokensUsed": 425,
       "relevantTokens": 222,
-      "tokenEfficiency": 0.31223628691983124,
+      "tokenEfficiency": 0.5223529411764706,
       "budgetOk": true
     },
     {
       "query": "relationship between worker dimension and forecast fact table",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 530,
+      "tokensUsed": 455,
       "relevantTokens": 232,
-      "tokenEfficiency": 0.4377358490566038,
+      "tokenEfficiency": 0.5098901098901099,
       "budgetOk": true
     },
     {
       "query": "how do contracts relate to schema drift",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 558,
+      "tokensUsed": 458,
       "relevantTokens": 223,
-      "tokenEfficiency": 0.3996415770609319,
+      "tokenEfficiency": 0.4868995633187773,
       "budgetOk": true
     },
     {
       "query": "medallion layers and worker data mart connection",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 615,
+      "tokensUsed": 488,
       "relevantTokens": 224,
-      "tokenEfficiency": 0.3642276422764228,
+      "tokenEfficiency": 0.45901639344262296,
       "budgetOk": true
     },
     {
       "query": "ingestion egress and orchestration relationship",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 596,
+      "tokensUsed": 496,
       "relevantTokens": 272,
-      "tokenEfficiency": 0.4563758389261745,
+      "tokenEfficiency": 0.5483870967741935,
       "budgetOk": true
     },
     {
       "query": "FactPublicHoliday and forecast utilisation",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 467,
+      "tokensUsed": 327,
       "relevantTokens": 197,
-      "tokenEfficiency": 0.42184154175588867,
+      "tokenEfficiency": 0.6024464831804281,
       "budgetOk": true
     },
     {
       "query": "BigHand and schema drift",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 634,
+      "tokensUsed": 434,
       "relevantTokens": 219,
-      "tokenEfficiency": 0.34542586750788645,
+      "tokenEfficiency": 0.5046082949308756,
       "budgetOk": true
     },
     {
       "query": "CDF platform and worker data mart",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 707,
+      "tokensUsed": 464,
       "relevantTokens": 269,
-      "tokenEfficiency": 0.38048090523338046,
+      "tokenEfficiency": 0.5797413793103449,
       "budgetOk": true
     },
     {
       "query": "gold layer fact tables",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 682,
+      "tokensUsed": 498,
       "relevantTokens": 258,
-      "tokenEfficiency": 0.3782991202346041,
+      "tokenEfficiency": 0.5180722891566265,
       "budgetOk": true
     },
     {
       "query": "contract generation and ingestion pipelines",
       "intent": "connection",
       "budget": 4000,
-      "tokensUsed": 578,
+      "tokensUsed": 447,
       "relevantTokens": 64,
-      "tokenEfficiency": 0.11072664359861592,
+      "tokenEfficiency": 0.14317673378076062,
       "budgetOk": true
     },
     {
       "query": "how to author a new ingestion pipeline",
       "intent": "onboarding",
       "budget": 4000,
-      "tokensUsed": 574,
-      "relevantTokens": 164,
-      "tokenEfficiency": 0.2857142857142857,
+      "tokensUsed": 379,
+      "relevantTokens": 189,
+      "tokenEfficiency": 0.49868073878627966,
       "budgetOk": true
     },
     {
       "query": "onboarding a new source feed",
       "intent": "onboarding",
       "budget": 4000,
-      "tokensUsed": 701,
+      "tokensUsed": 416,
       "relevantTokens": 31,
-      "tokenEfficiency": 0.0442225392296719,
+      "tokenEfficiency": 0.07451923076923077,
       "budgetOk": true
     },
     {
       "query": "how to review a schema contract",
       "intent": "onboarding",
       "budget": 4000,
-      "tokensUsed": 530,
+      "tokensUsed": 305,
       "relevantTokens": 173,
-      "tokenEfficiency": 0.3264150943396226,
+      "tokenEfficiency": 0.5672131147540984,
       "budgetOk": true
     },
     {
       "query": "registering a pipeline with the orchestrator",
       "intent": "onboarding",
       "budget": 4000,
-      "tokensUsed": 519,
-      "relevantTokens": 196,
-      "tokenEfficiency": 0.37764932562620424,
+      "tokensUsed": 309,
+      "relevantTokens": 221,
+      "tokenEfficiency": 0.7152103559870551,
       "budgetOk": true
     },
     {
       "query": "getting started with the CDF platform",
       "intent": "onboarding",
       "budget": 4000,
-      "tokensUsed": 670,
+      "tokensUsed": 433,
       "relevantTokens": 232,
-      "tokenEfficiency": 0.34626865671641793,
+      "tokenEfficiency": 0.535796766743649,
       "budgetOk": true
     },
     {
       "query": "where do new pipelines land data first",
       "intent": "onboarding",
       "budget": 4000,
-      "tokensUsed": 636,
-      "relevantTokens": 188,
-      "tokenEfficiency": 0.29559748427672955,
+      "tokensUsed": 349,
+      "relevantTokens": 213,
+      "tokenEfficiency": 0.6103151862464183,
       "budgetOk": true
     },
     {
       "query": "contract review before promotion to silver",
       "intent": "onboarding",
       "budget": 4000,
-      "tokensUsed": 688,
+      "tokensUsed": 400,
       "relevantTokens": 173,
-      "tokenEfficiency": 0.251453488372093,
+      "tokenEfficiency": 0.4325,
       "budgetOk": true
     },
     {
@@ -440,6 +440,33 @@
       "tokensUsed": 452,
       "relevantTokens": 240,
       "tokenEfficiency": 0.5309734513274337,
+      "budgetOk": true
+    },
+    {
+      "query": "how is platform wiki bridge related to worker data mart",
+      "intent": "connection",
+      "budget": 3500,
+      "tokensUsed": 371,
+      "relevantTokens": 110,
+      "tokenEfficiency": 0.29649595687331537,
+      "budgetOk": true
+    },
+    {
+      "query": "Main Orchestrator debug run failed for BigHand offices",
+      "intent": "troubleshoot",
+      "budget": 2500,
+      "tokensUsed": 207,
+      "relevantTokens": 175,
+      "tokenEfficiency": 0.8454106280193237,
+      "budgetOk": true
+    },
+    {
+      "query": "getting started onboarding a BigHand ingestion pipeline",
+      "intent": "onboarding",
+      "budget": 4000,
+      "tokensUsed": 379,
+      "relevantTokens": 219,
+      "tokenEfficiency": 0.5778364116094987,
       "budgetOk": true
     }
   ]

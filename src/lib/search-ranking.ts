@@ -95,6 +95,8 @@ export interface RankWeights {
   stalePenalty: number;
   /** Days since `updated` after which the stale penalty applies. */
   staleDaysDefault: number;
+  /** Penalty when the only structural hit is a generic basename token (fail/error/...). */
+  weakBasenamePenalty: number;
 }
 
 export const RANK_WEIGHTS: RankWeights = {
@@ -136,7 +138,26 @@ export const RANK_WEIGHTS: RankWeights = {
   verifiedBoost: 8,
   stalePenalty: 6,
   staleDaysDefault: 90,
+  /** Penalty when the only structural hit is a generic basename token (fail/error/...). */
+  weakBasenamePenalty: 20,
 };
+
+/**
+ * Generic troubleshoot tokens that must not alone drive basename-primary elevation.
+ * A page named "failed-office-cutover" should not beat a multi-signal skills page
+ * just because the query contains "failed".
+ */
+export const GENERIC_BASENAME_TOKENS = new Set([
+  'fail',
+  'failed',
+  'failure',
+  'error',
+  'errors',
+  'bug',
+  'fix',
+  'issue',
+  'issues',
+]);
 
 /**
  * Returns the basename segment or substring that matched a query token.
@@ -513,14 +534,42 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     if (!basenameHit) {
       continue;
     }
-    score += RANK_WEIGHTS.basenameTokenHit;
-    reasons.push(`basename:${basenameMatchLabel(primary, basenameNorm, segments)}`);
+
+    const isGeneric = GENERIC_BASENAME_TOKENS.has(primary);
+    const otherSurfaceCoverage = semanticTokens.some((other) => {
+      const tok = normaliseKey(other);
+      if (tok === primary) {
+        return false;
+      }
+      return (
+        titleNorm.includes(tok) ||
+        splitSegments(title).some((w) => tokensMorphologicallyMatch(tok, w)) ||
+        (summary.length > 0 && tokenMatchesInText(other, summary, false)) ||
+        tags.some(
+          (tag) =>
+            tokensMorphologicallyMatch(tok, tag) ||
+            normaliseKey(tag)
+              .split(/[-_/]/)
+              .some((part) => tokensMorphologicallyMatch(tok, part)),
+        )
+      );
+    });
+
     const primarySegmentHit = segments.some(
       (seg) => seg === primary || (primary.length >= 5 && seg.startsWith(primary)),
     );
-    if (primarySegmentHit) {
-      score += RANK_WEIGHTS.basenamePrimaryBonus;
-      reasons.push('basename-primary');
+
+    if (isGeneric && !otherSurfaceCoverage) {
+      // Generic tokens alone get a reduced basename hit - no primary bonus.
+      score += Math.round(RANK_WEIGHTS.basenameTokenHit * 0.4);
+      reasons.push(`basename-generic:${basenameMatchLabel(primary, basenameNorm, segments)}`);
+    } else {
+      score += RANK_WEIGHTS.basenameTokenHit;
+      reasons.push(`basename:${basenameMatchLabel(primary, basenameNorm, segments)}`);
+      if (primarySegmentHit && (!isGeneric || otherSurfaceCoverage)) {
+        score += RANK_WEIGHTS.basenamePrimaryBonus;
+        reasons.push('basename-primary');
+      }
     }
     break;
   }
@@ -571,6 +620,18 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
     } else {
       reasons.push(`surface-tokens:${surfaceHits}`);
     }
+  }
+
+  // Generic basename-only hits without real surface focus are distractors (e.g. ticket
+  // pages named "failed-...") - apply a mild penalty so multi-signal pages win.
+  if (
+    reasons.some((r) => r.startsWith('basename-generic:')) &&
+    !reasons.includes('basename-primary') &&
+    titleDensity < 0.15 &&
+    surfaceHits <= 1
+  ) {
+    score -= RANK_WEIGHTS.weakBasenamePenalty;
+    reasons.push('weak-basename');
   }
 
   const matchedTags = tags.filter((tag) =>

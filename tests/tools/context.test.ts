@@ -40,6 +40,10 @@ describe('context (assemble)', () => {
     expect(data.tokensUsed).toBeLessThanOrEqual(data.tokenBudget);
     expect(data.items.length).toBeGreaterThan(0);
     expect(data.citations.length).toBeGreaterThan(0);
+    expect(data.focus).toBeDefined();
+    expect(data.focus!.length).toBeGreaterThan(0);
+    expect(data.guidance).toBeDefined();
+    expect(['sufficient', 'expand', 'refine_query']).toContain(data.guidance!.nextStep);
   });
 
   it('defaults action to assemble when omitted', async () => {

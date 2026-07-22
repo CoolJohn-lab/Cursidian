@@ -44,3 +44,6 @@
 {"query": "escalating a breaking contract change", "intent": "troubleshoot", "relevant_paths": ["skills/contract-schema-review.md", "skills/troubleshooting-failed-loads.md"], "budget": 4000}
 {"query": "forecast fact table not refreshing", "intent": "troubleshoot", "relevant_paths": ["entities/fact-person-forecast-history.md", "skills/troubleshooting-failed-loads.md"], "budget": 4000}
 {"query":"integration","intent":"lookup","relevant_paths":["concepts/ingestion-vs-egress.md"],"budget":4000}
+{"query": "how is platform wiki bridge related to worker data mart", "intent": "connection", "relevant_paths": ["concepts/platform-wiki-bridge.md", "concepts/worker-data-mart.md"], "budget": 3500}
+{"query": "Main Orchestrator debug run failed for BigHand offices", "intent": "troubleshoot", "relevant_paths": ["skills/troubleshooting-failed-loads.md", "entities/bighand.md"], "budget": 2500}
+{"query": "getting started onboarding a BigHand ingestion pipeline", "intent": "onboarding", "relevant_paths": ["skills/ingestion-pipeline-authoring.md", "entities/bighand.md"], "budget": 4000}

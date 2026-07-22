@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.11.6] - 2026-07-22
+
+### Changed
+
+- `wiki-query`: session-first rule - first wiki retrieval in a chat must open with `context` (`assemble`/`for_task`), not a hand-rolled search/read ladder
+
 ## [2.11.5] - 2026-07-22
 
 ### Changed

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.11.5] - 2026-07-22
+
+### Changed
+
+- Aligned package docs (`AGENTS.md`, `README.md`, `CONTRIBUTING.md`, `.cursor/README.md`, `skills/wiki/INSTALL.md`) with the machine-wide **rule -> skill -> wiki** golden standard: no project `.cursor/rules`; protocol skill = `vault`; durable Cursidian facts in wiki `projects/cursidian/*`
+- Thinned `skills/wiki/vault/SKILL.md` toward golden standard: wiki SoT pointers first; keep MCP contract / failure-undo / page template; drop duplicated narrative that belongs in the wiki
+
 ### Added
 
 - `indexMode` on `index.md` frontmatter (`flat` default | `hub`) - vault-scoped index policy for curated hub-router wikis

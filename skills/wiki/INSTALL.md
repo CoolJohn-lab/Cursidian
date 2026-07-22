@@ -71,6 +71,8 @@ This deletes each of the 10 skill folders under `~/.cursor/skills/`, copies fres
 
 Installed skills: `vault`, `wiki-query`, `wiki-context`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`.
 
+**Local-only addenda** (live under `~/.cursor/skills/` but are **not** in this install list, so `skills:install` does not overwrite them): `wiki-first`, `wiki-structure`, plus other machine skills (`crosslink`, `tags`, `mcp-test`, deprecated `wiki-migrate`). Those pair with my-agents rules (`wiki-first.mdc`, `wiki-structure.mdc`, ...), not the package.
+
 ### After any surface change
 
 Whenever `skills/wiki/` or the MCP tool surface changes, run `npm run skills:install` and then start a **new** Cursor agent chat - Cursor caches skill discovery per chat, so an existing chat keeps teaching the previous skill text (including retired tool names) until it is restarted. If you are not sure whether `~/.cursor/skills/` is stale, run:

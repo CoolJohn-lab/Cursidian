@@ -1,5 +1,16 @@
 # Agent notes - Cursidian
 
+## Golden standard (rule -> skill -> wiki)
+
+| Layer | Where | Role |
+|-------|-------|------|
+| Rule | `~/.cursor/plugins/local/my-agents/rules/` only | Thin when + "read skill X" - **no** project `.cursor/rules/*.mdc` |
+| Skill | Package `skills/wiki/` -> `~/.cursor/skills/` | Workflow + MCP protocol (`vault`) |
+| Wiki | WorkStuff via `user-cursidian` | Durable Cursidian SoT under `projects/cursidian/` |
+| Config | `~/.cursor/config/` | Local JSON / workspaces |
+
+Protocol skill = **`vault`** (was `llm-wiki`). Product facts: `projects/cursidian/cursidian` + `projects/cursidian/concepts/mcp-tool-surface`. Layer contract: `concepts/cursor-rule-skill-wiki-stack`.
+
 ## Slop gate (required for build)
 
 `npm run build` runs **`prebuild` -> `slop:check`**. The MCP will not compile while LLM-slop findings or decorative emoji remain in the **repo**.

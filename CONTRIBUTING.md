@@ -16,10 +16,11 @@ cleans that value before running nested npm commands. On Windows PowerShell, pre
 ## Skills
 
 Wiki skills are tracked under `skills/wiki/` (not under `.cursor/`, which is gitignored).
+Do **not** add project `.cursor/rules/*.mdc` - rules live only in `~/.cursor/plugins/local/my-agents/rules/` (golden standard: thin rule -> skill -> wiki SoT).
 
 1. Edit the skill under `skills/wiki/<name>/SKILL.md`.
-2. Keep the Cursidian MCP protocol in `skills/wiki/vault/SKILL.md` as the single source of truth for tool names.
-3. Run `npm run skills:install` to refresh `~/.cursor/skills/` (see `skills/wiki/INSTALL.md`).
+2. Keep the MCP **protocol** in `skills/wiki/vault/SKILL.md` (hard contract + page template). Durable product/tool facts belong in the wiki under `projects/cursidian/` via `user-cursidian`.
+3. Run `npm run skills:install` to refresh `~/.cursor/skills/` (see `skills/wiki/INSTALL.md`). That install set does **not** overwrite local-only skills (`wiki-first`, `wiki-structure`, ...).
 4. Do not commit private vault content or absolute machine paths.
 
 ## Tests

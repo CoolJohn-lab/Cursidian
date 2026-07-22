@@ -1,6 +1,6 @@
 # Cursidian
 
-Implementation of the Obsidian llm-wiki concept for Cursor, using an MCP designed to minimise token consumption and maximise relevant results. Includes slop removal tools.
+Implementation of the Obsidian LLM-wiki (Karpathy) concept for Cursor, using an MCP designed to minimise token consumption and maximise relevant results. Includes slop removal tools.
 
 Getting Started:
 - Download Obsidian, create an empty vault, make a note of its location.
@@ -46,7 +46,8 @@ Emjoy! John.
 | `note` | `read`, `create`, `update`, `delete`, `rename`, `frontmatter` | Note CRUD, safe edits, metadata; returns `revisionHash` / `operationId` |
 | `search` | `content` (default), `by_tags`, `list`, `recent`, `tags` | Find and enumerate notes (paginated; may report `incomplete`) |
 | `graph` | - | One-hop neighborhood (resolved + unresolved outgoing, paginated backlinks) |
-| `vault` | `health`, `sync_index`, `slop_check`, `deslop`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest` | Health, catalog, deslop, folders, bookkeeping, undo, ingest ledger |
+| `vault` | `health`, `sync_index`, `slop_check`, `deslop`, `create_folder`, `list_folders`, `delete_folder`, `log`, `history`, `undo`, `manifest`, `vocabulary` | Health, catalog, deslop, folders, bookkeeping, undo, ingest ledger, search vocabulary |
+| `context` | `assemble`, `for_task`, `expand`, `feedback` | Token-budgeted context bundles (CGE); `feedback` is local telemetry only |
 
 ## Requirements
 
@@ -109,12 +110,14 @@ Point Cursor at the built entrypoint:
 
 ## Wiki skills + MCP
 
-Cursidian is a **two-layer** product:
+Cursidian is a **two-layer** product, wired into the machine-wide **rule -> skill -> wiki** golden standard (no project `.cursor/rules`):
 
 | Layer | Role | Where |
 |-------|------|-------|
 | **MCP server** | Runtime vault I/O for agents | Published `cursidian` package / local `dist/` |
-| **Wiki skills** | Workflow instructions (ingest, query, lint, ...) | [`skills/wiki/`](skills/wiki/) copied into `~/.cursor/skills/` |
+| **Wiki skills** | Workflow + MCP protocol (`vault`) | [`skills/wiki/`](skills/wiki/) -> `~/.cursor/skills/` |
+| **Wiki SoT** | Durable product / tool facts | WorkStuff `projects/cursidian/*` via MCP |
+| **Rules** | Thin always-on triggers | `~/.cursor/plugins/local/my-agents/rules/` only |
 
 The MCP server is the only way agents read or write vault markdown. Skills do **not** open vault files with the IDE filesystem tools or shell - they call **`user-cursidian`** (`note`, `search`, `graph`, `vault`, `context`). If an MCP call fails, the skill reports the failure and **stops** (no silent filesystem fallback).
 
@@ -127,7 +130,7 @@ Source documents **outside** the vault (PDFs, repo files, URLs) may be read with
 3. Writes follow the safe-write protocol: `note` `read` -> `revisionHash` -> narrowest `note` `update` with `expectedRevision`. Mutating skills keep an operation-ID stack and call `vault` `undo` in reverse on failure after writes.
 4. After multi-page edits, skills typically call `vault` `sync_index` (flat: rebuild leaf catalog; hub: preserve curated router) and `vault` `log` (append `log.md` / optional `hot.md`), then verify with `sync_index` `dryRun: true` expecting `wouldWrite: false`. Set `indexMode: hub` on `index.md` frontmatter for curated hub-router vaults.
 
-Shared schema and the full MCP contract live in the `vault` skill.
+Shared MCP **protocol** (contract, failure/undo, page template) lives in the `vault` skill. Durable tool tables and product notes live in the wiki (`projects/cursidian/cursidian`, `projects/cursidian/concepts/mcp-tool-surface`).
 
 ### Install skills
 

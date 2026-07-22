@@ -4,8 +4,8 @@ import { z } from 'zod/v3';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type Config } from '../config.js';
 import {
-  assembleContext,
-  expandContext,
+  assembleContextDetailed,
+  expandContextDetailed,
   InvalidContextCursorError,
 } from '../lib/context-assembler.js';
 import { recordContextLogdump } from '../lib/context-logdump.js';
@@ -175,7 +175,7 @@ export function registerContext(server: McpServer, config: Config): void {
         switch (action) {
           case 'assemble': {
             const startedAt = Date.now();
-            const bundle = await assembleContext(config, {
+            const { bundle, diagnostics } = await assembleContextDetailed(config, {
               query: query as string,
               intent: intent as ContextIntent | undefined,
               tokenBudget: effectiveTokenBudget,
@@ -187,6 +187,7 @@ export function registerContext(server: McpServer, config: Config): void {
               status: 'success',
               input: logInput(),
               output: bundle,
+              ranking: diagnostics,
             });
             return ok(bundle, {
               action,
@@ -197,7 +198,7 @@ export function registerContext(server: McpServer, config: Config): void {
           }
           case 'for_task': {
             const startedAt = Date.now();
-            const bundle = await assembleContext(config, {
+            const { bundle, diagnostics } = await assembleContextDetailed(config, {
               query: task as string,
               intent: intent as ContextIntent | undefined,
               tokenBudget: effectiveTokenBudget,
@@ -209,6 +210,7 @@ export function registerContext(server: McpServer, config: Config): void {
               status: 'success',
               input: logInput(),
               output: bundle,
+              ranking: diagnostics,
             });
             return ok(bundle, {
               action,
@@ -220,7 +222,11 @@ export function registerContext(server: McpServer, config: Config): void {
           case 'expand': {
             const startedAt = Date.now();
             try {
-              const bundle = await expandContext(config, cursor as string, effectiveTokenBudget);
+              const { bundle, diagnostics } = await expandContextDetailed(
+                config,
+                cursor as string,
+                effectiveTokenBudget,
+              );
               const latencyMs = Date.now() - startedAt;
               await recordContextTelemetry(config, action, bundle, latencyMs);
               await recordContextLogdump({
@@ -228,6 +234,7 @@ export function registerContext(server: McpServer, config: Config): void {
                 status: 'success',
                 input: logInput(),
                 output: bundle,
+                ranking: diagnostics,
               });
               return ok(bundle, {
                 action,

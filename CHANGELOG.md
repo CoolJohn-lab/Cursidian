@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-07-22
+
+### Added
+
+- ContextSearches logdump **schemaVersion 2**: `callId`, `packageVersion`, precomputed `quality` snapshot (sufficiency / confidence / tokens / depth share), and `ranking` diagnostics (search hits, post-rerank candidates, compact items/dropped without passage text) for accuracy and efficacy analysis
+- `assembleContextDetailed` / `expandContextDetailed` plus `buildContextQualitySnapshot` helpers
+
+### Changed
+
+- Deferred context quality optimisation until richer logs accumulate; 3.0 quality baseline documented in wiki (see `projects/cursidian/concepts/context-quality-metrics`)
+
 ## [3.0.0] - 2026-07-22
 
 ### Changed

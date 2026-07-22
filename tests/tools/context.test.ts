@@ -226,10 +226,14 @@ describe('context (logdump)', () => {
     expect(jsonl).toBeTruthy();
     const raw = await fsp.readFile(path.join(dumpDir, jsonl!), 'utf-8');
     const entry = JSON.parse(raw.trim().split('\n').at(-1)!) as {
+      schemaVersion: number;
       status: string;
       input: { action: string; query: string; intent: string; tokenBudget: number };
       output: { query: string; tokensUsed: number; items: unknown[] };
+      quality: { sufficiency: boolean; tokensUsed: number };
+      ranking: { searchHits: unknown[]; itemsCompact: unknown[] };
     };
+    expect(entry.schemaVersion).toBe(2);
     expect(entry.status).toBe('success');
     expect(entry.input).toMatchObject({
       action: 'assemble',
@@ -239,6 +243,8 @@ describe('context (logdump)', () => {
     });
     expect(entry.output.query).toBe('UniqueContextToolMarker');
     expect(entry.output.items.length).toBeGreaterThan(0);
+    expect(entry.quality.tokensUsed).toBe(entry.output.tokensUsed);
+    expect(entry.ranking.itemsCompact.length).toBe(entry.output.items.length);
   });
 });
 

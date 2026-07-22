@@ -18,6 +18,10 @@ import type {
   ContextItem,
   SearchResult,
 } from '../types/index.js';
+import {
+  compactContextItems,
+  type ContextAssembleDiagnostics,
+} from './context-quality.js';
 
 const DEFAULT_TOKEN_BUDGET = 4000;
 const DEFAULT_STALE_DAYS = 90;
@@ -41,6 +45,12 @@ export interface AssembleContextOptions {
   tokenBudget?: number;
   /** Normalised or raw paths to exclude from candidate generation (used by expand). */
   excludePaths?: string[];
+}
+
+/** Bundle plus logdump-only ranking diagnostics (not returned on the MCP wire). */
+export interface ContextAssembleResult {
+  bundle: ContextBundle;
+  diagnostics: ContextAssembleDiagnostics;
 }
 
 interface Candidate {
@@ -202,6 +212,24 @@ function emptyBundle(query: string, intent: ContextIntent, tokenBudget: number, 
     focus: [],
     guidance,
   };
+}
+
+function emptyDiagnostics(): ContextAssembleDiagnostics {
+  return {
+    searchHits: [],
+    candidatesAfterRerank: [],
+    itemsCompact: [],
+    droppedCompact: [],
+  };
+}
+
+function emptyResult(
+  query: string,
+  intent: ContextIntent,
+  tokenBudget: number,
+  warnings: string[],
+): ContextAssembleResult {
+  return { bundle: emptyBundle(query, intent, tokenBudget, warnings), diagnostics: emptyDiagnostics() };
 }
 
 function boostSkillsPages(candidates: Map<string, Candidate>): void {
@@ -830,8 +858,23 @@ function buildGuidance(
  * query. Composes the existing search/graph lib layer (one shared vault snapshot,
  * inherited caching/security) rather than adding a new I/O primitive - the context
  * engine is read-only by construction.
+ *
+ * Prefer `assembleContextDetailed` when the caller also needs ranking diagnostics
+ * (ContextSearches logdump). This wrapper returns the bundle only.
  */
 export async function assembleContext(config: Config, options: AssembleContextOptions): Promise<ContextBundle> {
+  const { bundle } = await assembleContextDetailed(config, options);
+  return bundle;
+}
+
+/**
+ * Same assembly as `assembleContext`, plus logdump-only ranking diagnostics
+ * (search hits, post-rerank candidates, compact selected/dropped items).
+ */
+export async function assembleContextDetailed(
+  config: Config,
+  options: AssembleContextOptions,
+): Promise<ContextAssembleResult> {
   const query = options.query.trim();
   const intent = options.intent ?? inferIntent(query);
   const tokenBudget = Math.max(1, Math.floor(options.tokenBudget ?? DEFAULT_TOKEN_BUDGET));
@@ -839,7 +882,7 @@ export async function assembleContext(config: Config, options: AssembleContextOp
   const warnings: string[] = [];
 
   if (!query) {
-    return emptyBundle(query, intent, tokenBudget, ['Empty query: no context could be assembled.']);
+    return emptyResult(query, intent, tokenBudget, ['Empty query: no context could be assembled.']);
   }
 
   const seedLimit = seedLimitForIntent(intent);
@@ -858,7 +901,7 @@ export async function assembleContext(config: Config, options: AssembleContextOp
   }
 
   if (searchResult.isError) {
-    return emptyBundle(query, intent, tokenBudget, [
+    return emptyResult(query, intent, tokenBudget, [
       `Candidate search failed: ${searchPayload.message ?? 'unknown error'}`,
     ]);
   }
@@ -941,19 +984,48 @@ export async function assembleContext(config: Config, options: AssembleContextOp
     excludePaths: [...new Set([...excludePaths, ...consideredPaths])],
   });
 
+  const candidatesAfterRerank = [...candidates.values()]
+    .map((c) => ({
+      path: c.path,
+      score: c.score,
+      reasons: c.reasons,
+      ...(c.matchCount !== undefined ? { matchCount: c.matchCount } : {}),
+    }))
+    .sort((a, b) => b.score - a.score || a.path.localeCompare(b.path));
+
+  const diagnostics: ContextAssembleDiagnostics = {
+    searchHits: searchHits.map((hit) => ({
+      path: hit.path,
+      score: hit.relevanceScore ?? 0,
+      reasons: hit.matchReasons ?? [],
+      ...(hit.matchCount !== undefined ? { matchCount: hit.matchCount } : {}),
+    })),
+    candidatesAfterRerank,
+    itemsCompact: compactContextItems(finalItems),
+    droppedCompact: filled.dropped.map((item) => ({
+      path: item.path,
+      score: item.score,
+      tokens: item.tokens,
+      kind: item.kind,
+    })),
+  };
+
   return {
-    query,
-    intent,
-    tokenBudget,
-    tokensUsed: promoted.tokensUsed,
-    items: finalItems,
-    coverage: { includedPaths, consideredPaths, droppedForBudget },
-    warnings,
-    citations,
-    nextCursor,
-    bundleConfidence,
-    focus,
-    guidance,
+    bundle: {
+      query,
+      intent,
+      tokenBudget,
+      tokensUsed: promoted.tokensUsed,
+      items: finalItems,
+      coverage: { includedPaths, consideredPaths, droppedForBudget },
+      warnings,
+      citations,
+      nextCursor,
+      bundleConfidence,
+      focus,
+      guidance,
+    },
+    diagnostics,
   };
 }
 
@@ -963,7 +1035,23 @@ export async function assembleContext(config: Config, options: AssembleContextOp
  */
 export async function expandContext(config: Config, cursor: string, tokenBudget?: number): Promise<ContextBundle> {
   const decoded = decodeContextCursor(cursor);
-  return assembleContext(config, {
+  const { bundle } = await assembleContextDetailed(config, {
+    query: decoded.query,
+    intent: decoded.intent,
+    tokenBudget,
+    excludePaths: decoded.excludePaths,
+  });
+  return bundle;
+}
+
+/** Expand with ranking diagnostics for logdump. */
+export async function expandContextDetailed(
+  config: Config,
+  cursor: string,
+  tokenBudget?: number,
+): Promise<ContextAssembleResult> {
+  const decoded = decodeContextCursor(cursor);
+  return assembleContextDetailed(config, {
     query: decoded.query,
     intent: decoded.intent,
     tokenBudget,

@@ -1,10 +1,32 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+import { randomUUID } from 'node:crypto';
 import { logger } from './logger.js';
+import {
+  buildContextQualitySnapshot,
+  type ContextAssembleDiagnostics,
+  type ContextQualitySnapshot,
+} from './context-quality.js';
+import type { ContextBundle } from '../types/index.js';
 
 const LOGDUMP_ENV = 'OBSIDIAN_CONTEXT_LOGDUMP';
 const LOGDUMP_DIR_ENV = 'OBSIDIAN_CONTEXT_LOGDUMP_DIR';
+
+/** Bump when ContextSearches JSONL record shape changes. */
+export const CONTEXT_LOGDUMP_SCHEMA_VERSION = 2;
+
+const require = createRequire(import.meta.url);
+
+function readPackageVersion(): string {
+  try {
+    const pkg = require('../../package.json') as { version?: string };
+    return pkg.version ?? 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
 
 /** Default: ~/.cursor/logdump/ContextSearches (cursor-global experiment dumps). */
 export function defaultContextLogdumpDir(): string {
@@ -34,11 +56,19 @@ export function resolveContextLogdumpDir(
 export type ContextLogdumpStatus = 'success' | 'error';
 
 export interface ContextLogdumpEntry {
+  schemaVersion: number;
+  packageVersion: string;
+  callId: string;
   timestamp: string;
+  /** Wall-clock only - quality analysis should ignore this. */
   latencyMs: number;
   status: ContextLogdumpStatus;
   input: Record<string, unknown>;
   output: unknown;
+  /** Present on successful assemble/for_task/expand when output is a ContextBundle. */
+  quality?: ContextQualitySnapshot;
+  /** Ranking/selection diagnostics for accuracy drill-down (logdump only). */
+  ranking?: ContextAssembleDiagnostics;
 }
 
 function dailyLogPath(dir: string, now = new Date()): string {
@@ -48,15 +78,30 @@ function dailyLogPath(dir: string, now = new Date()): string {
   return path.join(dir, `${yyyy}-${mm}-${dd}.jsonl`);
 }
 
+function isContextBundle(output: unknown): output is ContextBundle {
+  return (
+    typeof output === 'object' &&
+    output !== null &&
+    'tokensUsed' in output &&
+    'tokenBudget' in output &&
+    'items' in output &&
+    Array.isArray((output as ContextBundle).items)
+  );
+}
+
 /**
- * Append one full input/output record for a `context` MCP call.
+ * Append one ContextSearches JSONL record for a `context` MCP call.
  * Best-effort: never throws to the caller; dump failures must not break the tool.
+ *
+ * schemaVersion 2 adds callId, packageVersion, precomputed `quality`, and optional
+ * `ranking` (search hits / reranked candidates / compact items without passage text).
  */
 export async function recordContextLogdump(entry: {
   latencyMs: number;
   status: ContextLogdumpStatus;
   input: Record<string, unknown>;
   output: unknown;
+  ranking?: ContextAssembleDiagnostics;
   env?: NodeJS.ProcessEnv;
 }): Promise<{ written: boolean; path?: string }> {
   const dir = resolveContextLogdumpDir(entry.env ?? process.env);
@@ -66,14 +111,23 @@ export async function recordContextLogdump(entry: {
   try {
     await fs.mkdir(dir, { recursive: true });
     const target = dailyLogPath(dir);
-    const line = JSON.stringify({
+    const record: ContextLogdumpEntry = {
+      schemaVersion: CONTEXT_LOGDUMP_SCHEMA_VERSION,
+      packageVersion: readPackageVersion(),
+      callId: randomUUID(),
       timestamp: new Date().toISOString(),
       latencyMs: entry.latencyMs,
       status: entry.status,
       input: entry.input,
       output: entry.output,
-    } satisfies ContextLogdumpEntry);
-    await fs.appendFile(target, `${line}\n`, 'utf-8');
+    };
+    if (entry.status === 'success' && isContextBundle(entry.output)) {
+      record.quality = buildContextQualitySnapshot(entry.output);
+    }
+    if (entry.ranking) {
+      record.ranking = entry.ranking;
+    }
+    await fs.appendFile(target, `${JSON.stringify(record)}\n`, 'utf-8');
     return { written: true, path: target };
   } catch (e) {
     logger.debug('Context logdump write failed', {

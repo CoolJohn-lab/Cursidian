@@ -15,19 +15,7 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-
-const SKILL_NAMES = [
-  'vault',
-  'wiki-query',
-  'wiki-context',
-  'wiki-lint',
-  'wiki-setup',
-  'wiki-ingest',
-  'wiki-capture',
-  'wiki-update',
-  'wiki-status',
-  'wiki-slop',
-];
+import { SKILL_NAMES } from './skill-names.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');

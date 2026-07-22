@@ -25,7 +25,7 @@ Protocol skill = **`vault`** (was `llm-wiki`). Product facts: `projects/cursidia
 | `npm run slop:fix:wiki` | Human/CI CLI vault fix (agents must use MCP `deslop`) |
 | `npm run build` | Repo slop check, then `tsc` |
 
-Wiki deslop is MCP-only for agents (covers frontmatter `summary` so index drift stays clear). Wiki scans do **not** gate `build` (vault lives outside the package).
+Vault deslop is MCP-only for agents (skill `wiki-slop`; covers frontmatter `summary` so index drift stays clear). On-disk deslop for other repos / `~/.cursor` uses skill `slop` (shipped under `skills/wiki/slop/` with `scripts/deslop.mjs`; deployed by `skills:install`). Wiki scans do **not** gate `build` (vault lives outside the package). Keep `npm run slop:*` as this package's **build gate** only.
 
 Config: `.llmsloprc.json` + `.vscode/settings.json` (packs: `claudeisms`, `structural`, `puffery`, `security`).
 
@@ -60,7 +60,7 @@ After changing files under `skills/wiki/`, or when Cursor agents still call reti
 npm run skills:install
 ```
 
-That **removes then copies** the 10 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills - Cursor caches skill text per chat, so an existing chat keeps teaching the old version, including retired tool names, until restarted. Details: `skills/wiki/INSTALL.md`. Use the **wiki-slop** skill for deslop / repo `slop:*` / vault `slop_check`+`deslop`.
+That **removes then copies** the 11 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills - Cursor caches skill text per chat, so an existing chat keeps teaching the old version, including retired tool names, until restarted. Details: `skills/wiki/INSTALL.md`. Vault deslop: skill **wiki-slop** (`vault` `slop_check` / `deslop`). On-disk / `~/.cursor`: skill **slop** (`scripts/deslop.mjs`). This package's build gate: `npm run slop:*`.
 
 If you are not sure whether `~/.cursor/skills/` is stale relative to this repo, run `npm run skills:doctor` - it fingerprints each skill folder against its installed copy and names exactly which ones need `skills:install`.
 

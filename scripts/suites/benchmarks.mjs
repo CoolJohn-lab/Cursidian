@@ -18,45 +18,55 @@ export async function runBenchmarkSuite(ctx) {
 
   const cases = [
     {
-      label: 'list_notes.root',
+      label: 'search.list.root',
       run: async () => {
         resetCaches();
-        return parseResult(await callTool(server, 'list_notes', { folder: '' }));
+        return parseResult(await callTool(server, 'search', { action: 'list', folder: '' }));
       },
     },
     {
-      label: 'search_content.adf_pipeline',
-      run: async () => {
-        resetCaches();
-        return parseResult(await callTool(server, 'search_content', { query: 'ADF pipeline', limit: 20 }));
-      },
-    },
-    {
-      label: 'search_content.cached_repeat',
-      run: async () => {
-        return parseResult(await callTool(server, 'search_content', { query: 'ADF pipeline', limit: 20 }));
-      },
-    },
-    {
-      label: 'search_content.factpublicholiday',
-      run: async () => {
-        resetCaches();
-        return parseResult(await callTool(server, 'search_content', { query: 'FactPublicHoliday', limit: 10 }));
-      },
-    },
-    {
-      label: 'read_note.index',
-      run: async () => {
-        resetCaches();
-        return parseResult(await callTool(server, 'read_note', { path: 'index' }));
-      },
-    },
-    {
-      label: 'get_backlinks.project_hub',
+      label: 'search.content.adf_pipeline',
       run: async () => {
         resetCaches();
         return parseResult(
-          await callTool(server, 'get_backlinks', {
+          await callTool(server, 'search', { action: 'content', query: 'ADF pipeline', limit: 20 }),
+        );
+      },
+    },
+    {
+      label: 'search.content.cached_repeat',
+      run: async () => {
+        return parseResult(
+          await callTool(server, 'search', { action: 'content', query: 'ADF pipeline', limit: 20 }),
+        );
+      },
+    },
+    {
+      label: 'search.content.factpublicholiday',
+      run: async () => {
+        resetCaches();
+        return parseResult(
+          await callTool(server, 'search', {
+            action: 'content',
+            query: 'FactPublicHoliday',
+            limit: 10,
+          }),
+        );
+      },
+    },
+    {
+      label: 'note.read.index',
+      run: async () => {
+        resetCaches();
+        return parseResult(await callTool(server, 'note', { action: 'read', path: 'index' }));
+      },
+    },
+    {
+      label: 'graph.project_hub',
+      run: async () => {
+        resetCaches();
+        return parseResult(
+          await callTool(server, 'graph', {
             path: 'projects/data-platform-dlz/data-platform-dlz',
           }),
         );
@@ -74,8 +84,8 @@ export async function runBenchmarkSuite(ctx) {
     );
   }
 
-  const coldSearch = timings.find((t) => t.label === 'search_content.adf_pipeline');
-  const cachedSearch = timings.find((t) => t.label === 'search_content.cached_repeat');
+  const coldSearch = timings.find((t) => t.label === 'search.content.adf_pipeline');
+  const cachedSearch = timings.find((t) => t.label === 'search.content.cached_repeat');
   // True cache hits (see case order) should be far below cold search latency.
   const cachedColdRatioMax = 0.1;
   results.push(

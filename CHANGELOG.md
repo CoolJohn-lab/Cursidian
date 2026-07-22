@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `slop` skill + `scripts/deslop.mjs` under `skills/wiki/slop/` (on-disk deslop); included in `skills:install` / doctor / check
+- Shared `scripts/skill-names.mjs` for the install set (install / doctor / check)
+
+### Changed
+
+- `wiki-slop` skill is vault/MCP-only; on-disk deslop routes to package skill `slop`
+- `vault` skill companion list + Outside-MCP note point at `slop` / wiki `skills/local-deslop` for repos and cursor-global
+- MCP smoke suites (`edge-cases`, `benchmarks`, `wiki-query`) retargeted to `note` / `search` / `graph`
+
+### Removed
+
+- Orphaned `get_backlinks` register wrapper and its broken unit test (coverage via `graph` / neighborhood tests)
+
 ## [2.12.0] - 2026-07-22
 
 ### Removed

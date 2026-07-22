@@ -80,11 +80,16 @@ npm run mcp:test -- suite smoke
 
 ### wiki-slop
 
-1. From the Cursidian repo: `npm run slop:check` (expect clean or actionable findings).
-2. `npm run slop:fix` then `slop:check` again (chars/emoji cleared; phrases may remain).
-3. Against a vault MCP: `vault` `slop_check`, then `deslop` `dryRun: true`, then `deslop` `confirm: true` when the user asked to clean the vault. Expect frontmatter summaries cleaned and `health` `summaryMismatches` empty after.
-4. Confirm `npm run build` fails if repo slop is reintroduced (prebuild gate).
-5. Agents must not use `slop:fix:wiki` for vault writes.
+1. Against a vault MCP: `vault` `slop_check`, then `deslop` `dryRun: true`, then `deslop` `confirm: true` when the user asked to clean the vault. Expect frontmatter summaries cleaned and `health` `summaryMismatches` empty after.
+2. Agents must not use `slop:fix:wiki` for vault writes (MCP only).
+3. Repo / on-disk deslop is **not** this skill: from the Cursidian repo use `npm run slop:check` / `slop:fix` (build gate), or skill `slop` (`scripts/deslop.mjs`) for other local trees. Confirm `npm run build` fails if repo slop is reintroduced (prebuild gate).
+
+### slop
+
+1. Confirm `skills/wiki/slop/scripts/deslop.mjs` exists and is executable after `skills:install` (`~/.cursor/skills/slop/scripts/deslop.mjs`).
+2. `node ~/.cursor/skills/slop/scripts/deslop.mjs check --preset cursor-global --engine builtin` (expect clean or actionable findings).
+3. For a disposable target: `fix --dry-run --diff` then `fix` only when authorised; re-`check`.
+4. If the path contains `.obsidian`, skill must stop and hand off to `wiki-slop`.
 
 ## Manual dogfood
 

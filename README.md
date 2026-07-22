@@ -36,7 +36,7 @@ Emjoy! John.
 - **Typed manifest** - `vault` `manifest` for `_meta/manifest.md` (no hand-edited ledger lines)
 - **Signature-based caches** - index and search snapshots invalidate when files change on disk (including Obsidian edits)
 - **Deslop gate** - `npm run build` runs `slop:check` first; strips AI typography and decorative emoji from the repo (and optionally the wiki vault)
-- **Wiki skills** - ten Cursor skills that drive the MCP tools for context assembly, ingest, query, lint, capture, update, status, and deslop
+- **Wiki skills** - eleven Cursor skills: ten vault/MCP workflows plus on-disk `slop` (`deslop.mjs`)
 - **Skill contract gate** - `npm run skills:check` rejects retired tool names, phantom health fields, and read-only write leaks
 
 ## Tools
@@ -140,9 +140,9 @@ npm run skills:install
 npx cursidian-skills
 ```
 
-That **removes then copies** the ten skill folders into `~/.cursor/skills/` (never symlink; copying into an existing folder nests `skill/skill/SKILL.md`). Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes, then start a **new** agent chat so Cursor re-discovers them. Run `npm run skills:doctor` first if you're not sure the installed copy is stale.
+That **removes then copies** the eleven skill folders into `~/.cursor/skills/` (never symlink; copying into an existing folder nests `skill/skill/SKILL.md`). Full steps: [`skills/wiki/INSTALL.md`](skills/wiki/INSTALL.md). Re-run after skill or MCP tool-surface changes, then start a **new** agent chat so Cursor re-discovers them. Run `npm run skills:doctor` first if you're not sure the installed copy is stale.
 
-Exception: none for vault writes. **wiki-slop** uses MCP `vault` `slop_check` / `deslop` for the vault; npm `slop:*` remains for the **repo** build gate (and optional human/CI `*:wiki` CLIs).
+Exception: none for vault writes. **wiki-slop** is vault/MCP-only (`vault` `slop_check` / `deslop`). On-disk deslop for other repos / `~/.cursor` uses skill **`slop`** (includes `scripts/deslop.mjs`, deployed by `skills:install`). npm `slop:*` remains this package's **build gate** (and optional human/CI `*:wiki` CLIs).
 
 | Skill | Purpose | Typical MCP use |
 |-------|---------|-----------------|
@@ -155,7 +155,8 @@ Exception: none for vault writes. **wiki-slop** uses MCP `vault` `slop_check` / 
 | `wiki-capture` | Save session findings | `note` create/update (`_raw/` or full pages); merge on duplicate |
 | `wiki-update` | Sync a project into the wiki | git delta outside vault; writes via `note`/`vault` manifest |
 | `wiki-status` | Delta / what next / hubs | `vault` manifest read; `_raw/` with `includeOperational`; hub working-set on DLZ/ADO/Cursidian |
-| `wiki-slop` | Deslop repo or vault | Repo: npm `slop:*`. Vault: `vault` `slop_check` / `deslop` |
+| `wiki-slop` | Deslop the wiki vault | `vault` `slop_check` / `deslop` (MCP only) |
+| `slop` | Deslop local files / repos / cursor-global | No vault MCP; runs `scripts/deslop.mjs` |
 
 ## Deslop (LLM-slop)
 
@@ -171,7 +172,7 @@ Keeps AI typography (em/en dashes, curly quotes, ellipsis, arrows) and decorativ
 | `npm run slop:fix:wiki` | Human/CI CLI vault fix (agents must use MCP `deslop`) |
 | `npm run build` | `prebuild` -> `slop:check`, then `tsc` |
 
-Wiki scans use the same rules but do **not** gate `build` (the vault lives outside the package). Phrase-pack hits need a manual rewrite; chars/emoji are auto-fixed. Prefer the `wiki-slop` skill over ad-hoc CLI flags.
+Agents: vault via skill **wiki-slop**; other on-disk trees via skill **slop**. Wiki scans use the same rules but do **not** gate `build` (the vault lives outside the package). Phrase-pack hits need a manual rewrite; chars/emoji are auto-fixed.
 
 ## Safe write workflow
 

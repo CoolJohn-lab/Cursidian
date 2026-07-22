@@ -67,9 +67,9 @@ npm run skills:install
 npm run skills:install:dry
 ```
 
-This deletes each of the 10 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates, no legacy tool names (`read_note`, `search_content`, ...), and that `vault`/`wiki-context` still teach the `context` MCP tool.
+This deletes each of the 11 skill folders under `~/.cursor/skills/`, copies fresh from `skills/wiki/`, and verifies there are no nested duplicates, no legacy tool names (`read_note`, `search_content`, ...), that `vault`/`wiki-context` still teach the `context` MCP tool, and that `slop/scripts/deslop.mjs` is present.
 
-Installed skills: `vault`, `wiki-query`, `wiki-context`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`.
+Installed skills: `vault`, `wiki-query`, `wiki-context`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`, `slop`.
 
 **Local-only addenda** (live under `~/.cursor/skills/` but are **not** in this install list, so `skills:install` does not overwrite them): `wiki-first`, `wiki-structure`, plus other machine skills (`crosslink`, `tags`, `mcp-test`, deprecated `wiki-migrate`). Those pair with my-agents rules (`wiki-first.mdc`, `wiki-structure.mdc`, ...), not the package.
 
@@ -91,7 +91,7 @@ $dst = "$env:USERPROFILE\.cursor\skills"
 New-Item -ItemType Directory -Force -Path $dst | Out-Null
 foreach ($name in @(
   'vault','wiki-query','wiki-context','wiki-lint','wiki-setup',
-  'wiki-ingest','wiki-capture','wiki-update','wiki-status','wiki-slop'
+  'wiki-ingest','wiki-capture','wiki-update','wiki-status','wiki-slop','slop'
 )) {
   Remove-Item -Recurse -Force "$dst\$name" -ErrorAction SilentlyContinue
   Copy-Item -Recurse -Force "$src\$name" "$dst\$name"
@@ -104,7 +104,7 @@ foreach ($name in @(
 SRC=/path/to/Cursidian/skills/wiki
 DST="$HOME/.cursor/skills"
 mkdir -p "$DST"
-for name in vault wiki-query wiki-context wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status wiki-slop; do
+for name in vault wiki-query wiki-context wiki-lint wiki-setup wiki-ingest wiki-capture wiki-update wiki-status wiki-slop slop; do
   rm -rf "$DST/$name"
   cp -R "$SRC/$name" "$DST/$name"
 done

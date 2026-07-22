@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 
 describe('install-skills CLI', () => {
-  it('dry-run succeeds and reports all nine skills', () => {
+  it('dry-run succeeds and reports all install skills', () => {
     const script = path.join(process.cwd(), 'scripts', 'install-skills.mjs');
     const dest = path.join(os.tmpdir(), `cursidian-skills-dry-${Date.now()}`);
     const result = spawnSync(process.execPath, [script, '--dry-run', '--dest', dest], {
@@ -14,6 +14,7 @@ describe('install-skills CLI', () => {
     expect(result.status).toBe(0);
     expect(result.stdout + result.stderr).toMatch(/vault/);
     expect(result.stdout + result.stderr).toMatch(/wiki-slop/);
+    expect(result.stdout + result.stderr).toMatch(/slop/);
     expect(fs.existsSync(path.join(dest, 'vault'))).toBe(false);
   });
 });

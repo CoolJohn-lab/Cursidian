@@ -9,23 +9,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SKILL_NAMES } from './skill-names.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const skillsRoot = path.join(repoRoot, 'skills', 'wiki');
-
-const SKILL_NAMES = [
-  'vault',
-  'wiki-query',
-  'wiki-context',
-  'wiki-lint',
-  'wiki-setup',
-  'wiki-ingest',
-  'wiki-capture',
-  'wiki-update',
-  'wiki-status',
-  'wiki-slop',
-];
 
 const MUTATING_SKILLS = [
   'wiki-setup',
@@ -196,7 +184,8 @@ function main() {
       problems.push(`${rel(file)}: appears to instruct shell mutation of vault paths`);
     }
 
-    if (name !== 'wiki-slop' && !/user-cursidian|MCP Contract|MCP-only/i.test(text)) {
+    // Disk-only `slop` and vault-only `wiki-slop` have specialised contracts.
+    if (name !== 'wiki-slop' && name !== 'slop' && !/user-cursidian|MCP Contract|MCP-only/i.test(text)) {
       problems.push(`${rel(file)}: missing MCP contract / user-cursidian reference`);
     }
     if (name === 'wiki-slop') {
@@ -205,6 +194,18 @@ function main() {
       }
       if (!/user-cursidian|MCP-only|MCP only/i.test(text)) {
         problems.push(`${rel(file)}: wiki-slop must require MCP for vault deslop`);
+      }
+    }
+    if (name === 'slop') {
+      if (!/deslop\.mjs/.test(text)) {
+        problems.push(`${rel(file)}: slop must document scripts/deslop.mjs`);
+      }
+      if (!/wiki-slop/.test(text)) {
+        problems.push(`${rel(file)}: slop must route vault targets to wiki-slop`);
+      }
+      const helper = path.join(skillsRoot, 'slop', 'scripts', 'deslop.mjs');
+      if (!fs.existsSync(helper)) {
+        problems.push('slop: missing scripts/deslop.mjs helper');
       }
     }
 

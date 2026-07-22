@@ -13,7 +13,10 @@ export async function runWikiQuerySuite(ctx) {
   results.push(
     await runCase('bootstrap project hub', async () => {
       parseResult(
-        await callTool(server, 'note', { action: 'read', path: 'projects/data-platform-dlz/data-platform-dlz' }),
+        await callTool(server, 'note', {
+          action: 'read',
+          path: 'projects/data-platform-dlz/data-platform-dlz',
+        }),
       );
     }, ctx),
   );
@@ -49,7 +52,9 @@ export async function runWikiQuerySuite(ctx) {
   for (const { query, expectTopPath } of queries) {
     results.push(
       await runCase(`wiki-query search: ${query}`, async () => {
-        const data = parseResult(await callTool(server, 'search_content', { query, limit: 5 }));
+        const data = parseResult(
+          await callTool(server, 'search', { action: 'content', query, limit: 5 }),
+        );
         if (data.results.length === 0) throw new Error('no results');
         const topPath = data.results[0].path.replace(/\.md$/i, '').toLowerCase();
         const expected = expectTopPath.toLowerCase();
@@ -64,20 +69,25 @@ export async function runWikiQuerySuite(ctx) {
   }
 
   results.push(
-    await runCase('relationship query via backlinks', async () => {
+    await runCase('relationship query via graph backlinks', async () => {
       const data = parseResult(
-        await callTool(server, 'get_backlinks', {
+        await callTool(server, 'graph', {
           path: 'projects/data-platform-dlz/concepts/orchestration-and-adf',
         }),
       );
-      if (data.backlinkCount < 1) throw new Error('expected backlinks to orchestration page');
+      if ((data.backlinkCount ?? data.backlinks?.length ?? 0) < 1) {
+        throw new Error('expected backlinks to orchestration page');
+      }
     }, ctx),
   );
 
   results.push(
-    await runCase('tier-2 list_notes project folder', async () => {
+    await runCase('tier-2 search list project folder', async () => {
       const data = parseResult(
-        await callTool(server, 'list_notes', { folder: 'projects/data-platform-dlz/concepts' }),
+        await callTool(server, 'search', {
+          action: 'list',
+          folder: 'projects/data-platform-dlz/concepts',
+        }),
       );
       if (data.notes.length < 5) throw new Error('expected multiple concept pages');
     }, ctx),

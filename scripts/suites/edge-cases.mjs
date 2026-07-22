@@ -6,7 +6,11 @@ export async function runEdgeCaseSuite(ctx) {
   results.push(
     await runCase('search token-AND excludes partial matches', async () => {
       const data = parseResult(
-        await callTool(server, 'search_content', { query: 'FactPublicHoliday benevity', limit: 20 }),
+        await callTool(server, 'search', {
+          action: 'content',
+          query: 'FactPublicHoliday benevity',
+          limit: 20,
+        }),
       );
       const paths = data.results.map((r) => r.path);
       for (const path of paths) {
@@ -23,7 +27,7 @@ export async function runEdgeCaseSuite(ctx) {
   results.push(
     await runCase('search ranks title match above body-only match', async () => {
       const data = parseResult(
-        await callTool(server, 'search_content', { query: 'FactPublicHoliday', limit: 10 }),
+        await callTool(server, 'search', { action: 'content', query: 'FactPublicHoliday', limit: 10 }),
       );
       if (data.results.length === 0) return;
       const top = data.results[0];
@@ -35,77 +39,86 @@ export async function runEdgeCaseSuite(ctx) {
 
   results.push(
     await runCase('search empty query rejected by schema', async () => {
-      const result = await callTool(server, 'search_content', { query: '   ' });
+      const result = await callTool(server, 'search', { action: 'content', query: '   ' });
       if (!result.isError) throw new Error('expected schema validation failure');
     }, ctx),
   );
 
   results.push(
-    await runCase('read_note missing file', async () => {
-      const result = await callTool(server, 'read_note', { path: '__missing-note-xyz__' });
+    await runCase('note read missing file', async () => {
+      const result = await callTool(server, 'note', { action: 'read', path: '__missing-note-xyz__' });
       if (!result.isError) throw new Error('expected error');
     }, ctx),
   );
 
   results.push(
-    await runCase('read_note path traversal blocked', async () => {
-      const result = await callTool(server, 'read_note', { path: '../../../etc/passwd' });
+    await runCase('note read path traversal blocked', async () => {
+      const result = await callTool(server, 'note', {
+        action: 'read',
+        path: '../../../etc/passwd',
+      });
       if (!result.isError) throw new Error('expected traversal error');
     }, ctx),
   );
 
   results.push(
-    await runCase('update_note patch ambiguous old_string', async () => {
+    await runCase('note update patch ambiguous old_string', async () => {
       const path = '.obsidian-mcp-edge-ambiguous';
       parseResult(
-        await callTool(server, 'create_note', {
+        await callTool(server, 'note', {
+          action: 'create',
           path,
           content: 'repeat repeat',
           overwrite: true,
         }),
       );
-      const result = await callTool(server, 'update_note', {
+      const result = await callTool(server, 'note', {
+        action: 'update',
         path,
         mode: 'patch',
         old_string: 'repeat',
         new_string: 'once',
       });
-      parseResult(await callTool(server, 'delete_note', { path }));
+      parseResult(await callTool(server, 'note', { action: 'delete', path, confirm: true }));
       if (!result.isError) throw new Error('expected ambiguous patch error');
     }, ctx),
   );
 
   results.push(
-    await runCase('update_note replace size guard', async () => {
+    await runCase('note update replace size guard', async () => {
       const path = '.obsidian-mcp-edge-guard';
       parseResult(
-        await callTool(server, 'create_note', {
+        await callTool(server, 'note', {
+          action: 'create',
           path,
           content: 'x'.repeat(200),
           overwrite: true,
         }),
       );
-      const result = await callTool(server, 'update_note', {
+      const result = await callTool(server, 'note', {
+        action: 'update',
         path,
         content: 'tiny',
         mode: 'replace',
       });
-      parseResult(await callTool(server, 'delete_note', { path }));
+      parseResult(await callTool(server, 'note', { action: 'delete', path, confirm: true }));
       if (!result.isError) throw new Error('expected size guard error');
     }, ctx),
   );
 
   results.push(
-    await runCase('update_note replace allows large shrink with force', async () => {
+    await runCase('note update replace allows large shrink with force', async () => {
       const path = '.obsidian-mcp-edge-force';
       parseResult(
-        await callTool(server, 'create_note', {
+        await callTool(server, 'note', {
+          action: 'create',
           path,
           content: 'x'.repeat(200),
           overwrite: true,
         }),
       );
-      const blocked = await callTool(server, 'update_note', {
+      const blocked = await callTool(server, 'note', {
+        action: 'update',
         path,
         content: 'y'.repeat(60),
         mode: 'replace',
@@ -114,32 +127,35 @@ export async function runEdgeCaseSuite(ctx) {
         throw new Error('expected size guard before force');
       }
       parseResult(
-        await callTool(server, 'update_note', {
+        await callTool(server, 'note', {
+          action: 'update',
           path,
           content: 'y'.repeat(60),
           mode: 'replace',
           force: true,
         }),
       );
-      parseResult(await callTool(server, 'delete_note', { path }));
+      parseResult(await callTool(server, 'note', { action: 'delete', path, confirm: true }));
     }, ctx),
   );
 
   results.push(
-    await runCase('get_backlinks resolves path-style wikilinks', async () => {
+    await runCase('graph resolves path-style wikilink backlinks', async () => {
       const data = parseResult(
-        await callTool(server, 'get_backlinks', {
+        await callTool(server, 'graph', {
           path: 'projects/data-platform-dlz/data-platform-dlz',
         }),
       );
       if (!Array.isArray(data.backlinks)) throw new Error('missing backlinks');
-      if (data.backlinkCount < 1) throw new Error('expected at least one backlink to project hub');
+      if ((data.backlinkCount ?? data.backlinks.length) < 1) {
+        throw new Error('expected at least one backlink to project hub');
+      }
     }, ctx),
   );
 
   results.push(
-    await runCase('read_note resolves outgoing links on index', async () => {
-      const data = parseResult(await callTool(server, 'read_note', { path: 'index' }));
+    await runCase('note read resolves outgoing links on index', async () => {
+      const data = parseResult(await callTool(server, 'note', { action: 'read', path: 'index' }));
       const resolved = data.outgoingLinks.filter((link) => link.resolvedPath);
       if (resolved.length < 3) {
         throw new Error(`expected >=3 resolved outgoing links, got ${resolved.length}`);
@@ -148,9 +164,10 @@ export async function runEdgeCaseSuite(ctx) {
   );
 
   results.push(
-    await runCase('read_note curated-and-model-layers link resolution', async () => {
+    await runCase('note read curated-and-model-layers link resolution', async () => {
       const data = parseResult(
-        await callTool(server, 'read_note', {
+        await callTool(server, 'note', {
+          action: 'read',
           path: 'projects/data-platform-dlz/concepts/curated-and-model-layers',
         }),
       );

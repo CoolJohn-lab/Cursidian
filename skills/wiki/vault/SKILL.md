@@ -35,7 +35,7 @@ This skill is the **protocol** layer (hard rules agents must not violate). Wiki 
 6. If `user-cursidian` is missing/unreachable: stop; point at `skills/wiki/INSTALL.md`.
 7. Every call: `server: "user-cursidian"` + `toolName` one of `note` | `search` | `graph` | `vault` | `context`. Discover schemas with `GetMcpTools` first. Never send only `arguments` + `description`. `search` `tags` accepts **no** other arguments.
 
-Outside MCP: source docs **outside** the vault (ingest), and **repo** deslop via npm. Vault deslop is MCP-only (`slop_check` / `deslop`).
+Outside MCP: source docs **outside** the vault (ingest). On-disk deslop (repos / cursor-global) -> skill `slop` (wiki `skills/local-deslop`). Vault deslop is MCP-only (`slop_check` / `deslop`) via skill `wiki-slop`.
 
 ### Tool map (essentials)
 
@@ -145,4 +145,4 @@ Every page needs that frontmatter, a `summary`, and at least 2 wikilinks. Tolera
 
 ## Companion skills
 
-`wiki-setup` `wiki-ingest` `wiki-capture` `wiki-query` `wiki-context` `wiki-lint` `wiki-update` `wiki-status` `wiki-slop`
+`wiki-setup` `wiki-ingest` `wiki-capture` `wiki-query` `wiki-context` `wiki-lint` `wiki-update` `wiki-status` `wiki-slop` `slop`

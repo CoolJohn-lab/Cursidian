@@ -15,19 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
-
-const SKILL_NAMES = [
-  'vault',
-  'wiki-query',
-  'wiki-context',
-  'wiki-lint',
-  'wiki-setup',
-  'wiki-ingest',
-  'wiki-capture',
-  'wiki-update',
-  'wiki-status',
-  'wiki-slop',
-];
+import { SKILL_NAMES } from './skill-names.mjs';
 
 /** Legacy MCP tool names that must not appear in installed skills. */
 const LEGACY_TOOL_RE =
@@ -124,6 +112,11 @@ function verifyInstalled(destRoot) {
     if (CONTEXT_TOOL_REQUIRED_IN.includes(name) && !sawContextInSkill) {
       problems.push(`${name}: no markdown file mentions the "context" MCP tool`);
     }
+  }
+
+  const deslopHelper = path.join(destRoot, 'slop', 'scripts', 'deslop.mjs');
+  if (!fs.existsSync(deslopHelper)) {
+    problems.push('slop: missing scripts/deslop.mjs helper');
   }
 
   if (!sawContextTool) {

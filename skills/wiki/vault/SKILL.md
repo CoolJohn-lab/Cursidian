@@ -87,7 +87,7 @@ Cheapest first: `search` `list`/`tags` -> compact `content` summaries -> `by_tag
 
 ### Vault layout (summary)
 
-Categories: `concepts/` `entities/` `skills/` `references/` `journal/` (plus project trees). Project knowledge: `projects/<name>/<category>/` with overview `projects/<name>/<name>.md` (never `_project.md`). Decision/analysis pages belong under `concepts/` or `references/…/*-synthesis.md`, not a root `synthesis/` folder. `_raw/` is a staging inbox, not Layer-1 sources.
+Categories: `concepts/` `entities/` `skills/` `references/` `journal/` (plus project trees). Project knowledge: `projects/<name>/<category>/` with overview `projects/<name>/<name>.md` (never `_project.md`). Decision/analysis pages belong under `concepts/` or `references/.../*-synthesis.md`, not a root `synthesis/` folder. `_raw/` is a staging inbox, not Layer-1 sources.
 
 ### Special files (summary)
 

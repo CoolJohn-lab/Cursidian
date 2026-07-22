@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 
 - `vault` action `log` and `log.md` / `hot.md` session-cache files (breaking)
 - `touch-wiki-meta` implementation; operational exclusion of `hot`/`log` / `_archives` basenames
-- Skills no longer teach root `synthesis/` or `_archives/` folders (use `concepts/` / `references/…/*-synthesis.md` and `_raw/_archived/`)
+- Skills no longer teach root `synthesis/` or `_archives/` folders (use `concepts/` / `references/.../*-synthesis.md` and `_raw/_archived/`)
 
 ### Changed
 

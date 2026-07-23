@@ -21,7 +21,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Stack doctor script: `~/.cursor/plugins/local/my-agents/scripts/stack-doctor.mjs` validates 16-rule inventory, rule→skill wiring, skill folder names, stale identifiers, and forward-only prose in live guidance files.
+- Stack doctor script: `~/.cursor/plugins/local/my-agents/scripts/stack-doctor.mjs` validates 16-rule inventory, rule->skill wiring, skill folder names, stale identifiers, and forward-only prose in live guidance files.
 
 ## [4.0.1] - 2026-07-23
 

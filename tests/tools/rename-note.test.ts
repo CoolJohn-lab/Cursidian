@@ -73,4 +73,31 @@ describe('note (rename)', () => {
     expect(indexContent).toContain('[[concepts/new-name]]');
     expect(data.indexUpdated).toBe(true);
   });
+
+  it('rewrites embeds and anchored links on rename', async () => {
+    await writeNote(
+      ctx.vault,
+      'concepts/anchor-src.md',
+      '---\ntitle: Anchor Src\ncategory: concepts\ntags: [x]\nsummary: Src.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n# Src\n\n^block1\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'concepts/anchor-linker.md',
+      '---\ntitle: Anchor Linker\ncategory: concepts\ntags: [x]\nsummary: Linker.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n![[anchor-src]]\n[[anchor-src#Src]]\n[[anchor-src#^block1]]\n',
+    );
+
+    const result = await callTool(ctx.client, 'note', {
+      action: 'rename',
+      path: 'concepts/anchor-src',
+      newPath: 'concepts/anchor-dst',
+      updateBacklinks: true,
+      updateIndex: false,
+    });
+    expect(result.isError).toBeFalsy();
+
+    const linker = await fs.readFile(path.join(ctx.vault, 'concepts/anchor-linker.md'), 'utf-8');
+    expect(linker).toContain('![[anchor-dst]]');
+    expect(linker).toContain('[[anchor-dst#Src]]');
+    expect(linker).toContain('[[anchor-dst#^block1]]');
+  });
 });

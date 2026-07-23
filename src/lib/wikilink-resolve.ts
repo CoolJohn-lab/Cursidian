@@ -18,8 +18,8 @@ export function wikilinkTargetsNote(link: string, notePath: string, index: Vault
 
   const noteName = path.basename(notePath, '.md');
   const notePathNormalized = notePath.replace(/\.md$/i, '');
-  const normalized = link.trim();
-  const normalizedKey = normaliseKey(normalized);
+  const pathOnly = link.includes('#') ? link.split('#')[0]!.trim() : link.trim();
+  const normalizedKey = normaliseKey(pathOnly);
 
   return (
     normaliseKey(noteName) === normalizedKey ||

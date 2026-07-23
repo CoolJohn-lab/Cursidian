@@ -44,7 +44,7 @@ Outside MCP: source docs **outside** the vault (ingest). On-disk deslop (repos /
 | `search`  | `content` (default limit 10; `format: "compact"`; paginate `nextCursor`), `by_tags`, `list`, `recent`, `tags`. Operational paths excluded unless `includeOperational: true`.                                          |
 | `note`    | `read` / `outline` (+ `revisionHash` on read), `create`/`update`/`delete`/`rename`/`frontmatter`. `outline` returns headings without body; `update` accepts `dryRun`. Mutations return `operationId`. `delete` needs `confirm: true`. |
 | `graph`   | One-hop neighborhood; skip null `resolvedPath`; paginate backlinks.                                                                                                                                                   |
-| `vault`   | `health`, `sync_index` (flat rebuild vs hub preserve - check `indexMode`), `slop_check`/`deslop`, folders, `history`/`undo`, `manifest`, `vocabulary`.                                                                |
+| `vault`   | `health` (incl. soft `schemaWarnings` / `provenanceStats`), `sync_index` (flat rebuild vs hub preserve - check `indexMode`), `slop_check`/`deslop`, folders, `history`/`undo`, `manifest`, `vocabulary`. |
 | `context` | Prefer over hand-rolled search->read loops (session-first). `assemble`/`for_task` (+ `tokenBudget`, optional `intent`); returns `focus` + `guidance.nextStep`; `expand` via `nextCursor`; `feedback` for bad bundles. |
 
 Full action tables, retired names, and edge cases: wiki `projects/cursidian/concepts/mcp-tool-surface`.

@@ -4,14 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-07-23
+
 ### Added
 
 - `note` `action: "outline"` returns heading outline (`level` / `text` / `line`) without loading the full body; optional `maxDepth` (1-6)
 - `note` `update` `dryRun: true` previews the next revision (`wouldChange`, hashes) without writing or creating a journal op
+- Wikilink parser covers embeds (`![[...]]`) and preserves `#heading` / `#^blockId` fragments on rename rewrite (`extractEmbeds`, `extractWikilinkEntries`)
+- `vault` `health` soft `schemaWarnings` for missing Page Template `sources` / `created` (hard-required fields unchanged)
+- `vault` `health` `provenanceStats` for body markers `^[inferred]` / `^[ambiguous]` (counts + sample lines; not a hard failure)
+- Context logdump scorer `docs/validation/scripts/score-context-logdump.mjs` + TD-CGE-001 freeze report under `docs/validation/results/`
 
 ### Changed
 
+- Agent-facing MCP surface expands (outline, update dryRun, embed/block-ref rewrite, soft health schema/provenance) - major release for the 3.2 backlog ship
 - Harden `listSections` / outline parsing with `assertParseableSize` and match-iteration caps
+- Rename backlink rewrite matches path without fragment; graph/backlinks already resolve embed targets via `extractWikilinks`
+
+### Fixed
+
+- TD-CGE-001 closed as **no action** after schemaVersion 2 freeze re-score (n=204; focus/ranking agreement 99.5%) - no assembler weight churn
 
 ## [3.1.1] - 2026-07-23
 

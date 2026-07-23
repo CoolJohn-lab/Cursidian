@@ -211,21 +211,55 @@ describe('vault (health)', () => {
     expect(data.counts.contradictions).toBeGreaterThan(0);
   });
 
-  it('reports an unresolved contradiction target without resolving it', async () => {
+  it('reports soft schemaWarnings for missing sources/created without hard-failing', async () => {
     await writeNote(
       ctx.vault,
-      'concepts/dangling-contradiction.md',
-      '---\ntitle: Dangling Contradiction\ncategory: concepts\ntags: [x]\nsummary: Points at nothing.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\n> Contradicts [[concepts/does-not-exist]]\n\nBody.\n',
+      'concepts/soft-schema.md',
+      '---\ntitle: Soft Schema\ncategory: concepts\ntags: [x]\nsummary: Has hard fields only.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nBody without soft fields.\n',
+    );
+    await writeNote(
+      ctx.vault,
+      'concepts/full-schema.md',
+      '---\ntitle: Full Schema\ncategory: concepts\ntags: [x]\nsummary: Complete.\nsources: [repo:cursidian]\ncreated: 2026-01-01T00:00:00.000Z\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nBody with soft fields.\n',
     );
 
     const result = await callTool(ctx.client, 'vault', { action: 'health' });
     const data = parseResult(result) as {
-      contradictions: Array<{ path: string; counterpart: string; resolved: boolean }>;
+      schemaWarnings: Array<{ path: string; missing: string[] }>;
+      missingFrontmatter: Array<{ path: string }>;
+      counts: { schemaWarnings: number };
     };
 
-    const hit = data.contradictions.find((c) => c.path === 'concepts/dangling-contradiction.md');
-    expect(hit).toBeDefined();
-    expect(hit!.resolved).toBe(false);
-    expect(hit!.counterpart).toBe('concepts/does-not-exist');
+    const soft = data.schemaWarnings.find((w) => w.path === 'concepts/soft-schema.md');
+    expect(soft).toBeDefined();
+    expect(soft!.missing).toEqual(expect.arrayContaining(['sources', 'created']));
+    expect(data.schemaWarnings.some((w) => w.path === 'concepts/full-schema.md')).toBe(false);
+    expect(data.missingFrontmatter.some((m) => m.path === 'concepts/soft-schema.md')).toBe(false);
+    expect(data.counts.schemaWarnings).toBeGreaterThan(0);
+  });
+
+  it('reports provenanceStats for inferred/ambiguous body markers', async () => {
+    await writeNote(
+      ctx.vault,
+      'concepts/marked.md',
+      '---\ntitle: Marked\ncategory: concepts\ntags: [x]\nsummary: Has markers.\nupdated: 2026-01-01T00:00:00.000Z\n---\n\nA claim. ^[inferred]\nAnother. ^[ambiguous]\n',
+    );
+
+    const result = await callTool(ctx.client, 'vault', { action: 'health' });
+    const data = parseResult(result) as {
+      provenanceStats: {
+        notesWithMarkers: number;
+        inferredTotal: number;
+        ambiguousTotal: number;
+        samples: Array<{ path: string; kind: string; line: number }>;
+      };
+      counts: { provenanceNotes: number };
+    };
+
+    expect(data.provenanceStats.notesWithMarkers).toBeGreaterThan(0);
+    expect(data.provenanceStats.inferredTotal).toBeGreaterThan(0);
+    expect(data.provenanceStats.ambiguousTotal).toBeGreaterThan(0);
+    expect(data.provenanceStats.samples.some((s) => s.path === 'concepts/marked.md')).toBe(true);
+    expect(data.counts.provenanceNotes).toBeGreaterThan(0);
   });
 });

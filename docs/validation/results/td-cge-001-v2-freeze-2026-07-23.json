@@ -1,0 +1,365 @@
+{
+  "source": "/Users/jeddowes/.cursor/logdump/ContextSearches/Version TD-CGE-001 v2 freeze - 2026-07-23.jsonl",
+  "scoredAt": "2026-07-23T15:48:19.741Z",
+  "score": {
+    "n": 204,
+    "schemaVersions": [
+      2
+    ],
+    "packageVersions": [
+      "3.0.1",
+      "3.0.2",
+      "3.0.3",
+      "3.0.4",
+      "3.1.0",
+      "3.0.5",
+      "3.1.1"
+    ],
+    "sufficiencyRate": 0.951,
+    "sufficiencyCount": 194,
+    "confidence": {
+      "median": 1,
+      "mean": 0.941,
+      "min": 0.55
+    },
+    "tokensDelivered": {
+      "median": 373,
+      "mean": 384,
+      "min": 55,
+      "max": 1568
+    },
+    "budgetAdherence": 1,
+    "depthShare": {
+      "mean": 0.593,
+      "median": 0.536
+    },
+    "strongHitRate": 0.6569,
+    "cleanBundleRate": 1,
+    "nextSteps": {
+      "refine_query": 6,
+      "sufficient": 194,
+      "expand": 4
+    }
+  },
+  "accuracy": {
+    "withRanking": 204,
+    "focusAgreesSearchTop1": 0.9951,
+    "focusAgreesRerankTop1": 0.9951,
+    "expandCount": 4,
+    "expands": [
+      {
+        "query": "BigHand",
+        "confidence": 1,
+        "focusTop1": "entities/bighand.md",
+        "searchTop1": "entities/bighand.md",
+        "rerankTop1": "entities/bighand.md"
+      },
+      {
+        "query": "BigHand",
+        "confidence": 1,
+        "focusTop1": "entities/bighand.md",
+        "searchTop1": "entities/bighand.md",
+        "rerankTop1": "entities/bighand.md"
+      },
+      {
+        "query": "BigHand",
+        "confidence": 1,
+        "focusTop1": "entities/bighand.md",
+        "searchTop1": "entities/bighand.md",
+        "rerankTop1": "entities/bighand.md"
+      },
+      {
+        "query": "BigHand",
+        "confidence": 1,
+        "focusTop1": "entities/bighand.md",
+        "searchTop1": "entities/bighand.md",
+        "rerankTop1": "entities/bighand.md"
+      }
+    ],
+    "softMissSamples": [
+      {
+        "query": "Explain Cursidian MCP architecture: technologies, platforms, how code fits together (tools, vault, s",
+        "nextStep": "refine_query",
+        "confidence": 0.69,
+        "focusTop1": "projects/data-platform-dlz/skills/cursor-plugins-and-tooling-status.md",
+        "searchTop1": "projects/data-platform-dlz/skills/cursor-plugins-and-tooling-status.md",
+        "rerankTop1": "projects/data-platform-dlz/skills/cursor-plugins-and-tooling-status.md",
+        "droppedTop": null
+      },
+      {
+        "query": "",
+        "nextStep": "refine_query",
+        "confidence": 0.55,
+        "focusTop1": null,
+        "searchTop1": "projects/data-platform-dlz/skills/cursor-plugins-and-tooling-status.md",
+        "rerankTop1": "projects/cursidian/cursidian.md",
+        "droppedTop": null
+      },
+      {
+        "query": "BigHand",
+        "nextStep": "expand",
+        "confidence": 1,
+        "focusTop1": "entities/bighand.md",
+        "searchTop1": "entities/bighand.md",
+        "rerankTop1": "entities/bighand.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 130.9,
+          "kind": "summary"
+        }
+      },
+      {
+        "query": "how does BigHand relate to FactPersonForecastHistory",
+        "nextStep": "sufficient",
+        "confidence": 0.8,
+        "focusTop1": "entities/bighand.md",
+        "searchTop1": "entities/bighand.md",
+        "rerankTop1": "entities/bighand.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 85.05,
+          "kind": "summary"
+        }
+      },
+      {
+        "query": "relationship between worker dimension and forecast fact table",
+        "nextStep": "sufficient",
+        "confidence": 0.87,
+        "focusTop1": "entities/fact-person-forecast-history.md",
+        "searchTop1": "entities/fact-person-forecast-history.md",
+        "rerankTop1": "entities/fact-person-forecast-history.md",
+        "droppedTop": null
+      },
+      {
+        "query": "how do contracts relate to schema drift",
+        "nextStep": "sufficient",
+        "confidence": 0.84,
+        "focusTop1": "concepts/schema-drift-and-versioning.md",
+        "searchTop1": "concepts/schema-drift-and-versioning.md",
+        "rerankTop1": "concepts/schema-drift-and-versioning.md",
+        "droppedTop": null
+      },
+      {
+        "query": "medallion layers and worker data mart connection",
+        "nextStep": "sufficient",
+        "confidence": 0.84,
+        "focusTop1": "concepts/worker-data-mart.md",
+        "searchTop1": "concepts/worker-data-mart.md",
+        "rerankTop1": "concepts/worker-data-mart.md",
+        "droppedTop": null
+      },
+      {
+        "query": "ingestion egress and orchestration relationship",
+        "nextStep": "sufficient",
+        "confidence": 0.87,
+        "focusTop1": "concepts/ingestion-vs-egress.md",
+        "searchTop1": "concepts/ingestion-vs-egress.md",
+        "rerankTop1": "concepts/ingestion-vs-egress.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 50.82,
+          "kind": "neighbor-note"
+        }
+      },
+      {
+        "query": "FactPublicHoliday and forecast utilisation",
+        "nextStep": "refine_query",
+        "confidence": 0.73,
+        "focusTop1": "entities/fact-public-holiday.md",
+        "searchTop1": "entities/fact-public-holiday.md",
+        "rerankTop1": "entities/fact-public-holiday.md",
+        "droppedTop": null
+      },
+      {
+        "query": "BigHand and schema drift",
+        "nextStep": "sufficient",
+        "confidence": 0.82,
+        "focusTop1": "concepts/schema-drift-and-versioning.md",
+        "searchTop1": "concepts/schema-drift-and-versioning.md",
+        "rerankTop1": "concepts/schema-drift-and-versioning.md",
+        "droppedTop": null
+      },
+      {
+        "query": "CDF platform and worker data mart",
+        "nextStep": "sufficient",
+        "confidence": 0.82,
+        "focusTop1": "projects/cdf-platform.md",
+        "searchTop1": "projects/cdf-platform.md",
+        "rerankTop1": "projects/cdf-platform.md",
+        "droppedTop": null
+      },
+      {
+        "query": "gold layer fact tables",
+        "nextStep": "sufficient",
+        "confidence": 0.84,
+        "focusTop1": "entities/fact-person-forecast-history.md",
+        "searchTop1": "entities/fact-person-forecast-history.md",
+        "rerankTop1": "entities/fact-person-forecast-history.md",
+        "droppedTop": null
+      },
+      {
+        "query": "contract generation and ingestion pipelines",
+        "nextStep": "sufficient",
+        "confidence": 0.87,
+        "focusTop1": "skills/ingestion-pipeline-authoring.md",
+        "searchTop1": "skills/ingestion-pipeline-authoring.md",
+        "rerankTop1": "skills/ingestion-pipeline-authoring.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 86.1,
+          "kind": "neighbor-note"
+        }
+      },
+      {
+        "query": "how to author a new ingestion pipeline",
+        "nextStep": "sufficient",
+        "confidence": 0.89,
+        "focusTop1": "skills/ingestion-pipeline-authoring.md",
+        "searchTop1": "skills/ingestion-pipeline-authoring.md",
+        "rerankTop1": "skills/ingestion-pipeline-authoring.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 19.599999999999998,
+          "kind": "summary"
+        }
+      },
+      {
+        "query": "how to review a schema contract",
+        "nextStep": "sufficient",
+        "confidence": 0.84,
+        "focusTop1": "skills/contract-schema-review.md",
+        "searchTop1": "skills/contract-schema-review.md",
+        "rerankTop1": "skills/contract-schema-review.md",
+        "droppedTop": null
+      },
+      {
+        "query": "registering a pipeline with the orchestrator",
+        "nextStep": "sufficient",
+        "confidence": 0.84,
+        "focusTop1": "skills/ingestion-pipeline-authoring.md",
+        "searchTop1": "skills/ingestion-pipeline-authoring.md",
+        "rerankTop1": "skills/ingestion-pipeline-authoring.md",
+        "droppedTop": null
+      },
+      {
+        "query": "where do new pipelines land data first",
+        "nextStep": "sufficient",
+        "confidence": 0.87,
+        "focusTop1": "skills/ingestion-pipeline-authoring.md",
+        "searchTop1": "skills/ingestion-pipeline-authoring.md",
+        "rerankTop1": "skills/ingestion-pipeline-authoring.md",
+        "droppedTop": null
+      },
+      {
+        "query": "how is platform wiki bridge related to worker data mart",
+        "nextStep": "sufficient",
+        "confidence": 0.84,
+        "focusTop1": "concepts/platform-wiki-bridge.md",
+        "searchTop1": "concepts/platform-wiki-bridge.md",
+        "rerankTop1": "concepts/platform-wiki-bridge.md",
+        "droppedTop": null
+      },
+      {
+        "query": "getting started onboarding a BigHand ingestion pipeline",
+        "nextStep": "sufficient",
+        "confidence": 0.89,
+        "focusTop1": "skills/ingestion-pipeline-authoring.md",
+        "searchTop1": "skills/ingestion-pipeline-authoring.md",
+        "rerankTop1": "skills/ingestion-pipeline-authoring.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 154.7,
+          "kind": "summary"
+        }
+      },
+      {
+        "query": "BigHand",
+        "nextStep": "expand",
+        "confidence": 1,
+        "focusTop1": "entities/bighand.md",
+        "searchTop1": "entities/bighand.md",
+        "rerankTop1": "entities/bighand.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 130.9,
+          "kind": "summary"
+        }
+      },
+      {
+        "query": "how does BigHand relate to FactPersonForecastHistory",
+        "nextStep": "sufficient",
+        "confidence": 0.8,
+        "focusTop1": "entities/bighand.md",
+        "searchTop1": "entities/bighand.md",
+        "rerankTop1": "entities/bighand.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 85.05,
+          "kind": "summary"
+        }
+      },
+      {
+        "query": "relationship between worker dimension and forecast fact table",
+        "nextStep": "sufficient",
+        "confidence": 0.87,
+        "focusTop1": "entities/fact-person-forecast-history.md",
+        "searchTop1": "entities/fact-person-forecast-history.md",
+        "rerankTop1": "entities/fact-person-forecast-history.md",
+        "droppedTop": null
+      },
+      {
+        "query": "how do contracts relate to schema drift",
+        "nextStep": "sufficient",
+        "confidence": 0.84,
+        "focusTop1": "concepts/schema-drift-and-versioning.md",
+        "searchTop1": "concepts/schema-drift-and-versioning.md",
+        "rerankTop1": "concepts/schema-drift-and-versioning.md",
+        "droppedTop": null
+      },
+      {
+        "query": "medallion layers and worker data mart connection",
+        "nextStep": "sufficient",
+        "confidence": 0.84,
+        "focusTop1": "concepts/worker-data-mart.md",
+        "searchTop1": "concepts/worker-data-mart.md",
+        "rerankTop1": "concepts/worker-data-mart.md",
+        "droppedTop": null
+      },
+      {
+        "query": "ingestion egress and orchestration relationship",
+        "nextStep": "sufficient",
+        "confidence": 0.87,
+        "focusTop1": "concepts/ingestion-vs-egress.md",
+        "searchTop1": "concepts/ingestion-vs-egress.md",
+        "rerankTop1": "concepts/ingestion-vs-egress.md",
+        "droppedTop": {
+          "path": "journal/bighand-onboarding-notes.md",
+          "score": 50.82,
+          "kind": "neighbor-note"
+        }
+      }
+    ]
+  },
+  "comparison": {
+    "baseline": {
+      "sufficiencyRate": 0.947,
+      "confidenceMedian": 0.96,
+      "tokensMedian": 1630,
+      "budgetAdherence": 1,
+      "depthShareMean": 0.86,
+      "strongHitRate": 0.737
+    },
+    "deltas": {
+      "sufficiencyRate": 0.004,
+      "confidenceMedian": 0.04,
+      "tokensMedian": -1257,
+      "budgetAdherence": 0,
+      "depthShareMean": -0.267,
+      "strongHitRate": -0.0801
+    }
+  },
+  "decision": {
+    "verdict": "no_action",
+    "reason": "Metrics remain excellent vs 3.0 baseline; no weight/fill change warranted. Close TD-CGE-001 as no action."
+  }
+}

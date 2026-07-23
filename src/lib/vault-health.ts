@@ -11,10 +11,14 @@ import {
 import { listVaultMarkdownPaths } from './vault-glob.js';
 import { readFileBounded } from './security.js';
 import { isHealthExcludedPath } from './operational-paths.js';
+import { scanProvenanceMarkers } from './provenance-markers.js';
 
 export { isHealthExcludedPath } from './operational-paths.js';
 
 const REQUIRED_FRONTMATTER = ['title', 'category', 'tags', 'summary', 'updated'] as const;
+
+/** Soft Page Template fields - warn only; do not hard-fail existing notes. */
+const SOFT_FRONTMATTER = ['sources', 'created'] as const;
 
 /** Matches `> Contradicts [[other-page]]` callouts. Mirrors `CONTRADICTS_RE` in context-assembler.ts. */
 const CONTRADICTS_RE = /^>\s*Contradicts\s+\[\[([^\]]+)\]\]/gim;
@@ -36,6 +40,25 @@ export interface VaultHealthReport {
   brokenLinks: Array<{ path: string; raw: string }>;
   missingFrontmatter: Array<{ path: string; missing: string[] }>;
   summaryWarnings: Array<{ path: string; issue: 'missing' | 'too_long'; length?: number }>;
+  /**
+   * Soft Page Template gaps (`sources` / `created`) - not hard failures.
+   * Summary length stays in `summaryWarnings`.
+   */
+  schemaWarnings: Array<{ path: string; missing: Array<'sources' | 'created'> }>;
+  /**
+   * Soft body-marker telemetry for `^[inferred]` / `^[ambiguous]` (sample-capped).
+   */
+  provenanceStats: {
+    notesWithMarkers: number;
+    inferredTotal: number;
+    ambiguousTotal: number;
+    samples: Array<{
+      path: string;
+      kind: 'inferred' | 'ambiguous';
+      line: number;
+      excerpt: string;
+    }>;
+  };
   indexDrift: {
     /**
      * Flat mode: every catalog note absent from index.md.
@@ -59,11 +82,13 @@ export interface VaultHealthReport {
     brokenLinks: number;
     missingFrontmatter: number;
     summaryWarnings: number;
+    schemaWarnings: number;
     indexDrift: number;
     ambiguousKeys: number;
     stale: number;
     skipped: number;
     contradictions: number;
+    provenanceNotes: number;
   };
   incomplete: boolean;
   skipped: Array<{ path: string; reason: string }>;
@@ -233,6 +258,16 @@ export async function computeVaultHealth(
   const missingFrontmatter: Array<{ path: string; missing: string[] }> = [];
   const summaryWarnings: Array<{ path: string; issue: 'missing' | 'too_long'; length?: number }> =
     [];
+  const schemaWarnings: Array<{ path: string; missing: Array<'sources' | 'created'> }> = [];
+  const provenanceSamples: Array<{
+    path: string;
+    kind: 'inferred' | 'ambiguous';
+    line: number;
+    excerpt: string;
+  }> = [];
+  let provenanceNotes = 0;
+  let inferredTotal = 0;
+  let ambiguousTotal = 0;
   const stale: Array<{ path: string; updated: string; backlinkCount: number }> = [];
   const skipped: Array<{ path: string; reason: string }> = [];
   const contradictions: Array<{ path: string; counterpart: string; resolved: boolean }> = [];
@@ -275,6 +310,37 @@ export async function computeVaultHealth(
       summaryWarnings.push({ path: relativePath, issue: 'missing' });
     } else if (summary.length > 200) {
       summaryWarnings.push({ path: relativePath, issue: 'too_long', length: summary.length });
+    }
+
+    const softMissing: Array<'sources' | 'created'> = [];
+    for (const key of SOFT_FRONTMATTER) {
+      const val = data[key];
+      if (val === undefined || val === null || val === '') {
+        softMissing.push(key);
+      } else if (key === 'sources' && Array.isArray(val) && val.length === 0) {
+        softMissing.push(key);
+      }
+    }
+    if (softMissing.length > 0) {
+      schemaWarnings.push({ path: relativePath, missing: softMissing });
+    }
+
+    const markers = scanProvenanceMarkers(content);
+    if (markers.inferred > 0 || markers.ambiguous > 0) {
+      provenanceNotes += 1;
+      inferredTotal += markers.inferred;
+      ambiguousTotal += markers.ambiguous;
+      for (const hit of markers.hits) {
+        if (provenanceSamples.length >= 50) {
+          break;
+        }
+        provenanceSamples.push({
+          path: relativePath,
+          kind: hit.kind,
+          line: hit.line,
+          excerpt: hit.excerpt,
+        });
+      }
     }
 
     const outgoing = resolveOutgoingLinks(content, index);
@@ -412,6 +478,13 @@ export async function computeVaultHealth(
     brokenLinks,
     missingFrontmatter,
     summaryWarnings,
+    schemaWarnings,
+    provenanceStats: {
+      notesWithMarkers: provenanceNotes,
+      inferredTotal,
+      ambiguousTotal,
+      samples: provenanceSamples,
+    },
     indexDrift,
     ambiguousKeys,
     stale,
@@ -423,11 +496,13 @@ export async function computeVaultHealth(
       brokenLinks: brokenLinks.length,
       missingFrontmatter: missingFrontmatter.length,
       summaryWarnings: summaryWarnings.length,
+      schemaWarnings: schemaWarnings.length,
       indexDrift: indexDriftCount,
       ambiguousKeys: ambiguousKeys.length,
       stale: stale.length,
       skipped: skipped.length,
       contradictions: contradictions.length,
+      provenanceNotes,
     },
   };
 }

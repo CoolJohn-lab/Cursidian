@@ -58,23 +58,21 @@ describe('wikilink-resolve', () => {
     await cleanupVault(ctx.vault);
   });
 
-  it('resolves project-relative concept paths via generic aliases', async () => {
+  it('resolves embeds and block-ref anchors like ordinary wikilinks', async () => {
     const ctx = await createTestVault();
     await writeNote(
       ctx.vault,
-      'projects/my-project/concepts/widget.md',
-      '---\ntitle: Widget\n---\n\n# Widget',
+      'projects/demo/target.md',
+      '---\ntitle: Target\n---\n\n# Target\n\n^bid\n',
     );
-    await writeNote(
-      ctx.vault,
-      'projects/my-project/hub.md',
-      '---\ntitle: Hub\n---\n\n[[concepts/widget]]',
-    );
-
     const index = await buildVaultIndex(ctx.vault);
-    const links = resolveOutgoingLinks('[[concepts/widget]]', index);
-    expect(links[0].resolvedPath).toBe('projects/my-project/concepts/widget.md');
-    expect(resolveWikilinkTarget('widget', index)).toBe('projects/my-project/concepts/widget.md');
+    expect(resolveWikilinkTarget('target#^bid', index)).toBe('projects/demo/target.md');
+    const links = resolveOutgoingLinks('![[target]] and [[target#^bid]]', index);
+    expect(links.map((l) => l.resolvedPath)).toEqual([
+      'projects/demo/target.md',
+      'projects/demo/target.md',
+    ]);
+    expect(wikilinkTargetsNote('target#^bid', 'projects/demo/target.md', index)).toBe(true);
     await cleanupVault(ctx.vault);
   });
 });

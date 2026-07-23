@@ -8,12 +8,6 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Placeholder for next release notes.
-
-## [4.1.0] - 2026-07-23
-
-### Changed
-
 - Forward-only documentation: removed migration breadcrumbs (`was llm-wiki`, `formerly DLT`, predecessor MCP narrative) from live guidance and wiki SoT. Denylist is now framed as "do not call" / current contract, not historical migration story.
 - Wiki skills now teach current MCP tool labels (`search.content`, `note.read`, `graph`) and denylist in forward-only prose.
 - Validation fixtures updated to 5-tool surface labels across benchmark corpus and replay scripts.

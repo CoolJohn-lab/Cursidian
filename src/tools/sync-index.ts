@@ -6,7 +6,6 @@ import { assertNotReadOnly, assertSafePathAsync, readFileBounded } from '../lib/
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { buildIndexSyncPayload } from '../lib/vault-health.js';
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
 import { atomicWriteLocked } from '../lib/vault-io.js';
 import {
   mergeJournaledWarnings,
@@ -81,8 +80,6 @@ export function syncIndexHandler(config: Config) {
           };
         },
       });
-
-      clearAllSearchCaches();
 
       const warnings = mergeJournaledWarnings(undefined, journaled);
 

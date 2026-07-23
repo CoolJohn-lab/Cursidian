@@ -9,7 +9,7 @@ import {
   readFileBounded,
 } from '../lib/security.js';
 import { atomicWriteLocked } from '../lib/vault-io.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
+import { clearVocabularyDependentCaches } from '../lib/vault-index.js';
 import {
   mergeJournaledWarnings,
   runJournaledMultiFileOperation,
@@ -181,7 +181,7 @@ export function manageVocabularyHandler(config: Config) {
         },
       });
 
-      clearAllSearchCaches();
+      clearVocabularyDependentCaches();
       logger.info('Vocabulary updated', { operation: vocabularyOperation });
 
       const warnings = mergeJournaledWarnings(undefined, journaled);

@@ -4,7 +4,7 @@ import { toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { checkRevisionConcurrency, hashMismatchDetails } from '../lib/content-hash.js';
-import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
+import { resolveExistingNotePath } from '../lib/vault-index.js';
 import { withPathLock } from '../lib/vault-io.js';
 import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
 import { logger } from '../lib/logger.js';
@@ -67,7 +67,6 @@ export function deleteNoteHandler(config: Config) {
           await journal.recordAfter(relative, null);
           const op = await journal.finalize();
 
-          clearAllSearchCaches();
           logger.info('Note deleted', { path: relative, operationId: op.operationId });
 
           const warnings = mergeOperationWarnings(revisionCheck.warnings, op);

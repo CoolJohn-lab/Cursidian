@@ -3,7 +3,6 @@ import path from 'node:path';
 import { type Config } from '../config.js';
 import { assertNotReadOnly, pathExistsOrThrow } from '../lib/security.js';
 import { computeRevisionHash } from '../lib/content-hash.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
 import { withPathLocks, atomicReplaceLocked } from '../lib/vault-io.js';
 import {
   OperationJournal,
@@ -126,7 +125,6 @@ export function undoOperationHandler(config: Config) {
         });
 
         const op = await journal.finalize();
-        clearAllSearchCaches();
         logger.info('Operation undone', { operationId, restored, removed });
 
         return ok(

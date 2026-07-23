@@ -10,7 +10,6 @@ import {
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { checkRevisionConcurrency, computeRevisionHash } from '../lib/content-hash.js';
 import { withCreateTimestamps } from '../lib/timestamps.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
 import { atomicWrite, AlreadyExistsError, atomicWriteLocked } from '../lib/vault-io.js';
 import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
 import {
@@ -66,7 +65,6 @@ export function createNoteHandler(config: Config) {
           await journal.recordAfter(relative, computeRevisionHash(body));
           const op = await journal.finalize();
 
-          clearAllSearchCaches();
           logger.info('Note created', { path: relative, overwrite: false });
 
           const warnings = mergeOperationWarnings(undefined, op);
@@ -155,7 +153,6 @@ export function createNoteHandler(config: Config) {
         },
       });
 
-      clearAllSearchCaches();
       logger.info('Note created', { path: notePath, overwrite: true });
 
       const warnings = mergeJournaledWarnings(journaled.value.revisionWarnings, journaled);

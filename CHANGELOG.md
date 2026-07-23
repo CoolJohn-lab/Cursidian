@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-07-23
+
+### Changed
+
+- TD-HARDEN-001: note body/path mutations (create/update/delete/rename/frontmatter/sync_index/deslop/undo) no longer wipe all search caches; rely on signature-keyed invalidation. Vocabulary/manifest writes clear only vocabulary + search-result caches. Dropped the no-op `clearVaultSearchStateCache` call from `clearAllSearchCaches` (the helper now aliases `clearVaultSnapshotCache`).
+
 ## [3.1.0] - 2026-07-23
 
 ### Changed

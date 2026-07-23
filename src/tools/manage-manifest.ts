@@ -10,7 +10,7 @@ import {
 } from '../lib/security.js';
 import { computeRevisionHash, checkRevisionConcurrency } from '../lib/content-hash.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
+import { clearVocabularyDependentCaches } from '../lib/vault-index.js';
 import { atomicWriteLocked } from '../lib/vault-io.js';
 import {
   mergeJournaledWarnings,
@@ -239,7 +239,7 @@ export function manageManifestHandler(config: Config) {
         },
       });
 
-      clearAllSearchCaches();
+      clearVocabularyDependentCaches();
       logger.info('Manifest updated', { operation: manifestOperation });
 
       const warnings = mergeJournaledWarnings(undefined, journaled);

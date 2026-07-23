@@ -53,6 +53,14 @@ describe('vault vocabulary + search expansion', () => {
   });
 
   it('upserts synonym groups and pairings, then expands search', async () => {
+    // Warm search-result cache before vocab mutation (targeted clear must bust it).
+    await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'integration',
+      format: 'compact',
+      limit: 10,
+    });
+
     const synonym = await callTool(ctx.client, 'vault', {
       action: 'vocabulary',
       vocabularyOperation: 'upsert',

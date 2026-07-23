@@ -23,6 +23,8 @@ afterAll(async () => {
 });
 
 describe('write -> search cache invalidation', () => {
+  // Note mutations no longer call clearAllSearchCaches; signature-keyed
+  // index/snapshot/search/backlink caches must miss on the next read.
   it('note create is immediately findable via search content', async () => {
     await callTool(ctx.client, 'search', { action: 'content', query: 'Project A', limit: 5 });
 

@@ -10,7 +10,7 @@ import {
 } from '../lib/content-hash.js';
 import { applyPatch, assertBodySizeGuard, replaceSection } from '../lib/section-edit.js';
 import { withUpdatedTimestamp, withUpdatedTimestampUnlessProvided } from '../lib/timestamps.js';
-import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
+import { resolveExistingNotePath } from '../lib/vault-index.js';
 import { withPathLock, atomicReplaceLocked } from '../lib/vault-io.js';
 import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
 import { MAX_FRONTMATTER_KEYS } from '../lib/limits.js';
@@ -247,7 +247,6 @@ export function updateNoteHandler(config: Config) {
           await journal.recordAfter(relative, computeRevisionHash(newBody));
           const op = await journal.finalize();
 
-          clearAllSearchCaches();
           logger.info('Note updated', {
             path: relative,
             mode: effectiveMode,

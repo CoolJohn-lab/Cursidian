@@ -1,7 +1,6 @@
 import { type Config } from '../config.js';
 import { assertNotReadOnly, assertSafePathAsync, readFileBounded } from '../lib/security.js';
 import { atomicReplaceLocked } from '../lib/vault-io.js';
-import { clearAllSearchCaches } from '../lib/vault-index.js';
 import { buildIndexSyncPayload } from '../lib/vault-health.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { withUpdatedTimestamp } from '../lib/timestamps.js';
@@ -206,8 +205,6 @@ export function vaultDeslopHandler(config: Config) {
           };
         },
       });
-
-      clearAllSearchCaches();
 
       const changedPaths = journaled.value.changedFiles.map((f) => f.path);
       if (journaled.value.indexSynced) {

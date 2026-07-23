@@ -1,13 +1,19 @@
 import path from 'node:path';
-import { getVaultSnapshot, type VaultMarkdownFile } from './vault-snapshot.js';
+import {
+  clearVaultSnapshotCache,
+  getVaultSnapshot,
+  type VaultMarkdownFile,
+} from './vault-snapshot.js';
 
 export type { VaultMarkdownFile };
 
 /**
- * Clears cached vault markdown snapshots (used in tests and after vault writes).
+ * Clears cached vault markdown snapshots (tests / callers that only know this name).
+ * Prefer signature-keyed invalidation after note writes; use clearVaultSnapshotCache
+ * or clearAllSearchCaches when a forced wipe is intentional.
  */
 export function clearVaultSearchStateCache(): void {
-  // Unified snapshot cache is cleared via clearAllSearchCaches -> clearVaultSnapshotCache.
+  clearVaultSnapshotCache();
 }
 
 /**

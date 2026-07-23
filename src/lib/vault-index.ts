@@ -4,7 +4,6 @@ import { parseFrontmatter, parseAliases } from './frontmatter.js';
 import { clearSearchResultCache } from './search-cache.js';
 import { listVaultMarkdownPaths } from './vault-glob.js';
 import { buildVaultMarkdownSignature } from './vault-signature.js';
-import { clearVaultSearchStateCache } from './vault-search-state.js';
 import { clearVaultSnapshotCache } from './vault-snapshot.js';
 import { clearBacklinkCache } from './backlink-cache.js';
 import { clearVocabularyCache } from './vocabulary.js';
@@ -58,13 +57,26 @@ export function clearVaultIndexCache(): void {
   indexCache.clear();
 }
 
+/**
+ * Full cache wipe for tests and forced rebuilds. Note body/path mutations should
+ * omit this and rely on signature-keyed misses in index/snapshot/search/backlink
+ * caches. Vocabulary/manifest writes use {@link clearVocabularyDependentCaches}.
+ */
 export function clearAllSearchCaches(): void {
   indexCache.clear();
-  clearVaultSearchStateCache();
   clearVaultSnapshotCache();
   clearSearchResultCache();
   clearBacklinkCache();
   clearVocabularyCache();
+}
+
+/**
+ * Clears caches that are not keyed by the vault markdown signature (vocabulary
+ * expansions) plus search results that may embed those expansions.
+ */
+export function clearVocabularyDependentCaches(): void {
+  clearVocabularyCache();
+  clearSearchResultCache();
 }
 
 export function getIndexKeyCollisions(index: VaultIndex): VaultIndexCollisions {

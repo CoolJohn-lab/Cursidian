@@ -7,6 +7,7 @@ import { updateNoteHandler } from './update-note.js';
 import { deleteNoteHandler } from './delete-note.js';
 import { renameNoteHandler } from './rename-note.js';
 import { manageFrontmatterHandler } from './manage-frontmatter.js';
+import { outlineNoteHandler } from './outline-note.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
 import { MAX_CONTENT_BYTES, MAX_FRONTMATTER_KEYS } from '../lib/limits.js';
 import { boundedPath, boundedRevision, refineFrontmatterValueSizes } from './schema-primitives.js';
@@ -19,11 +20,11 @@ export function registerNote(server: McpServer, config: Config): void {
     'note',
     {
       description:
-        'Read, create, update, delete, rename a note, or edit its frontmatter. action=read returns content+frontmatter+contentHash+revisionHash+outgoingLinks. Path accepts vault-relative paths, titles, and frontmatter aliases (except create, which writes the literal path). update: prefer patch (old_string/new_string) or replace_section (heading); replace is size-guarded; optional frontmatter merge on the same update (one journaled op for body + metadata). Pass expectedRevision from read to detect concurrent edits (expectedHash remains a deprecated body-hash alias). Mutations return operationId/undoAvailable when journaling is enabled; use vault undo to reverse.',
+        'Read, outline headings, create, update, delete, rename a note, or edit its frontmatter. action=read returns content+frontmatter+contentHash+revisionHash+outgoingLinks. action=outline returns headings (level/text/line) without the body - optional maxDepth 1-6. Path accepts vault-relative paths, titles, and frontmatter aliases (except create, which writes the literal path). update: prefer patch (old_string/new_string) or replace_section (heading); replace is size-guarded; optional frontmatter merge on the same update (one journaled op for body + metadata); dryRun: true previews without writing or journaling. Pass expectedRevision from read to detect concurrent edits (expectedHash remains a deprecated body-hash alias). Mutations return operationId/undoAvailable when journaling is enabled; use vault undo to reverse.',
       inputSchema: {
         action: z
-          .enum(['read', 'create', 'update', 'delete', 'rename', 'frontmatter'])
-          .describe('Operation: read, create, update, delete, rename, or frontmatter'),
+          .enum(['read', 'outline', 'create', 'update', 'delete', 'rename', 'frontmatter'])
+          .describe('Operation: read, outline, create, update, delete, rename, or frontmatter'),
         path: boundedPath.describe(
           'Note path, title, or frontmatter alias (rename source when action=rename; create uses literal path)',
         ),
@@ -82,11 +83,23 @@ export function registerNote(server: McpServer, config: Config): void {
           .max(MAX_FRONTMATTER_KEYS)
           .optional()
           .describe('Used by frontmatter action delete operation only'),
+        maxDepth: z
+          .number()
+          .int()
+          .min(1)
+          .max(6)
+          .optional()
+          .describe('Used by outline action only; include headings at this level or shallower'),
+        dryRun: z
+          .boolean()
+          .optional()
+          .describe('Used by update action only; preview without writing or journaling'),
       },
     },
     async (args) => {
       const specs: Record<string, { allowed: string[]; required?: string[] }> = {
         read: { allowed: ['path'], required: ['path'] },
+        outline: { allowed: ['path', 'maxDepth'], required: ['path'] },
         create: {
           allowed: [
             'path',
@@ -110,6 +123,7 @@ export function registerNote(server: McpServer, config: Config): void {
             'expectedRevision',
             'expectedHash',
             'force',
+            'dryRun',
           ],
           required: ['path'],
         },
@@ -174,11 +188,15 @@ export function registerNote(server: McpServer, config: Config): void {
         fmOperation,
         replaceAll,
         keys,
+        maxDepth,
+        dryRun,
       } = args;
 
       switch (action) {
         case 'read':
           return readNoteHandler(config)({ path });
+        case 'outline':
+          return outlineNoteHandler(config)({ path, maxDepth });
         case 'create':
           return createNoteHandler(config)({
             path,
@@ -200,6 +218,7 @@ export function registerNote(server: McpServer, config: Config): void {
             expectedRevision,
             expectedHash,
             force,
+            dryRun,
           });
         case 'delete':
           if (confirm !== true) {

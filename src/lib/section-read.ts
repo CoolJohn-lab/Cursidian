@@ -1,5 +1,6 @@
 import { parseHeadingLine, normaliseHeading } from './section-edit.js';
 import { tokenMatchesInText } from './search-tokens.js';
+import { assertParseableSize, MAX_MATCH_ITERATIONS } from './limits.js';
 
 export interface SectionSlice {
   heading: string;
@@ -18,10 +19,15 @@ export interface SectionSlice {
  * Read-only counterpart to the heading parsing in section-edit.ts.
  */
 export function listSections(body: string): SectionSlice[] {
+  assertParseableSize(body, 'note body');
   const lines = body.split('\n');
   const headings: Array<{ index: number; level: number; text: string }> = [];
 
+  let iterations = 0;
   for (let i = 0; i < lines.length; i++) {
+    if (++iterations > MAX_MATCH_ITERATIONS) {
+      break;
+    }
     const parsed = parseHeadingLine(lines[i]!);
     if (parsed) {
       headings.push({ index: i, level: parsed.level, text: parsed.text });

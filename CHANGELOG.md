@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `note` `action: "outline"` returns heading outline (`level` / `text` / `line`) without loading the full body; optional `maxDepth` (1-6)
+- `note` `update` `dryRun: true` previews the next revision (`wouldChange`, hashes) without writing or creating a journal op
+
+### Changed
+
+- Harden `listSections` / outline parsing with `assertParseableSize` and match-iteration caps
+
 ## [3.1.1] - 2026-07-23
 
 ### Changed

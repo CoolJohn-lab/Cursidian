@@ -43,6 +43,7 @@ export function updateNoteHandler(config: Config) {
     expectedRevision,
     expectedHash,
     force,
+    dryRun,
   }: {
     path: string;
     content?: string;
@@ -54,7 +55,9 @@ export function updateNoteHandler(config: Config) {
     expectedRevision?: string;
     expectedHash?: string;
     force?: boolean;
+    dryRun?: boolean;
   }) => {
+    const effectiveDryRun = dryRun === true;
     const invalidUpdate = (message: string, required: string[], missing: string[]) =>
       invalidArgsError({
         tool: 'note',
@@ -74,7 +77,9 @@ export function updateNoteHandler(config: Config) {
         },
       });
     try {
-      assertNotReadOnly(config.readOnly);
+      if (!effectiveDryRun) {
+        assertNotReadOnly(config.readOnly);
+      }
 
       const resolved = await resolveExistingNotePath(config.vaultPath, notePath);
       await assertSafePathAsync(config.vaultPath, resolved);
@@ -105,6 +110,146 @@ export function updateNoteHandler(config: Config) {
       }
 
       return await withPathLock(resolved, async () => {
+        const raw = await readFileBounded(resolved, config.maxFileSize);
+        const { data, content: existingContent } = parseFrontmatter(raw);
+
+        const revisionCheck = checkRevisionConcurrency({
+          raw,
+          body: existingContent,
+          expectedRevision,
+          expectedHash,
+        });
+        if (!revisionCheck.ok) {
+          return toolError({
+            error: 'hash_mismatch',
+            message: revisionCheck.message,
+            action: 'update',
+            retryable: true,
+            sideEffects: 'none',
+            path: notePath,
+            details: hashMismatchDetails(revisionCheck),
+            recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
+            hint: revisionCheck.hint,
+          });
+        }
+
+        const hasBodyEdit =
+          content !== undefined ||
+          old_string !== undefined ||
+          new_string !== undefined ||
+          heading !== undefined ||
+          mode !== undefined;
+
+        let updatedBody = existingContent;
+        let effectiveMode: UpdateMode | 'frontmatter_only' = 'frontmatter_only';
+
+        if (hasBodyEdit) {
+          effectiveMode = resolveEffectiveUpdateMode(mode, old_string, new_string);
+
+          if (effectiveMode === 'patch') {
+            if (old_string === undefined || new_string === undefined) {
+              const missing = [
+                ...(old_string === undefined ? ['old_string'] : []),
+                ...(new_string === undefined ? ['new_string'] : []),
+              ];
+              return invalidUpdate(
+                'mode "patch" requires old_string and new_string',
+                ['path', 'old_string', 'new_string'],
+                missing,
+              );
+            }
+            updatedBody = applyPatch(existingContent, old_string, new_string);
+          } else if (effectiveMode === 'replace_section') {
+            if (!heading) {
+              return invalidUpdate(
+                'mode "replace_section" requires heading',
+                ['path', 'heading', 'content'],
+                ['heading'],
+              );
+            }
+            if (content === undefined) {
+              return invalidUpdate(
+                'mode "replace_section" requires content',
+                ['path', 'heading', 'content'],
+                ['content'],
+              );
+            }
+            updatedBody = replaceSection(existingContent, heading, content);
+          } else if (effectiveMode === 'replace') {
+            if (content === undefined) {
+              return invalidUpdate(
+                'mode "replace" requires content',
+                ['path', 'content'],
+                ['content'],
+              );
+            }
+            updatedBody = content;
+          } else if (effectiveMode === 'append') {
+            if (content === undefined) {
+              return invalidUpdate(
+                'mode "append" requires content',
+                ['path', 'content'],
+                ['content'],
+              );
+            }
+            updatedBody = `${existingContent}\n${content}`;
+          } else {
+            if (content === undefined) {
+              return invalidUpdate(
+                'mode "prepend" requires content',
+                ['path', 'content'],
+                ['content'],
+              );
+            }
+            updatedBody = `${content}\n${existingContent}`;
+          }
+
+          assertBodySizeGuard(updatedBody, existingContent, {
+            force: force ?? false,
+            maxFileSize: config.maxFileSize,
+          });
+        } else if (frontmatter === undefined) {
+          return invalidUpdate(
+            'update requires a body edit (content/mode/old_string) and/or frontmatter merge fields',
+            ['path', 'content'],
+            ['content'],
+          );
+        }
+
+        let nextFrontmatter = data;
+        if (frontmatter !== undefined) {
+          nextFrontmatter = mergeFrontmatter(data, frontmatter);
+          nextFrontmatter = withUpdatedTimestampUnlessProvided(
+            nextFrontmatter,
+            frontmatter,
+            undefined,
+          );
+        } else {
+          nextFrontmatter = withUpdatedTimestamp(data);
+        }
+
+        const newBody = stringifyFrontmatter(nextFrontmatter, updatedBody);
+        const relative = toRelativePath(config.vaultPath, resolved);
+        const nextContentHash = computeContentHash(updatedBody);
+        const nextRevisionHash = computeRevisionHash(newBody);
+        const currentRevision = computeRevisionHash(raw);
+        const wouldChange = newBody !== raw;
+
+        if (effectiveDryRun) {
+          return ok(
+            {
+              dryRun: true,
+              wouldChange,
+              path: relative,
+              currentRevision,
+              nextContentHash,
+              nextRevisionHash,
+              sizeGuardPassed: true,
+            },
+            { action: 'update', changed: false, paths: [relative] },
+          );
+        }
+
         const journal = await OperationJournal.begin(config.vaultPath, {
           backupEnabled: config.backupEnabled,
           tool: 'note',
@@ -112,139 +257,10 @@ export function updateNoteHandler(config: Config) {
         });
 
         try {
-          const raw = await readFileBounded(resolved, config.maxFileSize);
-          const { data, content: existingContent } = parseFrontmatter(raw);
-
-          const revisionCheck = checkRevisionConcurrency({
-            raw,
-            body: existingContent,
-            expectedRevision,
-            expectedHash,
-          });
-          if (!revisionCheck.ok) {
-            await journal.abort();
-            return toolError({
-              error: 'hash_mismatch',
-              message: revisionCheck.message,
-              action: 'update',
-              retryable: true,
-              sideEffects: 'none',
-              path: notePath,
-              details: hashMismatchDetails(revisionCheck),
-              recovery: { tool: 'note', arguments: { action: 'read', path: notePath } },
-              hint: revisionCheck.hint,
-            });
-          }
-
-          const hasBodyEdit =
-            content !== undefined ||
-            old_string !== undefined ||
-            new_string !== undefined ||
-            heading !== undefined ||
-            mode !== undefined;
-
-          let updatedBody = existingContent;
-          let effectiveMode: UpdateMode | 'frontmatter_only' = 'frontmatter_only';
-
-          if (hasBodyEdit) {
-            effectiveMode = resolveEffectiveUpdateMode(mode, old_string, new_string);
-
-            if (effectiveMode === 'patch') {
-              if (old_string === undefined || new_string === undefined) {
-                await journal.abort();
-                const missing = [
-                  ...(old_string === undefined ? ['old_string'] : []),
-                  ...(new_string === undefined ? ['new_string'] : []),
-                ];
-                return invalidUpdate(
-                  'mode "patch" requires old_string and new_string',
-                  ['path', 'old_string', 'new_string'],
-                  missing,
-                );
-              }
-              updatedBody = applyPatch(existingContent, old_string, new_string);
-            } else if (effectiveMode === 'replace_section') {
-              if (!heading) {
-                await journal.abort();
-                return invalidUpdate(
-                  'mode "replace_section" requires heading',
-                  ['path', 'heading', 'content'],
-                  ['heading'],
-                );
-              }
-              if (content === undefined) {
-                await journal.abort();
-                return invalidUpdate(
-                  'mode "replace_section" requires content',
-                  ['path', 'heading', 'content'],
-                  ['content'],
-                );
-              }
-              updatedBody = replaceSection(existingContent, heading, content);
-            } else if (effectiveMode === 'replace') {
-              if (content === undefined) {
-                await journal.abort();
-                return invalidUpdate(
-                  'mode "replace" requires content',
-                  ['path', 'content'],
-                  ['content'],
-                );
-              }
-              updatedBody = content;
-            } else if (effectiveMode === 'append') {
-              if (content === undefined) {
-                await journal.abort();
-                return invalidUpdate(
-                  'mode "append" requires content',
-                  ['path', 'content'],
-                  ['content'],
-                );
-              }
-              updatedBody = `${existingContent}\n${content}`;
-            } else {
-              if (content === undefined) {
-                await journal.abort();
-                return invalidUpdate(
-                  'mode "prepend" requires content',
-                  ['path', 'content'],
-                  ['content'],
-                );
-              }
-              updatedBody = `${content}\n${existingContent}`;
-            }
-
-            assertBodySizeGuard(updatedBody, existingContent, {
-              force: force ?? false,
-              maxFileSize: config.maxFileSize,
-            });
-          } else if (frontmatter === undefined) {
-            await journal.abort();
-            return invalidUpdate(
-              'update requires a body edit (content/mode/old_string) and/or frontmatter merge fields',
-              ['path', 'content'],
-              ['content'],
-            );
-          }
-
-          let nextFrontmatter = data;
-          if (frontmatter !== undefined) {
-            nextFrontmatter = mergeFrontmatter(data, frontmatter);
-            nextFrontmatter = withUpdatedTimestampUnlessProvided(
-              nextFrontmatter,
-              frontmatter,
-              undefined,
-            );
-          } else {
-            nextFrontmatter = withUpdatedTimestamp(data);
-          }
-
-          const newBody = stringifyFrontmatter(nextFrontmatter, updatedBody);
-
           await journal.recordBefore(resolved, config.maxFileSize);
           await atomicReplaceLocked(config.vaultPath, resolved, newBody, config.maxFileSize);
 
-          const relative = toRelativePath(config.vaultPath, resolved);
-          await journal.recordAfter(relative, computeRevisionHash(newBody));
+          await journal.recordAfter(relative, nextRevisionHash);
           const op = await journal.finalize();
 
           logger.info('Note updated', {
@@ -265,8 +281,8 @@ export function updateNoteHandler(config: Config) {
                   ? effectiveMode
                   : undefined,
               frontmatter: nextFrontmatter,
-              contentHash: computeContentHash(updatedBody),
-              revisionHash: computeRevisionHash(newBody),
+              contentHash: nextContentHash,
+              revisionHash: nextRevisionHash,
               ...(warnings ? { warnings } : {}),
             },
             {

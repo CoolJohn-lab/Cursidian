@@ -60,9 +60,11 @@ describe('tool surface', () => {
     expect(actions).toEqual(['by_tags', 'content', 'list', 'recent', 'tags'].sort());
   });
 
-  it('note action enum matches read/create/update/delete/rename/frontmatter', () => {
+  it('note action enum matches read/outline/create/update/delete/rename/frontmatter', () => {
     const actions = actionEnum(toolByName.get('note')).slice().sort();
-    expect(actions).toEqual(['create', 'delete', 'frontmatter', 'read', 'rename', 'update'].sort());
+    expect(actions).toEqual(
+      ['create', 'delete', 'frontmatter', 'outline', 'read', 'rename', 'update'].sort(),
+    );
   });
 
   it('graph has no action enum (single-purpose neighborhood tool)', () => {

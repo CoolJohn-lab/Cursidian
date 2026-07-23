@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 import { createTestServer, callTool, parseResult, resetCaches } from '../../../scripts/test-lib.mjs';
 import { buildIntentGoldenMap } from '../../../scripts/suites/corpus-search.mjs';
 import { assertReplaceSizeGuard } from '../../../dist/lib/section-edit.js';
-import { parseFrontmatter } from '../../../dist/lib/frontmatter.js';
 import { normaliseNotePath } from './lib/parse-transcripts.mjs';
 import { searchOldUpstream, searchOldPatched, percentile } from './lib/old-search.mjs';
 

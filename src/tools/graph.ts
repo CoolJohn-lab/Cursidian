@@ -1,5 +1,5 @@
 import { z } from 'zod/v3';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { type McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type Config } from '../config.js';
 import { getNoteNeighborhoodHandler } from './get-note-neighborhood.js';
 import { MAX_GRAPH_BACKLINK_LIMIT } from '../lib/limits.js';

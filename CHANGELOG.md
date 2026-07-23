@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.3] - 2026-07-23
+
+### Fixed
+
+- ESLint cleanups across `src/`, `tests/`, `scripts/`, and `docs/validation/scripts/`: prefer `import type`, drop unused imports/bindings, and restore the broken `hits` loop in `scripts/slop-scan-files.mjs`
+
 ## [3.0.2] - 2026-07-23
 
 ### Added

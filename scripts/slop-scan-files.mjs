@@ -92,6 +92,9 @@ for (const file of files) {
   if (!lang || !fs.existsSync(file)) continue;
   const text = fs.readFileSync(file, 'utf8');
   const hits = scanText(text, rules, lang);
+  for (const f of hits) {
+    const start = offsetToLineCol(text, f.offset);
+    const end = offsetToLineCol(text, f.offset + f.length);
     findings.push({
       path: file,
       line: start.line,

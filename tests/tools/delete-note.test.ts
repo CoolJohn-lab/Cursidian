@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import path from 'node:path';
 import fsp from 'node:fs/promises';
 import { registerNote } from '../../src/tools/note.js';
-import { createTestVault, createTestClient, cleanupVault, callTool, parseResult } from './helpers.js';
+import { createTestVault, createTestClient, cleanupVault, callTool } from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;

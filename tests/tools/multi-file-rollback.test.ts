@@ -9,7 +9,6 @@ import {
   createTestContextAt,
   cleanupVault,
   callTool,
-  parseResult,
   writeNote,
 } from './helpers.js';
 import type { TestContext } from './helpers.js';

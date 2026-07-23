@@ -556,7 +556,7 @@ async function main() {
  } else {
  ok.push(`invalid ${tool}`);
  }
- } catch (e) {
+ } catch {
  // schema throw before handler is acceptable
  ok.push(`invalid ${tool} threw`);
  }

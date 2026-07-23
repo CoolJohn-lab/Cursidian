@@ -35,9 +35,6 @@ async function buildReport() {
 
  const curated = search.summary.curatedWikiQuerySuite;
  const exHub = search.summary.excludingHubGolden;
- const top3New = exHub.top3.new;
- const top3Patched = exHub.top3.old_patched;
- const top3Upstream = exHub.top3.old_upstream;
  const searchPass = curated.top3.new >= curated.top3.old_patched && curated.top3.old_patched >= curated.top3.old_upstream;
 
  const bighandBootstrap = search.results.find((r) =>

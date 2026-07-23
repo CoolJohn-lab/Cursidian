@@ -2,7 +2,7 @@ import { z } from 'zod/v3';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import fg from 'fast-glob';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { type McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type Config } from '../config.js';
 import { resolvePath, toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly } from '../lib/security.js';

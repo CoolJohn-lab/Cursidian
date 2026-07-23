@@ -1,5 +1,5 @@
 import { z } from 'zod/v3';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { type McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { type Config } from '../config.js';
 import { readNoteHandler } from './read-note.js';
 import { createNoteHandler } from './create-note.js';

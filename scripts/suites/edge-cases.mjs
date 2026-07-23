@@ -37,6 +37,7 @@ export async function runEdgeCaseSuite(ctx) {
             action: 'content',
             query: 'FactPublicHoliday',
             limit: 10,
+            verbose: true,
           }),
         );
         if (data.results.length === 0) return;
@@ -212,12 +213,12 @@ export async function runEdgeCaseSuite(ctx) {
 
   results.push(
     await runCase(
-      'note read curated-and-model-layers link resolution',
+      'note read curation-pipeline link resolution',
       async () => {
         const data = parseResult(
           await callTool(server, 'note', {
             action: 'read',
-            path: 'projects/data-platform-dlz/concepts/curated-and-model-layers',
+            path: 'projects/data-platform-dlz/concepts/curation-pipeline',
           }),
         );
         const links = data.outgoingLinks ?? [];

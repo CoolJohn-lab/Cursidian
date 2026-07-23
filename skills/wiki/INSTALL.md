@@ -75,7 +75,7 @@ Installed skills: `vault`, `wiki-query`, `wiki-context`, `wiki-lint`, `wiki-setu
 
 ### After any surface change
 
-Whenever `skills/wiki/` or the MCP tool surface changes, run `npm run skills:install` and then start a **new** Cursor agent chat - Cursor caches skill discovery per chat, so an existing chat keeps teaching the previous skill text (including retired tool names) until it is restarted. If you are not sure whether `~/.cursor/skills/` is stale, run:
+Whenever `skills/wiki/` or the MCP tool surface changes, run `npm run skills:install` and then start a **new** Cursor agent chat - Cursor caches skill discovery per chat, so an existing chat keeps teaching the previous skill text (including denylisted tool names) until it is restarted. If you are not sure whether `~/.cursor/skills/` is stale, run:
 
 ```bash
 npm run skills:doctor
@@ -110,11 +110,11 @@ for name in vault wiki-query wiki-context wiki-lint wiki-setup wiki-ingest wiki-
 done
 ```
 
-After MCP tool-surface changes (e.g. the 4-tool consolidation, or the later `context` tool addition), re-run `npm run skills:install` so Cursor does not keep teaching retired tool names or an outdated tool count.
+After MCP tool-surface changes, re-run `npm run skills:install` so Cursor does not keep teaching denylisted tool names or an outdated tool count.
 
 ## 4. Verify
 
 1. In Cursor, confirm `user-cursidian` tools are listed (`note`, `search`, `graph`, `vault`, `context`) - not a leftover `obsidian` / `user-obsidian` server.
 2. Ask the agent to call `search` with `action: "list"`. Every `CallMcpTool` must set `server: "user-cursidian"` and `toolName` (`note` | `search` | `graph` | `vault` | `context`); never `arguments` + `description` alone.
 3. For a fresh vault, run the `wiki-setup` skill; otherwise run `wiki-status`.
-4. If Cursor still walks retired tool allowlist entries (`read_note`, `search_content`, ...), clean them up per [`docs/MCP-HOST-HYGIENE.md`](../../docs/MCP-HOST-HYGIENE.md).
+4. If Cursor still walks denylisted tool allowlist entries (`read_note`, `search_content`, ...), clean them up per [`docs/MCP-HOST-HYGIENE.md`](../../docs/MCP-HOST-HYGIENE.md).

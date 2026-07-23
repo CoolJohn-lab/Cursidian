@@ -172,7 +172,9 @@ function evaluateGoldenRank(results, goldenPath) {
 async function searchNew(server, query, limit) {
   const started = performance.now();
   resetCaches();
-  const data = parseResult(await callTool(server, 'search_content', { query, limit }));
+  const data = parseResult(
+    await callTool(server, 'search', { action: 'content', query, limit }),
+  );
   return {
     ...data,
     latencyMs: Math.round((performance.now() - started) * 100) / 100,
@@ -339,7 +341,18 @@ async function replayReads(corpus) {
   for (const item of topPaths) {
     resetCaches();
     const started = performance.now();
-    const data = parseResult(await callTool(server, 'read_note', { path: item.path }));
+    let data;
+    try {
+      data = parseResult(await callTool(server, 'note', { action: 'read', path: item.path }));
+    } catch (error) {
+      results.push({
+        path: item.path,
+        corpusCount: item.corpusCount,
+        skipped: true,
+        reason: error instanceof Error ? error.message : String(error),
+      });
+      continue;
+    }
     const links = data.outgoingLinks ?? [];
     const resolved = links.filter((l) => l.resolvedPath).length;
     results.push({
@@ -360,7 +373,7 @@ async function replayReads(corpus) {
     const notePath = call.arguments?.path;
     if (!notePath) continue;
     const started = performance.now();
-    const data = parseResult(await callTool(server, 'get_backlinks', { path: notePath }));
+    const data = parseResult(await callTool(server, 'graph', { path: notePath }));
     backlinkResults.push({
       path: normaliseNotePath(notePath),
       transcript_id: call.transcript_id,
@@ -405,7 +418,7 @@ async function dryRunWrites(corpus) {
     let current;
     try {
       resetCaches();
-      current = parseResult(await callTool(server, 'read_note', { path: notePath }));
+      current = parseResult(await callTool(server, 'note', { action: 'read', path: notePath }));
     } catch (error) {
       results.push({
         transcript_id: call.transcript_id,
@@ -476,44 +489,58 @@ async function runBenchmarks(searchCases) {
   const { server } = await createTestServer();
   const baselineLabels = [
     {
-      label: 'list_notes.root',
-      run: async () => parseResult(await callTool(server, 'list_notes', { folder: '' })),
+      label: 'search.list.root',
+      run: async () => parseResult(await callTool(server, 'search', { action: 'list', folder: '' })),
     },
     {
-      label: 'search_content.adf_pipeline',
+      label: 'search.content.adf_pipeline',
       run: async () => {
         resetCaches();
         return parseResult(
-          await callTool(server, 'search_content', { query: 'ADF pipeline', limit: 20 }),
+          await callTool(server, 'search', {
+            action: 'content',
+            query: 'ADF pipeline',
+            limit: 20,
+          }),
         );
       },
     },
     {
-      label: 'search_content.factpublicholiday',
+      label: 'search.content.factpublicholiday',
       run: async () => {
         resetCaches();
         return parseResult(
-          await callTool(server, 'search_content', { query: 'FactPublicHoliday', limit: 10 }),
+          await callTool(server, 'search', {
+            action: 'content',
+            query: 'FactPublicHoliday',
+            limit: 10,
+          }),
         );
       },
     },
     {
-      label: 'read_note.index',
-      run: async () => parseResult(await callTool(server, 'read_note', { path: 'index' })),
+      label: 'note.read.index',
+      run: async () => parseResult(await callTool(server, 'note', { action: 'read', path: 'index' })),
     },
     {
-      label: 'get_backlinks.project_hub',
+      label: 'graph.project_hub',
       run: async () =>
         parseResult(
-          await callTool(server, 'get_backlinks', {
+          await callTool(server, 'graph', {
             path: 'projects/data-platform-dlz/data-platform-dlz',
           }),
         ),
     },
     {
-      label: 'search_content.cached_repeat',
+      label: 'search.content.cached_repeat',
       run: async () =>
-        parseResult(await callTool(server, 'search_content', { query: 'ADF pipeline', limit: 20 })),
+        parseResult(
+          await callTool(server, 'search', {
+            action: 'content',
+            query: 'ADF pipeline',
+            limit: 20,
+          }),
+        ),
     },
   ];
 

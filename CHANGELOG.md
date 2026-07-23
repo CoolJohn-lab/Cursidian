@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-07-23
+
+### Changed
+
+- Forward-only documentation: removed migration breadcrumbs (`was llm-wiki`, `formerly DLT`, predecessor MCP narrative) from live guidance and wiki SoT. Denylist is now framed as "do not call" / current contract, not historical migration story.
+- Wiki skills now teach current MCP tool labels (`search.content`, `note.read`, `graph`) and denylist in forward-only prose.
+- Validation fixtures updated to 5-tool surface labels across benchmark corpus and replay scripts.
+- Databricks skill + wiki catalog document dual-router precedence: local DLZ overlay vs marketplace product child skills.
+
+### Added
+
+- Stack doctor script: `~/.cursor/plugins/local/my-agents/scripts/stack-doctor.mjs` validates 16-rule inventory, rule→skill wiring, skill folder names, stale identifiers, and forward-only prose in live guidance files.
+
 ## [4.0.1] - 2026-07-23
 
 ### Changed

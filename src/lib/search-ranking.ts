@@ -97,6 +97,14 @@ export interface RankWeights {
   staleDaysDefault: number;
   /** Penalty when the only structural hit is a generic basename token (fail/error/...). */
   weakBasenamePenalty: number;
+  /** Prefer concept/entity pages over tactical skill pages (broad queries). */
+  intentConceptBoost: number;
+  /** Extra concept/entity boost when the query has three or more tokens. */
+  intentConceptBoostMulti: number;
+  /** Multi-token queries: concept/entity whose basename anchor matches a query token. */
+  basenameAnchorConceptBoost: number;
+  /** Prefer entity pages over concept pages when both match (multi-signal queries). */
+  entityPathBoost: number;
 }
 
 export const RANK_WEIGHTS: RankWeights = {
@@ -140,6 +148,11 @@ export const RANK_WEIGHTS: RankWeights = {
   staleDaysDefault: 90,
   /** Penalty when the only structural hit is a generic basename token (fail/error/...). */
   weakBasenamePenalty: 20,
+  intentConceptBoost: 25,
+  intentConceptBoostMulti: 40,
+  basenameAnchorConceptBoost: 120,
+  /** Prefer entity pages over concept pages when both match (multi-signal queries). */
+  entityPathBoost: 30,
 };
 
 /**
@@ -910,6 +923,70 @@ function scoreOperationalPenalty(basenameNorm: string, reasonsSoFar: string[]): 
 }
 
 /**
+ * Prefer durable concept/entity pages over tactical skill pages when both match a query.
+ */
+function scoreIntentPathTier(notePath: string, semanticTokenCount: number): ScoreResult {
+  const norm = notePath.replace(/\\/g, '/').toLowerCase();
+  const isConcept = norm.includes('/concepts/') || norm.includes('/entities/');
+  if (!isConcept) {
+    return { score: 0, reasons: [] };
+  }
+  const boost =
+    semanticTokenCount >= 3
+      ? RANK_WEIGHTS.intentConceptBoostMulti
+      : RANK_WEIGHTS.intentConceptBoost;
+  return { score: boost, reasons: ['intent-concept'] };
+}
+
+/**
+ * Multi-token queries: reward concept/entity pages whose primary basename segment
+ * matches an explicit query token (e.g. metastore-schema-evolution for "metastore").
+ */
+function scoreBasenameAnchorConcept(
+  notePath: string,
+  basename: string,
+  semanticTokens: string[],
+  reasonsSoFar: string[],
+): ScoreResult {
+  if (!reasonsSoFar.includes('basename-primary')) {
+    return { score: 0, reasons: [] };
+  }
+  const norm = notePath.replace(/\\/g, '/').toLowerCase();
+  if (!norm.includes('/concepts/') && !norm.includes('/entities/')) {
+    return { score: 0, reasons: [] };
+  }
+  if (semanticTokens.length < 2) {
+    return { score: 0, reasons: [] };
+  }
+  const firstSeg = normaliseKey(basename).split(/[-_]/)[0];
+  if (!firstSeg) {
+    return { score: 0, reasons: [] };
+  }
+  const anchored = semanticTokens.some((tok) => normaliseKey(tok) === firstSeg);
+  if (!anchored) {
+    return { score: 0, reasons: [] };
+  }
+  return { score: RANK_WEIGHTS.basenameAnchorConceptBoost, reasons: ['basename-anchor'] };
+}
+
+/**
+ * Entity pages answer "which table/entity" queries; prefer them over product concepts
+ * when the entity is a strong surface match (all query tokens on title/path/summary).
+ */
+function scoreEntityPathTier(notePath: string, reasonsSoFar: string[]): ScoreResult {
+  const norm = notePath.replace(/\\/g, '/').toLowerCase();
+  if (!norm.includes('/entities/')) {
+    return { score: 0, reasons: [] };
+  }
+  const strongMatch =
+    reasonsSoFar.includes('surface-all-tokens') || reasonsSoFar.includes('title-all-tokens');
+  if (!strongMatch) {
+    return { score: 0, reasons: [] };
+  }
+  return { score: RANK_WEIGHTS.entityPathBoost, reasons: ['intent-entity'] };
+}
+
+/**
  * Scores a search candidate using structural signals: title, basename, aliases, tags,
  * summary, proximity, hub dilution, and the operational special-file penalty.
  *
@@ -1004,6 +1081,12 @@ export function scoreSearchCandidate(
   );
 
   apply(scoreFreshness(data));
+
+  apply(scoreIntentPathTier(candidate.path, semanticTokens.length));
+  apply(
+    scoreBasenameAnchorConcept(candidate.path, basename, semanticTokens, reasons),
+  );
+  apply(scoreEntityPathTier(candidate.path, reasons));
 
   apply(scoreOperationalPenalty(basenameNorm, reasons));
 

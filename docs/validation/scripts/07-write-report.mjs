@@ -66,9 +66,9 @@ async function main() {
     );
   }
 
-  const newSearchP50 = bench?.results?.new?.['search_content.adf_pipeline']?.p50;
+  const newSearchP50 = bench?.results?.new?.['search.content.adf_pipeline']?.p50;
   const baselineMs =
-    bench?.comparisonVsBaselinesJson?.['search_content.adf_pipeline']?.savedBaselineMs;
+    bench?.comparisonVsBaselinesJson?.['search.content.adf_pipeline']?.savedBaselineMs;
   if (newSearchP50 && baselineMs && newSearchP50 > baselineMs * 1.5) {
     regressions.push(
       `Search latency p50 ${newSearchP50}ms vs saved baseline ${baselineMs}ms (ranking + index overhead)`,

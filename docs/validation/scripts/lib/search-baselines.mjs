@@ -118,7 +118,7 @@ export async function searchNew(repoRoot, query, { caseSensitive = false, limit 
   resetCaches();
   const { server } = await createTestServer();
   const result = parseResult(
-    await callTool(server, 'search_content', { query, caseSensitive, limit }),
+    await callTool(server, 'search', { action: 'content', query, caseSensitive, limit }),
   );
   return result;
 }

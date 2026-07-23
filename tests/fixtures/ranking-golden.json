@@ -5,7 +5,7 @@
     "results": [
       {
         "path": "projects/demo/entities/widget-catalog.md",
-        "relevanceScore": 647,
+        "relevanceScore": 822,
         "matchReasons": [
           "title-exact",
           "title-all-tokens",
@@ -17,15 +17,19 @@
           "surface-all-tokens",
           "heading-match",
           "phrase-proximity",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept",
+          "basename-anchor",
+          "intent-entity"
         ]
       },
       {
         "path": "projects/demo/concepts/other.md",
-        "relevanceScore": 41,
+        "relevanceScore": 66,
         "matchReasons": [
           "phrase-proximity",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept"
         ]
       }
     ]
@@ -36,7 +40,7 @@
     "results": [
       {
         "path": "projects/demo/concepts/orchestration-and-pipelines.md",
-        "relevanceScore": 804,
+        "relevanceScore": 829,
         "matchReasons": [
           "alias-exact",
           "alias-tokens:2",
@@ -52,12 +56,13 @@
           "summary-match",
           "index-summary",
           "phrase-proximity",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept"
         ]
       },
       {
         "path": "projects/demo/concepts/pipeline-inventory.md",
-        "relevanceScore": 273,
+        "relevanceScore": 418,
         "matchReasons": [
           "title-tokens:1",
           "path-tokens:1",
@@ -68,7 +73,9 @@
           "title-specificity:0.50",
           "surface-tokens:1",
           "tags:pipelines",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept",
+          "basename-anchor"
         ]
       }
     ]
@@ -79,7 +86,7 @@
     "results": [
       {
         "path": "projects/demo/concepts/metastore-schema-evolution.md",
-        "relevanceScore": 388,
+        "relevanceScore": 548,
         "matchReasons": [
           "title-tokens:1",
           "path-tokens:1",
@@ -92,16 +99,19 @@
           "summary-match",
           "snippet-density-penalty",
           "phrase-proximity",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept",
+          "basename-anchor"
         ]
       },
       {
         "path": "projects/demo/concepts/naming.md",
-        "relevanceScore": 68,
+        "relevanceScore": 108,
         "matchReasons": [
           "surface-tokens:2",
           "tags:unity-catalog",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept"
         ]
       }
     ]
@@ -112,7 +122,7 @@
     "results": [
       {
         "path": "projects/demo/concepts/acme-data-product.md",
-        "relevanceScore": 273,
+        "relevanceScore": 298,
         "matchReasons": [
           "title-all-tokens",
           "path-all-tokens",
@@ -120,7 +130,8 @@
           "stem-affinity:1",
           "title-specificity:0.33",
           "heading-match",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept"
         ]
       },
       {
@@ -176,7 +187,7 @@
     "results": [
       {
         "path": "projects/demo/concepts/integration-guide.md",
-        "relevanceScore": 350,
+        "relevanceScore": 375,
         "matchReasons": [
           "title-all-tokens",
           "path-all-tokens",
@@ -186,15 +197,17 @@
           "stem-affinity:1",
           "title-specificity:0.50",
           "heading-match",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept"
         ]
       },
       {
         "path": "projects/demo/concepts/ingestion-overview.md",
-        "relevanceScore": 16,
+        "relevanceScore": 41,
         "matchReasons": [
           "body-snippets",
-          "vocab-expand:ingestion"
+          "vocab-expand:ingestion",
+          "intent-concept"
         ]
       }
     ]
@@ -205,7 +218,7 @@
     "results": [
       {
         "path": "projects/demo/concepts/deploy-notes.md",
-        "relevanceScore": 238,
+        "relevanceScore": 383,
         "matchReasons": [
           "path-tokens:1",
           "compound-basename:1",
@@ -215,7 +228,9 @@
           "surface-tokens:1",
           "heading-match",
           "phrase-proximity",
-          "body-snippets"
+          "body-snippets",
+          "intent-concept",
+          "basename-anchor"
         ]
       }
     ]
@@ -243,7 +258,7 @@
     "results": [
       {
         "path": "projects/demo/concepts/widget-verified.md",
-        "relevanceScore": 312,
+        "relevanceScore": 337,
         "matchReasons": [
           "title-all-tokens",
           "path-all-tokens",
@@ -252,25 +267,13 @@
           "basename-primary",
           "title-specificity:0.50",
           "body-snippets",
-          "freshness-verified"
+          "freshness-verified",
+          "intent-concept"
         ]
       },
       {
         "path": "projects/demo/concepts/widget-bare.md",
-        "relevanceScore": 304,
-        "matchReasons": [
-          "title-all-tokens",
-          "path-all-tokens",
-          "compound-basename:1",
-          "basename:widget",
-          "basename-primary",
-          "title-specificity:0.50",
-          "body-snippets"
-        ]
-      },
-      {
-        "path": "projects/demo/concepts/widget-old.md",
-        "relevanceScore": 298,
+        "relevanceScore": 329,
         "matchReasons": [
           "title-all-tokens",
           "path-all-tokens",
@@ -279,7 +282,22 @@
           "basename-primary",
           "title-specificity:0.50",
           "body-snippets",
-          "freshness-stale"
+          "intent-concept"
+        ]
+      },
+      {
+        "path": "projects/demo/concepts/widget-old.md",
+        "relevanceScore": 323,
+        "matchReasons": [
+          "title-all-tokens",
+          "path-all-tokens",
+          "compound-basename:1",
+          "basename:widget",
+          "basename-primary",
+          "title-specificity:0.50",
+          "body-snippets",
+          "freshness-stale",
+          "intent-concept"
         ]
       }
     ]

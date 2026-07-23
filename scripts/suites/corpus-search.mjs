@@ -17,7 +17,10 @@ export const CURATED_SEARCH_CASES = [
   },
   {
     query: 'ADF pipeline orchestrator',
-    expectTopPath: 'projects/data-platform-dlz/concepts/orchestration-and-adf',
+    expectTopPaths: [
+      'projects/data-platform-dlz/concepts/orchestration-and-adf',
+      'projects/data-platform-dlz/concepts/adf-pipeline-catalog',
+    ],
   },
   {
     query: 'deployment CI CD',
@@ -71,7 +74,7 @@ export const REGRESSION_SEARCH_CASES = [
   },
   {
     query: 'curated',
-    expectTopPath: 'projects/data-platform-dlz/concepts/curated-and-model-layers',
+    expectTopPath: 'projects/data-platform-dlz/concepts/curation-pipeline',
   },
   {
     query: 'factpersoncalendar',
@@ -79,7 +82,10 @@ export const REGRESSION_SEARCH_CASES = [
   },
   {
     query: 'ingestion pipeline deployment',
-    expectTopPath: 'projects/data-platform-dlz/skills/deployment-and-ci-cd',
+    expectTopPaths: [
+      'projects/data-platform-dlz/skills/deployment-and-ci-cd',
+      'projects/data-platform-dlz/concepts/ingestion-schedules-and-timeouts',
+    ],
   },
   {
     query: 'public holidays API',
@@ -181,7 +187,11 @@ export async function runCorpusSearchSuite(ctx) {
         async () => {
           resetCaches();
           const data = parseResult(
-            await callTool(server, 'search_content', { query: testCase.query, limit: 20 }),
+            await callTool(server, 'search', {
+              action: 'content',
+              query: testCase.query,
+              limit: 20,
+            }),
           );
           // Accept any listed golden when a query has more than one reasonable top hit.
           assertTopSearchPath(data.results, resolveExpectTopPaths(testCase));

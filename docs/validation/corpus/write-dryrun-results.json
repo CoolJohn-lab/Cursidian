@@ -1,70 +1,82 @@
 {
-  "generatedAt": "2026-07-08T18:06:55.257Z",
+  "generatedAt": "2026-07-23T17:03:49.485Z",
   "totalReplaceCalls": 41,
-  "simulated": 41,
-  "blockedBySizeGuard": 7,
-  "wouldTruncateOldUpstream": 7,
-  "patchAlternativeCandidates": 6,
+  "simulated": 32,
+  "blockedBySizeGuard": 12,
+  "wouldTruncateOldUpstream": 12,
+  "patchAlternativeCandidates": 8,
   "f681a293": {
     "total": 17,
-    "blocked": 5,
-    "fragmentReplaces": 5,
+    "blocked": 6,
+    "fragmentReplaces": 6,
     "cases": [
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 17,
         "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-        "existingLen": 7777,
+        "existingLen": 12616,
         "proposedLen": 8245,
-        "shrinkRatio": 1.06,
+        "shrinkRatio": 0.654,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": ["full_replace"]
+        "friction_tags": [
+          "full_replace"
+        ]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 18,
         "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-        "existingLen": 7777,
+        "existingLen": 12616,
         "proposedLen": 136,
-        "shrinkRatio": 0.017,
+        "shrinkRatio": 0.011,
         "old_upstream_would_truncate": true,
         "new_guard": "blocked",
         "could_use_patch_or_section": true,
-        "friction_tags": ["full_replace", "suspected_fragment_replace"]
+        "friction_tags": [
+          "full_replace",
+          "suspected_fragment_replace"
+        ]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 19,
         "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-        "existingLen": 7777,
+        "existingLen": 12616,
         "proposedLen": 8240,
-        "shrinkRatio": 1.06,
+        "shrinkRatio": 0.653,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": ["full_replace", "truncation_recovery"]
+        "friction_tags": [
+          "full_replace",
+          "truncation_recovery"
+        ]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 21,
         "path": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
-        "existingLen": 7161,
+        "existingLen": 9916,
         "proposedLen": 7161,
-        "shrinkRatio": 1,
+        "shrinkRatio": 0.722,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": ["full_replace", "full_replace", "full_replace"]
+        "friction_tags": [
+          "full_replace",
+          "full_replace",
+          "full_replace"
+        ]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 21,
         "path": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
-        "existingLen": 2941,
+        "existingLen": 5822,
         "proposedLen": 2941,
-        "shrinkRatio": 1,
+        "shrinkRatio": 0.505,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
@@ -73,34 +85,32 @@
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 21,
-        "path": "hot",
-        "existingLen": 1808,
-        "proposedLen": 1498,
-        "shrinkRatio": 0.829,
-        "old_upstream_would_truncate": false,
-        "new_guard": "allowed",
-        "could_use_patch_or_section": false,
-        "friction_tags": []
+        "path": "hot.md",
+        "skipped": true,
+        "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot.md\",\n  \"details\": {\n    \"missingPath\": \"hot.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 22,
         "path": "projects/data-platform-dlz/entities/source-systems",
-        "existingLen": 4525,
+        "existingLen": 5281,
         "proposedLen": 4525,
-        "shrinkRatio": 1,
+        "shrinkRatio": 0.857,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": ["full_replace", "full_replace"]
+        "friction_tags": [
+          "full_replace",
+          "full_replace"
+        ]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 22,
         "path": "projects/data-platform-dlz/entities/data-products",
-        "existingLen": 5038,
+        "existingLen": 8572,
         "proposedLen": 5038,
-        "shrinkRatio": 1,
+        "shrinkRatio": 0.588,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
@@ -110,33 +120,37 @@
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 24,
         "path": "projects/data-platform-dlz/entities/factpersoncalendar",
-        "existingLen": 5956,
+        "existingLen": 7299,
         "proposedLen": 5722,
-        "shrinkRatio": 0.961,
+        "shrinkRatio": 0.784,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": ["full_replace"]
+        "friction_tags": [
+          "full_replace"
+        ]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 73,
         "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-        "existingLen": 7777,
+        "existingLen": 12616,
         "proposedLen": 579,
-        "shrinkRatio": 0.074,
+        "shrinkRatio": 0.046,
         "old_upstream_would_truncate": true,
         "new_guard": "blocked",
         "could_use_patch_or_section": true,
-        "friction_tags": ["full_replace"]
+        "friction_tags": [
+          "full_replace"
+        ]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 75,
         "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-        "existingLen": 7777,
+        "existingLen": 12616,
         "proposedLen": 7777,
-        "shrinkRatio": 1,
+        "shrinkRatio": 0.616,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
@@ -152,9 +166,9 @@
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 75,
         "path": "projects/data-platform-dlz/entities/factpersoncalendar",
-        "existingLen": 5956,
+        "existingLen": 7299,
         "proposedLen": 252,
-        "shrinkRatio": 0.042,
+        "shrinkRatio": 0.035,
         "old_upstream_would_truncate": true,
         "new_guard": "blocked",
         "could_use_patch_or_section": true,
@@ -164,21 +178,25 @@
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 79,
         "path": "projects/data-platform-dlz/entities/factpersoncalendar",
-        "existingLen": 5956,
+        "existingLen": 7299,
         "proposedLen": 5956,
-        "shrinkRatio": 1,
+        "shrinkRatio": 0.816,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": ["full_replace", "full_replace", "suspected_fragment_replace"]
+        "friction_tags": [
+          "full_replace",
+          "full_replace",
+          "suspected_fragment_replace"
+        ]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 79,
         "path": "index",
-        "existingLen": 5880,
+        "existingLen": 2230,
         "proposedLen": 131,
-        "shrinkRatio": 0.022,
+        "shrinkRatio": 0.059,
         "old_upstream_would_truncate": true,
         "new_guard": "blocked",
         "could_use_patch_or_section": true,
@@ -188,9 +206,9 @@
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 80,
         "path": "index",
-        "existingLen": 5880,
+        "existingLen": 2230,
         "proposedLen": 5880,
-        "shrinkRatio": 1,
+        "shrinkRatio": 2.637,
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
@@ -206,9 +224,9 @@
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 80,
         "path": "projects/data-platform-dlz/data-platform-dlz",
-        "existingLen": 7127,
+        "existingLen": 17267,
         "proposedLen": 552,
-        "shrinkRatio": 0.077,
+        "shrinkRatio": 0.032,
         "old_upstream_would_truncate": true,
         "new_guard": "blocked",
         "could_use_patch_or_section": true,
@@ -218,13 +236,15 @@
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
         "line_number": 82,
         "path": "projects/data-platform-dlz/data-platform-dlz",
-        "existingLen": 7127,
+        "existingLen": 17267,
         "proposedLen": 7127,
-        "shrinkRatio": 1,
-        "old_upstream_would_truncate": false,
-        "new_guard": "allowed",
+        "shrinkRatio": 0.413,
+        "old_upstream_would_truncate": true,
+        "new_guard": "blocked",
         "could_use_patch_or_section": false,
-        "friction_tags": ["full_replace"]
+        "friction_tags": [
+          "full_replace"
+        ]
       }
     ]
   },
@@ -232,22 +252,17 @@
     {
       "transcript_id": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
       "line_number": 30,
-      "path": "hot",
-      "existingLen": 1808,
-      "proposedLen": 1108,
-      "shrinkRatio": 0.613,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": []
+      "path": "hot.md",
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot.md\",\n  \"details\": {\n    \"missingPath\": \"hot.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "2287fd50-cd39-4391-bceb-abeeccd8e2a9",
       "line_number": 31,
       "path": "index",
-      "existingLen": 5880,
+      "existingLen": 2230,
       "proposedLen": 3177,
-      "shrinkRatio": 0.54,
+      "shrinkRatio": 1.425,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
@@ -257,45 +272,44 @@
       "transcript_id": "33db22c8-3a67-43b1-bcdd-7733023b1704",
       "line_number": 113,
       "path": "projects/data-platform-dlz/skills/cursor-plugins-and-tooling-status",
-      "existingLen": 7611,
+      "existingLen": 10059,
       "proposedLen": 6697,
-      "shrinkRatio": 0.88,
+      "shrinkRatio": 0.666,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "53abd6fb-5c3b-4f72-969d-a8b7d23177b9",
       "line_number": 35,
-      "path": "hot",
-      "existingLen": 1808,
-      "proposedLen": 3947,
-      "shrinkRatio": 2.183,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": []
+      "path": "hot.md",
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot.md\",\n  \"details\": {\n    \"missingPath\": \"hot.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "53abd6fb-5c3b-4f72-969d-a8b7d23177b9",
       "line_number": 38,
       "path": "index",
-      "existingLen": 5880,
+      "existingLen": 2230,
       "proposedLen": 5604,
-      "shrinkRatio": 0.953,
+      "shrinkRatio": 2.513,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
       "line_number": 55,
       "path": "projects/data-platform-dlz/entities/data-products",
-      "existingLen": 5038,
+      "existingLen": 8572,
       "proposedLen": 4889,
-      "shrinkRatio": 0.97,
+      "shrinkRatio": 0.57,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
@@ -304,226 +318,237 @@
     {
       "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
       "line_number": 56,
-      "path": "projects/data-platform-dlz/concepts/curated-and-model-layers",
-      "existingLen": 3968,
-      "proposedLen": 2844,
-      "shrinkRatio": 0.717,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "path": "projects/data-platform-dlz/concepts/curated-and-model-layers.md",
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: projects/data-platform-dlz/concepts/curated-and-model-layers.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"projects/data-platform-dlz/concepts/curated-and-model-layers.md\",\n  \"details\": {\n    \"missingPath\": \"projects/data-platform-dlz/concepts/curated-and-model-layers.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
       "line_number": 58,
-      "path": "hot",
-      "existingLen": 1808,
-      "proposedLen": 3530,
-      "shrinkRatio": 1.952,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "path": "hot.md",
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot.md\",\n  \"details\": {\n    \"missingPath\": \"hot.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
       "line_number": 14,
       "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "existingLen": 7777,
+      "existingLen": 12616,
       "proposedLen": 11611,
-      "shrinkRatio": 1.493,
+      "shrinkRatio": 0.92,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace", "full_replace"]
+      "friction_tags": [
+        "full_replace",
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
       "line_number": 14,
       "path": "projects/data-platform-dlz/concepts/curated-and-model-layers",
-      "existingLen": 3968,
-      "proposedLen": 3942,
-      "shrinkRatio": 0.993,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": []
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: projects/data-platform-dlz/concepts/curated-and-model-layers\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"projects/data-platform-dlz/concepts/curated-and-model-layers\",\n  \"details\": {\n    \"missingPath\": \"projects/data-platform-dlz/concepts/curated-and-model-layers\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
       "line_number": 15,
       "path": "projects/data-platform-dlz/concepts/worker-data-mart",
-      "existingLen": 4298,
+      "existingLen": 13258,
       "proposedLen": 3793,
-      "shrinkRatio": 0.883,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "shrinkRatio": 0.286,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
+      "could_use_patch_or_section": true,
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
       "line_number": 17,
       "path": "projects/data-platform-dlz/concepts/curation-pipeline",
-      "existingLen": 5086,
+      "existingLen": 8316,
       "proposedLen": 676,
-      "shrinkRatio": 0.133,
+      "shrinkRatio": 0.081,
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
       "line_number": 19,
       "path": "projects/data-platform-dlz/concepts/curation-pipeline",
-      "existingLen": 5086,
+      "existingLen": 8316,
       "proposedLen": 4698,
-      "shrinkRatio": 0.924,
+      "shrinkRatio": 0.565,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace", "truncation_recovery", "truncation_recovery"]
+      "friction_tags": [
+        "full_replace",
+        "truncation_recovery",
+        "truncation_recovery"
+      ]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
       "line_number": 22,
-      "path": "hot",
-      "existingLen": 1808,
-      "proposedLen": 4295,
-      "shrinkRatio": 2.376,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "path": "hot.md",
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot.md\",\n  \"details\": {\n    \"missingPath\": \"hot.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "b01b889f-4a09-4a25-a9d2-3e66fe27c400",
       "line_number": 57,
       "path": "index",
-      "existingLen": 5880,
+      "existingLen": 2230,
       "proposedLen": 3573,
-      "shrinkRatio": 0.608,
+      "shrinkRatio": 1.602,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace", "full_replace"]
+      "friction_tags": [
+        "full_replace",
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "b01b889f-4a09-4a25-a9d2-3e66fe27c400",
       "line_number": 57,
-      "path": "hot",
-      "existingLen": 1808,
-      "proposedLen": 1744,
-      "shrinkRatio": 0.965,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": []
+      "path": "hot.md",
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot.md\",\n  \"details\": {\n    \"missingPath\": \"hot.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "c63bf7c6-8498-4737-b632-1e5e1d14136e",
       "line_number": 40,
       "path": "index",
-      "existingLen": 5880,
+      "existingLen": 2230,
       "proposedLen": 3360,
-      "shrinkRatio": 0.571,
+      "shrinkRatio": 1.507,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
       "line_number": 100,
       "path": "projects/data-platform-dlz/concepts/worker-data-mart",
-      "existingLen": 4298,
+      "existingLen": 13258,
       "proposedLen": 1588,
-      "shrinkRatio": 0.369,
+      "shrinkRatio": 0.12,
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
-      "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "could_use_patch_or_section": true,
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
       "line_number": 101,
       "path": "projects/data-platform-dlz/concepts/worker-data-mart",
-      "existingLen": 4298,
+      "existingLen": 13258,
       "proposedLen": 5429,
-      "shrinkRatio": 1.263,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
+      "shrinkRatio": 0.409,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace", "truncation_recovery", "truncation_recovery"]
+      "friction_tags": [
+        "full_replace",
+        "truncation_recovery",
+        "truncation_recovery"
+      ]
     },
     {
       "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
       "line_number": 257,
       "path": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
-      "existingLen": 5970,
+      "existingLen": 15621,
       "proposedLen": 5969,
-      "shrinkRatio": 1,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
+      "shrinkRatio": 0.382,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 17,
       "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "existingLen": 7777,
+      "existingLen": 12616,
       "proposedLen": 8245,
-      "shrinkRatio": 1.06,
+      "shrinkRatio": 0.654,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 18,
       "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "existingLen": 7777,
+      "existingLen": 12616,
       "proposedLen": 136,
-      "shrinkRatio": 0.017,
+      "shrinkRatio": 0.011,
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
-      "friction_tags": ["full_replace", "suspected_fragment_replace"]
+      "friction_tags": [
+        "full_replace",
+        "suspected_fragment_replace"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 19,
       "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "existingLen": 7777,
+      "existingLen": 12616,
       "proposedLen": 8240,
-      "shrinkRatio": 1.06,
+      "shrinkRatio": 0.653,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace", "truncation_recovery"]
+      "friction_tags": [
+        "full_replace",
+        "truncation_recovery"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 21,
       "path": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
-      "existingLen": 7161,
+      "existingLen": 9916,
       "proposedLen": 7161,
-      "shrinkRatio": 1,
+      "shrinkRatio": 0.722,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace", "full_replace", "full_replace"]
+      "friction_tags": [
+        "full_replace",
+        "full_replace",
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 21,
       "path": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
-      "existingLen": 2941,
+      "existingLen": 5822,
       "proposedLen": 2941,
-      "shrinkRatio": 1,
+      "shrinkRatio": 0.505,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
@@ -532,34 +557,32 @@
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 21,
-      "path": "hot",
-      "existingLen": 1808,
-      "proposedLen": 1498,
-      "shrinkRatio": 0.829,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": []
+      "path": "hot.md",
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot.md\",\n  \"details\": {\n    \"missingPath\": \"hot.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 22,
       "path": "projects/data-platform-dlz/entities/source-systems",
-      "existingLen": 4525,
+      "existingLen": 5281,
       "proposedLen": 4525,
-      "shrinkRatio": 1,
+      "shrinkRatio": 0.857,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace", "full_replace"]
+      "friction_tags": [
+        "full_replace",
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 22,
       "path": "projects/data-platform-dlz/entities/data-products",
-      "existingLen": 5038,
+      "existingLen": 8572,
       "proposedLen": 5038,
-      "shrinkRatio": 1,
+      "shrinkRatio": 0.588,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
@@ -569,33 +592,37 @@
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 24,
       "path": "projects/data-platform-dlz/entities/factpersoncalendar",
-      "existingLen": 5956,
+      "existingLen": 7299,
       "proposedLen": 5722,
-      "shrinkRatio": 0.961,
+      "shrinkRatio": 0.784,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 73,
       "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "existingLen": 7777,
+      "existingLen": 12616,
       "proposedLen": 579,
-      "shrinkRatio": 0.074,
+      "shrinkRatio": 0.046,
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 75,
       "path": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "existingLen": 7777,
+      "existingLen": 12616,
       "proposedLen": 7777,
-      "shrinkRatio": 1,
+      "shrinkRatio": 0.616,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
@@ -611,9 +638,9 @@
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 75,
       "path": "projects/data-platform-dlz/entities/factpersoncalendar",
-      "existingLen": 5956,
+      "existingLen": 7299,
       "proposedLen": 252,
-      "shrinkRatio": 0.042,
+      "shrinkRatio": 0.035,
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
@@ -623,21 +650,25 @@
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 79,
       "path": "projects/data-platform-dlz/entities/factpersoncalendar",
-      "existingLen": 5956,
+      "existingLen": 7299,
       "proposedLen": 5956,
-      "shrinkRatio": 1,
+      "shrinkRatio": 0.816,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace", "full_replace", "suspected_fragment_replace"]
+      "friction_tags": [
+        "full_replace",
+        "full_replace",
+        "suspected_fragment_replace"
+      ]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 79,
       "path": "index",
-      "existingLen": 5880,
+      "existingLen": 2230,
       "proposedLen": 131,
-      "shrinkRatio": 0.022,
+      "shrinkRatio": 0.059,
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
@@ -647,9 +678,9 @@
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 80,
       "path": "index",
-      "existingLen": 5880,
+      "existingLen": 2230,
       "proposedLen": 5880,
-      "shrinkRatio": 1,
+      "shrinkRatio": 2.637,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
@@ -665,9 +696,9 @@
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 80,
       "path": "projects/data-platform-dlz/data-platform-dlz",
-      "existingLen": 7127,
+      "existingLen": 17267,
       "proposedLen": 552,
-      "shrinkRatio": 0.077,
+      "shrinkRatio": 0.032,
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
@@ -677,61 +708,64 @@
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
       "line_number": 82,
       "path": "projects/data-platform-dlz/data-platform-dlz",
-      "existingLen": 7127,
+      "existingLen": 17267,
       "proposedLen": 7127,
-      "shrinkRatio": 1,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
+      "shrinkRatio": 0.413,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
       "line_number": 25,
       "path": "projects/data-platform-dlz/entities/data-products",
-      "existingLen": 5038,
+      "existingLen": 8572,
       "proposedLen": 5131,
-      "shrinkRatio": 1.018,
+      "shrinkRatio": 0.599,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
       "line_number": 32,
       "path": "index",
-      "existingLen": 5880,
+      "existingLen": 2230,
       "proposedLen": 4029,
-      "shrinkRatio": 0.685,
+      "shrinkRatio": 1.807,
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     },
     {
       "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
       "line_number": 33,
-      "path": "hot",
-      "existingLen": 1808,
-      "proposedLen": 4481,
-      "shrinkRatio": 2.478,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
-      "could_use_patch_or_section": false,
-      "friction_tags": []
+      "path": "hot.md",
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot.md\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot.md\",\n  \"details\": {\n    \"missingPath\": \"hot.md\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
     },
     {
       "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
       "line_number": 35,
       "path": "projects/data-platform-dlz/data-platform-dlz",
-      "existingLen": 7127,
+      "existingLen": 17267,
       "proposedLen": 5192,
-      "shrinkRatio": 0.728,
-      "old_upstream_would_truncate": false,
-      "new_guard": "allowed",
+      "shrinkRatio": 0.301,
+      "old_upstream_would_truncate": true,
+      "new_guard": "blocked",
       "could_use_patch_or_section": false,
-      "friction_tags": ["full_replace"]
+      "friction_tags": [
+        "full_replace"
+      ]
     }
   ]
 }

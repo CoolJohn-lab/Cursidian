@@ -1,68 +1,68 @@
 {
-  "generatedAt": "2026-07-08T18:06:57.906Z",
+  "generatedAt": "2026-07-23T17:04:01.676Z",
   "vaultPath": "/Users/jeddowes/Library/CloudStorage/OneDrive-Freshfields/Obsidian/WorkStuff",
   "newStandardTimings": [
     {
-      "label": "list_notes.root",
-      "ms": 0.52
+      "label": "search.list.root",
+      "ms": 101.72
     },
     {
-      "label": "search_content.adf_pipeline",
-      "ms": 29.55
+      "label": "search.content.adf_pipeline",
+      "ms": 205.86
     },
     {
-      "label": "search_content.factpublicholiday",
-      "ms": 24.69
+      "label": "search.content.factpublicholiday",
+      "ms": 395.8
     },
     {
-      "label": "read_note.index",
-      "ms": 11.2
+      "label": "note.read.index",
+      "ms": 70.76
     },
     {
-      "label": "get_backlinks.project_hub",
-      "ms": 22.43
+      "label": "graph.project_hub",
+      "ms": 104.39
     },
     {
-      "label": "search_content.cached_repeat",
-      "ms": 28.52
+      "label": "search.content.cached_repeat",
+      "ms": 194.35
     }
   ],
   "comparisonToStoredBaseline": [
     {
-      "label": "list_notes.root",
-      "currentMs": 0.52,
-      "baselineMs": 12.09,
-      "deltaMs": -11.57
+      "label": "search.list.root",
+      "currentMs": 101.72,
+      "baselineMs": null,
+      "deltaMs": null
     },
     {
-      "label": "search_content.adf_pipeline",
-      "currentMs": 29.55,
-      "baselineMs": 50.92,
-      "deltaMs": -21.37
+      "label": "search.content.adf_pipeline",
+      "currentMs": 205.86,
+      "baselineMs": null,
+      "deltaMs": null
     },
     {
-      "label": "search_content.factpublicholiday",
-      "currentMs": 24.69,
-      "baselineMs": 36.83,
-      "deltaMs": -12.14
+      "label": "search.content.factpublicholiday",
+      "currentMs": 395.8,
+      "baselineMs": null,
+      "deltaMs": null
     },
     {
-      "label": "read_note.index",
-      "currentMs": 11.2,
-      "baselineMs": 17.89,
-      "deltaMs": -6.69
+      "label": "note.read.index",
+      "currentMs": 70.76,
+      "baselineMs": null,
+      "deltaMs": null
     },
     {
-      "label": "get_backlinks.project_hub",
-      "currentMs": 22.43,
-      "baselineMs": 32.53,
-      "deltaMs": -10.1
+      "label": "graph.project_hub",
+      "currentMs": 104.39,
+      "baselineMs": null,
+      "deltaMs": null
     },
     {
-      "label": "search_content.cached_repeat",
-      "currentMs": 28.52,
-      "baselineMs": 14.12,
-      "deltaMs": 14.4
+      "label": "search.content.cached_repeat",
+      "currentMs": 194.35,
+      "baselineMs": null,
+      "deltaMs": null
     }
   ],
   "corpusWeighted": {
@@ -80,14 +80,14 @@
     ],
     "iterationsPerQuery": 5,
     "p50": {
-      "old_upstream": 12.24,
-      "old_patched": 12.33,
-      "new": 26.33100000000013
+      "old_upstream": 32.62,
+      "old_patched": 31.03,
+      "new": 165.59662500000195
     },
     "p95": {
-      "old_upstream": 13.76,
-      "old_patched": 13.09,
-      "new": 30.17033399999991
+      "old_upstream": 38.57,
+      "old_patched": 40.39,
+      "new": 282.2035419999993
     }
   }
 }

@@ -18,7 +18,7 @@ Before inventing product facts or tool behaviour, consult these via **`user-curs
 | Path                                           | Holds                                            |
 | ---------------------------------------------- | ------------------------------------------------ |
 | `projects/cursidian/cursidian`                 | Product overview, agent usage, project pages     |
-| `projects/cursidian/concepts/mcp-tool-surface` | Full tool/action map, concurrency, retired names |
+| `projects/cursidian/concepts/mcp-tool-surface` | Full tool/action map, concurrency, tool denylist |
 | `concepts/cursor-rule-skill-wiki-stack`        | Rule -> skill -> wiki layer contract             |
 
 This skill is the **protocol** layer (hard rules agents must not violate). Wiki pages are the **durable SoT** when facts change.
@@ -47,7 +47,7 @@ Outside MCP: source docs **outside** the vault (ingest). On-disk deslop (repos /
 | `vault`   | `health` (incl. soft `schemaWarnings` / `provenanceStats`), `sync_index` (flat rebuild vs hub preserve - check `indexMode`), `slop_check`/`deslop`, folders, `history`/`undo`, `manifest`, `vocabulary`. |
 | `context` | Broad/uncertain/multi-page questions and task briefings. `assemble`/`for_task` (+ `tokenBudget`, optional `intent`); returns `focus` + `guidance.nextStep`; `expand` via `nextCursor`; `feedback` for bad bundles. |
 
-Full action tables, retired names, and edge cases: wiki `projects/cursidian/concepts/mcp-tool-surface`.
+Full action tables, tool denylist, and edge cases: wiki `projects/cursidian/concepts/mcp-tool-surface`.
 
 ### Revision / pagination
 
@@ -101,7 +101,7 @@ For create/edit work, read `references/page-schema.md` before the first mutation
 | Do not                               | Do instead                                 |
 | ------------------------------------ | ------------------------------------------ |
 | Filesystem / shell on vault paths    | `user-cursidian` only                      |
-| Call retired Obsidian-MCP tool names | 5-tool surface (see wiki mcp-tool-surface) |
+| Call denylisted MCP tool names | 5-tool surface (see wiki mcp-tool-surface) |
 | Parallel same-path writes            | Serialize + chain `revisionHash`           |
 | Clear `operationStack` before verify | Undo reverse-order on failure              |
 | Treat hub sparsity as index drift    | Read `indexMode` from `health`             |

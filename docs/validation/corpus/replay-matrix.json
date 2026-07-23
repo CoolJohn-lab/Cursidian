@@ -50,7 +50,7 @@
     {
       "query": "curated",
       "limit": 20,
-      "goldenPath": "projects/data-platform-dlz/concepts/curated-and-model-layers",
+      "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
       "transcript_ids": [
         "1f4b4178-63fe-4907-b436-3cb9813f2e49",
         "c63bf7c6-8498-4737-b632-1e5e1d14136e"
@@ -61,7 +61,9 @@
       "query": "factpersoncalendar",
       "limit": 50,
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
-      "transcript_ids": ["c63bf7c6-8498-4737-b632-1e5e1d14136e"],
+      "transcript_ids": [
+        "c63bf7c6-8498-4737-b632-1e5e1d14136e"
+      ],
       "occurrences": 2
     },
     {
@@ -78,7 +80,9 @@
       "query": "fbd-d-euw-data-dmlz-kv",
       "limit": 20,
       "goldenPath": null,
-      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
+      "transcript_ids": [
+        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
+      ],
       "occurrences": 2
     },
     {
@@ -105,7 +109,9 @@
       "query": "BigHand deploy",
       "limit": 5,
       "goldenPath": null,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "occurrences": 2
     },
     {
@@ -142,315 +148,405 @@
       "query": "BigHand integration ingest",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "transcript_ids": ["003067a5-ba6a-4b83-bd4e-de4620f05c64"],
+      "transcript_ids": [
+        "003067a5-ba6a-4b83-bd4e-de4620f05c64"
+      ],
       "occurrences": 1
     },
     {
       "query": "BigHand ingestion",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
-      "transcript_ids": ["04340747-0b69-48cf-b2af-6a9d9738577d"],
+      "transcript_ids": [
+        "04340747-0b69-48cf-b2af-6a9d9738577d"
+      ],
       "occurrences": 1
     },
     {
       "query": "CURATED view medallion architecture",
       "limit": 15,
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
-      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
+      "transcript_ids": [
+        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
+      ],
       "occurrences": 1
     },
     {
       "query": "BigHand forecasts working arrangements",
       "limit": 15,
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
-      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
+      "transcript_ids": [
+        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
+      ],
       "occurrences": 1
     },
     {
       "query": "medallion",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
-      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
+      "transcript_ids": [
+        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
+      ],
       "occurrences": 1
     },
     {
       "query": "silver temp enriched staging",
       "limit": 10,
       "goldenPath": null,
-      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
+      "transcript_ids": [
+        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
+      ],
       "occurrences": 1
     },
     {
       "query": "data contract BaseURL deployment pipeline",
       "limit": 30,
       "goldenPath": null,
-      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
+      "transcript_ids": [
+        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
+      ],
       "occurrences": 1
     },
     {
       "query": "data contract deploy metadata",
       "limit": 30,
       "goldenPath": "projects/data-platform-dlz/concepts/data-contracts-and-metadata",
-      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
+      "transcript_ids": [
+        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
+      ],
       "occurrences": 1
     },
     {
       "query": "ingestion pipeline deployment",
       "limit": 30,
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
-      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
+      "transcript_ids": [
+        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
+      ],
       "occurrences": 1
     },
     {
       "query": "secrets BaseUrl variable group",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/entities/source-systems",
-      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
+      "transcript_ids": [
+        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
+      ],
       "occurrences": 1
     },
     {
       "query": "Databricks command execution context cluster",
       "limit": 10,
       "goldenPath": "skills/databricks-asset-bundles",
-      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
+      "transcript_ids": [
+        "33db22c8-3a67-43b1-bcdd-7733023b1704"
+      ],
       "occurrences": 1
     },
     {
       "query": "execution context",
       "limit": 3,
       "goldenPath": "skills/databricks-run-commands-via-execution-context",
-      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
+      "transcript_ids": [
+        "33db22c8-3a67-43b1-bcdd-7733023b1704"
+      ],
       "occurrences": 1
     },
     {
       "query": "metastore schema evolution",
       "limit": 5,
       "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
-      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
+      "transcript_ids": [
+        "33db22c8-3a67-43b1-bcdd-7733023b1704"
+      ],
       "occurrences": 1
     },
     {
       "query": "agent toolkit plugins MCP",
       "limit": 5,
       "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
-      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
+      "transcript_ids": [
+        "33db22c8-3a67-43b1-bcdd-7733023b1704"
+      ],
       "occurrences": 1
     },
     {
       "query": "BigHand pre-deployment folderExists dbutils",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "transcript_ids": ["53abd6fb-5c3b-4f72-969d-a8b7d23177b9"],
+      "transcript_ids": [
+        "53abd6fb-5c3b-4f72-969d-a8b7d23177b9"
+      ],
       "occurrences": 1
     },
     {
       "query": "Unity Catalog deploy orchestrator metastore",
       "limit": 20,
       "goldenPath": null,
-      "transcript_ids": ["60edd405-8836-4c14-8e3b-34419eb4b594"],
+      "transcript_ids": [
+        "60edd405-8836-4c14-8e3b-34419eb4b594"
+      ],
       "occurrences": 1
     },
     {
       "query": "BigHand gold layer curated forecasts FactPersonCapacity workerdatamart",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "transcript_ids": ["6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7"],
+      "transcript_ids": [
+        "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7"
+      ],
       "occurrences": 1
     },
     {
       "query": "public holidays API",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
-      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
+      "transcript_ids": [
+        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
+      ],
       "occurrences": 1
     },
     {
       "query": "holidays",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
-      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
+      "transcript_ids": [
+        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
+      ],
       "occurrences": 1
     },
     {
       "query": "BigHand API PublicHolidays",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
-      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
+      "transcript_ids": [
+        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
+      ],
       "occurrences": 1
     },
     {
       "query": "BigHand API",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
-      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
+      "transcript_ids": [
+        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
+      ],
       "occurrences": 1
     },
     {
       "query": "public holidays",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
-      "transcript_ids": ["a4e1e31a-e8b9-45e7-a111-6f00402224d6"],
+      "transcript_ids": [
+        "a4e1e31a-e8b9-45e7-a111-6f00402224d6"
+      ],
       "occurrences": 1
     },
     {
       "query": "person calendar",
       "limit": 50,
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
-      "transcript_ids": ["c63bf7c6-8498-4737-b632-1e5e1d14136e"],
+      "transcript_ids": [
+        "c63bf7c6-8498-4737-b632-1e5e1d14136e"
+      ],
       "occurrences": 1
     },
     {
       "query": "dmlz-kv",
       "limit": 20,
       "goldenPath": null,
-      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
+      "transcript_ids": [
+        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
+      ],
       "occurrences": 1
     },
     {
       "query": "dmlz",
       "limit": 20,
       "goldenPath": null,
-      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
+      "transcript_ids": [
+        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
+      ],
       "occurrences": 1
     },
     {
       "query": "west europe uksouth migration dlz",
       "limit": 20,
       "goldenPath": null,
-      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
+      "transcript_ids": [
+        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
+      ],
       "occurrences": 1
     },
     {
       "query": "CDF",
       "limit": 30,
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
-      "transcript_ids": ["d99722c2-4149-42f0-9a92-420e7adf12bc"],
+      "transcript_ids": [
+        "d99722c2-4149-42f0-9a92-420e7adf12bc"
+      ],
       "occurrences": 1
     },
     {
       "query": "BigHand naming conventions workerdatamart temp",
       "limit": 20,
       "goldenPath": null,
-      "transcript_ids": ["e91fdbcf-6d94-4d96-af56-201d873ac2e8"],
+      "transcript_ids": [
+        "e91fdbcf-6d94-4d96-af56-201d873ac2e8"
+      ],
       "occurrences": 1
     },
     {
       "query": "naming convention workerdatamart curated",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/curated-and-model-layers",
-      "transcript_ids": ["e91fdbcf-6d94-4d96-af56-201d873ac2e8"],
+      "transcript_ids": [
+        "e91fdbcf-6d94-4d96-af56-201d873ac2e8"
+      ],
       "occurrences": 1
     },
     {
       "query": "FactForecasts curated_factforecasts FactQualifications",
       "limit": 30,
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "occurrences": 1
     },
     {
       "query": "FactForecasts curated_factforecasts BigHand.FactPersonCapacity migration decommission legacy",
       "limit": 50,
       "goldenPath": null,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "occurrences": 1
     },
     {
       "query": "FactPersonForecast bighand enriched_workerdatamart",
       "limit": 50,
       "goldenPath": null,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "occurrences": 1
     },
     {
       "query": "BigHand deploy FactPerson Metadata Transformation Unity Catalog",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "occurrences": 1
     },
     {
       "query": "monitoring error logs ADF debug mode",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "occurrences": 1
     },
     {
       "query": "deploy",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "occurrences": 1
     },
     {
       "query": "notebookErrorMessage",
       "limit": 30,
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
-      "transcript_ids": ["bac02dac-8dbb-413f-b724-5ee65fb18cc6"],
+      "transcript_ids": [
+        "bac02dac-8dbb-413f-b724-5ee65fb18cc6"
+      ],
       "occurrences": 1
     },
     {
       "query": "Unity Catalog pipeline",
       "limit": 10,
       "goldenPath": "projects/data-platform-dlz/concepts/orchestration-and-adf",
-      "transcript_ids": ["bac02dac-8dbb-413f-b724-5ee65fb18cc6"],
+      "transcript_ids": [
+        "bac02dac-8dbb-413f-b724-5ee65fb18cc6"
+      ],
       "occurrences": 1
     },
     {
       "query": "bighand FactPublicHoliday public holidays",
       "limit": 30,
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
-      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
+      "transcript_ids": [
+        "f681a293-0729-4f69-93e9-cd5da9b4572a"
+      ],
       "occurrences": 1
     },
     {
       "query": "FactPersonForecast bighand entity",
       "limit": 15,
       "goldenPath": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
-      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
+      "transcript_ids": [
+        "f681a293-0729-4f69-93e9-cd5da9b4572a"
+      ],
       "occurrences": 1
     },
     {
       "query": "FactPersonCalendar person date calendar",
       "limit": 5,
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
-      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
+      "transcript_ids": [
+        "f681a293-0729-4f69-93e9-cd5da9b4572a"
+      ],
       "occurrences": 1
     },
     {
       "query": "Benevity",
       "limit": 50,
       "goldenPath": "projects/data-platform-dlz/concepts/benevity-integration",
-      "transcript_ids": ["fec9aef1-4c09-49db-8534-3ac8c1e28cf1"],
+      "transcript_ids": [
+        "fec9aef1-4c09-49db-8534-3ac8c1e28cf1"
+      ],
       "occurrences": 1
     },
     {
       "query": "ADF pipeline orchestrator",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/orchestration-and-adf",
-      "transcript_ids": ["wiki-query-suite"],
+      "transcript_ids": [
+        "wiki-query-suite"
+      ],
       "occurrences": 0
     },
     {
       "query": "FactPublicHoliday",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
-      "transcript_ids": ["wiki-query-suite"],
+      "transcript_ids": [
+        "wiki-query-suite"
+      ],
       "occurrences": 0
     },
     {
       "query": "deployment CI CD",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
-      "transcript_ids": ["wiki-query-suite"],
+      "transcript_ids": [
+        "wiki-query-suite"
+      ],
       "occurrences": 0
     },
     {
       "query": "Unity Catalog metastore",
       "limit": 20,
       "goldenPath": "projects/data-platform-dlz/concepts/metastore-schema-evolution",
-      "transcript_ids": ["wiki-query-suite"],
+      "transcript_ids": [
+        "wiki-query-suite"
+      ],
       "occurrences": 0
     }
   ]

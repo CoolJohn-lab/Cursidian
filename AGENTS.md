@@ -9,7 +9,7 @@
 | Wiki   | WorkStuff via `user-cursidian`                  | Durable Cursidian SoT under `projects/cursidian/`                 |
 | Config | `~/.cursor/config/`                             | Local JSON / workspaces                                           |
 
-Protocol skill = **`vault`** (was `llm-wiki`). Product facts: `projects/cursidian/cursidian` + `projects/cursidian/concepts/mcp-tool-surface`. Layer contract: `concepts/cursor-rule-skill-wiki-stack`.
+Protocol skill = **`vault`**. Product facts: `projects/cursidian/cursidian` + `projects/cursidian/concepts/mcp-tool-surface`. Layer contract: `concepts/cursor-rule-skill-wiki-stack`.
 
 ## Slop gate (required for build)
 
@@ -33,13 +33,13 @@ Config: `.cursidian-slop.json` + `rules/slop/` (packs: `claudeisms`, `structural
 
 After `npm run build`, restart the `user-cursidian` MCP server in Cursor (Settings -> MCP -> restart, or reload the window) so the IDE picks up changes from `dist/`.
 
-After changing `~/.cursor/mcp.json` (or switching away from a predecessor path such as `Obsidian-MCP-For-Cursor`), run:
+After changing `~/.cursor/mcp.json`, run:
 
 ```bash
 npm run mcp:check
 ```
 
-That is a **read-only** guard: it fails if the `cursidian` server entry is missing, still points at `Obsidian-MCP-For-Cursor`, or lacks an absolute `OBSIDIAN_VAULT_PATH`. It does not rewrite the file. Then restart `user-cursidian`.
+That is a **read-only** guard: it fails if the `cursidian` server entry is missing, points at a legacy server path, or lacks an absolute `OBSIDIAN_VAULT_PATH`. It does not rewrite the file. Then restart `user-cursidian`.
 
 ## MCP invocation checklist (CallMcpTool)
 
@@ -50,17 +50,17 @@ Every vault MCP call must set **both**:
 
 Never send only `arguments` + `description` (missing `server` / `toolName` fails before Cursidian runs). Discover schemas with `GetMcpTools` first. On verify steps, re-read with a well-formed call - do not mark verify complete after a malformed invocation.
 
-Retired tool names (`read_note`, `search_content`, `list_notes`, ...) must not be called. See `skills/wiki/vault/SKILL.md` (MCP Contract) and `docs/MCP-HOST-HYGIENE.md` for stale Cursor allowlist cleanup.
+Do not call denylisted tool names (`read_note`, `search_content`, `list_notes`, ...). See `skills/wiki/vault/SKILL.md` (MCP Contract) and `docs/MCP-HOST-HYGIENE.md` for stale Cursor allowlist cleanup.
 
 ## Wiki skills refresh
 
-After changing files under `skills/wiki/`, or when Cursor agents still call retired tool names (`read_note`, `search_content`, ...), reinstall into the user skills directory:
+After changing files under `skills/wiki/`, or when Cursor agents still call denylisted tool names (`read_note`, `search_content`, ...), reinstall into the user skills directory:
 
 ```bash
 npm run skills:install
 ```
 
-That **removes then copies** the 11 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills - Cursor caches skill text per chat, so an existing chat keeps teaching the old version, including retired tool names, until restarted. Details: `skills/wiki/INSTALL.md`. Vault deslop: skill **wiki-slop** (`vault` `slop_check` / `deslop`). On-disk / `~/.cursor`: skill **slop** (`scripts/deslop.mjs`). This package's build gate: `npm run slop:*`.
+That **removes then copies** the 11 skill folders into `~/.cursor/skills/` (never symlink; never copy into an existing folder - that nests `skill/skill/SKILL.md`). Start a new agent chat so Cursor re-discovers skills - Cursor caches skill text per chat, so an existing chat keeps teaching the old version, including denylisted tool names, until restarted. Details: `skills/wiki/INSTALL.md`. Vault deslop: skill **wiki-slop** (`vault` `slop_check` / `deslop`). On-disk / `~/.cursor`: skill **slop** (`scripts/deslop.mjs`). This package's build gate: `npm run slop:*`.
 
 If you are not sure whether `~/.cursor/skills/` is stale relative to this repo, run `npm run skills:doctor` - it fingerprints each skill folder against its installed copy and names exactly which ones need `skills:install`.
 

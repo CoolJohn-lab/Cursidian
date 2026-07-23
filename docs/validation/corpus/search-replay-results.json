@@ -1,25 +1,25 @@
 {
-  "generatedAt": "2026-07-08T18:06:54.410Z",
+  "generatedAt": "2026-07-23T17:03:45.483Z",
   "vaultPath": "/Users/jeddowes/Library/CloudStorage/OneDrive-Freshfields/Obsidian/WorkStuff",
   "summary": {
     "cases": 59,
     "withGolden": 48,
     "top1Accuracy": {
-      "old_upstream": 6.3,
-      "old_patched": 0,
-      "new": 47.9
+      "old_upstream": 8.3,
+      "old_patched": 4.2,
+      "new": 41.7
     },
     "top3Accuracy": {
-      "old_upstream": 6.3,
-      "old_patched": 6.3,
-      "new": 66.7
+      "old_upstream": 16.7,
+      "old_patched": 14.6,
+      "new": 52.1
     },
     "curatedWikiQuerySuite": {
       "cases": 6,
       "top1": {
         "old_upstream": 16.7,
         "old_patched": 0,
-        "new": 100
+        "new": 83.3
       },
       "top3": {
         "old_upstream": 16.7,
@@ -42,8 +42,8 @@
         {
           "query": "ADF pipeline orchestrator",
           "goldenPath": "projects/data-platform-dlz/concepts/orchestration-and-adf",
-          "newTop1": "projects/data-platform-dlz/concepts/orchestration-and-adf.md",
-          "newGoldenRank": 1
+          "newTop1": "projects/data-platform-dlz/concepts/adf-pipeline-catalog.md",
+          "newGoldenRank": 2
         },
         {
           "query": "FactPublicHoliday",
@@ -68,17 +68,53 @@
     "excludingHubGolden": {
       "cases": 42,
       "top1": {
-        "old_upstream": 7.1,
-        "old_patched": 0,
-        "new": 54.8
+        "old_upstream": 9.5,
+        "old_patched": 2.4,
+        "new": 47.6
       },
       "top3": {
-        "old_upstream": 7.1,
+        "old_upstream": 19,
         "old_patched": 7.1,
-        "new": 76.2
+        "new": 57.1
       }
     },
-    "newWorseThanPatched": []
+    "newWorseThanPatched": [
+      {
+        "query": "BigHand deploy sequence",
+        "patchedRank": 2,
+        "newRank": 8
+      },
+      {
+        "query": "monitoring failures",
+        "patchedRank": 3,
+        "newRank": null
+      },
+      {
+        "query": "ADO pipeline order",
+        "patchedRank": 2,
+        "newRank": 5
+      },
+      {
+        "query": "CURATED view medallion architecture",
+        "patchedRank": 1,
+        "newRank": 3
+      },
+      {
+        "query": "BigHand gold layer curated forecasts FactPersonCapacity workerdatamart",
+        "patchedRank": 1,
+        "newRank": 2
+      },
+      {
+        "query": "BigHand API PublicHolidays",
+        "patchedRank": 3,
+        "newRank": 4
+      },
+      {
+        "query": "FactPersonForecast bighand entity",
+        "patchedRank": 6,
+        "newRank": 11
+      }
+    ]
   },
   "results": [
     {
@@ -95,24 +131,24 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 76.83,
+          "latencyMs": 51.86,
           "resultCount": 20,
-          "top1": "hot.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
-          "goldenRank": 11
+          "goldenRank": 18
         },
         "old_patched": {
-          "latencyMs": 74.59,
+          "latencyMs": 49.29,
           "resultCount": 20,
-          "top1": "hot.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
-          "goldenRank": 11
+          "goldenRank": 18
         },
         "new": {
-          "latencyMs": 116.18,
-          "resultCount": 31,
+          "latencyMs": 184.65,
+          "resultCount": 50,
           "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 403,
+          "relevanceTop1": 408,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -129,26 +165,26 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 19.93,
+          "latencyMs": 60.59,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 19.65,
-          "resultCount": 6,
-          "top1": "log.md",
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "latencyMs": 59.2,
+          "resultCount": 10,
+          "top1": "skills/databricks-run-commands-via-execution-context.md",
+          "goldenTop3Hit": true,
+          "goldenRank": 2
         },
         "new": {
-          "latencyMs": 38.45,
-          "resultCount": 6,
+          "latencyMs": 220.22,
+          "resultCount": 11,
           "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 202,
+          "relevanceTop1": 407,
           "goldenTop3Hit": false,
-          "goldenRank": null
+          "goldenRank": 8
         }
       }
     },
@@ -163,24 +199,24 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.03,
+          "latencyMs": 55.36,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 15.44,
+          "latencyMs": 49.01,
           "resultCount": 10,
-          "top1": "hot.md",
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": null
+          "goldenRank": 9
         },
         "new": {
-          "latencyMs": 41.36,
-          "resultCount": 12,
+          "latencyMs": 232.75,
+          "resultCount": 31,
           "top1": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions.md",
-          "relevanceTop1": 179,
+          "relevanceTop1": 309,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -197,24 +233,24 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 24.02,
+          "latencyMs": 56.65,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 26.08,
-          "resultCount": 3,
-          "top1": "projects/data-platform-dlz/concepts/monitoring-and-error-logs.md",
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "latencyMs": 54.26,
+          "resultCount": 10,
+          "top1": "concepts/onedrive-mac-file-provider-monitoring.md",
+          "goldenTop3Hit": true,
+          "goldenRank": 3
         },
         "new": {
-          "latencyMs": 40.19,
-          "resultCount": 3,
+          "latencyMs": 214.15,
+          "resultCount": 16,
           "top1": "projects/data-platform-dlz/concepts/monitoring-and-error-logs.md",
-          "relevanceTop1": 144,
+          "relevanceTop1": 426,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -222,7 +258,7 @@
     },
     {
       "query": "curated",
-      "goldenPath": "projects/data-platform-dlz/concepts/curated-and-model-layers",
+      "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
       "occurrences": 2,
       "transcript_ids": [
         "1f4b4178-63fe-4907-b436-3cb9813f2e49",
@@ -230,24 +266,24 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 14.42,
+          "latencyMs": 43.02,
           "resultCount": 20,
-          "top1": "hot.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
-          "goldenRank": 20
+          "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 14.5,
+          "latencyMs": 42.18,
           "resultCount": 20,
-          "top1": "hot.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
-          "goldenRank": 17
+          "goldenRank": null
         },
         "new": {
-          "latencyMs": 31.43,
-          "resultCount": 32,
-          "top1": "projects/data-platform-dlz/concepts/curated-and-model-layers.md",
-          "relevanceTop1": 318,
+          "latencyMs": 139.72,
+          "resultCount": 51,
+          "top1": "projects/data-platform-dlz/concepts/curation-pipeline.md",
+          "relevanceTop1": 430,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -257,27 +293,29 @@
       "query": "factpersoncalendar",
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
       "occurrences": 2,
-      "transcript_ids": ["c63bf7c6-8498-4737-b632-1e5e1d14136e"],
+      "transcript_ids": [
+        "c63bf7c6-8498-4737-b632-1e5e1d14136e"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 20.93,
-          "resultCount": 10,
-          "top1": "index.md",
+          "latencyMs": 51.53,
+          "resultCount": 16,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 7
+          "goldenRank": 12
         },
         "old_patched": {
-          "latencyMs": 20.39,
-          "resultCount": 10,
-          "top1": "index.md",
+          "latencyMs": 51.68,
+          "resultCount": 16,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 7
+          "goldenRank": 12
         },
         "new": {
-          "latencyMs": 35.46,
-          "resultCount": 10,
+          "latencyMs": 125.38,
+          "resultCount": 16,
           "top1": "projects/data-platform-dlz/entities/factpersoncalendar.md",
-          "relevanceTop1": 362,
+          "relevanceTop1": 531,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -293,26 +331,26 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.37,
-          "resultCount": 19,
-          "top1": "hot.md",
+          "latencyMs": 56.99,
+          "resultCount": 32,
+          "top1": "_meta/vocabulary.md",
           "goldenTop3Hit": false,
-          "goldenRank": 14
+          "goldenRank": 24
         },
         "old_patched": {
-          "latencyMs": 18.34,
-          "resultCount": 19,
-          "top1": "hot.md",
+          "latencyMs": 57.4,
+          "resultCount": 32,
+          "top1": "_meta/vocabulary.md",
           "goldenTop3Hit": false,
-          "goldenRank": 14
+          "goldenRank": 18
         },
         "new": {
-          "latencyMs": 33.76,
-          "resultCount": 19,
-          "top1": "projects/data-platform-dlz/entities/data-products.md",
-          "relevanceTop1": 117,
-          "goldenTop3Hit": true,
-          "goldenRank": 3
+          "latencyMs": 318.4,
+          "resultCount": 48,
+          "top1": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration.md",
+          "relevanceTop1": 95,
+          "goldenTop3Hit": false,
+          "goldenRank": 7
         }
       }
     },
@@ -320,24 +358,26 @@
       "query": "fbd-d-euw-data-dmlz-kv",
       "goldenPath": null,
       "occurrences": 2,
-      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
+      "transcript_ids": [
+        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 15.86,
+          "latencyMs": 63.99,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 15.61,
+          "latencyMs": 64.01,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 30.63,
+          "latencyMs": 136.31,
           "resultCount": 0,
           "top1": null,
           "relevanceTop1": null,
@@ -356,26 +396,26 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.29,
-          "resultCount": 19,
-          "top1": "hot.md",
+          "latencyMs": 44.93,
+          "resultCount": 20,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 7
+          "goldenRank": 9
         },
         "old_patched": {
-          "latencyMs": 16.68,
-          "resultCount": 19,
-          "top1": "hot.md",
+          "latencyMs": 44.01,
+          "resultCount": 20,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 7
+          "goldenRank": 16
         },
         "new": {
-          "latencyMs": 31.89,
-          "resultCount": 19,
-          "top1": "projects/data-platform-dlz/entities/factpersoncalendar.md",
-          "relevanceTop1": 242,
+          "latencyMs": 131.18,
+          "resultCount": 35,
+          "top1": "projects/data-platform-dlz/entities/factpersontravel.md",
+          "relevanceTop1": 470,
           "goldenTop3Hit": false,
-          "goldenRank": 4
+          "goldenRank": 5
         }
       }
     },
@@ -389,24 +429,24 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.24,
-          "resultCount": 4,
-          "top1": "log.md",
+          "latencyMs": 46.41,
+          "resultCount": 5,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 14.09,
+          "latencyMs": 42.81,
           "resultCount": 5,
-          "top1": "log.md",
+          "top1": "skills/databricks-run-commands-via-execution-context.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 32.77,
-          "resultCount": 6,
+          "latencyMs": 199.21,
+          "resultCount": 15,
           "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd.md",
-          "relevanceTop1": 104,
+          "relevanceTop1": 269,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -416,27 +456,29 @@
       "query": "BigHand deploy",
       "goldenPath": null,
       "occurrences": 2,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.34,
+          "latencyMs": 52.5,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 8.47,
+          "latencyMs": 36.22,
           "resultCount": 5,
-          "top1": "hot.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 34.16,
-          "resultCount": 20,
-          "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 227,
+          "latencyMs": 213.29,
+          "resultCount": 38,
+          "top1": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration.md",
+          "relevanceTop1": 404,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -452,26 +494,26 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.73,
+          "latencyMs": 61.96,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.09,
+          "latencyMs": 56.24,
           "resultCount": 10,
-          "top1": "hot.md",
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 10
+          "goldenRank": null
         },
         "new": {
-          "latencyMs": 33.22,
-          "resultCount": 11,
-          "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd.md",
-          "relevanceTop1": 104,
-          "goldenTop3Hit": true,
-          "goldenRank": 1
+          "latencyMs": 261.12,
+          "resultCount": 24,
+          "top1": "projects/data-platform-dlz/skills/unity-catalog-object-comments.md",
+          "relevanceTop1": 436,
+          "goldenTop3Hit": false,
+          "goldenRank": null
         }
       }
     },
@@ -485,26 +527,26 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.1,
+          "latencyMs": 52.1,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.66,
-          "resultCount": 3,
-          "top1": "log.md",
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "latencyMs": 52.5,
+          "resultCount": 16,
+          "top1": "skills/wiki-first-bootstrap.md",
+          "goldenTop3Hit": true,
+          "goldenRank": 2
         },
         "new": {
-          "latencyMs": 31.29,
-          "resultCount": 3,
-          "top1": "references/awesome-databricks/learning-resources.md",
-          "relevanceTop1": 3,
+          "latencyMs": 194.7,
+          "resultCount": 14,
+          "top1": "projects/ado-work-queue/tickets/ado-263283-gems-api-integration.md",
+          "relevanceTop1": 144,
           "goldenTop3Hit": false,
-          "goldenRank": null
+          "goldenRank": 5
         }
       }
     },
@@ -518,24 +560,24 @@
       ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.78,
+          "latencyMs": 51.14,
           "resultCount": 1,
           "top1": "projects/data-platform-dlz/skills/adf-debug-mode-monitoring.md",
           "goldenTop3Hit": true,
           "goldenRank": 1
         },
         "old_patched": {
-          "latencyMs": 17.38,
-          "resultCount": 6,
-          "top1": "index.md",
+          "latencyMs": 51.43,
+          "resultCount": 9,
+          "top1": "skills/cursor-agent-stack-catalog.md",
           "goldenTop3Hit": false,
           "goldenRank": 6
         },
         "new": {
-          "latencyMs": 32.31,
-          "resultCount": 6,
+          "latencyMs": 180.6,
+          "resultCount": 9,
           "top1": "projects/data-platform-dlz/skills/adf-debug-mode-monitoring.md",
-          "relevanceTop1": 307,
+          "relevanceTop1": 612,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -545,27 +587,29 @@
       "query": "BigHand integration ingest",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": ["003067a5-ba6a-4b83-bd4e-de4620f05c64"],
+      "transcript_ids": [
+        "003067a5-ba6a-4b83-bd4e-de4620f05c64"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.05,
+          "latencyMs": 51.3,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.95,
-          "resultCount": 9,
-          "top1": "index.md",
+          "latencyMs": 51.75,
+          "resultCount": 19,
+          "top1": "_meta/taxonomy.md",
           "goldenTop3Hit": false,
-          "goldenRank": null
+          "goldenRank": 10
         },
         "new": {
-          "latencyMs": 35.94,
-          "resultCount": 24,
+          "latencyMs": 708.72,
+          "resultCount": 72,
           "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 405,
+          "relevanceTop1": 572,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -575,29 +619,31 @@
       "query": "BigHand ingestion",
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
       "occurrences": 1,
-      "transcript_ids": ["04340747-0b69-48cf-b2af-6a9d9738577d"],
+      "transcript_ids": [
+        "04340747-0b69-48cf-b2af-6a9d9738577d"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.26,
-          "resultCount": 6,
-          "top1": "index.md",
-          "goldenTop3Hit": false,
-          "goldenRank": null
-        },
-        "old_patched": {
-          "latencyMs": 16.22,
-          "resultCount": 20,
-          "top1": "index.md",
-          "goldenTop3Hit": false,
-          "goldenRank": 6
-        },
-        "new": {
-          "latencyMs": 33.66,
-          "resultCount": 24,
-          "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 362,
+          "latencyMs": 54.91,
+          "resultCount": 11,
+          "top1": "projects/ado-work-queue/tickets/ado-261939-grmd-bighand-source-integration.md",
           "goldenTop3Hit": true,
           "goldenRank": 3
+        },
+        "old_patched": {
+          "latencyMs": 48.78,
+          "resultCount": 20,
+          "top1": "_meta/manifest.md",
+          "goldenTop3Hit": false,
+          "goldenRank": 12
+        },
+        "new": {
+          "latencyMs": 565.21,
+          "resultCount": 69,
+          "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
+          "relevanceTop1": 670,
+          "goldenTop3Hit": false,
+          "goldenRank": 4
         }
       }
     },
@@ -605,29 +651,31 @@
       "query": "CURATED view medallion architecture",
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
       "occurrences": 1,
-      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
+      "transcript_ids": [
+        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.53,
+          "latencyMs": 56.96,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 17.31,
+          "latencyMs": 57.94,
           "resultCount": 4,
-          "top1": "index.md",
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
+          "goldenTop3Hit": true,
+          "goldenRank": 1
         },
         "new": {
-          "latencyMs": 32.99,
+          "latencyMs": 191.76,
           "resultCount": 4,
-          "top1": "projects/data-platform-dlz/concepts/metastore-schema-evolution.md",
-          "relevanceTop1": 13,
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "top1": "projects/data-platform-dlz/concepts/curation-pipeline.md",
+          "relevanceTop1": 339,
+          "goldenTop3Hit": true,
+          "goldenRank": 3
         }
       }
     },
@@ -635,27 +683,29 @@
       "query": "BigHand forecasts working arrangements",
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
       "occurrences": 1,
-      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
+      "transcript_ids": [
+        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.16,
+          "latencyMs": 50.62,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.29,
-          "resultCount": 3,
-          "top1": "log.md",
+          "latencyMs": 50.4,
+          "resultCount": 10,
+          "top1": "projects/data-platform-dlz/concepts/api-ingestion-notebooks.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 30.93,
-          "resultCount": 3,
+          "latencyMs": 215.91,
+          "resultCount": 12,
           "top1": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration.md",
-          "relevanceTop1": 212,
+          "relevanceTop1": 407,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -665,27 +715,29 @@
       "query": "medallion",
       "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
       "occurrences": 1,
-      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
+      "transcript_ids": [
+        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 15.88,
-          "resultCount": 9,
-          "top1": "index.md",
+          "latencyMs": 52.34,
+          "resultCount": 10,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
           "goldenRank": 5
         },
         "old_patched": {
-          "latencyMs": 15.28,
-          "resultCount": 9,
-          "top1": "index.md",
+          "latencyMs": 52.01,
+          "resultCount": 10,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
           "goldenRank": 5
         },
         "new": {
-          "latencyMs": 29.83,
-          "resultCount": 9,
+          "latencyMs": 121.73,
+          "resultCount": 10,
           "top1": "projects/data-platform-dlz/concepts/curation-pipeline.md",
-          "relevanceTop1": 73,
+          "relevanceTop1": 92,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -695,27 +747,29 @@
       "query": "silver temp enriched staging",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
+      "transcript_ids": [
+        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.81,
+          "latencyMs": 51.89,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 18.35,
-          "resultCount": 1,
+          "latencyMs": 51.54,
+          "resultCount": 3,
           "top1": "projects/data-platform-dlz/concepts/benevity-integration.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 31.24,
-          "resultCount": 1,
-          "top1": "projects/data-platform-dlz/concepts/benevity-integration.md",
-          "relevanceTop1": 11,
+          "latencyMs": 221.78,
+          "resultCount": 14,
+          "top1": "projects/data-platform-dlz/concepts/curation-pipeline.md",
+          "relevanceTop1": 92,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -725,27 +779,29 @@
       "query": "data contract BaseURL deployment pipeline",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
+      "transcript_ids": [
+        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 15.87,
+          "latencyMs": 50.75,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.5,
+          "latencyMs": 50.75,
           "resultCount": 5,
-          "top1": "index.md",
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 31.14,
+          "latencyMs": 195.24,
           "resultCount": 5,
-          "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd.md",
-          "relevanceTop1": 219,
+          "top1": "projects/data-platform-dlz/concepts/data-contracts-and-metadata.md",
+          "relevanceTop1": 557,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -755,27 +811,29 @@
       "query": "data contract deploy metadata",
       "goldenPath": "projects/data-platform-dlz/concepts/data-contracts-and-metadata",
       "occurrences": 1,
-      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
+      "transcript_ids": [
+        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.79,
+          "latencyMs": 51.45,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 17.08,
-          "resultCount": 23,
-          "top1": "index.md",
+          "latencyMs": 48.31,
+          "resultCount": 30,
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
-          "goldenRank": 13
+          "goldenRank": 18
         },
         "new": {
-          "latencyMs": 35.4,
-          "resultCount": 23,
+          "latencyMs": 252.41,
+          "resultCount": 43,
           "top1": "projects/data-platform-dlz/concepts/data-contracts-and-metadata.md",
-          "relevanceTop1": 237,
+          "relevanceTop1": 758,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -785,29 +843,31 @@
       "query": "ingestion pipeline deployment",
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
       "occurrences": 1,
-      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
+      "transcript_ids": [
+        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.41,
-          "resultCount": 0,
-          "top1": null,
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "latencyMs": 56.99,
+          "resultCount": 2,
+          "top1": "projects/data-platform-dlz/concepts/wiki-authoring-vocabulary.md",
+          "goldenTop3Hit": true,
+          "goldenRank": 2
         },
         "old_patched": {
-          "latencyMs": 18.94,
-          "resultCount": 16,
-          "top1": "index.md",
+          "latencyMs": 57.17,
+          "resultCount": 30,
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
-          "goldenRank": 15
+          "goldenRank": 27
         },
         "new": {
-          "latencyMs": 34.98,
-          "resultCount": 20,
-          "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd.md",
-          "relevanceTop1": 189,
+          "latencyMs": 609.04,
+          "resultCount": 69,
+          "top1": "projects/data-platform-dlz/concepts/ingestion-schedules-and-timeouts.md",
+          "relevanceTop1": 461,
           "goldenTop3Hit": true,
-          "goldenRank": 1
+          "goldenRank": 3
         }
       }
     },
@@ -815,27 +875,29 @@
       "query": "secrets BaseUrl variable group",
       "goldenPath": "projects/data-platform-dlz/entities/source-systems",
       "occurrences": 1,
-      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
+      "transcript_ids": [
+        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.09,
+          "latencyMs": 55.01,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.92,
-          "resultCount": 2,
-          "top1": "projects/data-platform-dlz/concepts/data-contracts-and-metadata.md",
+          "latencyMs": 55.61,
+          "resultCount": 4,
+          "top1": "projects/data-platform-dlz/concepts/cdf-tech-debt.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 31.17,
-          "resultCount": 2,
-          "top1": "projects/data-platform-dlz/concepts/data-contracts-and-metadata.md",
-          "relevanceTop1": 16,
+          "latencyMs": 195.15,
+          "resultCount": 4,
+          "top1": "projects/data-platform-dlz/skills/adding-key-vault-secrets.md",
+          "relevanceTop1": 258,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -845,27 +907,29 @@
       "query": "Databricks command execution context cluster",
       "goldenPath": "skills/databricks-asset-bundles",
       "occurrences": 1,
-      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
+      "transcript_ids": [
+        "33db22c8-3a67-43b1-bcdd-7733023b1704"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.14,
+          "latencyMs": 55.88,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 15.98,
-          "resultCount": 5,
-          "top1": "index.md",
+          "latencyMs": 56.33,
+          "resultCount": 3,
+          "top1": "skills/databricks-run-commands-via-execution-context.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 31.62,
-          "resultCount": 5,
+          "latencyMs": 202.42,
+          "resultCount": 4,
           "top1": "skills/databricks-run-commands-via-execution-context.md",
-          "relevanceTop1": 347,
+          "relevanceTop1": 814,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -875,27 +939,29 @@
       "query": "execution context",
       "goldenPath": "skills/databricks-run-commands-via-execution-context",
       "occurrences": 1,
-      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
+      "transcript_ids": [
+        "33db22c8-3a67-43b1-bcdd-7733023b1704"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.88,
+          "latencyMs": 50,
           "resultCount": 1,
           "top1": "skills/databricks-run-commands-via-execution-context.md",
           "goldenTop3Hit": true,
           "goldenRank": 1
         },
         "old_patched": {
-          "latencyMs": 10.11,
+          "latencyMs": 34.12,
           "resultCount": 3,
           "top1": "index.md",
           "goldenTop3Hit": true,
-          "goldenRank": 3
+          "goldenRank": 2
         },
         "new": {
-          "latencyMs": 32.43,
-          "resultCount": 5,
+          "latencyMs": 207.27,
+          "resultCount": 28,
           "top1": "skills/databricks-run-commands-via-execution-context.md",
-          "relevanceTop1": 324,
+          "relevanceTop1": 571,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -905,27 +971,29 @@
       "query": "metastore schema evolution",
       "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
       "occurrences": 1,
-      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
+      "transcript_ids": [
+        "33db22c8-3a67-43b1-bcdd-7733023b1704"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 15.31,
+          "latencyMs": 50.13,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 10.71,
+          "latencyMs": 34.31,
           "resultCount": 5,
-          "top1": "index.md",
+          "top1": "skills/databricks-run-commands-via-execution-context.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 30.98,
-          "resultCount": 13,
+          "latencyMs": 210.22,
+          "resultCount": 20,
           "top1": "projects/data-platform-dlz/concepts/metastore-schema-evolution.md",
-          "relevanceTop1": 301,
+          "relevanceTop1": 861,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -935,27 +1003,29 @@
       "query": "agent toolkit plugins MCP",
       "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
       "occurrences": 1,
-      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
+      "transcript_ids": [
+        "33db22c8-3a67-43b1-bcdd-7733023b1704"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.15,
+          "latencyMs": 49.04,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 15.53,
+          "latencyMs": 32.57,
           "resultCount": 5,
-          "top1": "index.md",
+          "top1": "concepts/cursor-rule-skill-wiki-stack.md",
           "goldenTop3Hit": false,
-          "goldenRank": 5
+          "goldenRank": null
         },
         "new": {
-          "latencyMs": 31.37,
-          "resultCount": 6,
+          "latencyMs": 199.08,
+          "resultCount": 13,
           "top1": "projects/data-platform-dlz/skills/agent-toolkit-and-rules.md",
-          "relevanceTop1": 153,
+          "relevanceTop1": 379,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -965,27 +1035,29 @@
       "query": "BigHand pre-deployment folderExists dbutils",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": ["53abd6fb-5c3b-4f72-969d-a8b7d23177b9"],
+      "transcript_ids": [
+        "53abd6fb-5c3b-4f72-969d-a8b7d23177b9"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.4,
+          "latencyMs": 56.57,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 17.4,
+          "latencyMs": 56.31,
           "resultCount": 1,
           "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 30.75,
-          "resultCount": 2,
-          "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd.md",
-          "relevanceTop1": 0,
+          "latencyMs": 417.32,
+          "resultCount": 8,
+          "top1": "projects/data-platform-dlz/concepts/api-ingestion-notebooks.md",
+          "relevanceTop1": 98,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -995,27 +1067,29 @@
       "query": "Unity Catalog deploy orchestrator metastore",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["60edd405-8836-4c14-8e3b-34419eb4b594"],
+      "transcript_ids": [
+        "60edd405-8836-4c14-8e3b-34419eb4b594"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.69,
+          "latencyMs": 56.96,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.56,
-          "resultCount": 11,
-          "top1": "index.md",
+          "latencyMs": 56.7,
+          "resultCount": 19,
+          "top1": "skills/wiki-first-bootstrap.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 35.43,
-          "resultCount": 12,
-          "top1": "projects/data-platform-dlz/concepts/orchestration-and-adf.md",
-          "relevanceTop1": 106,
+          "latencyMs": 257.4,
+          "resultCount": 20,
+          "top1": "projects/data-platform-dlz/concepts/metastore-schema-evolution.md",
+          "relevanceTop1": 484,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -1025,27 +1099,29 @@
       "query": "BigHand gold layer curated forecasts FactPersonCapacity workerdatamart",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": ["6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7"],
+      "transcript_ids": [
+        "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.47,
+          "latencyMs": 53.7,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.36,
-          "resultCount": 5,
-          "top1": "log.md",
+          "latencyMs": 53.86,
+          "resultCount": 4,
+          "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
           "goldenTop3Hit": true,
-          "goldenRank": 2
+          "goldenRank": 1
         },
         "new": {
-          "latencyMs": 32.7,
-          "resultCount": 5,
+          "latencyMs": 424.97,
+          "resultCount": 44,
           "top1": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration.md",
-          "relevanceTop1": 337,
+          "relevanceTop1": 745,
           "goldenTop3Hit": true,
           "goldenRank": 2
         }
@@ -1055,27 +1131,29 @@
       "query": "public holidays API",
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
       "occurrences": 1,
-      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
+      "transcript_ids": [
+        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 23.13,
-          "resultCount": 0,
-          "top1": null,
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "latencyMs": 52.62,
+          "resultCount": 1,
+          "top1": "projects/data-platform-dlz/entities/factpublicholiday.md",
+          "goldenTop3Hit": true,
+          "goldenRank": 1
         },
         "old_patched": {
-          "latencyMs": 22.6,
-          "resultCount": 9,
-          "top1": "hot.md",
+          "latencyMs": 52.77,
+          "resultCount": 13,
+          "top1": "skills/wiki-first-bootstrap.md",
           "goldenTop3Hit": false,
-          "goldenRank": 6
+          "goldenRank": 11
         },
         "new": {
-          "latencyMs": 38.65,
-          "resultCount": 9,
+          "latencyMs": 399.43,
+          "resultCount": 24,
           "top1": "projects/data-platform-dlz/entities/factpublicholiday.md",
-          "relevanceTop1": 241,
+          "relevanceTop1": 557,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1085,29 +1163,31 @@
       "query": "holidays",
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
       "occurrences": 1,
-      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
+      "transcript_ids": [
+        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 21.44,
-          "resultCount": 11,
-          "top1": "hot.md",
+          "latencyMs": 54.3,
+          "resultCount": 17,
+          "top1": "_meta/vocabulary.md",
           "goldenTop3Hit": false,
-          "goldenRank": 6
+          "goldenRank": 7
         },
         "old_patched": {
-          "latencyMs": 20.31,
-          "resultCount": 11,
-          "top1": "hot.md",
+          "latencyMs": 54.23,
+          "resultCount": 17,
+          "top1": "_meta/vocabulary.md",
           "goldenTop3Hit": false,
-          "goldenRank": 9
+          "goldenRank": 14
         },
         "new": {
-          "latencyMs": 34.51,
-          "resultCount": 11,
+          "latencyMs": 319.1,
+          "resultCount": 24,
           "top1": "projects/data-platform-dlz/entities/factpublicholiday.md",
-          "relevanceTop1": 239,
-          "goldenTop3Hit": true,
-          "goldenRank": 3
+          "relevanceTop1": 338,
+          "goldenTop3Hit": false,
+          "goldenRank": 5
         }
       }
     },
@@ -1115,29 +1195,31 @@
       "query": "BigHand API PublicHolidays",
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
       "occurrences": 1,
-      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
+      "transcript_ids": [
+        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.58,
+          "latencyMs": 59.92,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.71,
-          "resultCount": 7,
-          "top1": "hot.md",
-          "goldenTop3Hit": false,
-          "goldenRank": 4
+          "latencyMs": 59.42,
+          "resultCount": 11,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
+          "goldenTop3Hit": true,
+          "goldenRank": 3
         },
         "new": {
-          "latencyMs": 32.31,
-          "resultCount": 9,
+          "latencyMs": 506.4,
+          "resultCount": 25,
           "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 202,
-          "goldenTop3Hit": true,
-          "goldenRank": 2
+          "relevanceTop1": 464,
+          "goldenTop3Hit": false,
+          "goldenRank": 4
         }
       }
     },
@@ -1145,27 +1227,29 @@
       "query": "BigHand API",
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
       "occurrences": 1,
-      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
+      "transcript_ids": [
+        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.32,
-          "resultCount": 5,
+          "latencyMs": 53.01,
+          "resultCount": 8,
           "top1": "projects/data-platform-dlz/concepts/adf-pipeline-catalog.md",
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "goldenTop3Hit": true,
+          "goldenRank": 2
         },
         "old_patched": {
-          "latencyMs": 15.06,
+          "latencyMs": 48.41,
           "resultCount": 20,
-          "top1": "hot.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
           "goldenRank": 10
         },
         "new": {
-          "latencyMs": 33.02,
-          "resultCount": 24,
+          "latencyMs": 197.43,
+          "resultCount": 35,
           "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 239,
+          "relevanceTop1": 502,
           "goldenTop3Hit": true,
           "goldenRank": 3
         }
@@ -1175,27 +1259,29 @@
       "query": "public holidays",
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
       "occurrences": 1,
-      "transcript_ids": ["a4e1e31a-e8b9-45e7-a111-6f00402224d6"],
+      "transcript_ids": [
+        "a4e1e31a-e8b9-45e7-a111-6f00402224d6"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.66,
-          "resultCount": 6,
-          "top1": "index.md",
+          "latencyMs": 54.61,
+          "resultCount": 8,
+          "top1": "_meta/vocabulary.md",
           "goldenTop3Hit": false,
-          "goldenRank": 5
+          "goldenRank": 7
         },
         "old_patched": {
-          "latencyMs": 17.53,
-          "resultCount": 11,
-          "top1": "hot.md",
+          "latencyMs": 54.25,
+          "resultCount": 17,
+          "top1": "_meta/vocabulary.md",
           "goldenTop3Hit": false,
-          "goldenRank": 10
+          "goldenRank": 15
         },
         "new": {
-          "latencyMs": 31.4,
-          "resultCount": 11,
+          "latencyMs": 397.48,
+          "resultCount": 24,
           "top1": "projects/data-platform-dlz/entities/factpublicholiday.md",
-          "relevanceTop1": 323,
+          "relevanceTop1": 502,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1205,27 +1291,29 @@
       "query": "person calendar",
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
       "occurrences": 1,
-      "transcript_ids": ["c63bf7c6-8498-4737-b632-1e5e1d14136e"],
+      "transcript_ids": [
+        "c63bf7c6-8498-4737-b632-1e5e1d14136e"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.42,
+          "latencyMs": 53.93,
           "resultCount": 1,
           "top1": "projects/data-platform-dlz/entities/factpublicholiday.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.64,
-          "resultCount": 11,
-          "top1": "index.md",
+          "latencyMs": 53.64,
+          "resultCount": 19,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 8
+          "goldenRank": 12
         },
         "new": {
-          "latencyMs": 31.27,
-          "resultCount": 11,
+          "latencyMs": 189.33,
+          "resultCount": 19,
           "top1": "projects/data-platform-dlz/entities/factpersoncalendar.md",
-          "relevanceTop1": 332,
+          "relevanceTop1": 602,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1235,24 +1323,26 @@
       "query": "dmlz-kv",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
+      "transcript_ids": [
+        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.37,
+          "latencyMs": 50.75,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.55,
+          "latencyMs": 50.85,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 29.51,
+          "latencyMs": 126.14,
           "resultCount": 0,
           "top1": null,
           "relevanceTop1": null,
@@ -1265,27 +1355,29 @@
       "query": "dmlz",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
+      "transcript_ids": [
+        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.61,
-          "resultCount": 2,
-          "top1": "projects/data-platform-dlz/concepts/azure-and-dlz-environment.md",
+          "latencyMs": 60.41,
+          "resultCount": 10,
+          "top1": "skills/dev-workstation-toolchain.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.49,
-          "resultCount": 2,
-          "top1": "projects/data-platform-dlz/concepts/azure-and-dlz-environment.md",
+          "latencyMs": 60.13,
+          "resultCount": 10,
+          "top1": "skills/dev-workstation-toolchain.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 29.93,
-          "resultCount": 2,
-          "top1": "projects/data-platform-dlz/concepts/azure-and-dlz-environment.md",
-          "relevanceTop1": 15,
+          "latencyMs": 132.14,
+          "resultCount": 10,
+          "top1": "projects/data-platform-dlz/concepts/metadata-sql-database.md",
+          "relevanceTop1": 225,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -1295,27 +1387,29 @@
       "query": "west europe uksouth migration dlz",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
+      "transcript_ids": [
+        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 15.88,
+          "latencyMs": 55.46,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 15.98,
-          "resultCount": 0,
-          "top1": null,
+          "latencyMs": 55.57,
+          "resultCount": 1,
+          "top1": "projects/data-platform-dlz/concepts/cdf-tech-debt.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 29.66,
-          "resultCount": 0,
-          "top1": null,
-          "relevanceTop1": null,
+          "latencyMs": 432.02,
+          "resultCount": 1,
+          "top1": "projects/data-platform-dlz/concepts/cdf-tech-debt.md",
+          "relevanceTop1": 101,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -1325,29 +1419,31 @@
       "query": "CDF",
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
       "occurrences": 1,
-      "transcript_ids": ["d99722c2-4149-42f0-9a92-420e7adf12bc"],
+      "transcript_ids": [
+        "d99722c2-4149-42f0-9a92-420e7adf12bc"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.57,
+          "latencyMs": 39.89,
           "resultCount": 30,
           "top1": "index.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.56,
+          "latencyMs": 40.06,
           "resultCount": 30,
           "top1": "index.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 34.57,
-          "resultCount": 40,
+          "latencyMs": 142.99,
+          "resultCount": 94,
           "top1": "projects/data-platform-dlz/concepts/cdf-lookup.md",
-          "relevanceTop1": 279,
-          "goldenTop3Hit": true,
-          "goldenRank": 2
+          "relevanceTop1": 323,
+          "goldenTop3Hit": false,
+          "goldenRank": null
         }
       }
     },
@@ -1355,27 +1451,29 @@
       "query": "BigHand naming conventions workerdatamart temp",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["e91fdbcf-6d94-4d96-af56-201d873ac2e8"],
+      "transcript_ids": [
+        "e91fdbcf-6d94-4d96-af56-201d873ac2e8"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.3,
+          "latencyMs": 53.05,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 19.36,
-          "resultCount": 11,
-          "top1": "hot.md",
+          "latencyMs": 53.73,
+          "resultCount": 14,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 36.41,
-          "resultCount": 11,
-          "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 202,
+          "latencyMs": 460.92,
+          "resultCount": 44,
+          "top1": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions.md",
+          "relevanceTop1": 574,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -1385,29 +1483,31 @@
       "query": "naming convention workerdatamart curated",
       "goldenPath": "projects/data-platform-dlz/concepts/curated-and-model-layers",
       "occurrences": 1,
-      "transcript_ids": ["e91fdbcf-6d94-4d96-af56-201d873ac2e8"],
+      "transcript_ids": [
+        "e91fdbcf-6d94-4d96-af56-201d873ac2e8"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.27,
+          "latencyMs": 50.68,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 17.4,
-          "resultCount": 12,
-          "top1": "hot.md",
+          "latencyMs": 50.88,
+          "resultCount": 16,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 8
+          "goldenRank": null
         },
         "new": {
-          "latencyMs": 34.98,
-          "resultCount": 12,
+          "latencyMs": 449.97,
+          "resultCount": 46,
           "top1": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions.md",
-          "relevanceTop1": 172,
-          "goldenTop3Hit": true,
-          "goldenRank": 2
+          "relevanceTop1": 529,
+          "goldenTop3Hit": false,
+          "goldenRank": null
         }
       }
     },
@@ -1415,27 +1515,29 @@
       "query": "FactForecasts curated_factforecasts FactQualifications",
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
       "occurrences": 1,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.57,
+          "latencyMs": 62.67,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.23,
+          "latencyMs": 62.74,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 28.99,
-          "resultCount": 0,
-          "top1": null,
-          "relevanceTop1": null,
+          "latencyMs": 429.23,
+          "resultCount": 4,
+          "top1": "projects/data-platform-dlz/concepts/contract-generation-pipeline.md",
+          "relevanceTop1": 49,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -1445,27 +1547,29 @@
       "query": "FactForecasts curated_factforecasts BigHand.FactPersonCapacity migration decommission legacy",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.29,
+          "latencyMs": 52.31,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.94,
+          "latencyMs": 52.66,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 29.77,
-          "resultCount": 0,
-          "top1": null,
-          "relevanceTop1": null,
+          "latencyMs": 571.74,
+          "resultCount": 4,
+          "top1": "projects/data-platform-dlz/skills/bighand-wdm-legacy-remnants-and-cdf-chain.md",
+          "relevanceTop1": 263,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -1475,27 +1579,29 @@
       "query": "FactPersonForecast bighand enriched_workerdatamart",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 19.44,
+          "latencyMs": 53.91,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 18.68,
-          "resultCount": 5,
+          "latencyMs": 53.65,
+          "resultCount": 7,
           "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
           "goldenTop3Hit": null,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 34.67,
-          "resultCount": 5,
-          "top1": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration.md",
-          "relevanceTop1": 207,
+          "latencyMs": 198.21,
+          "resultCount": 7,
+          "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
+          "relevanceTop1": 407,
           "goldenTop3Hit": null,
           "goldenRank": null
         }
@@ -1505,27 +1611,29 @@
       "query": "BigHand deploy FactPerson Metadata Transformation Unity Catalog",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.1,
+          "latencyMs": 71.33,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.07,
-          "resultCount": 3,
-          "top1": "hot.md",
-          "goldenTop3Hit": true,
-          "goldenRank": 3
+          "latencyMs": 72.11,
+          "resultCount": 13,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
+          "goldenTop3Hit": false,
+          "goldenRank": 6
         },
         "new": {
-          "latencyMs": 30.89,
-          "resultCount": 3,
+          "latencyMs": 281.24,
+          "resultCount": 12,
           "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
-          "relevanceTop1": 202,
+          "relevanceTop1": 447,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1535,27 +1643,29 @@
       "query": "monitoring error logs ADF debug mode",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.5,
+          "latencyMs": 53.7,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 16.29,
-          "resultCount": 4,
-          "top1": "index.md",
+          "latencyMs": 53.57,
+          "resultCount": 8,
+          "top1": "skills/cursor-agent-stack-catalog.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 31.77,
-          "resultCount": 4,
+          "latencyMs": 212.89,
+          "resultCount": 8,
           "top1": "projects/data-platform-dlz/skills/adf-debug-mode-monitoring.md",
-          "relevanceTop1": 305,
+          "relevanceTop1": 712,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -1565,29 +1675,31 @@
       "query": "deploy",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
+      "transcript_ids": [
+        "f05dd98a-2a87-4999-9183-66134c47a684"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 12.82,
+          "latencyMs": 38.85,
           "resultCount": 20,
-          "top1": "hot.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
-          "goldenRank": 16
+          "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 12.83,
+          "latencyMs": 38.98,
           "resultCount": 20,
-          "top1": "hot.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
-          "goldenRank": 16
+          "goldenRank": null
         },
         "new": {
-          "latencyMs": 29.4,
-          "resultCount": 33,
+          "latencyMs": 133.49,
+          "resultCount": 69,
           "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd.md",
-          "relevanceTop1": 281,
+          "relevanceTop1": 396,
           "goldenTop3Hit": false,
-          "goldenRank": 7
+          "goldenRank": 10
         }
       }
     },
@@ -1595,27 +1707,29 @@
       "query": "notebookErrorMessage",
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
       "occurrences": 1,
-      "transcript_ids": ["bac02dac-8dbb-413f-b724-5ee65fb18cc6"],
+      "transcript_ids": [
+        "bac02dac-8dbb-413f-b724-5ee65fb18cc6"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.63,
-          "resultCount": 3,
+          "latencyMs": 49.44,
+          "resultCount": 6,
           "top1": "projects/data-platform-dlz/concepts/azure-and-dlz-environment.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 17.18,
-          "resultCount": 3,
+          "latencyMs": 49.23,
+          "resultCount": 6,
           "top1": "projects/data-platform-dlz/concepts/azure-and-dlz-environment.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 30.14,
-          "resultCount": 3,
+          "latencyMs": 143.31,
+          "resultCount": 6,
           "top1": "projects/data-platform-dlz/concepts/monitoring-and-error-logs.md",
-          "relevanceTop1": 160,
+          "relevanceTop1": 37,
           "goldenTop3Hit": false,
           "goldenRank": null
         }
@@ -1625,29 +1739,31 @@
       "query": "Unity Catalog pipeline",
       "goldenPath": "projects/data-platform-dlz/concepts/orchestration-and-adf",
       "occurrences": 1,
-      "transcript_ids": ["bac02dac-8dbb-413f-b724-5ee65fb18cc6"],
+      "transcript_ids": [
+        "bac02dac-8dbb-413f-b724-5ee65fb18cc6"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.03,
-          "resultCount": 1,
+          "latencyMs": 54.91,
+          "resultCount": 2,
           "top1": "projects/data-platform-dlz/concepts/backfill-and-operational-playbooks.md",
-          "goldenTop3Hit": false,
-          "goldenRank": null
+          "goldenTop3Hit": true,
+          "goldenRank": 2
         },
         "old_patched": {
-          "latencyMs": 12.17,
+          "latencyMs": 43.67,
           "resultCount": 10,
-          "top1": "index.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 33.17,
-          "resultCount": 22,
-          "top1": "projects/data-platform-dlz/concepts/curation-pipeline.md",
-          "relevanceTop1": 110,
+          "latencyMs": 248.91,
+          "resultCount": 39,
+          "top1": "projects/data-platform-dlz/skills/unity-catalog-object-comments.md",
+          "relevanceTop1": 407,
           "goldenTop3Hit": false,
-          "goldenRank": null
+          "goldenRank": 7
         }
       }
     },
@@ -1655,27 +1771,29 @@
       "query": "bighand FactPublicHoliday public holidays",
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
       "occurrences": 1,
-      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
+      "transcript_ids": [
+        "f681a293-0729-4f69-93e9-cd5da9b4572a"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17.23,
+          "latencyMs": 53.46,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 17.08,
-          "resultCount": 11,
-          "top1": "hot.md",
+          "latencyMs": 53.56,
+          "resultCount": 12,
+          "top1": "concepts/wiki-structure-a-plus.md",
           "goldenTop3Hit": false,
-          "goldenRank": 10
+          "goldenRank": 11
         },
         "new": {
-          "latencyMs": 32.18,
-          "resultCount": 11,
+          "latencyMs": 522.37,
+          "resultCount": 21,
           "top1": "projects/data-platform-dlz/entities/factpublicholiday.md",
-          "relevanceTop1": 313,
+          "relevanceTop1": 849,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1685,29 +1803,31 @@
       "query": "FactPersonForecast bighand entity",
       "goldenPath": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
       "occurrences": 1,
-      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
+      "transcript_ids": [
+        "f681a293-0729-4f69-93e9-cd5da9b4572a"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.75,
+          "latencyMs": 54.5,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 17.26,
-          "resultCount": 10,
-          "top1": "log.md",
+          "latencyMs": 53.8,
+          "resultCount": 15,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 7
+          "goldenRank": 6
         },
         "new": {
-          "latencyMs": 31.48,
-          "resultCount": 10,
-          "top1": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration.md",
-          "relevanceTop1": 205,
-          "goldenTop3Hit": true,
-          "goldenRank": 3
+          "latencyMs": 214.59,
+          "resultCount": 15,
+          "top1": "projects/data-platform-dlz/concepts/bighand-data-product.md",
+          "relevanceTop1": 407,
+          "goldenTop3Hit": false,
+          "goldenRank": 11
         }
       }
     },
@@ -1715,27 +1835,29 @@
       "query": "FactPersonCalendar person date calendar",
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
       "occurrences": 1,
-      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
+      "transcript_ids": [
+        "f681a293-0729-4f69-93e9-cd5da9b4572a"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.4,
+          "latencyMs": 52.92,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 13.77,
+          "latencyMs": 45.99,
           "resultCount": 5,
-          "top1": "index.md",
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 32.14,
-          "resultCount": 10,
+          "latencyMs": 219.22,
+          "resultCount": 12,
           "top1": "projects/data-platform-dlz/entities/factpersoncalendar.md",
-          "relevanceTop1": 237,
+          "relevanceTop1": 782,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1745,27 +1867,29 @@
       "query": "Benevity",
       "goldenPath": "projects/data-platform-dlz/concepts/benevity-integration",
       "occurrences": 1,
-      "transcript_ids": ["fec9aef1-4c09-49db-8534-3ac8c1e28cf1"],
+      "transcript_ids": [
+        "fec9aef1-4c09-49db-8534-3ac8c1e28cf1"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 17,
-          "resultCount": 12,
-          "top1": "index.md",
+          "latencyMs": 52.99,
+          "resultCount": 14,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 6
+          "goldenRank": 5
         },
         "old_patched": {
-          "latencyMs": 16.91,
-          "resultCount": 12,
-          "top1": "index.md",
+          "latencyMs": 52.63,
+          "resultCount": 14,
+          "top1": "projects/data-platform-dlz/data-platform-dlz.md",
           "goldenTop3Hit": false,
-          "goldenRank": 6
+          "goldenRank": 7
         },
         "new": {
-          "latencyMs": 30.68,
-          "resultCount": 12,
+          "latencyMs": 130.81,
+          "resultCount": 14,
           "top1": "projects/data-platform-dlz/concepts/benevity-integration.md",
-          "relevanceTop1": 328,
+          "relevanceTop1": 472,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1775,29 +1899,31 @@
       "query": "ADF pipeline orchestrator",
       "goldenPath": "projects/data-platform-dlz/concepts/orchestration-and-adf",
       "occurrences": 0,
-      "transcript_ids": ["wiki-query-suite"],
+      "transcript_ids": [
+        "wiki-query-suite"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.7,
+          "latencyMs": 52.8,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 19.03,
-          "resultCount": 13,
-          "top1": "index.md",
+          "latencyMs": 48.58,
+          "resultCount": 20,
+          "top1": "skills/wiki-first-bootstrap.md",
           "goldenTop3Hit": false,
-          "goldenRank": 9
+          "goldenRank": 16
         },
         "new": {
-          "latencyMs": 36.96,
-          "resultCount": 20,
-          "top1": "projects/data-platform-dlz/concepts/orchestration-and-adf.md",
-          "relevanceTop1": 232,
+          "latencyMs": 255.82,
+          "resultCount": 41,
+          "top1": "projects/data-platform-dlz/concepts/adf-pipeline-catalog.md",
+          "relevanceTop1": 612,
           "goldenTop3Hit": true,
-          "goldenRank": 1
+          "goldenRank": 2
         }
       }
     },
@@ -1805,27 +1931,29 @@
       "query": "FactPublicHoliday",
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
       "occurrences": 0,
-      "transcript_ids": ["wiki-query-suite"],
+      "transcript_ids": [
+        "wiki-query-suite"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 16.35,
-          "resultCount": 11,
-          "top1": "hot.md",
+          "latencyMs": 48.47,
+          "resultCount": 20,
+          "top1": "_meta/vocabulary.md",
           "goldenTop3Hit": false,
-          "goldenRank": 10
+          "goldenRank": 9
         },
         "old_patched": {
-          "latencyMs": 16.33,
-          "resultCount": 11,
-          "top1": "hot.md",
+          "latencyMs": 48.54,
+          "resultCount": 20,
+          "top1": "_meta/vocabulary.md",
           "goldenTop3Hit": false,
-          "goldenRank": 10
+          "goldenRank": 19
         },
         "new": {
-          "latencyMs": 30.01,
-          "resultCount": 11,
+          "latencyMs": 421.12,
+          "resultCount": 25,
           "top1": "projects/data-platform-dlz/entities/factpublicholiday.md",
-          "relevanceTop1": 422,
+          "relevanceTop1": 573,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1835,27 +1963,29 @@
       "query": "deployment CI CD",
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
       "occurrences": 0,
-      "transcript_ids": ["wiki-query-suite"],
+      "transcript_ids": [
+        "wiki-query-suite"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 15.79,
+          "latencyMs": 54.6,
           "resultCount": 0,
           "top1": null,
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "old_patched": {
-          "latencyMs": 13.49,
+          "latencyMs": 47.72,
           "resultCount": 20,
-          "top1": "index.md",
+          "top1": "_meta/manifest.md",
           "goldenTop3Hit": false,
           "goldenRank": null
         },
         "new": {
-          "latencyMs": 34.03,
-          "resultCount": 30,
+          "latencyMs": 227.58,
+          "resultCount": 45,
           "top1": "projects/data-platform-dlz/skills/deployment-and-ci-cd.md",
-          "relevanceTop1": 331,
+          "relevanceTop1": 563,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }
@@ -1865,27 +1995,29 @@
       "query": "Unity Catalog metastore",
       "goldenPath": "projects/data-platform-dlz/concepts/metastore-schema-evolution",
       "occurrences": 0,
-      "transcript_ids": ["wiki-query-suite"],
+      "transcript_ids": [
+        "wiki-query-suite"
+      ],
       "baselines": {
         "old_upstream": {
-          "latencyMs": 18.43,
+          "latencyMs": 59.69,
           "resultCount": 1,
           "top1": "projects/data-platform-dlz/concepts/metastore-schema-evolution.md",
           "goldenTop3Hit": true,
           "goldenRank": 1
         },
         "old_patched": {
-          "latencyMs": 18.82,
-          "resultCount": 13,
-          "top1": "index.md",
+          "latencyMs": 58.53,
+          "resultCount": 20,
+          "top1": "skills/wiki-first-bootstrap.md",
           "goldenTop3Hit": false,
-          "goldenRank": 10
+          "goldenRank": 14
         },
         "new": {
-          "latencyMs": 36.27,
-          "resultCount": 13,
+          "latencyMs": 231.93,
+          "resultCount": 23,
           "top1": "projects/data-platform-dlz/concepts/metastore-schema-evolution.md",
-          "relevanceTop1": 113,
+          "relevanceTop1": 436,
           "goldenTop3Hit": true,
           "goldenRank": 1
         }

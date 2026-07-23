@@ -1,184 +1,172 @@
 {
-  "generatedAt": "2026-07-08T18:06:54.720Z",
+  "generatedAt": "2026-07-23T17:03:46.929Z",
   "topReadPaths": [
     {
       "path": "projects/data-platform-dlz/data-platform-dlz",
       "corpusCount": 20,
-      "latencyMs": 13.63,
+      "latencyMs": 66.69,
       "hasContentHash": true,
-      "outgoingLinkCount": 36,
-      "resolvedLinkCount": 36,
+      "outgoingLinkCount": 72,
+      "resolvedLinkCount": 72,
       "resolutionRate": 100
     },
     {
       "path": "projects/data-platform-dlz/concepts/bighand-data-product",
       "corpusCount": 14,
-      "latencyMs": 12.56,
+      "latencyMs": 59.67,
+      "hasContentHash": true,
+      "outgoingLinkCount": 19,
+      "resolvedLinkCount": 19,
+      "resolutionRate": 100
+    },
+    {
+      "path": "index",
+      "corpusCount": 13,
+      "latencyMs": 58.95,
+      "hasContentHash": true,
+      "outgoingLinkCount": 19,
+      "resolvedLinkCount": 19,
+      "resolutionRate": 100
+    },
+    {
+      "path": "hot",
+      "corpusCount": 13,
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: hot\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"hot\",\n  \"details\": {\n    \"missingPath\": \"hot\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
+    },
+    {
+      "path": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
+      "corpusCount": 9,
+      "latencyMs": 63.19,
+      "hasContentHash": true,
+      "outgoingLinkCount": 27,
+      "resolvedLinkCount": 27,
+      "resolutionRate": 100
+    },
+    {
+      "path": "log",
+      "corpusCount": 8,
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: log\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"log\",\n  \"details\": {\n    \"missingPath\": \"log\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
+    },
+    {
+      "path": "projects/data-platform-dlz/concepts/curation-pipeline",
+      "corpusCount": 7,
+      "latencyMs": 104.91,
+      "hasContentHash": true,
+      "outgoingLinkCount": 18,
+      "resolvedLinkCount": 18,
+      "resolutionRate": 100
+    },
+    {
+      "path": "projects/data-platform-dlz/entities/factpersoncalendar",
+      "corpusCount": 6,
+      "latencyMs": 61.23,
+      "hasContentHash": true,
+      "outgoingLinkCount": 6,
+      "resolvedLinkCount": 6,
+      "resolutionRate": 100
+    },
+    {
+      "path": "_meta/ingest-manifest",
+      "corpusCount": 6,
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: _meta/ingest-manifest\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"_meta/ingest-manifest\",\n  \"details\": {\n    \"missingPath\": \"_meta/ingest-manifest\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
+    },
+    {
+      "path": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
+      "corpusCount": 6,
+      "latencyMs": 60.77,
+      "hasContentHash": true,
+      "outgoingLinkCount": 10,
+      "resolvedLinkCount": 10,
+      "resolutionRate": 100
+    },
+    {
+      "path": "projects/data-platform-dlz/concepts/data-contracts-and-metadata",
+      "corpusCount": 5,
+      "latencyMs": 75.58,
       "hasContentHash": true,
       "outgoingLinkCount": 14,
       "resolvedLinkCount": 14,
       "resolutionRate": 100
     },
     {
-      "path": "index",
-      "corpusCount": 13,
-      "latencyMs": 13.16,
-      "hasContentHash": true,
-      "outgoingLinkCount": 49,
-      "resolvedLinkCount": 48,
-      "resolutionRate": 98
-    },
-    {
-      "path": "hot",
-      "corpusCount": 13,
-      "latencyMs": 13.28,
-      "hasContentHash": true,
-      "outgoingLinkCount": 5,
-      "resolvedLinkCount": 5,
-      "resolutionRate": 100
-    },
-    {
-      "path": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
-      "corpusCount": 9,
-      "latencyMs": 12.75,
-      "hasContentHash": true,
-      "outgoingLinkCount": 12,
-      "resolvedLinkCount": 12,
-      "resolutionRate": 100
-    },
-    {
-      "path": "log",
-      "corpusCount": 8,
-      "latencyMs": 12.67,
-      "hasContentHash": true,
-      "outgoingLinkCount": 2,
-      "resolvedLinkCount": 2,
-      "resolutionRate": 100
-    },
-    {
-      "path": "projects/data-platform-dlz/concepts/curation-pipeline",
-      "corpusCount": 7,
-      "latencyMs": 13.04,
-      "hasContentHash": true,
-      "outgoingLinkCount": 15,
-      "resolvedLinkCount": 15,
-      "resolutionRate": 100
-    },
-    {
-      "path": "projects/data-platform-dlz/entities/factpersoncalendar",
-      "corpusCount": 6,
-      "latencyMs": 12.58,
-      "hasContentHash": true,
-      "outgoingLinkCount": 4,
-      "resolvedLinkCount": 4,
-      "resolutionRate": 100
-    },
-    {
-      "path": "_meta/ingest-manifest",
-      "corpusCount": 6,
-      "latencyMs": 13.3,
-      "hasContentHash": true,
-      "outgoingLinkCount": 0,
-      "resolvedLinkCount": 0,
-      "resolutionRate": null
-    },
-    {
-      "path": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
-      "corpusCount": 6,
-      "latencyMs": 13.31,
-      "hasContentHash": true,
-      "outgoingLinkCount": 7,
-      "resolvedLinkCount": 7,
-      "resolutionRate": 100
-    },
-    {
-      "path": "projects/data-platform-dlz/concepts/data-contracts-and-metadata",
-      "corpusCount": 5,
-      "latencyMs": 12.66,
-      "hasContentHash": true,
-      "outgoingLinkCount": 9,
-      "resolvedLinkCount": 9,
-      "resolutionRate": 100
-    },
-    {
       "path": "projects/data-platform-dlz/concepts/worker-data-mart",
       "corpusCount": 5,
-      "latencyMs": 12.5,
+      "latencyMs": 57.83,
       "hasContentHash": true,
-      "outgoingLinkCount": 9,
-      "resolvedLinkCount": 9,
+      "outgoingLinkCount": 20,
+      "resolvedLinkCount": 20,
       "resolutionRate": 100
     },
     {
       "path": "projects/data-platform-dlz/entities/data-products",
       "corpusCount": 5,
-      "latencyMs": 12.78,
+      "latencyMs": 54.83,
       "hasContentHash": true,
-      "outgoingLinkCount": 7,
-      "resolvedLinkCount": 7,
+      "outgoingLinkCount": 10,
+      "resolvedLinkCount": 10,
       "resolutionRate": 100
     },
     {
       "path": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
       "corpusCount": 4,
-      "latencyMs": 12.94,
+      "latencyMs": 55.3,
       "hasContentHash": true,
-      "outgoingLinkCount": 7,
-      "resolvedLinkCount": 7,
+      "outgoingLinkCount": 10,
+      "resolvedLinkCount": 10,
       "resolutionRate": 100
     },
     {
       "path": "projects/data-platform-dlz/entities/source-systems",
       "corpusCount": 4,
-      "latencyMs": 13.09,
-      "hasContentHash": true,
-      "outgoingLinkCount": 9,
-      "resolvedLinkCount": 9,
-      "resolutionRate": 100
-    },
-    {
-      "path": "projects/data-platform-dlz/concepts/curated-and-model-layers",
-      "corpusCount": 4,
-      "latencyMs": 11.97,
+      "latencyMs": 54.36,
       "hasContentHash": true,
       "outgoingLinkCount": 11,
       "resolvedLinkCount": 11,
       "resolutionRate": 100
     },
     {
+      "path": "projects/data-platform-dlz/concepts/curated-and-model-layers",
+      "corpusCount": 4,
+      "skipped": true,
+      "reason": "{\n  \"error\": \"note_not_found\",\n  \"message\": \"Note not found: projects/data-platform-dlz/concepts/curated-and-model-layers\",\n  \"action\": \"read\",\n  \"sideEffects\": \"none\",\n  \"retryable\": true,\n  \"path\": \"projects/data-platform-dlz/concepts/curated-and-model-layers\",\n  \"details\": {\n    \"missingPath\": \"projects/data-platform-dlz/concepts/curated-and-model-layers\"\n  },\n  \"recovery\": {\n    \"tool\": \"search\",\n    \"arguments\": {\n      \"action\": \"list\"\n    }\n  },\n  \"hint\": \"Check the path with search (action list or content), then retry.\",\n  \"code\": \"note_not_found\"\n}"
+    },
+    {
       "path": "projects/data-platform-dlz/concepts/orchestration-and-adf",
       "corpusCount": 4,
-      "latencyMs": 10.61,
+      "latencyMs": 55.27,
       "hasContentHash": true,
-      "outgoingLinkCount": 7,
-      "resolvedLinkCount": 7,
+      "outgoingLinkCount": 15,
+      "resolvedLinkCount": 15,
       "resolutionRate": 100
     },
     {
       "path": "projects/data-platform-dlz/concepts/contract-generation-pipeline",
       "corpusCount": 3,
-      "latencyMs": 11.23,
+      "latencyMs": 55.37,
       "hasContentHash": true,
-      "outgoingLinkCount": 7,
-      "resolvedLinkCount": 7,
+      "outgoingLinkCount": 12,
+      "resolvedLinkCount": 12,
       "resolutionRate": 100
     },
     {
       "path": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
       "corpusCount": 3,
-      "latencyMs": 13.39,
+      "latencyMs": 54.89,
       "hasContentHash": true,
-      "outgoingLinkCount": 7,
-      "resolvedLinkCount": 6,
-      "resolutionRate": 85.7
+      "outgoingLinkCount": 27,
+      "resolvedLinkCount": 27,
+      "resolutionRate": 100
     },
     {
       "path": "projects/data-platform-dlz/concepts/bighand-gold-layer-exploration",
       "corpusCount": 3,
-      "latencyMs": 15.91,
+      "latencyMs": 54,
       "hasContentHash": true,
-      "outgoingLinkCount": 8,
-      "resolvedLinkCount": 8,
+      "outgoingLinkCount": 9,
+      "resolvedLinkCount": 9,
       "resolutionRate": 100
     }
   ],
@@ -186,14 +174,14 @@
     {
       "path": "projects/data-platform-dlz/concepts/bighand-data-product",
       "transcript_id": "bac02dac-8dbb-413f-b724-5ee65fb18cc6",
-      "backlinkCount": 16,
-      "latencyMs": 25.01
+      "backlinkCount": 24,
+      "latencyMs": 103
     },
     {
       "path": "projects/data-platform-dlz/concepts/benevity-integration",
       "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
       "backlinkCount": 5,
-      "latencyMs": 24.63
+      "latencyMs": 98.61
     }
   ]
 }

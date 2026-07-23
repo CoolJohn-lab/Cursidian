@@ -16,22 +16,22 @@ const WARMUP = 1;
 const RUNS = 5;
 
 const BENCHMARK_CASES = [
-  { label: 'list_notes.root', type: 'list', folder: '' },
-  { label: 'search_content.adf_pipeline', type: 'search', query: 'ADF pipeline', limit: 20 },
+  { label: 'search.list.root', type: 'list', folder: '' },
+  { label: 'search.content.adf_pipeline', type: 'search', query: 'ADF pipeline', limit: 20 },
   {
-    label: 'search_content.factpublicholiday',
+    label: 'search.content.factpublicholiday',
     type: 'search',
     query: 'FactPublicHoliday',
     limit: 10,
   },
-  { label: 'read_note.index', type: 'read', path: 'index' },
+  { label: 'note.read.index', type: 'read', path: 'index' },
   {
-    label: 'get_backlinks.project_hub',
+    label: 'graph.project_hub',
     type: 'backlinks',
     path: 'projects/data-platform-dlz/data-platform-dlz',
   },
   {
-    label: 'search_content.cached_repeat',
+    label: 'search.content.cached_repeat',
     type: 'search',
     query: 'ADF pipeline',
     limit: 20,
@@ -57,7 +57,11 @@ async function timeOperation(baseline, testCase, repoRoot) {
       if (!testCase.cached) resetCaches();
       const { server } = await createTestServer();
       await parseResult(
-        await callTool(server, 'search_content', { query: testCase.query, limit: testCase.limit }),
+        await callTool(server, 'search', {
+          action: 'content',
+          query: testCase.query,
+          limit: testCase.limit,
+        }),
       );
     }
   } else {
@@ -67,11 +71,11 @@ async function timeOperation(baseline, testCase, repoRoot) {
     if (!testCase.cached) resetCaches();
     const { server } = await createTestServer();
     if (testCase.type === 'list') {
-      await parseResult(await callTool(server, 'list_notes', { folder: testCase.folder }));
+      await parseResult(await callTool(server, 'search', { action: 'list', folder: testCase.folder }));
     } else if (testCase.type === 'read') {
-      await parseResult(await callTool(server, 'read_note', { path: testCase.path }));
+      await parseResult(await callTool(server, 'note', { action: 'read', path: testCase.path }));
     } else if (testCase.type === 'backlinks') {
-      await parseResult(await callTool(server, 'get_backlinks', { path: testCase.path }));
+      await parseResult(await callTool(server, 'graph', { path: testCase.path }));
     }
   }
 

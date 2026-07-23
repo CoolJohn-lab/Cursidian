@@ -504,8 +504,6 @@ function preset(name, cursidian) {
   if (name === 'cursor-global') {
     const candidates = [
       path.join(os.homedir(), '.cursor', 'skills'),
-      path.join(os.homedir(), '.cursor', 'plugins', 'local'),
-      path.join(os.homedir(), '.cursor', 'my-agents'),
       path.join(os.homedir(), '.cursor', 'rules'),
       path.join(os.homedir(), '.cursor', 'config'),
     ];

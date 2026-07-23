@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [4.1.1] - 2026-07-23
+
+### Changed
+
+- Retired the unused `~/.cursor/plugins/local/my-agents` Cursor-plugin path. Rules live in `~/.cursor/rules/` (plus project `.cursor/rules` when scoped); skills stay in `~/.cursor/skills/` via `skills:install`. `AGENTS.md` moved to `cursidian-agents.mdc`. Deslop `cursor-global` preset no longer scans `plugins/local` or `my-agents`.
+
 ## [4.1.0] - 2026-07-23
 
 ### Changed

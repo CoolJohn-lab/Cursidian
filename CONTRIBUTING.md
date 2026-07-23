@@ -16,7 +16,7 @@ cleans that value before running nested npm commands. On Windows PowerShell, pre
 ## Skills
 
 Wiki skills are tracked under `skills/wiki/` (not under `.cursor/`, which is gitignored).
-Do **not** add project `.cursor/rules/*.mdc` - rules live only in `~/.cursor/plugins/local/my-agents/rules/` (golden standard: thin rule -> skill -> wiki SoT).
+Machine-wide rules live in `~/.cursor/rules/`; project `.cursor/rules/*.mdc` is fine for scoped thin triggers. Do **not** use `~/.cursor/plugins/local/my-agents` (golden standard: thin rule -> skill -> wiki SoT).
 
 1. Edit the skill under `skills/wiki/<name>/SKILL.md`.
 2. Keep the MCP **protocol** in `skills/wiki/vault/SKILL.md` (hard contract + page template). Durable product/tool facts belong in the wiki under `projects/cursidian/` via `user-cursidian`.
@@ -58,7 +58,7 @@ npm run bump -- --dry-run
 
 `npm run bump` **rejects an empty `[Unreleased]`** unless you pass `--allow-empty-changelog`.
 
-Agents: when asked to "bump the version number", add changelog bullets first, then run `npm run bump` (see `AGENTS.md`). The script updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated version section. Do not tag or publish unless explicitly asked (see [`docs/PUBLISH.md`](docs/PUBLISH.md)).
+Agents: when asked to "bump the version number", add changelog bullets first, then run `npm run bump` (see `~/.cursor/rules/cursidian-agents.mdc`). The script updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated version section. Do not tag or publish unless explicitly asked (see [`docs/PUBLISH.md`](docs/PUBLISH.md)).
 
 ## Pull requests
 

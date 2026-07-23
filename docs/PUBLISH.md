@@ -19,7 +19,7 @@ Do **not** tag or publish until a human confirms the gates below. Agents must no
 | Version    | Set semver in `package.json` via `npm run bump`                      | `npm run bump` (or `-- minor` / `-- major`)                                            |
 | Tag        | `v<version>` must match `package.json` exactly                       | Same                                                                                   |
 | Skills     | User runs `npm run skills:install` after install                     | Re-run when `skills/wiki/` changed in the release                                      |
-| MCP reload | User restarts `user-cursidian` after upgrading                       | Same (see `AGENTS.md`)                                                                 |
+| MCP reload | User restarts `user-cursidian` after upgrading                       | Same (see `~/.cursor/rules/cursidian-agents.mdc`)                                      |
 
 ## Publish sequence (only when asked)
 

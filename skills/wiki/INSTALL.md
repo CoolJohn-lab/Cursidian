@@ -71,7 +71,7 @@ This deletes each of the 11 skill folders under `~/.cursor/skills/`, copies fres
 
 Installed skills: `vault`, `wiki-query`, `wiki-context`, `wiki-lint`, `wiki-setup`, `wiki-ingest`, `wiki-capture`, `wiki-update`, `wiki-status`, `wiki-slop`, `slop`.
 
-**Local-only addenda** (live under `~/.cursor/skills/` but are **not** in this install list, so `skills:install` does not overwrite them): `wiki-first`, `wiki-structure`, plus other machine skills (`crosslink`, `tags`, `mcp-test`, deprecated `wiki-migrate`). Those pair with my-agents rules (`wiki-first.mdc`, `wiki-structure.mdc`, ...), not the package.
+**Local-only addenda** (live under `~/.cursor/skills/` but are **not** in this install list, so `skills:install` does not overwrite them): `wiki-first`, `wiki-structure`, plus other machine skills (`crosslink`, `tags`, `mcp-test`, deprecated `wiki-migrate`). Pair those with thin triggers in `~/.cursor/rules/*.mdc` (or project `.cursor/rules` when scoped), not a local Cursor plugin.
 
 ### After any surface change
 

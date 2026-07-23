@@ -111,14 +111,14 @@ Point Cursor at the built entrypoint:
 
 ## Wiki skills + MCP
 
-Cursidian is a **two-layer** product, wired into the machine-wide **rule -> skill -> wiki** golden standard (no project `.cursor/rules`):
+Cursidian is a **two-layer** product, wired into the machine-wide **rule -> skill -> wiki** golden standard (normal Cursor paths; no local my-agents plugin):
 
-| Layer           | Role                              | Where                                                 |
-| --------------- | --------------------------------- | ----------------------------------------------------- |
-| **MCP server**  | Runtime vault I/O for agents      | Published `cursidian` package / local `dist/`         |
-| **Wiki skills** | Workflow + MCP protocol (`vault`) | [`skills/wiki/`](skills/wiki/) -> `~/.cursor/skills/` |
-| **Wiki SoT**    | Durable product / tool facts      | WorkStuff `projects/cursidian/*` via MCP              |
-| **Rules**       | Thin always-on triggers           | `~/.cursor/plugins/local/my-agents/rules/` only       |
+| Layer           | Role                              | Where                                                                 |
+| --------------- | --------------------------------- | --------------------------------------------------------------------- |
+| **MCP server**  | Runtime vault I/O for agents      | Published `cursidian` package / local `dist/`                         |
+| **Wiki skills** | Workflow + MCP protocol (`vault`) | [`skills/wiki/`](skills/wiki/) -> `~/.cursor/skills/`                 |
+| **Wiki SoT**    | Durable product / tool facts      | WorkStuff `projects/cursidian/*` via MCP                              |
+| **Rules**       | Thin when + "read skill X"        | `~/.cursor/rules/` (+ project `.cursor/rules` when scoped)            |
 
 The MCP server is the only way agents read or write vault markdown. Skills do **not** open vault files with the IDE filesystem tools or shell - they call **`user-cursidian`** (`note`, `search`, `graph`, `vault`, `context`). If an MCP call fails, the skill reports the failure and **stops** (no silent filesystem fallback).
 

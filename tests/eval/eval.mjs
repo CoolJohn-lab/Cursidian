@@ -29,7 +29,7 @@ import fsp from 'node:fs/promises';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,6 +42,11 @@ const distConfigPath = path.join(repoRoot, 'dist', 'config.js');
 const distToolsPath = path.join(repoRoot, 'dist', 'tools', 'index.js');
 const distVaultIndexPath = path.join(repoRoot, 'dist', 'lib', 'vault-index.js');
 const distSearchRankingPath = path.join(repoRoot, 'dist', 'lib', 'search-ranking.js');
+
+/** Dynamic import of a repo-local path (Windows needs file:// URLs). */
+function importDist(absPath) {
+  return import(pathToFileURL(absPath).href);
+}
 
 const TOP_K = 10;
 /** Sweep never adopts a candidate that regresses MRR by more than this. */
@@ -183,9 +188,9 @@ function printBundleScorecard(overall) {
  * Shared by the normal eval run and --sweep so both exercise the same setup.
  */
 async function withEvalServer(fn) {
-  const { loadConfig } = await import(distConfigPath);
-  const { registerAllTools } = await import(distToolsPath);
-  const { clearAllSearchCaches } = await import(distVaultIndexPath);
+  const { loadConfig } = await importDist(distConfigPath);
+  const { registerAllTools } = await importDist(distToolsPath);
+  const { clearAllSearchCaches } = await importDist(distVaultIndexPath);
 
   const vault = await fsp.mkdtemp(path.join(os.tmpdir(), 'cursidian-eval-'));
   const priorVault = process.env.OBSIDIAN_VAULT_PATH;
@@ -407,7 +412,7 @@ async function runSweep() {
     throw new Error('tests/eval/queries.jsonl has no queries');
   }
 
-  const { RANK_WEIGHTS } = await import(distSearchRankingPath);
+  const { RANK_WEIGHTS } = await importDist(distSearchRankingPath);
   const originalMultiplier = RANK_WEIGHTS.expandedTokenMultiplier;
 
   let results;

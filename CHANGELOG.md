@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.4] - 2026-07-23
+
+### Fixed
+
+- Windows CI eval gate: dynamic `import()` of `dist/` now uses `file://` URLs via `pathToFileURL` (Node ESM rejects bare `D:\...` paths)
+
 ## [3.0.3] - 2026-07-23
 
 ### Fixed

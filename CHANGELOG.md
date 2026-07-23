@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [4.0.1] - 2026-07-23
+
+### Changed
+
+- Wiki skills now teach adaptive retrieval by information need: compact search, outline, direct read, graph, or budgeted context. Context remains preferred for broad/uncertain work without being a mandatory first call.
+
 ## [4.0.0] - 2026-07-23
 
 ### Added

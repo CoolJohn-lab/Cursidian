@@ -5,7 +5,6 @@ description: >
   "find everything related to Y", or any question the knowledge base should answer, including
   connection questions ("how is X related to Y"). Supports a fast index-only mode ("quick answer",
   "just scan", "don't read the pages") that answers from summaries without reading page bodies.
-  First wiki access in a session should open with the context MCP tool.
 ---
 
 # Wiki Query - Knowledge Retrieval
@@ -16,33 +15,35 @@ Answer from the compiled wiki, citing pages. **All vault access is via the `user
 
 Create or modify **nothing** - no pages, no `index.md`. No `vault` `undo`, `sync_index`, or `manifest` mutations. If the user's question contains a new finding or an action ("save this", "record that"), answer the question, then point them to `wiki-capture` or `wiki-update` for the write.
 
-## Session-first: open with `context`
+## Choose retrieval by information need
 
-**The first wiki retrieval in a chat/session must be `context`** (`assemble` or `for_task`) - not a hand-rolled `search` -> `note` `read` -> `graph` ladder.
+There is no mandatory first read. Use the cheapest surface that preserves enough evidence:
 
-Why: `context` budgets tokens, picks summary vs section vs body, carries provenance/staleness warnings, and returns citations in one call. Raw search is a fallback after a thin/empty bundle or for metadata-only asks (below).
-
-Treat "first" as: no prior successful `context` / `search` / `note` `read` of wiki content in this chat yet. Later turns in the same chat may expand the prior bundle (`context` `expand` + `nextCursor`) or narrow with `search` when that is cheaper.
+| Ask | Start with |
+| --- | ---------- |
+| Broad, uncertain, multi-page, task-shaped | `context` `assemble` / `for_task` |
+| Narrow fact, path unknown | `search` `content`, `format: "compact"` |
+| Known page, headings only | `note` `outline` |
+| Known page, exact evidence | `note` `read` |
+| Tags, folders, recent notes | `search` `tags` / `list` / `recent` / `by_tags` |
+| Known page, explicit one-hop neighborhood | `graph` |
+| Uncertain relationship between topics | `context` with `intent: "connection"` |
 
 ## Protocol
 
-1. **Normal mode (default, including session-first).** Call `context` `action: "assemble"` with the user's question as `query` (or `action: "for_task"` with `task` when the ask is really "help me understand X so I can do Y"). Let `intent` infer from phrasing unless the question is clearly connection-shaped (step 3). Default `tokenBudget` is 4000; raise it if `guidance.nextStep` is `expand` or `coverage.droppedForBudget` says content was cut.
-2. **Index-only mode** ("quick answer", "just scan", "don't read the pages"): still use `context` `assemble`, but with a small `tokenBudget` (300-500) so the bundle stays on frontmatter summaries. Answer from the returned `items`/`citations` only, labelled _"(index-only answer - page bodies not read)"_. If the bundle is empty, fall back once to `search` `action: "content"`, `format: "compact"`, `limit: 10`.
-3. **Connection questions** ("how is X related to Y"). Call `context` with `intent: "connection"`. Use `coverage.includedPaths` and each item's `reasons` (look for `neighbor-of:<path>`) to reconstruct the hop sequence. Do not hand-roll `graph` for this.
-4. **Follow `focus` and `guidance`.** Read `focus` paths first (1-3 primary pages). Then:
+1. **Context mode.** For a direct question use `action: "assemble"` with `query`; for work preparation use `action: "for_task"` with `task`. Starting budgets: 600-1000 for routing, 1200-2500 for an answer, up to 4000 for deliberate body depth or synthesis. Let intent infer unless `connection` is clear.
+2. **Summary-only mode** ("quick answer", "just scan", "don't read the pages"): use compact `search` for a narrow query, or `context` with 300-500 tokens when multiple pages/relationships still matter. Answer from summaries only and label the limitation.
+3. **Direct page mode.** Use `note outline` before a full read when headings can identify the relevant area. Use `note read` when the exact wording/body is required. Do not full-read every candidate.
+4. **Connection mode.** Use `context intent: "connection"` when the route is uncertain. Use `graph` for an explicit one-hop neighborhood on a known path.
+5. **Follow `focus` and `guidance` for context responses.** A focus item is already evidence; do not automatically `note read` its path. Then:
    - `guidance.nextStep === "sufficient"` -> answer from the bundle; do not expand unless the user asks for more depth.
    - `guidance.nextStep === "expand"` -> call `context` `action: "expand"` with `nextCursor` and `guidance.suggestedTokenBudget` (or a fresh budget) before falling back to manual search.
    - `guidance.nextStep === "refine_query"` -> narrow keywords or switch intent; do not treat a noisy neighbour-heavy fill as ground truth.
      If a bundle was genuinely wrong once you've worked with it, point the user at `wiki-context`'s feedback action - this skill stays read-only.
-5. **Metadata-only questions** ("what tags exist", "what's in `_meta/`") don't need `context` - use `search` `action: "tags"` or `action: "by_tags"` directly, or `note` `read` on `index.md`.
-6. **Synthesize.** Lead with `focus` citations, then supporting items. Cite as `[[wikilinks]]` (the bundle's `citations` array already has these). Present contradictions from both sides. Say explicitly what the wiki does _not_ cover. Flag stale citations (`staleDays` > 90, or a bundle warning naming the page) inline. Never strip `^[inferred]`/`^[ambiguous]` markers from item text.
+6. **Synthesize proportionally.** Lead with the answer and cite 1-3 primary pages. Surface contradictions, stale or inferred evidence, dropped paths, and confidence only when they affect the conclusion. Never strip `^[inferred]`/`^[ambiguous]` markers from quoted evidence.
 
 ## Answer format
 
-> **Based on the wiki:** [answer with [[wikilinks]], leading with focus paths]
+> **Based on the wiki:** [concise answer with 1-3 primary [[wikilinks]]]
 >
-> **Pages consulted:** [[focus-a]], [[focus-b]] (then supporting)
->
-> **Confidence / gaps:** [`bundleConfidence`, `guidance.nextStep` / reason, plus what the wiki doesn't cover]
->
-> **Notes:** [OR-fallback / typo correction / incomplete scan / stale or heavily-inferred sources / dropped-for-budget - omit if none]
+> **Confidence / gaps:** [include only when material]

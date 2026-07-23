@@ -11,9 +11,9 @@ description: >
 
 You maintain a **compiled** wiki: distill once, keep current, query the artifact. Obsidian is the IDE; the wiki is the codebase.
 
-## Must read (wiki SoT)
+## Wiki sources of truth
 
-Before inventing product facts or tool behaviour, `note` `read` via **`user-cursidian`**:
+Before inventing product facts or tool behaviour, consult these via **`user-cursidian`**. Choose `context`, compact `search`, `note outline`, or `note read` according to the information needed; a full read is not automatic.
 
 | Path                                           | Holds                                            |
 | ---------------------------------------------- | ------------------------------------------------ |
@@ -45,7 +45,7 @@ Outside MCP: source docs **outside** the vault (ingest). On-disk deslop (repos /
 | `note`    | `read` / `outline` (+ `revisionHash` on read), `create`/`update`/`delete`/`rename`/`frontmatter`. `outline` returns headings without body; `update` accepts `dryRun`. Mutations return `operationId`. `delete` needs `confirm: true`. |
 | `graph`   | One-hop neighborhood; skip null `resolvedPath`; paginate backlinks.                                                                                                                                                   |
 | `vault`   | `health` (incl. soft `schemaWarnings` / `provenanceStats`), `sync_index` (flat rebuild vs hub preserve - check `indexMode`), `slop_check`/`deslop`, folders, `history`/`undo`, `manifest`, `vocabulary`. |
-| `context` | Prefer over hand-rolled search->read loops (session-first). `assemble`/`for_task` (+ `tokenBudget`, optional `intent`); returns `focus` + `guidance.nextStep`; `expand` via `nextCursor`; `feedback` for bad bundles. |
+| `context` | Broad/uncertain/multi-page questions and task briefings. `assemble`/`for_task` (+ `tokenBudget`, optional `intent`); returns `focus` + `guidance.nextStep`; `expand` via `nextCursor`; `feedback` for bad bundles. |
 
 Full action tables, retired names, and edge cases: wiki `projects/cursidian/concepts/mcp-tool-surface`.
 
@@ -72,61 +72,29 @@ Full action tables, retired names, and edge cases: wiki `projects/cursidian/conc
 
 1. Preflight (read-only). 2. Announce write scope (paths + why) before first mutation. 3. One note at a time; push `operationId`. 4. On failure, undo reverse-order. 5. Verify: `note` `read` changed pages; `vault` `sync_index` `dryRun: true` expect `wouldWrite: false` (respect `indexMode`); prefer `health` with `counts.indexDrift: 0` under hub. 6. Report paths / warnings / op ids; clear stack.
 
-### Retrieval ladder
+## Adaptive retrieval
 
-Cheapest first: `search` `list`/`tags` -> compact `content` summaries -> `by_tags` -> full `content` -> `note` `read` -> `graph`. Prefer `context` for "what do I need to know" work.
+Use the cheapest tool that preserves the evidence the task needs. These are defaults, not a mandatory sequence.
 
-## Schema pointers (detail in wiki / template below)
+| Information need | Start with | Deepen when |
+| ---------------- | ---------- | ----------- |
+| Broad, uncertain, multi-page, task briefing | `context` `assemble` / `for_task` | `guidance.nextStep` says expand, or the selected passage lacks required detail |
+| Narrow fact, path unknown | `search` `content`, `format: "compact"` | Read or outline only the best candidate |
+| Known page, headings/shape only | `note` `outline` | A section/body is required |
+| Known page, exact evidence | `note` `read` | Always for mutation because writes need `revisionHash` |
+| Inventory/taxonomy | `search` `list` / `recent` / `tags` / `by_tags` | Paginate when truncated |
+| Explicit one-hop links on a known page | `graph` | Use `context intent: "connection"` when the relationship or path is uncertain |
+| Vault state/ledger/vocabulary | Matching read action on `vault` | Use only the fields relevant to the task |
 
-| Topic                             | Where                                                      |
-| --------------------------------- | ---------------------------------------------------------- |
-| Categories / projects layout      | Wiki + table below                                         |
-| Special files (`index` / `_meta`) | Brief below; hub vs flat from `vault` `health` `indexMode` |
-| Page frontmatter + body shape     | Page Template                                              |
-| Provenance markers                | `^[inferred]` / `^[ambiguous]`                             |
+Starting `context` budgets: 300-500 for a summary skim, 600-1000 for routing, 1200-2500 for task context, and up to 4000 for deliberate body depth or synthesis. Follow `focus`, `guidance`, `warnings`, and `nextCursor`; do not automatically full-read every focus path. A returned `focus` item is already evidence.
 
-### Vault layout (summary)
+Keep answers proportional: synthesize first and cite 1-3 primary pages by default. Report confidence, provenance, warnings, and dropped paths when they affect the conclusion rather than echoing the whole bundle.
 
-Categories: `concepts/` `entities/` `skills/` `references/` `journal/` (plus project trees). Project knowledge: `projects/<name>/<category>/` with overview `projects/<name>/<name>.md` (never `_project.md`). Decision/analysis pages belong under `concepts/` or `references/.../*-synthesis.md`, not a root `synthesis/` folder. `_raw/` is a staging inbox, not Layer-1 sources.
+Detailed rationale and examples: wiki `projects/cursidian/concepts/wiki-retrieval-strategy`.
 
-### Special files (summary)
+## Write-only schema
 
-| File                  | Role                                                                                                                                                                                |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index.md`            | Flat: full leaf catalog via `sync_index`. Hub (`indexMode: hub`): curated router; `sync_index` preserves body; leaves catalogued if on index **or** within 2 hops of a listed page. |
-| `_meta/manifest.md`   | Ingest ledger - **only** via `vault` `manifest`.                                                                                                                                    |
-| `_meta/vocabulary.md` | Synonyms/pairings - **only** via `vault` `vocabulary`.                                                                                                                              |
-
-## Page Template
-
-```markdown
----
-title: Page Title
-category: concepts
-tags: [two-to-five, taxonomy-tags]
-summary: One or two sentences, <=200 chars - lets skills preview the page without reading it.
-sources: [where this came from]
-aliases: [optional real alternate names for search and wikilinks - not misspellings]
-created: 2026-07-12T16:00:00Z
-updated: 2026-07-12T16:00:00Z
----
-
-# Page Title
-
-One-paragraph summary.
-
-## Key Ideas
-
-- A claim the source actually makes.
-- A generalization the source implies. ^[inferred]
-- A point where sources disagree. ^[ambiguous]
-
-## Related
-
-- [[concepts/related-page]] - why it's related
-```
-
-Every page needs that frontmatter, a `summary`, and at least 2 wikilinks. Tolerate legacy decorative fields on read; do not require or invent them on write.
+For create/edit work, read `references/page-schema.md` before the first mutation. It contains the page template, vault layout, and special-file rules; read-only retrieval does not need that context.
 
 ## Critical avoid
 

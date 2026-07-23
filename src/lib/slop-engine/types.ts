@@ -66,9 +66,4 @@ export interface SlopConfigFile {
 export const LOCAL_RULES_FILENAME = '.cursidian-slop.json';
 export const LEGACY_RULES_FILENAME = '.llmsloprc.json';
 
-export const DEFAULT_PACKS = [
-  'claudeisms',
-  'structural',
-  'puffery',
-  'security',
-] as const;
+export const DEFAULT_PACKS = ['claudeisms', 'structural', 'puffery', 'security'] as const;

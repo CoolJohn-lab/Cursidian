@@ -15,7 +15,13 @@ import { MAX_QUERY_LENGTH } from '../lib/limits.js';
 import { invalidArgsError, ok, validateActionArguments, mapToolError } from '../types/index.js';
 import type { ContextBundle, ContextIntent } from '../types/index.js';
 
-const CONTEXT_INTENTS = ['lookup', 'connection', 'onboarding', 'troubleshoot', 'ingest-prep'] as const;
+const CONTEXT_INTENTS = [
+  'lookup',
+  'connection',
+  'onboarding',
+  'troubleshoot',
+  'ingest-prep',
+] as const;
 const MAX_TOKEN_BUDGET = 50_000;
 const DEFAULT_TOKEN_BUDGET = 4_000;
 const FEEDBACK_RELATIVE_PATH = '.cursidian/context-feedback.jsonl';
@@ -122,7 +128,12 @@ export function registerContext(server: McpServer, config: Config): void {
           .optional()
           .describe('Used by assemble, for_task, and expand; defaults to 4000'),
         cursor: z.string().optional().describe('Used by expand only - a prior bundle nextCursor'),
-        feedbackQuery: z.string().min(1).max(MAX_QUERY_LENGTH).optional().describe('Used by feedback only'),
+        feedbackQuery: z
+          .string()
+          .min(1)
+          .max(MAX_QUERY_LENGTH)
+          .optional()
+          .describe('Used by feedback only'),
         feedbackVerdict: z
           .enum(['insufficient', 'off_target'])
           .optional()
@@ -157,7 +168,16 @@ export function registerContext(server: McpServer, config: Config): void {
         return validation;
       }
 
-      const { query, task, intent, tokenBudget, cursor, feedbackQuery, feedbackVerdict, feedbackNote } = args;
+      const {
+        query,
+        task,
+        intent,
+        tokenBudget,
+        cursor,
+        feedbackQuery,
+        feedbackVerdict,
+        feedbackNote,
+      } = args;
       const effectiveTokenBudget = tokenBudget ?? DEFAULT_TOKEN_BUDGET;
       const logInput = (): Record<string, unknown> => ({
         action,

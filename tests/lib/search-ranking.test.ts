@@ -52,7 +52,9 @@ describe('rankSearchResults', () => {
           path: 'projects/demo/concepts/other.md',
           content: '---\ntitle: Other\n---\n\nMentions Widget Catalog in passing',
           matchCount: 1,
-          snippets: [{ lineNumber: 3, line: 'Mentions Widget Catalog in passing', match: 'Widget Catalog' }],
+          snippets: [
+            { lineNumber: 3, line: 'Mentions Widget Catalog in passing', match: 'Widget Catalog' },
+          ],
         },
       ],
       'Widget Catalog',
@@ -73,7 +75,9 @@ describe('rankSearchResults', () => {
           content:
             '---\ntitle: Orchestration and Pipelines\ntags: [pipelines, orchestration]\nsummary: Pipeline runners and Main Orchestrator\n---\n\nMain Orchestrator pipeline',
           matchCount: 4,
-          snippets: [{ lineNumber: 5, line: 'Main Orchestrator pipeline', match: 'pipeline orchestrator' }],
+          snippets: [
+            { lineNumber: 5, line: 'Main Orchestrator pipeline', match: 'pipeline orchestrator' },
+          ],
         },
         {
           path: 'projects/demo/concepts/pipeline-inventory.md',
@@ -99,13 +103,21 @@ describe('rankSearchResults', () => {
           content:
             '---\ntitle: Metastore Tables and Schema Evolution\ntags: [demo]\nsummary: Unity Catalog metastore tables\n---\n\nUnity Catalog metastore tables',
           matchCount: 10,
-          snippets: [{ lineNumber: 5, line: 'Unity Catalog metastore tables', match: 'Unity Catalog metastore' }],
+          snippets: [
+            {
+              lineNumber: 5,
+              line: 'Unity Catalog metastore tables',
+              match: 'Unity Catalog metastore',
+            },
+          ],
         },
         {
           path: 'projects/demo/concepts/naming.md',
           content: '---\ntitle: Naming\ntags: [unity-catalog]\n---\n\nunity catalog notes',
           matchCount: 4,
-          snippets: [{ lineNumber: 5, line: 'unity catalog notes', match: 'Unity Catalog metastore' }],
+          snippets: [
+            { lineNumber: 5, line: 'unity catalog notes', match: 'Unity Catalog metastore' },
+          ],
         },
       ],
       'Unity Catalog metastore',
@@ -301,7 +313,9 @@ describe('rankSearchResults', () => {
           content:
             '---\ntitle: Failed Office Cutover\ncategory: journal\ntags: [ticket]\nsummary: Unrelated ticket about an office move.\n---\n\nOffice cutover notes. Failed once.',
           matchCount: 2,
-          snippets: [{ lineNumber: 5, line: 'Office cutover notes. Failed once.', match: 'failed' }],
+          snippets: [
+            { lineNumber: 5, line: 'Office cutover notes. Failed once.', match: 'failed' },
+          ],
         },
         {
           path: 'skills/troubleshooting-failed-loads.md',
@@ -320,9 +334,11 @@ describe('rankSearchResults', () => {
 
     expect(ranked[0].path).toContain('troubleshooting-failed-loads');
     expect(ranked[1].path).toContain('failed-office-cutover');
-    expect(ranked[1].matchReasons.some((r) => r.startsWith('basename-generic:') || r === 'weak-basename')).toBe(
-      true,
-    );
+    expect(
+      ranked[1].matchReasons.some(
+        (r) => r.startsWith('basename-generic:') || r === 'weak-basename',
+      ),
+    ).toBe(true);
   });
 });
 
@@ -347,7 +363,8 @@ describe('vocabulary-expansion scoring', () => {
       [
         {
           path: 'projects/demo/concepts/ingestion-overview.md',
-          content: '---\ntitle: Ingestion Overview\n---\n\n# Ingestion Overview\n\nIngestion details here.',
+          content:
+            '---\ntitle: Ingestion Overview\n---\n\n# Ingestion Overview\n\nIngestion details here.',
           matchCount: 2,
           snippets: [],
         },
@@ -369,13 +386,15 @@ describe('vocabulary-expansion scoring', () => {
       [
         {
           path: 'projects/demo/concepts/integration-guide.md',
-          content: '---\ntitle: Integration Guide\n---\n\n# Integration Guide\n\nIntegration steps.',
+          content:
+            '---\ntitle: Integration Guide\n---\n\n# Integration Guide\n\nIntegration steps.',
           matchCount: 2,
           snippets: [],
         },
         {
           path: 'projects/demo/concepts/ingestion-overview.md',
-          content: '---\ntitle: Ingestion Overview\n---\n\n# Ingestion Overview\n\nIngestion details here.',
+          content:
+            '---\ntitle: Ingestion Overview\n---\n\n# Ingestion Overview\n\nIngestion details here.',
           matchCount: 2,
           snippets: [],
         },
@@ -396,7 +415,8 @@ describe('vocabulary-expansion scoring', () => {
       [
         {
           path: 'projects/demo/concepts/integration-guide.md',
-          content: '---\ntitle: Integration Guide\n---\n\n# Integration Guide\n\nIntegration steps.',
+          content:
+            '---\ntitle: Integration Guide\n---\n\n# Integration Guide\n\nIntegration steps.',
           matchCount: 1,
           snippets: [],
         },

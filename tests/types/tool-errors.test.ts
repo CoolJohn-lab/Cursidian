@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  err,
-  invalidArgsError,
-  mapToolError,
-  ok,
-  toolError,
-} from '../../src/types/index.js';
+import { err, invalidArgsError, mapToolError, ok, toolError } from '../../src/types/index.js';
 import { ReadOnlyError, SecurityError, FileTooLargeError } from '../../src/lib/security.js';
 import { SectionEditError } from '../../src/lib/section-edit.js';
 import { PathResolveError } from '../../src/lib/vault-index.js';
@@ -17,7 +11,10 @@ function parsePayload(result: { content: Array<{ text: string }> }): Record<stri
 
 describe('structured tool errors', () => {
   it('ok wraps success metadata with status and changed', () => {
-    const result = ok({ path: 'a.md', content: 'hi' }, { action: 'read', changed: false, paths: ['a.md'] });
+    const result = ok(
+      { path: 'a.md', content: 'hi' },
+      { action: 'read', changed: false, paths: ['a.md'] },
+    );
     expect(result.isError).toBeUndefined();
     const payload = parsePayload(result);
     expect(payload.action).toBe('read');
@@ -127,7 +124,10 @@ describe('structured tool errors', () => {
     expect(payload.code).toBe('file_too_large');
     expect(payload.retryable).toBe(true);
     expect(payload.path).toBe('big.md');
-    expect(payload.recovery).toEqual({ tool: 'note', arguments: { action: 'read', path: 'big.md' } });
+    expect(payload.recovery).toEqual({
+      tool: 'note',
+      arguments: { action: 'read', path: 'big.md' },
+    });
   });
 
   it('mapToolError maps AlreadyExistsError with recovery', () => {
@@ -159,7 +159,11 @@ describe('structured tool errors', () => {
     expect(payload.code).toBe('partial_update');
     expect(payload.retryable).toBe(false);
     expect(payload.sideEffects).toBe('partial');
-    expect(payload.details).toEqual({ completed: ['a.md'], restored: ['a.md'], unresolved: ['b.md'] });
+    expect(payload.details).toEqual({
+      completed: ['a.md'],
+      restored: ['a.md'],
+      unresolved: ['b.md'],
+    });
     expect(payload.recovery).toEqual({ tool: 'vault', arguments: { action: 'health' } });
   });
 
@@ -231,9 +235,12 @@ describe('structured tool errors', () => {
   });
 
   it('mapToolError maps ENOENT to note_not_found with search recovery', () => {
-    const enoent = Object.assign(new Error("ENOENT: no such file or directory, open 'missing.md'"), {
-      code: 'ENOENT',
-    });
+    const enoent = Object.assign(
+      new Error("ENOENT: no such file or directory, open 'missing.md'"),
+      {
+        code: 'ENOENT',
+      },
+    );
     const result = mapToolError(enoent, {
       tool: 'note',
       action: 'read',

@@ -62,9 +62,7 @@ describe('tool surface', () => {
 
   it('note action enum matches read/create/update/delete/rename/frontmatter', () => {
     const actions = actionEnum(toolByName.get('note')).slice().sort();
-    expect(actions).toEqual(
-      ['create', 'delete', 'frontmatter', 'read', 'rename', 'update'].sort(),
-    );
+    expect(actions).toEqual(['create', 'delete', 'frontmatter', 'read', 'rename', 'update'].sort());
   });
 
   it('graph has no action enum (single-purpose neighborhood tool)', () => {

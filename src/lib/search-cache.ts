@@ -43,7 +43,12 @@ export function buildSearchCacheKey(
   format: 'full' | 'compact' = 'full',
   includeOperational = false,
 ): string {
-  const tagKey = tags?.length ? tags.map((tag) => tag.toLowerCase()).sort().join(',') : '';
+  const tagKey = tags?.length
+    ? tags
+        .map((tag) => tag.toLowerCase())
+        .sort()
+        .join(',')
+    : '';
   return `${vaultPath}\0${vaultSignature}\0${query}\0${caseSensitive}\0${tagKey}\0${verbose}\0${format}\0${includeOperational}`;
 }
 

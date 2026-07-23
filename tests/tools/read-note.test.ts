@@ -89,7 +89,10 @@ describe('note (read)', () => {
   });
 
   it('rejects path traversal', async () => {
-    const result = await callTool(ctx.client, 'note', { action: 'read', path: '../../../etc/passwd' });
+    const result = await callTool(ctx.client, 'note', {
+      action: 'read',
+      path: '../../../etc/passwd',
+    });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('path_traversal');
   });

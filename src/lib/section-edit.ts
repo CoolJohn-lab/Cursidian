@@ -50,11 +50,7 @@ export function normaliseHeading(text: string): string {
  * Replaces the body content under a markdown heading until the next heading
  * of equal or higher level. The heading line itself is preserved.
  */
-export function replaceSection(
-  body: string,
-  heading: string,
-  newSectionContent: string,
-): string {
+export function replaceSection(body: string, heading: string, newSectionContent: string): string {
   const lines = body.split('\n');
   const { text: headingText, level: requiredLevel } = parseHeadingArg(heading);
   const target = normaliseHeading(headingText);

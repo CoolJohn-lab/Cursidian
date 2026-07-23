@@ -116,7 +116,11 @@ describe('vault (health)', () => {
     const result = await callTool(ctx.client, 'vault', { action: 'health' });
     const data = parseResult(result) as {
       indexMode: string;
-      indexDrift: { missingFromIndex: string[]; deadIndexEntries: string[]; summaryMismatches: unknown[] };
+      indexDrift: {
+        missingFromIndex: string[];
+        deadIndexEntries: string[];
+        summaryMismatches: unknown[];
+      };
     };
 
     expect(data.indexMode).toBe('hub');

@@ -18,7 +18,13 @@ const mcpPath = path.join(os.homedir(), '.cursor', 'mcp.json');
 const toolsIndexDist = path.resolve(repoRoot, 'dist', 'tools', 'index.js');
 const toolsIndexSrc = path.resolve(repoRoot, 'src', 'tools', 'index.ts');
 /** The 5-tool MCP surface this repo ships; kept in sync with src/tools/index.ts. */
-const EXPECTED_TOOL_REGISTRATIONS = ['registerNote', 'registerSearch', 'registerGraph', 'registerVault', 'registerContext'];
+const EXPECTED_TOOL_REGISTRATIONS = [
+  'registerNote',
+  'registerSearch',
+  'registerGraph',
+  'registerVault',
+  'registerContext',
+];
 
 /** Returns true when a path string is absolute (POSIX or Windows). */
 function isAbsolutePath(value) {
@@ -33,7 +39,9 @@ function checkMcpConfig(raw, { expectedDistEntry }) {
   try {
     parsed = JSON.parse(raw);
   } catch (err) {
-    problems.push(`mcp.json is not valid JSON: ${err instanceof Error ? err.message : String(err)}`);
+    problems.push(
+      `mcp.json is not valid JSON: ${err instanceof Error ? err.message : String(err)}`,
+    );
     return problems;
   }
 
@@ -45,14 +53,19 @@ function checkMcpConfig(raw, { expectedDistEntry }) {
 
   const cursidian = servers.cursidian;
   if (!cursidian || typeof cursidian !== 'object') {
-    problems.push('mcpServers.cursidian entry is missing — config key must be "cursidian" (appears as user-cursidian)');
+    problems.push(
+      'mcpServers.cursidian entry is missing — config key must be "cursidian" (appears as user-cursidian)',
+    );
     return problems;
   }
 
   const args = Array.isArray(cursidian.args) ? cursidian.args.map(String) : [];
   const joinedArgs = args.join(' ');
 
-  if (/Obsidian-MCP-For-Cursor/i.test(joinedArgs) || /Obsidian-MCP-For-Cursor/i.test(String(cursidian.command ?? ''))) {
+  if (
+    /Obsidian-MCP-For-Cursor/i.test(joinedArgs) ||
+    /Obsidian-MCP-For-Cursor/i.test(String(cursidian.command ?? ''))
+  ) {
     problems.push(
       'mcpServers.cursidian still references Obsidian-MCP-For-Cursor — point args at this repo dist/index.js or npx cursidian',
     );
@@ -68,7 +81,10 @@ function checkMcpConfig(raw, { expectedDistEntry }) {
   const command = String(cursidian.command ?? '');
   if (command === 'node' || command.endsWith(`${path.sep}node`) || command === 'node.exe') {
     // Local clone launch: require the entry script to be this repo's dist/index.js when it exists.
-    const entry = args.find((a) => a.endsWith(`${path.sep}index.js`) || a.endsWith('/index.js') || a.endsWith('\\index.js'));
+    const entry = args.find(
+      (a) =>
+        a.endsWith(`${path.sep}index.js`) || a.endsWith('/index.js') || a.endsWith('\\index.js'),
+    );
     if (!entry) {
       problems.push('local node launch must pass dist/index.js as an arg');
     } else if (fs.existsSync(expectedDistEntry)) {
@@ -143,13 +159,16 @@ function main() {
   if (toolSurface.skipped) {
     console.warn(`mcp:check: tool-surface check skipped (${toolSurface.skipped})`);
   }
-  console.log(`mcp:check ok — ${mcpPath} points at cursidian (tool surface: note, search, graph, vault, context)`);
+  console.log(
+    `mcp:check ok — ${mcpPath} points at cursidian (tool surface: note, search, graph, vault, context)`,
+  );
 }
 
 // Export for unit tests without running main.
 export { checkMcpConfig, isAbsolutePath, checkToolSurface };
 
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isDirectRun =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isDirectRun) {
   main();
 }

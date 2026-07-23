@@ -104,14 +104,7 @@ export class OperationJournal {
     const opDir = operationDir(vaultPath, operationId);
     await assertWritablePathAsync(vaultPath, opDir);
     await fs.mkdir(path.join(opDir, SNAPSHOTS_DIR), { recursive: true });
-    return new OperationJournal(
-      vaultPath,
-      true,
-      options.tool,
-      options.action,
-      operationId,
-      opDir,
-    );
+    return new OperationJournal(vaultPath, true, options.tool, options.action, operationId, opDir);
   }
 
   async recordBefore(absolutePath: string, _maxFileSize: number): Promise<void> {
@@ -242,9 +235,7 @@ export async function listOperationHistory(
     }
   }
 
-  return manifests
-    .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
-    .slice(0, limit);
+  return manifests.sort((a, b) => b.timestamp.localeCompare(a.timestamp)).slice(0, limit);
 }
 
 async function readCurrentRevision(

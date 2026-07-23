@@ -3,13 +3,7 @@ import { registerNote } from '../../src/tools/note.js';
 import { registerSearch } from '../../src/tools/search.js';
 import { registerVault } from '../../src/tools/vault.js';
 import { clearAllSearchCaches } from '../../src/lib/vault-index.js';
-import {
-  createTestVault,
-  seedVault,
-  cleanupVault,
-  callTool,
-  parseResult,
-} from './helpers.js';
+import { createTestVault, seedVault, cleanupVault, callTool, parseResult } from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;
@@ -40,7 +34,11 @@ describe('write -> search cache invalidation', () => {
     });
 
     const data = parseResult(
-      await callTool(ctx.client, 'search', { action: 'content', query: 'unique-create-token-xyzzy', limit: 10 }),
+      await callTool(ctx.client, 'search', {
+        action: 'content',
+        query: 'unique-create-token-xyzzy',
+        limit: 10,
+      }),
     ) as { results: Array<{ path: string }> };
 
     expect(data.results.map((r) => r.path)).toContain('cache-create-visible.md');
@@ -54,7 +52,11 @@ describe('write -> search cache invalidation', () => {
       overwrite: true,
     });
 
-    await callTool(ctx.client, 'search', { action: 'content', query: 'before-patch-token', limit: 5 });
+    await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'before-patch-token',
+      limit: 5,
+    });
 
     const read = parseResult(
       await callTool(ctx.client, 'note', { action: 'read', path: 'cache-patch-visible.md' }),
@@ -70,7 +72,11 @@ describe('write -> search cache invalidation', () => {
     });
 
     const data = parseResult(
-      await callTool(ctx.client, 'search', { action: 'content', query: 'after-patch-token-unique', limit: 10 }),
+      await callTool(ctx.client, 'search', {
+        action: 'content',
+        query: 'after-patch-token-unique',
+        limit: 10,
+      }),
     ) as { results: Array<{ path: string }> };
 
     expect(data.results.map((r) => r.path)).toContain('cache-patch-visible.md');
@@ -84,7 +90,11 @@ describe('write -> search cache invalidation', () => {
       overwrite: true,
     });
 
-    await callTool(ctx.client, 'search', { action: 'content', query: 'unique-delete-token-plugh', limit: 5 });
+    await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'unique-delete-token-plugh',
+      limit: 5,
+    });
 
     await callTool(ctx.client, 'note', {
       action: 'delete',
@@ -93,7 +103,11 @@ describe('write -> search cache invalidation', () => {
     });
 
     const data = parseResult(
-      await callTool(ctx.client, 'search', { action: 'content', query: 'unique-delete-token-plugh', limit: 10 }),
+      await callTool(ctx.client, 'search', {
+        action: 'content',
+        query: 'unique-delete-token-plugh',
+        limit: 10,
+      }),
     ) as { results: Array<{ path: string }> };
 
     expect(data.results.map((r) => r.path)).not.toContain('cache-delete-visible.md');

@@ -73,7 +73,10 @@ export function parseAliases(data: Record<string, unknown>): string[] {
       .filter(Boolean);
   }
   if (Array.isArray(raw)) {
-    return raw.filter((a): a is string => typeof a === 'string').map((a) => a.trim()).filter(Boolean);
+    return raw
+      .filter((a): a is string => typeof a === 'string')
+      .map((a) => a.trim())
+      .filter(Boolean);
   }
   return [];
 }

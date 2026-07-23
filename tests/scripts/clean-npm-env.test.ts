@@ -34,7 +34,9 @@ describe('cleanNpmEnv', () => {
     expect(result.npm_package_config_node_gyp_devdir).toBe('/lowercase');
     expect(result.npm_config_devdir).toBeUndefined();
     expect(result.NPM_CONFIG_DEVDIR).toBeUndefined();
-    expect(Object.keys(result).some((key) => key.toLowerCase() === 'npm_config_devdir')).toBe(false);
+    expect(Object.keys(result).some((key) => key.toLowerCase() === 'npm_config_devdir')).toBe(
+      false,
+    );
   });
 
   it('resolves npm shims on Windows without requiring shell command parsing', () => {

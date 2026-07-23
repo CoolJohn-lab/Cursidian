@@ -8,7 +8,7 @@ description: >
 
 # Wiki Status - Delta & Dashboard
 
-Report the state of the wiki so the user can decide what to do next. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Scanning *source directories* (from the manifest's `source_dirs`) with `Glob` is fine - they live outside the vault. If an MCP call fails, stop and report.
+Report the state of the wiki so the user can decide what to do next. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Scanning _source directories_ (from the manifest's `source_dirs`) with `Glob` is fine - they live outside the vault. If an MCP call fails, stop and report.
 
 This skill is **read-only**. Live working set lives on hubs: DLZ / ADO / Cursidian.
 
@@ -30,21 +30,25 @@ This skill is **read-only**. Live working set lives on hubs: DLZ / ADO / Cursidi
 # Wiki Status
 
 ## Overview
+
 - Pages: N across M categories · Last ingest: <timestamp>
 - Project syncs (manifest): <name> @ <lastCommit> (<synced>)
 
 ## Delta
+
 - New sources: N (list them)
 - Modified sources: N
 - Deleted sources: N
 - _raw/ drafts pending: N (excluding _archived)
 
 ## Incomplete scan
+
 - skipped: N or none
 
 ## What to Do Next
-1. Promote N drafts in _raw/          -> wiki-ingest (raw mode)
-2. Ingest N new/modified sources      -> wiki-ingest (append)
+
+1. Promote N drafts in _raw/ -> wiki-ingest (raw mode)
+2. Ingest N new/modified sources -> wiki-ingest (append)
 3. Lint overdue (no recent health pass for 30+ days) -> wiki-lint
 4. Update hub working-set sections when focus/gotchas change -> wiki-update / note update on the hub
 ```

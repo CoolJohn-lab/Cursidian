@@ -6,36 +6,36 @@ Regenerate with `npm run eval:report` (after `npm run build`). This file is comm
 
 ## Overall
 
-| Metric | Score |
-|---|---|
-| nDCG@10 | 0.921 |
+| Metric    | Score |
+| --------- | ----- |
+| nDCG@10   | 0.921 |
 | Recall@10 | 0.939 |
-| MRR | 0.969 |
+| MRR       | 0.969 |
 
 ## By intent
 
-| Intent | n | nDCG@10 | Recall@10 | MRR |
-|---|---|---|---|---|
-| connection | 11 | 0.887 | 0.909 | 0.955 |
-| lookup | 21 | 0.982 | 1.000 | 0.976 |
-| onboarding | 8 | 0.890 | 0.938 | 0.938 |
-| troubleshoot | 9 | 0.844 | 0.833 | 1.000 |
+| Intent       | n   | nDCG@10 | Recall@10 | MRR   |
+| ------------ | --- | ------- | --------- | ----- |
+| connection   | 11  | 0.887   | 0.909     | 0.955 |
+| lookup       | 21  | 0.982   | 1.000     | 0.976 |
+| onboarding   | 8   | 0.890   | 0.938     | 0.938 |
+| troubleshoot | 9   | 0.844   | 0.833     | 1.000 |
 
 ## Context bundle metrics
 
 From `context assemble` (n=49 labelled queries; skips queries with no `relevant_paths`).
 
-| Metric | Score |
-|---|---|
+| Metric                                          | Score |
+| ----------------------------------------------- | ----- |
 | Token efficiency (relevant tokens / tokensUsed) | 0.596 |
-| Budget adherence (tokensUsed <= budget) | 1.000 |
+| Budget adherence (tokensUsed <= budget)         | 1.000 |
 
-| Intent | n | Token efficiency | Budget adherence |
-|---|---|---|---|
-| connection | 11 | 0.470 | 1.000 |
-| lookup | 21 | 0.643 | 1.000 |
-| onboarding | 8 | 0.502 | 1.000 |
-| troubleshoot | 9 | 0.724 | 1.000 |
+| Intent       | n   | Token efficiency | Budget adherence |
+| ------------ | --- | ---------------- | ---------------- |
+| connection   | 11  | 0.470            | 1.000            |
+| lookup       | 21  | 0.643            | 1.000            |
+| onboarding   | 8   | 0.502            | 1.000            |
+| troubleshoot | 9   | 0.724            | 1.000            |
 
 ## Maintaining this scorecard
 

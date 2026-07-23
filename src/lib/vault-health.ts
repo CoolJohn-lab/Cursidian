@@ -2,7 +2,12 @@ import path from 'node:path';
 import { parseFrontmatter } from './frontmatter.js';
 import { resolveOutgoingLinks } from './wikilink-resolve.js';
 import { buildInboundLinkCounts } from './backlinks.js';
-import { getVaultIndex, resolveWikilinkTarget, getIndexKeyCollisions, type VaultIndex } from './vault-index.js';
+import {
+  getVaultIndex,
+  resolveWikilinkTarget,
+  getIndexKeyCollisions,
+  type VaultIndex,
+} from './vault-index.js';
 import { listVaultMarkdownPaths } from './vault-glob.js';
 import { readFileBounded } from './security.js';
 import { isHealthExcludedPath } from './operational-paths.js';
@@ -15,8 +20,7 @@ const REQUIRED_FRONTMATTER = ['title', 'category', 'tags', 'summary', 'updated']
 const CONTRADICTS_RE = /^>\s*Contradicts\s+\[\[([^\]]+)\]\]/gim;
 
 /** Catalog line with summary: `- [[path]] - blurb` or em dash. */
-const CATALOG_WITH_SUMMARY_RE =
-  /^(\s*-\s*\[\[)([^\]|]+)(\|[^\]]+)?(\]\])(\s*(?:\u2014|-)\s*)(.*)$/;
+const CATALOG_WITH_SUMMARY_RE = /^(\s*-\s*\[\[)([^\]|]+)(\|[^\]]+)?(\]\])(\s*(?:\u2014|-)\s*)(.*)$/;
 
 /** Link-only catalog line: `- [[path]]` (optional alias). */
 const CATALOG_LINK_ONLY_RE = /^(\s*-\s*\[\[)([^\]|]+)(\|[^\]]+)?(\]\])(\s*)$/;
@@ -227,7 +231,8 @@ export async function computeVaultHealth(
   const orphans: Array<{ path: string }> = [];
   const brokenLinks: Array<{ path: string; raw: string }> = [];
   const missingFrontmatter: Array<{ path: string; missing: string[] }> = [];
-  const summaryWarnings: Array<{ path: string; issue: 'missing' | 'too_long'; length?: number }> = [];
+  const summaryWarnings: Array<{ path: string; issue: 'missing' | 'too_long'; length?: number }> =
+    [];
   const stale: Array<{ path: string; updated: string; backlinkCount: number }> = [];
   const skipped: Array<{ path: string; reason: string }> = [];
   const contradictions: Array<{ path: string; counterpart: string; resolved: boolean }> = [];
@@ -366,7 +371,11 @@ export async function computeVaultHealth(
             continue;
           }
           for (const link of resolveOutgoingLinks(hubBody, index)) {
-            if (link.resolvedPath && catalogPaths.has(link.resolvedPath) && !covered.has(link.resolvedPath)) {
+            if (
+              link.resolvedPath &&
+              catalogPaths.has(link.resolvedPath) &&
+              !covered.has(link.resolvedPath)
+            ) {
               covered.add(link.resolvedPath);
               next.push(link.resolvedPath);
             }
@@ -439,7 +448,10 @@ export async function buildIndexMarkdown(
 ): Promise<{ markdown: string; noteCount: number; categories: string[] }> {
   const files = await listVaultMarkdownPaths(vaultPath);
 
-  const groups = new Map<string, Array<{ path: string; title: string; summary: string; tags: string[] }>>();
+  const groups = new Map<
+    string,
+    Array<{ path: string; title: string; summary: string; tags: string[] }>
+  >();
 
   for (const file of files) {
     const relativePath = path.relative(vaultPath, file).split(path.sep).join('/');
@@ -460,7 +472,7 @@ export async function buildIndexMarkdown(
     const category =
       typeof data.category === 'string' && data.category.trim()
         ? data.category.trim()
-        : relativePath.split('/')[0]?.replace(/\.md$/, '') ?? 'uncategorized';
+        : (relativePath.split('/')[0]?.replace(/\.md$/, '') ?? 'uncategorized');
     const tags = Array.isArray(data.tags)
       ? data.tags.filter((t): t is string => typeof t === 'string')
       : [];

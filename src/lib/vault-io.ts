@@ -90,12 +90,7 @@ export class PartialUpdateError extends Error {
   /** @deprecated use unresolved */
   readonly failed: string[];
 
-  constructor(
-    message: string,
-    completed: string[],
-    restored: string[],
-    unresolved: string[],
-  ) {
+  constructor(message: string, completed: string[], restored: string[], unresolved: string[]) {
     super(message);
     this.name = 'PartialUpdateError';
     this.completed = completed;

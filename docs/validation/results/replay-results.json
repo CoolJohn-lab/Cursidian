@@ -22,17 +22,13 @@
       "labelledCases": 29,
       "top1Hits": 1,
       "top1Accuracy": 3.4,
-      "zeroResultQueries": [
-        "FactForecasts curated_factforecasts FactQualifications"
-      ]
+      "zeroResultQueries": ["FactForecasts curated_factforecasts FactQualifications"]
     },
     "new": {
       "labelledCases": 29,
       "top1Hits": 6,
       "top1Accuracy": 20.7,
-      "zeroResultQueries": [
-        "FactForecasts curated_factforecasts FactQualifications"
-      ]
+      "zeroResultQueries": ["FactForecasts curated_factforecasts FactQualifications"]
     }
   },
   "results": {

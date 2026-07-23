@@ -21,7 +21,9 @@ async function loadJson(rel) {
  */
 async function main() {
   const patterns = await loadJson('docs/validation/corpus/pattern-classification.json');
-  const corpusLines = (await fs.readFile(path.join(REPO_ROOT, 'docs/validation/corpus/mcp-calls-30d.jsonl'), 'utf-8'))
+  const corpusLines = (
+    await fs.readFile(path.join(REPO_ROOT, 'docs/validation/corpus/mcp-calls-30d.jsonl'), 'utf-8')
+  )
     .split('\n')
     .filter(Boolean);
   const sessionCount = new Set(corpusLines.map((l) => JSON.parse(l).sessionId)).size;
@@ -42,21 +44,35 @@ async function main() {
   const recommendations = [];
 
   if (newAcc > upstreamAcc) {
-    wins.push(`Search top-1 accuracy: **new ${newAcc}%** vs upstream **${upstreamAcc}%** (+${Math.round((newAcc - upstreamAcc) * 10) / 10}pp)`);
+    wins.push(
+      `Search top-1 accuracy: **new ${newAcc}%** vs upstream **${upstreamAcc}%** (+${Math.round((newAcc - upstreamAcc) * 10) / 10}pp)`,
+    );
   }
   if (patchedAcc > upstreamAcc) {
-    wins.push(`Token-AND patch improves zero-result rate: patched returns hits on ${29 - (replay?.summary?.patched?.zeroResultQueries?.length ?? 0)}/29 queries vs upstream ${29 - (replay?.summary?.upstream?.zeroResultQueries?.length ?? 0)}/29`);
-  } else if ((replay?.summary?.upstream?.zeroResultQueries?.length ?? 0) > (replay?.summary?.patched?.zeroResultQueries?.length ?? 0)) {
-    wins.push(`Token-AND patch eliminates ${(replay?.summary?.upstream?.zeroResultQueries?.length ?? 0) - (replay?.summary?.patched?.zeroResultQueries?.length ?? 0)} upstream zero-result queries (10→1)`);
+    wins.push(
+      `Token-AND patch improves zero-result rate: patched returns hits on ${29 - (replay?.summary?.patched?.zeroResultQueries?.length ?? 0)}/29 queries vs upstream ${29 - (replay?.summary?.upstream?.zeroResultQueries?.length ?? 0)}/29`,
+    );
+  } else if (
+    (replay?.summary?.upstream?.zeroResultQueries?.length ?? 0) >
+    (replay?.summary?.patched?.zeroResultQueries?.length ?? 0)
+  ) {
+    wins.push(
+      `Token-AND patch eliminates ${(replay?.summary?.upstream?.zeroResultQueries?.length ?? 0) - (replay?.summary?.patched?.zeroResultQueries?.length ?? 0)} upstream zero-result queries (10→1)`,
+    );
   }
   if (blockRate > 0) {
-    wins.push(`Replace size guard would have blocked **${dryrun.wouldBlock}/${dryrun.totalReplaceCalls - dryrun.missingFile}** historical replace calls (${blockRate}%)`);
+    wins.push(
+      `Replace size guard would have blocked **${dryrun.wouldBlock}/${dryrun.totalReplaceCalls - dryrun.missingFile}** historical replace calls (${blockRate}%)`,
+    );
   }
 
   const newSearchP50 = bench?.results?.new?.['search_content.adf_pipeline']?.p50;
-  const baselineMs = bench?.comparisonVsBaselinesJson?.['search_content.adf_pipeline']?.savedBaselineMs;
+  const baselineMs =
+    bench?.comparisonVsBaselinesJson?.['search_content.adf_pipeline']?.savedBaselineMs;
   if (newSearchP50 && baselineMs && newSearchP50 > baselineMs * 1.5) {
-    regressions.push(`Search latency p50 ${newSearchP50}ms vs saved baseline ${baselineMs}ms (ranking + index overhead)`);
+    regressions.push(
+      `Search latency p50 ${newSearchP50}ms vs saved baseline ${baselineMs}ms (ranking + index overhead)`,
+    );
   }
 
   if (upstreamAcc < 50) {
@@ -126,7 +142,12 @@ ${recommendations.map((r) => `- **[${r.priority}]** ${r.item}`).join('\n')}
 | Replay matrix cases | ${replaySet?.totalCases ?? '—'} |
 | Replay cases with golden labels | ${replaySet?.labelledCases ?? '—'} |
 
-**Top MCP-heavy sessions:** ${(patterns?.topMcpSessions ?? []).slice(0, 5).map((s) => `\`${s.sessionId.slice(0, 8)}…\` (${s.mcpCallCount})`).join(', ') || 'n/a'}
+**Top MCP-heavy sessions:** ${
+    (patterns?.topMcpSessions ?? [])
+      .slice(0, 5)
+      .map((s) => `\`${s.sessionId.slice(0, 8)}…\` (${s.mcpCallCount})`)
+      .join(', ') || 'n/a'
+  }
 
 ---
 
@@ -134,7 +155,13 @@ ${recommendations.map((r) => `- **[${r.priority}]** ${r.item}`).join('\n')}
 
 | Tool | Calls |
 |------|------:|
-${deep ? Object.entries(deep.byTool).map(([t, n]) => `| ${t} | ${n} |`).join('\n') : '| — | — |'}
+${
+  deep
+    ? Object.entries(deep.byTool)
+        .map(([t, n]) => `| ${t} | ${n} |`)
+        .join('\n')
+    : '| — | — |'
+}
 
 - **Replace accidents:** ${deep?.replaceAccidents ?? '—'} short-body replace calls (agent later acknowledged misuse)
 - **Multi-word searches:** ${(deep?.multiWordSearches ?? []).map((q) => `\`"${q}"\``).join(', ') || 'none'}
@@ -150,7 +177,12 @@ ${deep ? Object.entries(deep.byTool).map(([t, n]) => `| ${t} | ${n} |`).join('\n
 | patched | ${replay?.summary?.patched?.labelledCases ?? '—'} | ${replay?.summary?.patched?.top1Hits ?? '—'} | **${patchedAcc}%** |
 | new | ${replay?.summary?.new?.labelledCases ?? '—'} | ${replay?.summary?.new?.top1Hits ?? '—'} | **${newAcc}%** |
 
-**Upstream zero-result queries (sample):** ${(replay?.summary?.upstream?.zeroResultQueries ?? []).slice(0, 5).map((q) => `\`"${q}"\``).join(', ') || 'none'}
+**Upstream zero-result queries (sample):** ${
+    (replay?.summary?.upstream?.zeroResultQueries ?? [])
+      .slice(0, 5)
+      .map((q) => `\`"${q}"\``)
+      .join(', ') || 'none'
+  }
 
 ---
 
@@ -180,7 +212,13 @@ ${benchTable || '| — | — | — | — | — | — | — |'}
 
 | Pattern | Count |
 |---------|------:|
-${patterns ? Object.entries(patterns.frictionCounts).map(([k, v]) => `| ${k} | ${v} |`).join('\n') : '| — | — |'}
+${
+  patterns
+    ? Object.entries(patterns.frictionCounts)
+        .map(([k, v]) => `| ${k} | ${v} |`)
+        .join('\n')
+    : '| — | — |'
+}
 
 ---
 

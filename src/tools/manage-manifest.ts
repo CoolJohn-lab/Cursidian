@@ -2,11 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { type Config } from '../config.js';
 import { resolvePath } from '../lib/vault.js';
-import {
-  assertNotReadOnly,
-  assertSafePathAsync,
-  readFileBounded,
-} from '../lib/security.js';
+import { assertNotReadOnly, assertSafePathAsync, readFileBounded } from '../lib/security.js';
 import { computeRevisionHash, checkRevisionConcurrency } from '../lib/content-hash.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
@@ -86,7 +82,11 @@ export function manageManifestHandler(config: Config) {
         arguments: {
           action: 'manifest',
           manifestOperation,
-          ...Object.fromEntries(required.filter((name) => name !== 'manifestOperation').map((name) => [name, `<${name}>`])),
+          ...Object.fromEntries(
+            required
+              .filter((name) => name !== 'manifestOperation')
+              .map((name) => [name, `<${name}>`]),
+          ),
         },
       });
 
@@ -129,10 +129,18 @@ export function manageManifestHandler(config: Config) {
 
       if (manifestOperation === 'upsert_source') {
         if (!sourceKey?.trim()) {
-          return invalidManifest('upsert_source requires sourceKey', ['manifestOperation', 'sourceKey', 'sourceIngested'], ['sourceKey']);
+          return invalidManifest(
+            'upsert_source requires sourceKey',
+            ['manifestOperation', 'sourceKey', 'sourceIngested'],
+            ['sourceKey'],
+          );
         }
         if (!sourceIngested?.trim()) {
-          return invalidManifest('upsert_source requires sourceIngested', ['manifestOperation', 'sourceKey', 'sourceIngested'], ['sourceIngested']);
+          return invalidManifest(
+            'upsert_source requires sourceIngested',
+            ['manifestOperation', 'sourceKey', 'sourceIngested'],
+            ['sourceIngested'],
+          );
         }
         parsed = upsertSource(parsed, {
           key: normalizeSourceKey(sourceKey),
@@ -142,10 +150,18 @@ export function manageManifestHandler(config: Config) {
         });
       } else if (manifestOperation === 'upsert_project') {
         if (!projectName?.trim()) {
-          return invalidManifest('upsert_project requires projectName', ['manifestOperation', 'projectName', 'projectCwd'], ['projectName']);
+          return invalidManifest(
+            'upsert_project requires projectName',
+            ['manifestOperation', 'projectName', 'projectCwd'],
+            ['projectName'],
+          );
         }
         if (!projectCwd?.trim()) {
-          return invalidManifest('upsert_project requires projectCwd', ['manifestOperation', 'projectName', 'projectCwd'], ['projectCwd']);
+          return invalidManifest(
+            'upsert_project requires projectCwd',
+            ['manifestOperation', 'projectName', 'projectCwd'],
+            ['projectCwd'],
+          );
         }
         parsed = upsertProject(parsed, {
           name: projectName.trim(),
@@ -155,14 +171,27 @@ export function manageManifestHandler(config: Config) {
         });
       } else if (manifestOperation === 'remove') {
         if (!removeKind) {
-          return invalidManifest('remove requires removeKind', ['manifestOperation', 'removeKind', 'removeKey'], ['removeKind']);
+          return invalidManifest(
+            'remove requires removeKind',
+            ['manifestOperation', 'removeKind', 'removeKey'],
+            ['removeKind'],
+          );
         }
         if (!removeKey?.trim()) {
-          return invalidManifest('remove requires removeKey', ['manifestOperation', 'removeKind', 'removeKey'], ['removeKey']);
+          return invalidManifest(
+            'remove requires removeKey',
+            ['manifestOperation', 'removeKind', 'removeKey'],
+            ['removeKey'],
+          );
         }
         parsed = removeManifestEntry(parsed, removeKind, removeKey.trim());
       } else {
-        return invalidManifest(`Unknown manifestOperation: ${manifestOperation}`, ['manifestOperation'], [], ['manifestOperation']);
+        return invalidManifest(
+          `Unknown manifestOperation: ${manifestOperation}`,
+          ['manifestOperation'],
+          [],
+          ['manifestOperation'],
+        );
       }
 
       const nextContent = serializeManifest(parsed);
@@ -191,10 +220,13 @@ export function manageManifestHandler(config: Config) {
               });
             }
           } else if (expectedRevision) {
-            throw Object.assign(new Error('Manifest does not exist yet; omit expectedRevision on first write.'), {
-              hashMismatch: true,
-              hint: 'Call vault manifest with manifestOperation read, or omit expectedRevision to create the file.',
-            });
+            throw Object.assign(
+              new Error('Manifest does not exist yet; omit expectedRevision on first write.'),
+              {
+                hashMismatch: true,
+                hint: 'Call vault manifest with manifestOperation read, or omit expectedRevision to create the file.',
+              },
+            );
           }
 
           await fs.mkdir(path.dirname(resolved), { recursive: true });
@@ -225,7 +257,12 @@ export function manageManifestHandler(config: Config) {
         undoAvailable: journaled.undoAvailable,
       });
     } catch (e) {
-      if (e && typeof e === 'object' && 'hashMismatch' in e && (e as { hashMismatch: boolean }).hashMismatch) {
+      if (
+        e &&
+        typeof e === 'object' &&
+        'hashMismatch' in e &&
+        (e as { hashMismatch: boolean }).hashMismatch
+      ) {
         return toolError({
           error: 'hash_mismatch',
           message: e instanceof Error ? e.message : String(e),
@@ -239,10 +276,12 @@ export function manageManifestHandler(config: Config) {
               'check' in e && typeof (e as { check: unknown }).check === 'string'
                 ? (e as { check: string }).check
                 : 'revision',
-            ...('currentRevision' in e && typeof (e as { currentRevision: unknown }).currentRevision === 'string'
+            ...('currentRevision' in e &&
+            typeof (e as { currentRevision: unknown }).currentRevision === 'string'
               ? { currentRevision: (e as { currentRevision: string }).currentRevision }
               : {}),
-            ...('currentHash' in e && typeof (e as { currentHash: unknown }).currentHash === 'string'
+            ...('currentHash' in e &&
+            typeof (e as { currentHash: unknown }).currentHash === 'string'
               ? { currentHash: (e as { currentHash: string }).currentHash }
               : {}),
           },

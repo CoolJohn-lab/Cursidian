@@ -32,11 +32,7 @@ beforeAll(async () => {
   );
   await seedVault(ctx.vault);
   await writeNote(ctx.vault, 'concepts/tiny.md', '# Tiny\n\nSmall note.\n');
-  await writeNote(
-    ctx.vault,
-    'concepts/huge.md',
-    `# Huge\n\n${'x'.repeat(400)}\n`,
-  );
+  await writeNote(ctx.vault, 'concepts/huge.md', `# Huge\n\n${'x'.repeat(400)}\n`);
 });
 
 afterAll(async () => {
@@ -90,7 +86,11 @@ describe('retrieval pagination and completeness', () => {
       tags: ['pagination-test'],
       limit: 1,
     });
-    const page1 = parseResult(first) as { truncated: boolean; nextCursor?: string; totalMatches: number };
+    const page1 = parseResult(first) as {
+      truncated: boolean;
+      nextCursor?: string;
+      totalMatches: number;
+    };
     expect(page1.totalMatches).toBeGreaterThanOrEqual(2);
     expect(page1.truncated).toBe(true);
 
@@ -125,7 +125,11 @@ describe('retrieval pagination and completeness', () => {
 
   it('search recent paginates and reports missing folder like list', async () => {
     const first = await callTool(ctx.client, 'search', { action: 'recent', limit: 2 });
-    const page1 = parseResult(first) as { truncated: boolean; nextCursor?: string; effectiveLimit: number };
+    const page1 = parseResult(first) as {
+      truncated: boolean;
+      nextCursor?: string;
+      effectiveLimit: number;
+    };
     expect(page1.effectiveLimit).toBe(2);
 
     const missing = await callTool(ctx.client, 'search', {

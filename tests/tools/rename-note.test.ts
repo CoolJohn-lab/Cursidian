@@ -38,7 +38,12 @@ describe('note (rename)', () => {
     );
 
     const index = await buildVaultIndex(ctx.vault);
-    const before = await findBacklinks(ctx.vault, 'concepts/old-name.md', index, ctx.config.maxFileSize);
+    const before = await findBacklinks(
+      ctx.vault,
+      'concepts/old-name.md',
+      index,
+      ctx.config.maxFileSize,
+    );
     expect(before.some((b) => b.path.includes('linker'))).toBe(true);
 
     const result = await callTool(ctx.client, 'note', {
@@ -48,7 +53,12 @@ describe('note (rename)', () => {
       updateBacklinks: true,
       updateIndex: true,
     });
-    const data = parseResult(result) as { from: string; to: string; backlinksUpdated: number; indexUpdated: boolean };
+    const data = parseResult(result) as {
+      from: string;
+      to: string;
+      backlinksUpdated: number;
+      indexUpdated: boolean;
+    };
 
     expect(data.to).toContain('new-name');
     expect(data.backlinksUpdated).toBeGreaterThan(0);

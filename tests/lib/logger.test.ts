@@ -6,10 +6,13 @@ import { formatLogLine, logger, setLogLevel } from '../../src/lib/logger.js';
 
 describe('formatLogLine', () => {
   it('includes level, message, and optional meta', () => {
-    const line = formatLogLine('info', 'Note created', { path: 'a.md' }, '2026-07-13T00:00:00.000Z');
-    expect(line).toBe(
-      '[2026-07-13T00:00:00.000Z] [INFO] Note created {"path":"a.md"}',
+    const line = formatLogLine(
+      'info',
+      'Note created',
+      { path: 'a.md' },
+      '2026-07-13T00:00:00.000Z',
     );
+    expect(line).toBe('[2026-07-13T00:00:00.000Z] [INFO] Note created {"path":"a.md"}');
   });
 });
 

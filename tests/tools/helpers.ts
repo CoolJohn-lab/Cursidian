@@ -16,9 +16,7 @@ export interface TestContext {
 
 export type ToolRegistrar = (server: McpServer, config: Config) => void;
 
-async function connectClient(
-  server: McpServer,
-): Promise<Client> {
+async function connectClient(server: McpServer): Promise<Client> {
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await server.connect(serverTransport);
   const client = new Client({ name: 'test-client', version: '0.0.0' });
@@ -51,10 +49,7 @@ export async function createTestContextAt(
   return { vault: vaultPath, client, config };
 }
 
-export async function createTestClient(
-  config: Config,
-  register: ToolRegistrar,
-): Promise<Client> {
+export async function createTestClient(config: Config, register: ToolRegistrar): Promise<Client> {
   const server = new McpServer({ name: 'test', version: '0.0.0' });
   register(server, config);
   return connectClient(server);
@@ -83,7 +78,11 @@ export async function cleanupVault(vault: string): Promise<void> {
   await fsp.rm(vault, { recursive: true, force: true });
 }
 
-export async function writeNote(vault: string, relativePath: string, content: string): Promise<void> {
+export async function writeNote(
+  vault: string,
+  relativePath: string,
+  content: string,
+): Promise<void> {
   const full = path.join(vault, relativePath);
   await fsp.mkdir(path.dirname(full), { recursive: true });
   await fsp.writeFile(full, content, 'utf-8');

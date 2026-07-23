@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  wikilinkTargetsNote,
-  resolveOutgoingLinks,
-} from '../../src/lib/wikilink-resolve.js';
+import { wikilinkTargetsNote, resolveOutgoingLinks } from '../../src/lib/wikilink-resolve.js';
 import {
   buildVaultIndex,
   resolveWikilinkTarget,
@@ -50,14 +47,13 @@ describe('wikilink-resolve', () => {
     );
 
     const index = await buildVaultIndex(ctx.vault);
-    expect(stripWikilinkAnchor('projects/demo/target#Section heading')).toBe('projects/demo/target');
+    expect(stripWikilinkAnchor('projects/demo/target#Section heading')).toBe(
+      'projects/demo/target',
+    );
     expect(resolveWikilinkTarget('projects/demo/target#Section heading', index)).toBe(
       'projects/demo/target.md',
     );
-    const links = resolveOutgoingLinks(
-      'See [[projects/demo/target#Section heading]]',
-      index,
-    );
+    const links = resolveOutgoingLinks('See [[projects/demo/target#Section heading]]', index);
     expect(links[0].resolvedPath).toBe('projects/demo/target.md');
     await cleanupVault(ctx.vault);
   });

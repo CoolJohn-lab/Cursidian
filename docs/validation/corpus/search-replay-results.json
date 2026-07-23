@@ -257,9 +257,7 @@
       "query": "factpersoncalendar",
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
       "occurrences": 2,
-      "transcript_ids": [
-        "c63bf7c6-8498-4737-b632-1e5e1d14136e"
-      ],
+      "transcript_ids": ["c63bf7c6-8498-4737-b632-1e5e1d14136e"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 20.93,
@@ -322,9 +320,7 @@
       "query": "fbd-d-euw-data-dmlz-kv",
       "goldenPath": null,
       "occurrences": 2,
-      "transcript_ids": [
-        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
-      ],
+      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 15.86,
@@ -420,9 +416,7 @@
       "query": "BigHand deploy",
       "goldenPath": null,
       "occurrences": 2,
-      "transcript_ids": [
-        "f05dd98a-2a87-4999-9183-66134c47a684"
-      ],
+      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.34,
@@ -551,9 +545,7 @@
       "query": "BigHand integration ingest",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": [
-        "003067a5-ba6a-4b83-bd4e-de4620f05c64"
-      ],
+      "transcript_ids": ["003067a5-ba6a-4b83-bd4e-de4620f05c64"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 18.05,
@@ -583,9 +575,7 @@
       "query": "BigHand ingestion",
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
       "occurrences": 1,
-      "transcript_ids": [
-        "04340747-0b69-48cf-b2af-6a9d9738577d"
-      ],
+      "transcript_ids": ["04340747-0b69-48cf-b2af-6a9d9738577d"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 18.26,
@@ -615,9 +605,7 @@
       "query": "CURATED view medallion architecture",
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
       "occurrences": 1,
-      "transcript_ids": [
-        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
-      ],
+      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 18.53,
@@ -647,9 +635,7 @@
       "query": "BigHand forecasts working arrangements",
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
       "occurrences": 1,
-      "transcript_ids": [
-        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
-      ],
+      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.16,
@@ -679,9 +665,7 @@
       "query": "medallion",
       "goldenPath": "projects/data-platform-dlz/concepts/curation-pipeline",
       "occurrences": 1,
-      "transcript_ids": [
-        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
-      ],
+      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 15.88,
@@ -711,9 +695,7 @@
       "query": "silver temp enriched staging",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "1f4b4178-63fe-4907-b436-3cb9813f2e49"
-      ],
+      "transcript_ids": ["1f4b4178-63fe-4907-b436-3cb9813f2e49"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17.81,
@@ -743,9 +725,7 @@
       "query": "data contract BaseURL deployment pipeline",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
-      ],
+      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 15.87,
@@ -775,9 +755,7 @@
       "query": "data contract deploy metadata",
       "goldenPath": "projects/data-platform-dlz/concepts/data-contracts-and-metadata",
       "occurrences": 1,
-      "transcript_ids": [
-        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
-      ],
+      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.79,
@@ -807,9 +785,7 @@
       "query": "ingestion pipeline deployment",
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
       "occurrences": 1,
-      "transcript_ids": [
-        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
-      ],
+      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 18.41,
@@ -839,9 +815,7 @@
       "query": "secrets BaseUrl variable group",
       "goldenPath": "projects/data-platform-dlz/entities/source-systems",
       "occurrences": 1,
-      "transcript_ids": [
-        "2287fd50-cd39-4391-bceb-abeeccd8e2a9"
-      ],
+      "transcript_ids": ["2287fd50-cd39-4391-bceb-abeeccd8e2a9"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17.09,
@@ -871,9 +845,7 @@
       "query": "Databricks command execution context cluster",
       "goldenPath": "skills/databricks-asset-bundles",
       "occurrences": 1,
-      "transcript_ids": [
-        "33db22c8-3a67-43b1-bcdd-7733023b1704"
-      ],
+      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.14,
@@ -903,9 +875,7 @@
       "query": "execution context",
       "goldenPath": "skills/databricks-run-commands-via-execution-context",
       "occurrences": 1,
-      "transcript_ids": [
-        "33db22c8-3a67-43b1-bcdd-7733023b1704"
-      ],
+      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 18.88,
@@ -935,9 +905,7 @@
       "query": "metastore schema evolution",
       "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
       "occurrences": 1,
-      "transcript_ids": [
-        "33db22c8-3a67-43b1-bcdd-7733023b1704"
-      ],
+      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 15.31,
@@ -967,9 +935,7 @@
       "query": "agent toolkit plugins MCP",
       "goldenPath": "projects/data-platform-dlz/skills/agent-toolkit-and-rules",
       "occurrences": 1,
-      "transcript_ids": [
-        "33db22c8-3a67-43b1-bcdd-7733023b1704"
-      ],
+      "transcript_ids": ["33db22c8-3a67-43b1-bcdd-7733023b1704"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.15,
@@ -999,9 +965,7 @@
       "query": "BigHand pre-deployment folderExists dbutils",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": [
-        "53abd6fb-5c3b-4f72-969d-a8b7d23177b9"
-      ],
+      "transcript_ids": ["53abd6fb-5c3b-4f72-969d-a8b7d23177b9"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17.4,
@@ -1031,9 +995,7 @@
       "query": "Unity Catalog deploy orchestrator metastore",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "60edd405-8836-4c14-8e3b-34419eb4b594"
-      ],
+      "transcript_ids": ["60edd405-8836-4c14-8e3b-34419eb4b594"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.69,
@@ -1063,9 +1025,7 @@
       "query": "BigHand gold layer curated forecasts FactPersonCapacity workerdatamart",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": [
-        "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7"
-      ],
+      "transcript_ids": ["6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17.47,
@@ -1095,9 +1055,7 @@
       "query": "public holidays API",
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
       "occurrences": 1,
-      "transcript_ids": [
-        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
-      ],
+      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 23.13,
@@ -1127,9 +1085,7 @@
       "query": "holidays",
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
       "occurrences": 1,
-      "transcript_ids": [
-        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
-      ],
+      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 21.44,
@@ -1159,9 +1115,7 @@
       "query": "BigHand API PublicHolidays",
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
       "occurrences": 1,
-      "transcript_ids": [
-        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
-      ],
+      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.58,
@@ -1191,9 +1145,7 @@
       "query": "BigHand API",
       "goldenPath": "projects/data-platform-dlz/concepts/api-ingestion-notebooks",
       "occurrences": 1,
-      "transcript_ids": [
-        "953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"
-      ],
+      "transcript_ids": ["953e4c4b-3e13-45f2-9cfc-3aa20c8f5814"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.32,
@@ -1223,9 +1175,7 @@
       "query": "public holidays",
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
       "occurrences": 1,
-      "transcript_ids": [
-        "a4e1e31a-e8b9-45e7-a111-6f00402224d6"
-      ],
+      "transcript_ids": ["a4e1e31a-e8b9-45e7-a111-6f00402224d6"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17.66,
@@ -1255,9 +1205,7 @@
       "query": "person calendar",
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
       "occurrences": 1,
-      "transcript_ids": [
-        "c63bf7c6-8498-4737-b632-1e5e1d14136e"
-      ],
+      "transcript_ids": ["c63bf7c6-8498-4737-b632-1e5e1d14136e"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.42,
@@ -1287,9 +1235,7 @@
       "query": "dmlz-kv",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
-      ],
+      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.37,
@@ -1319,9 +1265,7 @@
       "query": "dmlz",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
-      ],
+      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17.61,
@@ -1351,9 +1295,7 @@
       "query": "west europe uksouth migration dlz",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "ced314c6-010e-478f-8a37-a1b1c3be35a0"
-      ],
+      "transcript_ids": ["ced314c6-010e-478f-8a37-a1b1c3be35a0"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 15.88,
@@ -1383,9 +1325,7 @@
       "query": "CDF",
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
       "occurrences": 1,
-      "transcript_ids": [
-        "d99722c2-4149-42f0-9a92-420e7adf12bc"
-      ],
+      "transcript_ids": ["d99722c2-4149-42f0-9a92-420e7adf12bc"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.57,
@@ -1415,9 +1355,7 @@
       "query": "BigHand naming conventions workerdatamart temp",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "e91fdbcf-6d94-4d96-af56-201d873ac2e8"
-      ],
+      "transcript_ids": ["e91fdbcf-6d94-4d96-af56-201d873ac2e8"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 18.3,
@@ -1447,9 +1385,7 @@
       "query": "naming convention workerdatamart curated",
       "goldenPath": "projects/data-platform-dlz/concepts/curated-and-model-layers",
       "occurrences": 1,
-      "transcript_ids": [
-        "e91fdbcf-6d94-4d96-af56-201d873ac2e8"
-      ],
+      "transcript_ids": ["e91fdbcf-6d94-4d96-af56-201d873ac2e8"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17.27,
@@ -1479,9 +1415,7 @@
       "query": "FactForecasts curated_factforecasts FactQualifications",
       "goldenPath": "projects/data-platform-dlz/data-platform-dlz",
       "occurrences": 1,
-      "transcript_ids": [
-        "f05dd98a-2a87-4999-9183-66134c47a684"
-      ],
+      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.57,
@@ -1511,9 +1445,7 @@
       "query": "FactForecasts curated_factforecasts BigHand.FactPersonCapacity migration decommission legacy",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "f05dd98a-2a87-4999-9183-66134c47a684"
-      ],
+      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.29,
@@ -1543,9 +1475,7 @@
       "query": "FactPersonForecast bighand enriched_workerdatamart",
       "goldenPath": null,
       "occurrences": 1,
-      "transcript_ids": [
-        "f05dd98a-2a87-4999-9183-66134c47a684"
-      ],
+      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 19.44,
@@ -1575,9 +1505,7 @@
       "query": "BigHand deploy FactPerson Metadata Transformation Unity Catalog",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": [
-        "f05dd98a-2a87-4999-9183-66134c47a684"
-      ],
+      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.1,
@@ -1607,9 +1535,7 @@
       "query": "monitoring error logs ADF debug mode",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": [
-        "f05dd98a-2a87-4999-9183-66134c47a684"
-      ],
+      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.5,
@@ -1639,9 +1565,7 @@
       "query": "deploy",
       "goldenPath": "projects/data-platform-dlz/concepts/bighand-data-product",
       "occurrences": 1,
-      "transcript_ids": [
-        "f05dd98a-2a87-4999-9183-66134c47a684"
-      ],
+      "transcript_ids": ["f05dd98a-2a87-4999-9183-66134c47a684"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 12.82,
@@ -1671,9 +1595,7 @@
       "query": "notebookErrorMessage",
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
       "occurrences": 1,
-      "transcript_ids": [
-        "bac02dac-8dbb-413f-b724-5ee65fb18cc6"
-      ],
+      "transcript_ids": ["bac02dac-8dbb-413f-b724-5ee65fb18cc6"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.63,
@@ -1703,9 +1625,7 @@
       "query": "Unity Catalog pipeline",
       "goldenPath": "projects/data-platform-dlz/concepts/orchestration-and-adf",
       "occurrences": 1,
-      "transcript_ids": [
-        "bac02dac-8dbb-413f-b724-5ee65fb18cc6"
-      ],
+      "transcript_ids": ["bac02dac-8dbb-413f-b724-5ee65fb18cc6"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.03,
@@ -1735,9 +1655,7 @@
       "query": "bighand FactPublicHoliday public holidays",
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
       "occurrences": 1,
-      "transcript_ids": [
-        "f681a293-0729-4f69-93e9-cd5da9b4572a"
-      ],
+      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17.23,
@@ -1767,9 +1685,7 @@
       "query": "FactPersonForecast bighand entity",
       "goldenPath": "projects/data-platform-dlz/concepts/dlz-naming-and-schema-conventions",
       "occurrences": 1,
-      "transcript_ids": [
-        "f681a293-0729-4f69-93e9-cd5da9b4572a"
-      ],
+      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.75,
@@ -1799,9 +1715,7 @@
       "query": "FactPersonCalendar person date calendar",
       "goldenPath": "projects/data-platform-dlz/entities/factpersoncalendar",
       "occurrences": 1,
-      "transcript_ids": [
-        "f681a293-0729-4f69-93e9-cd5da9b4572a"
-      ],
+      "transcript_ids": ["f681a293-0729-4f69-93e9-cd5da9b4572a"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.4,
@@ -1831,9 +1745,7 @@
       "query": "Benevity",
       "goldenPath": "projects/data-platform-dlz/concepts/benevity-integration",
       "occurrences": 1,
-      "transcript_ids": [
-        "fec9aef1-4c09-49db-8534-3ac8c1e28cf1"
-      ],
+      "transcript_ids": ["fec9aef1-4c09-49db-8534-3ac8c1e28cf1"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 17,
@@ -1863,9 +1775,7 @@
       "query": "ADF pipeline orchestrator",
       "goldenPath": "projects/data-platform-dlz/concepts/orchestration-and-adf",
       "occurrences": 0,
-      "transcript_ids": [
-        "wiki-query-suite"
-      ],
+      "transcript_ids": ["wiki-query-suite"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 18.7,
@@ -1895,9 +1805,7 @@
       "query": "FactPublicHoliday",
       "goldenPath": "projects/data-platform-dlz/entities/factpublicholiday",
       "occurrences": 0,
-      "transcript_ids": [
-        "wiki-query-suite"
-      ],
+      "transcript_ids": ["wiki-query-suite"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 16.35,
@@ -1927,9 +1835,7 @@
       "query": "deployment CI CD",
       "goldenPath": "projects/data-platform-dlz/skills/deployment-and-ci-cd",
       "occurrences": 0,
-      "transcript_ids": [
-        "wiki-query-suite"
-      ],
+      "transcript_ids": ["wiki-query-suite"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 15.79,
@@ -1959,9 +1865,7 @@
       "query": "Unity Catalog metastore",
       "goldenPath": "projects/data-platform-dlz/concepts/metastore-schema-evolution",
       "occurrences": 0,
-      "transcript_ids": [
-        "wiki-query-suite"
-      ],
+      "transcript_ids": ["wiki-query-suite"],
       "baselines": {
         "old_upstream": {
           "latencyMs": 18.43,

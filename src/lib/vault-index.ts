@@ -74,11 +74,7 @@ export async function getVaultIndex(vaultPath: string): Promise<VaultIndex> {
   const signature = await buildVaultMarkdownSignature(currentPaths);
   const cached = indexCache.get(vaultPath);
 
-  if (
-    cached &&
-    Date.now() - cached.builtAt < CACHE_TTL_MS &&
-    cached.signature === signature
-  ) {
+  if (cached && Date.now() - cached.builtAt < CACHE_TTL_MS && cached.signature === signature) {
     return cached.index;
   }
 
@@ -144,7 +140,9 @@ export async function buildVaultIndexFromPaths(
     const title = typeof data.title === 'string' ? data.title : basename;
     const summary = typeof data.summary === 'string' ? data.summary : '';
     const tags = Array.isArray(data.tags)
-      ? data.tags.filter((tag): tag is string => typeof tag === 'string').map((tag) => tag.toLowerCase())
+      ? data.tags
+          .filter((tag): tag is string => typeof tag === 'string')
+          .map((tag) => tag.toLowerCase())
       : [];
     const aliases = parseAliases(data);
 
@@ -178,7 +176,10 @@ export async function buildVaultIndexFromPaths(
   const collisions: VaultIndexCollisions = new Map();
   for (const [key, paths] of claimants) {
     if (paths.size > 1) {
-      collisions.set(key, [...paths].sort((a, b) => a.localeCompare(b)));
+      collisions.set(
+        key,
+        [...paths].sort((a, b) => a.localeCompare(b)),
+      );
     }
   }
 
@@ -224,7 +225,9 @@ export function resolveWikilinkTarget(link: string, index: VaultIndex): string |
 }
 
 function throwNoteNotFound(userPath: string): never {
-  const err = new Error(`ENOENT: no such file or directory, open '${userPath}'`) as NodeJS.ErrnoException;
+  const err = new Error(
+    `ENOENT: no such file or directory, open '${userPath}'`,
+  ) as NodeJS.ErrnoException;
   err.code = 'ENOENT';
   throw err;
 }

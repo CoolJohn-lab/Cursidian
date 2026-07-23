@@ -13,13 +13,13 @@ Do **not** tag or publish until a human confirms the gates below. Agents must no
 
 ## First publish vs subsequent release
 
-| | First publish | Subsequent release |
-|---|---------------|-------------------|
-| npm name | Confirm `npm view cursidian version` is acceptable (404 = name free) | Confirm `npm view cursidian version` matches the last published version before bumping |
-| Version | Set semver in `package.json` via `npm run bump` | `npm run bump` (or `-- minor` / `-- major`) |
-| Tag | `v<version>` must match `package.json` exactly | Same |
-| Skills | User runs `npm run skills:install` after install | Re-run when `skills/wiki/` changed in the release |
-| MCP reload | User restarts `user-cursidian` after upgrading | Same (see `AGENTS.md`) |
+|            | First publish                                                        | Subsequent release                                                                     |
+| ---------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| npm name   | Confirm `npm view cursidian version` is acceptable (404 = name free) | Confirm `npm view cursidian version` matches the last published version before bumping |
+| Version    | Set semver in `package.json` via `npm run bump`                      | `npm run bump` (or `-- minor` / `-- major`)                                            |
+| Tag        | `v<version>` must match `package.json` exactly                       | Same                                                                                   |
+| Skills     | User runs `npm run skills:install` after install                     | Re-run when `skills/wiki/` changed in the release                                      |
+| MCP reload | User restarts `user-cursidian` after upgrading                       | Same (see `AGENTS.md`)                                                                 |
 
 ## Publish sequence (only when asked)
 

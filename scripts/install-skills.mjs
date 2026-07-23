@@ -94,7 +94,9 @@ function verifyInstalled(destRoot) {
       continue;
     }
     if (fs.existsSync(nestedTrap)) {
-      problems.push(`${name}: nested duplicate ${path.join(name, name, 'SKILL.md')} - remove and reinstall`);
+      problems.push(
+        `${name}: nested duplicate ${path.join(name, name, 'SKILL.md')} - remove and reinstall`,
+      );
     }
 
     let sawContextInSkill = false;
@@ -120,7 +122,9 @@ function verifyInstalled(destRoot) {
   }
 
   if (!sawContextTool) {
-    problems.push('No installed skill mentions the "context" MCP tool - the 5-tool surface is not taught');
+    problems.push(
+      'No installed skill mentions the "context" MCP tool - the 5-tool surface is not taught',
+    );
   }
 
   return problems;
@@ -172,7 +176,9 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`\nInstalled ${SKILL_NAMES.length} wiki skills. Verification passed (no nested duplicates, no legacy tool names).`);
+  console.log(
+    `\nInstalled ${SKILL_NAMES.length} wiki skills. Verification passed (no nested duplicates, no legacy tool names).`,
+  );
   console.log('Reload Cursor (or start a new agent chat) so skills are re-discovered.');
 }
 

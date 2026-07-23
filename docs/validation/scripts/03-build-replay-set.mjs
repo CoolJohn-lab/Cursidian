@@ -86,7 +86,9 @@ async function main() {
   };
 
   await fs.writeFile(OUT, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
-  console.log(`Replay set: ${replaySet.length} cases (${labelled.length} with golden labels) → ${OUT}`);
+  console.log(
+    `Replay set: ${replaySet.length} cases (${labelled.length} with golden labels) → ${OUT}`,
+  );
 }
 
 main().catch((err) => {

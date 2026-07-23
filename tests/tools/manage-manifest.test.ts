@@ -104,7 +104,9 @@ describe('vault manifest action', () => {
     });
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as ManifestPayload;
-    expect(data.manifest?.sources.filter((s) => s.key.toLowerCase() === 'c:/sources/paper.pdf')).toHaveLength(1);
+    expect(
+      data.manifest?.sources.filter((s) => s.key.toLowerCase() === 'c:/sources/paper.pdf'),
+    ).toHaveLength(1);
     expect(data.manifest?.sources[0]?.ingested).toBe('2026-07-12T18:00:00Z');
   });
 

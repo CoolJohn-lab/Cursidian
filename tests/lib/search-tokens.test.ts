@@ -55,13 +55,7 @@ describe('search-tokens', () => {
       'how do I expose the database without opening ports on my router',
     );
     expect(prepared.strippedStopwords).toBe(true);
-    expect(prepared.contentTokens).toEqual([
-      'expose',
-      'database',
-      'opening',
-      'ports',
-      'router',
-    ]);
+    expect(prepared.contentTokens).toEqual(['expose', 'database', 'opening', 'ports', 'router']);
     expect(stripSearchStopwords(['how', 'port', 'forward'])).toEqual(['port', 'forward']);
   });
 

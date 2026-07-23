@@ -340,10 +340,7 @@ export function planFileDeslop(
     cleaned = stringifyFrontmatter(cleanedData, cleanedBody);
   }
 
-  const findings: SlopFinding[] = [
-    ...bodyApplied.findings,
-    ...fm.findings,
-  ];
+  const findings: SlopFinding[] = [...bodyApplied.findings, ...fm.findings];
   if (bodyEmoji.count > 0) {
     findings.push({
       path: relativePath,
@@ -380,8 +377,7 @@ export async function analyzeVaultSlop(
   });
 
   // Prefer vaultGlob; fall back keeps tests that only use list helper semantics.
-  const paths =
-    absolutePaths.length > 0 ? absolutePaths : await listVaultMarkdownPaths(vaultPath);
+  const paths = absolutePaths.length > 0 ? absolutePaths : await listVaultMarkdownPaths(vaultPath);
 
   const filesToChange: FileSlopPlan[] = [];
   const findings: SlopFinding[] = [];

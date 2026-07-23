@@ -1,10 +1,6 @@
 import { type Config } from '../config.js';
 import { toRelativePath } from '../lib/vault.js';
-import {
-  assertSafePathAsync,
-  assertNotReadOnly,
-  readFileBounded,
-} from '../lib/security.js';
+import { assertSafePathAsync, assertNotReadOnly, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter, mergeFrontmatter } from '../lib/frontmatter.js';
 import {
   computeContentHash,
@@ -29,11 +25,7 @@ export function resolveEffectiveUpdateMode(
   new_string: string | undefined,
 ): UpdateMode {
   const requested = mode ?? 'replace';
-  if (
-    requested === 'replace' &&
-    old_string !== undefined &&
-    new_string !== undefined
-  ) {
+  if (requested === 'replace' && old_string !== undefined && new_string !== undefined) {
     return 'patch';
   }
   return requested;
@@ -76,7 +68,9 @@ export function updateNoteHandler(config: Config) {
           action: 'update',
           path: notePath,
           mode: mode ?? 'replace',
-          ...Object.fromEntries(required.filter((name) => name !== 'path').map((name) => [name, `<${name}>`])),
+          ...Object.fromEntries(
+            required.filter((name) => name !== 'path').map((name) => [name, `<${name}>`]),
+          ),
         },
       });
     try {
@@ -190,20 +184,32 @@ export function updateNoteHandler(config: Config) {
             } else if (effectiveMode === 'replace') {
               if (content === undefined) {
                 await journal.abort();
-                return invalidUpdate('mode "replace" requires content', ['path', 'content'], ['content']);
+                return invalidUpdate(
+                  'mode "replace" requires content',
+                  ['path', 'content'],
+                  ['content'],
+                );
               }
               assertReplaceSizeGuard(existingContent, content, force ?? false);
               updatedBody = content;
             } else if (effectiveMode === 'append') {
               if (content === undefined) {
                 await journal.abort();
-                return invalidUpdate('mode "append" requires content', ['path', 'content'], ['content']);
+                return invalidUpdate(
+                  'mode "append" requires content',
+                  ['path', 'content'],
+                  ['content'],
+                );
               }
               updatedBody = `${existingContent}\n${content}`;
             } else {
               if (content === undefined) {
                 await journal.abort();
-                return invalidUpdate('mode "prepend" requires content', ['path', 'content'], ['content']);
+                return invalidUpdate(
+                  'mode "prepend" requires content',
+                  ['path', 'content'],
+                  ['content'],
+                );
               }
               updatedBody = `${content}\n${existingContent}`;
             }
@@ -219,7 +225,11 @@ export function updateNoteHandler(config: Config) {
           let nextFrontmatter = data;
           if (frontmatter !== undefined) {
             nextFrontmatter = mergeFrontmatter(data, frontmatter);
-            nextFrontmatter = withUpdatedTimestampUnlessProvided(nextFrontmatter, frontmatter, undefined);
+            nextFrontmatter = withUpdatedTimestampUnlessProvided(
+              nextFrontmatter,
+              frontmatter,
+              undefined,
+            );
           } else {
             nextFrontmatter = withUpdatedTimestamp(data);
           }
@@ -243,25 +253,28 @@ export function updateNoteHandler(config: Config) {
           const warnings = mergeOperationWarnings(revisionCheck.warnings, op);
           const responseMode = effectiveMode === 'frontmatter_only' ? 'replace' : effectiveMode;
 
-          return ok({
-            updated: relative,
-            mode: responseMode,
-            inferredMode:
-              effectiveMode !== 'frontmatter_only' && effectiveMode !== (mode ?? 'replace')
-                ? effectiveMode
-                : undefined,
-            frontmatter: nextFrontmatter,
-            contentHash: computeContentHash(updatedBody),
-            revisionHash: computeRevisionHash(newBody),
-            ...(warnings ? { warnings } : {}),
-          }, {
-            action: 'update',
-            changed: true,
-            paths: [relative],
-            warnings,
-            operationId: op.operationId,
-            undoAvailable: op.undoAvailable,
-          });
+          return ok(
+            {
+              updated: relative,
+              mode: responseMode,
+              inferredMode:
+                effectiveMode !== 'frontmatter_only' && effectiveMode !== (mode ?? 'replace')
+                  ? effectiveMode
+                  : undefined,
+              frontmatter: nextFrontmatter,
+              contentHash: computeContentHash(updatedBody),
+              revisionHash: computeRevisionHash(newBody),
+              ...(warnings ? { warnings } : {}),
+            },
+            {
+              action: 'update',
+              changed: true,
+              paths: [relative],
+              warnings,
+              operationId: op.operationId,
+              undoAvailable: op.undoAvailable,
+            },
+          );
         } catch (e) {
           await journal.abort();
           throw e;

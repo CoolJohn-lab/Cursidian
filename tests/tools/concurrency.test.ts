@@ -2,13 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import path from 'node:path';
 import fsp from 'node:fs/promises';
 import { registerNote } from '../../src/tools/note.js';
-import {
-  createTestVault,
-  cleanupVault,
-  callTool,
-  parseResult,
-  writeNote,
-} from './helpers.js';
+import { createTestVault, cleanupVault, callTool, parseResult, writeNote } from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;
@@ -73,7 +67,10 @@ describe('note concurrency', () => {
     expect(successes).toHaveLength(1);
     expect(conflicts).toHaveLength(1);
 
-    const finalRead = await callTool(ctx.client, 'note', { action: 'read', path: 'concurrent-body' });
+    const finalRead = await callTool(ctx.client, 'note', {
+      action: 'read',
+      path: 'concurrent-body',
+    });
     const { content } = parseResult(finalRead) as { content: string };
     expect(content).toMatch(/first|second/);
     expect(content).not.toBe('start marker end');
@@ -118,11 +115,7 @@ describe('note concurrency', () => {
   });
 
   it('detects frontmatter-only external edit with expectedRevision but not expectedHash', async () => {
-    await writeNote(
-      ctx.vault,
-      'fm-external.md',
-      '---\ntitle: Original\n---\n\nStable body.\n',
-    );
+    await writeNote(ctx.vault, 'fm-external.md', '---\ntitle: Original\n---\n\nStable body.\n');
 
     const read = await callTool(ctx.client, 'note', { action: 'read', path: 'fm-external' });
     const { contentHash, revisionHash } = parseResult(read) as {

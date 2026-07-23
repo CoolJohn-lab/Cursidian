@@ -3,7 +3,14 @@ import path from 'node:path';
 import os from 'node:os';
 import fsp from 'node:fs/promises';
 import { registerNote } from '../../src/tools/note.js';
-import { createTestVault, createTestClient, createTestContextAt, cleanupVault, callTool, parseResult } from './helpers.js';
+import {
+  createTestVault,
+  createTestClient,
+  createTestContextAt,
+  cleanupVault,
+  callTool,
+  parseResult,
+} from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;
@@ -28,7 +35,10 @@ describe('note (create)', () => {
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as { created: string };
     expect(data.created).toBe('new-note.md');
-    const exists = await fsp.access(path.join(ctx.vault, 'new-note.md')).then(() => true).catch(() => false);
+    const exists = await fsp
+      .access(path.join(ctx.vault, 'new-note.md'))
+      .then(() => true)
+      .catch(() => false);
     expect(exists).toBe(true);
   });
 
@@ -51,13 +61,20 @@ describe('note (create)', () => {
       content: '# Deep',
     });
     expect(result.isError).toBeFalsy();
-    const exists = await fsp.access(path.join(ctx.vault, 'deep/nested/note.md')).then(() => true).catch(() => false);
+    const exists = await fsp
+      .access(path.join(ctx.vault, 'deep/nested/note.md'))
+      .then(() => true)
+      .catch(() => false);
     expect(exists).toBe(true);
   });
 
   it('fails if note exists and overwrite is false', async () => {
     await callTool(ctx.client, 'note', { action: 'create', path: 'existing', content: 'v1' });
-    const result = await callTool(ctx.client, 'note', { action: 'create', path: 'existing', content: 'v2' });
+    const result = await callTool(ctx.client, 'note', {
+      action: 'create',
+      path: 'existing',
+      content: 'v2',
+    });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('already exists');
   });
@@ -76,7 +93,11 @@ describe('note (create)', () => {
   });
 
   it('rejects path traversal', async () => {
-    const result = await callTool(ctx.client, 'note', { action: 'create', path: '../evil', content: 'x' });
+    const result = await callTool(ctx.client, 'note', {
+      action: 'create',
+      path: '../evil',
+      content: 'x',
+    });
     expect(result.isError).toBe(true);
   });
 
@@ -159,7 +180,10 @@ describe('note (create) symlink escape', () => {
     expect(data.error).toBe('path_traversal');
 
     const escaped = path.join(outside, 'evil.md');
-    const exists = await fsp.access(escaped).then(() => true).catch(() => false);
+    const exists = await fsp
+      .access(escaped)
+      .then(() => true)
+      .catch(() => false);
     expect(exists).toBe(false);
   });
 });

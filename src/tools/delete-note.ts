@@ -72,17 +72,20 @@ export function deleteNoteHandler(config: Config) {
 
           const warnings = mergeOperationWarnings(revisionCheck.warnings, op);
 
-          return ok({
-            deleted: relative,
-            ...(warnings ? { warnings } : {}),
-          }, {
-            action: 'delete',
-            changed: true,
-            paths: [relative],
-            warnings,
-            operationId: op.operationId,
-            undoAvailable: op.undoAvailable,
-          });
+          return ok(
+            {
+              deleted: relative,
+              ...(warnings ? { warnings } : {}),
+            },
+            {
+              action: 'delete',
+              changed: true,
+              paths: [relative],
+              warnings,
+              operationId: op.operationId,
+              undoAvailable: op.undoAvailable,
+            },
+          );
         } catch (e) {
           await journal.abort();
           throw e;

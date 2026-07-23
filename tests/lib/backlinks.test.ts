@@ -22,7 +22,12 @@ describe('backlinks', () => {
     );
 
     const index = await buildVaultIndex(ctx.vault);
-    const backlinks = await findBacklinks(ctx.vault, 'concepts/old-name.md', index, ctx.config.maxFileSize);
+    const backlinks = await findBacklinks(
+      ctx.vault,
+      'concepts/old-name.md',
+      index,
+      ctx.config.maxFileSize,
+    );
     expect(backlinks.some((b) => b.path.includes('linker'))).toBe(true);
     await cleanupVault(ctx.vault);
   });

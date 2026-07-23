@@ -150,7 +150,9 @@ export function ok(data: unknown, metadata?: ToolSuccessMetadata): ToolResult {
           paths: metadata.paths ?? [],
           warnings: metadata.warnings ?? [],
           ...(metadata.operationId !== undefined ? { operationId: metadata.operationId } : {}),
-          ...(metadata.undoAvailable !== undefined ? { undoAvailable: metadata.undoAvailable } : {}),
+          ...(metadata.undoAvailable !== undefined
+            ? { undoAvailable: metadata.undoAvailable }
+            : {}),
           ...(data as Record<string, unknown>),
         };
   return {
@@ -179,7 +181,11 @@ export function toolError(payload: ToolErrorPayload): ToolResult {
 /**
  * Backward-compatible error helper - emits structured JSON with a generic code.
  */
-export function err(message: string, code = 'error', extras?: Omit<ToolErrorPayload, 'error' | 'message'>): ToolResult {
+export function err(
+  message: string,
+  code = 'error',
+  extras?: Omit<ToolErrorPayload, 'error' | 'message'>,
+): ToolResult {
   return toolError({ error: code, message, ...extras });
 }
 
@@ -227,9 +233,7 @@ export function validateActionArguments(options: {
   });
   const rejected = Object.keys(options.args).filter(
     (name) =>
-      name !== 'action' &&
-      options.args[name] !== undefined &&
-      !options.allowed.includes(name),
+      name !== 'action' && options.args[name] !== undefined && !options.allowed.includes(name),
   );
   if (missing.length === 0 && rejected.length === 0) {
     return null;
@@ -246,7 +250,9 @@ export function validateActionArguments(options: {
 
   const problems = [
     missing.length > 0 ? `missing required arguments: ${missing.join(', ')}` : '',
-    rejected.length > 0 ? `arguments do not apply to action "${options.action}": ${rejected.join(', ')}` : '',
+    rejected.length > 0
+      ? `arguments do not apply to action "${options.action}": ${rejected.join(', ')}`
+      : '',
   ].filter(Boolean);
 
   return invalidArgsError({
@@ -369,10 +375,12 @@ export function mapToolError(e: unknown, context?: Partial<ToolErrorContext>): T
       let suggestion: string | undefined;
       if (code === 'not_found' && /old_string/i.test(message)) {
         conflictKind = 'patch_not_found';
-        suggestion = 'Re-read the note and widen old_string context, or use mode replace for a wholesale rewrite.';
+        suggestion =
+          'Re-read the note and widen old_string context, or use mode replace for a wholesale rewrite.';
       } else if (code === 'not_found' && /heading/i.test(message)) {
         conflictKind = 'heading_not_found';
-        suggestion = 'Re-read the note and confirm the heading text/level, or use mode replace for a wholesale rewrite.';
+        suggestion =
+          'Re-read the note and confirm the heading text/level, or use mode replace for a wholesale rewrite.';
       } else if (code === 'invalid_args' && /ambiguous/i.test(message)) {
         conflictKind = 'ambiguous_match';
         suggestion =
@@ -412,7 +420,7 @@ export function mapToolError(e: unknown, context?: Partial<ToolErrorContext>): T
     if (name === 'PathResolveError') {
       const paths =
         'paths' in e && Array.isArray((e as { paths: unknown }).paths)
-          ? ((e as { paths: string[] }).paths)
+          ? (e as { paths: string[] }).paths
           : [];
       return toolError({
         error: 'invalid_args',

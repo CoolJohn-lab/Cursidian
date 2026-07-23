@@ -19,8 +19,16 @@ afterAll(async () => {
 
 describe('note (delete)', () => {
   it('deletes a note', async () => {
-    await callTool(ctx.client, 'note', { action: 'create', path: 'to-delete', content: '# Delete me' });
-    const result = await callTool(ctx.client, 'note', { action: 'delete', path: 'to-delete', confirm: true });
+    await callTool(ctx.client, 'note', {
+      action: 'create',
+      path: 'to-delete',
+      content: '# Delete me',
+    });
+    const result = await callTool(ctx.client, 'note', {
+      action: 'delete',
+      path: 'to-delete',
+      confirm: true,
+    });
     expect(result.isError).toBeFalsy();
     const exists = await fsp
       .access(path.join(ctx.vault, 'to-delete.md'))
@@ -30,7 +38,11 @@ describe('note (delete)', () => {
   });
 
   it('returns error for non-existent note', async () => {
-    const result = await callTool(ctx.client, 'note', { action: 'delete', path: 'ghost', confirm: true });
+    const result = await callTool(ctx.client, 'note', {
+      action: 'delete',
+      path: 'ghost',
+      confirm: true,
+    });
     expect(result.isError).toBe(true);
   });
 

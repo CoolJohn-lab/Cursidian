@@ -363,7 +363,9 @@ async function runEval() {
   console.log(`\nWrote snapshot: ${path.relative(repoRoot, snapshotPath)}`);
 
   if (bundlePerQuery.length === 0) {
-    console.warn('[WARN] context tool not registered or no labelled queries; skipped bundle metrics');
+    console.warn(
+      '[WARN] context tool not registered or no labelled queries; skipped bundle metrics',
+    );
     return;
   }
 
@@ -434,7 +436,9 @@ async function runSweep() {
   const baseline =
     results.find((r) => r.expandedTokenMultiplier === originalMultiplier) ?? results[0];
   const nonRegressing = results.filter(
-    (r) => r.mrr >= baseline.mrr - MRR_REGRESSION_EPSILON && r.ndcg > baseline.ndcg + NDCG_IMPROVEMENT_EPSILON,
+    (r) =>
+      r.mrr >= baseline.mrr - MRR_REGRESSION_EPSILON &&
+      r.ndcg > baseline.ndcg + NDCG_IMPROVEMENT_EPSILON,
   );
   const best = [...nonRegressing].sort((a, b) => b.ndcg - a.ndcg)[0] ?? baseline;
 
@@ -453,7 +457,9 @@ async function runSweep() {
   console.log('='.repeat(72));
 
   if (best.expandedTokenMultiplier === originalMultiplier) {
-    console.log(`Current expandedTokenMultiplier=${originalMultiplier} remains best on nDCG@10 with no MRR regression.`);
+    console.log(
+      `Current expandedTokenMultiplier=${originalMultiplier} remains best on nDCG@10 with no MRR regression.`,
+    );
   } else {
     console.log(
       `Candidate expandedTokenMultiplier=${best.expandedTokenMultiplier} improves nDCG@10 (${formatScore(best.ndcg)} vs current ${formatScore(baseline.ndcg)}) with no MRR regression (epsilon=${MRR_REGRESSION_EPSILON}). This script never edits source - update RANK_WEIGHTS.expandedTokenMultiplier in src/lib/search-ranking.ts deliberately if adopting, then rerun the full eval.`,

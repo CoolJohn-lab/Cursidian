@@ -175,7 +175,11 @@ export function minOrMatchCount(tokenCount: number): number {
 /**
  * Counts how many query tokens match in the provided text.
  */
-export function countMatchingTokens(tokens: string[], text: string, caseSensitive: boolean): number {
+export function countMatchingTokens(
+  tokens: string[],
+  text: string,
+  caseSensitive: boolean,
+): number {
   return tokens.filter((token) => tokenMatchesInText(token, text, caseSensitive)).length;
 }
 
@@ -254,6 +258,10 @@ export function tokenMatchesInText(token: string, text: string, caseSensitive: b
 /**
  * Returns true when every query token matches in the provided text.
  */
-export function allTokensMatchInText(tokens: string[], text: string, caseSensitive: boolean): boolean {
+export function allTokensMatchInText(
+  tokens: string[],
+  text: string,
+  caseSensitive: boolean,
+): boolean {
   return tokens.every((token) => tokenMatchesInText(token, text, caseSensitive));
 }

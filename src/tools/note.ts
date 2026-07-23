@@ -8,10 +8,7 @@ import { deleteNoteHandler } from './delete-note.js';
 import { renameNoteHandler } from './rename-note.js';
 import { manageFrontmatterHandler } from './manage-frontmatter.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
-import {
-  MAX_CONTENT_BYTES,
-  MAX_FRONTMATTER_KEYS,
-} from '../lib/limits.js';
+import { MAX_CONTENT_BYTES, MAX_FRONTMATTER_KEYS } from '../lib/limits.js';
 
 const boundedContent = z.string().max(MAX_CONTENT_BYTES);
 const boundedPatch = z.string().max(50_000);
@@ -47,10 +44,16 @@ export function registerNote(server: McpServer, config: Config): void {
         mode: z
           .enum(['replace', 'append', 'prepend', 'patch', 'replace_section'])
           .optional()
-          .describe('Used by update action only; patch inferred when old_string and new_string are set'),
+          .describe(
+            'Used by update action only; patch inferred when old_string and new_string are set',
+          ),
         old_string: boundedPatch.optional().describe('Used by update action patch mode only'),
         new_string: boundedPatch.optional().describe('Used by update action patch mode only'),
-        heading: z.string().max(500).optional().describe('Used by update action replace_section mode only'),
+        heading: z
+          .string()
+          .max(500)
+          .optional()
+          .describe('Used by update action replace_section mode only'),
         expectedRevision: z
           .string()
           .optional()
@@ -87,7 +90,14 @@ export function registerNote(server: McpServer, config: Config): void {
       const specs: Record<string, { allowed: string[]; required?: string[] }> = {
         read: { allowed: ['path'], required: ['path'] },
         create: {
-          allowed: ['path', 'content', 'frontmatter', 'overwrite', 'expectedRevision', 'expectedHash'],
+          allowed: [
+            'path',
+            'content',
+            'frontmatter',
+            'overwrite',
+            'expectedRevision',
+            'expectedHash',
+          ],
           required: ['path', 'content'],
         },
         update: {
@@ -110,11 +120,26 @@ export function registerNote(server: McpServer, config: Config): void {
           required: ['path', 'confirm'],
         },
         rename: {
-          allowed: ['path', 'newPath', 'updateBacklinks', 'updateIndex', 'expectedRevision', 'expectedHash'],
+          allowed: [
+            'path',
+            'newPath',
+            'updateBacklinks',
+            'updateIndex',
+            'expectedRevision',
+            'expectedHash',
+          ],
           required: ['path', 'newPath'],
         },
         frontmatter: {
-          allowed: ['path', 'fmOperation', 'frontmatter', 'replaceAll', 'keys', 'expectedRevision', 'expectedHash'],
+          allowed: [
+            'path',
+            'fmOperation',
+            'frontmatter',
+            'replaceAll',
+            'keys',
+            'expectedRevision',
+            'expectedHash',
+          ],
           required: ['path', 'fmOperation'],
         },
       };

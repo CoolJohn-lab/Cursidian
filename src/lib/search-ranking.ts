@@ -164,9 +164,7 @@ export const GENERIC_BASENAME_TOKENS = new Set([
  * Query -> text only: never treat a shorter basename segment as a hit for a longer query token.
  */
 function basenameMatchLabel(primary: string, basenameNorm: string, segments: string[]): string {
-  const exact = segments.find(
-    (seg) => seg === primary || tokensMorphologicallyMatch(primary, seg),
-  );
+  const exact = segments.find((seg) => seg === primary || tokensMorphologicallyMatch(primary, seg));
   if (exact) {
     return exact;
   }
@@ -273,7 +271,10 @@ function compoundBasenameCoverage(basename: string, tokens: string[]): number {
       continue;
     }
 
-    if (basenameNorm.includes(tok) || segments.some((seg) => tokensMorphologicallyMatch(tok, seg))) {
+    if (
+      basenameNorm.includes(tok) ||
+      segments.some((seg) => tokensMorphologicallyMatch(tok, seg))
+    ) {
       hits += 1;
     }
   }
@@ -283,7 +284,10 @@ function compoundBasenameCoverage(basename: string, tokens: string[]): number {
 /**
  * Title token density: matched query tokens / title word count (specificity signal).
  */
-function titleTokenDensity(title: string, tokens: string[]): { hits: number; density: number; wordCount: number } {
+function titleTokenDensity(
+  title: string,
+  tokens: string[],
+): { hits: number; density: number; wordCount: number } {
   const words = splitSegments(title);
   const titleNorm = normaliseKey(title);
   if (tokens.length === 0 || !titleNorm) {
@@ -423,7 +427,10 @@ function scoreFreshness(data: Record<string, unknown>): { score: number; reasons
  * Scores a search candidate using structural signals: title, basename, aliases, tags,
  * summary, proximity, hub dilution, and the operational special-file penalty.
  */
-export function scoreSearchCandidate(candidate: SearchCandidate, context: RankContext): RankedSearchHit {
+export function scoreSearchCandidate(
+  candidate: SearchCandidate,
+  context: RankContext,
+): RankedSearchHit {
   const { data, content } = parseFrontmatter(candidate.content);
   const basename = path.basename(candidate.path, '.md');
   const title = typeof data.title === 'string' ? data.title : basename;
@@ -470,7 +477,10 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
   let titleWordHits = 0;
   for (const token of semanticTokens) {
     const tok = normaliseKey(token);
-    if (titleNorm.includes(tok) || splitSegments(title).some((w) => tokensMorphologicallyMatch(tok, w))) {
+    if (
+      titleNorm.includes(tok) ||
+      splitSegments(title).some((w) => tokensMorphologicallyMatch(tok, w))
+    ) {
       titleTokenHits += 1;
     }
     if (tokenMatchesTitleWord(token, titleNorm)) {
@@ -597,7 +607,10 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
   }
 
   // Title specificity: high matched-token density favours focused titles over broad hubs.
-  const { density: titleDensity, wordCount: titleWordCount } = titleTokenDensity(title, semanticTokens);
+  const { density: titleDensity, wordCount: titleWordCount } = titleTokenDensity(
+    title,
+    semanticTokens,
+  );
   if (titleDensity > 0 && titleWordCount > 0) {
     const specificityBonus = Math.round(titleDensity * RANK_WEIGHTS.titleSpecificityMultiplier);
     score += specificityBonus;
@@ -662,7 +675,10 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
       score += summaryHits * RANK_WEIGHTS.summaryTokenPerHit;
       reasons.push(`summary-tokens:${summaryHits}`);
     }
-  } else if (tags.length > 0 && allTokensPresent(tags.join(' '), context.tokens, context.caseSensitive)) {
+  } else if (
+    tags.length > 0 &&
+    allTokensPresent(tags.join(' '), context.tokens, context.caseSensitive)
+  ) {
     score += RANK_WEIGHTS.tagsAllTokensNoSummary;
     reasons.push('tags-all-tokens');
   }
@@ -682,10 +698,7 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
 
   // Skip snippet-density / hub penalties when the page is already a focused match.
   const isFocused =
-    compoundHits >= 2 ||
-    titleDensity >= 0.4 ||
-    headingHits > 0 ||
-    headingTokenHits >= 2;
+    compoundHits >= 2 || titleDensity >= 0.4 || headingHits > 0 || headingTokenHits >= 2;
 
   if (
     !isFocused &&
@@ -705,7 +718,10 @@ export function scoreSearchCandidate(candidate: SearchCandidate, context: RankCo
   }
 
   const indexEntry = context.index.get(pathNorm) ?? context.index.get(basenameNorm);
-  if (indexEntry?.summary && allTokensPresent(indexEntry.summary, context.tokens, context.caseSensitive)) {
+  if (
+    indexEntry?.summary &&
+    allTokensPresent(indexEntry.summary, context.tokens, context.caseSensitive)
+  ) {
     score += RANK_WEIGHTS.indexSummaryMatch;
     reasons.push('index-summary');
   }

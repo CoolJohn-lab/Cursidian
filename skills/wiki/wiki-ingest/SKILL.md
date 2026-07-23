@@ -10,7 +10,7 @@ description: >
 
 # Wiki Ingest - Distill Sources into Pages
 
-Your job is not to write a summary - it is to **distill and integrate**: one source should update every wiki page it is relevant to. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Reading the *source documents* with `Read`/`Glob`/`WebFetch` is fine - they live outside the vault. Keep `operationStack`; on failure after writes, undo reverse-order; never fall back to editing vault files directly.
+Your job is not to write a summary - it is to **distill and integrate**: one source should update every wiki page it is relevant to. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Reading the _source documents_ with `Read`/`Glob`/`WebFetch` is fine - they live outside the vault. Keep `operationStack`; on failure after writes, undo reverse-order; never fall back to editing vault files directly.
 
 ## Trust boundary
 

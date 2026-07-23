@@ -6,10 +6,7 @@ import { resolveExistingNotePath } from '../lib/vault-index.js';
 import { resolveOutgoingLinks } from '../lib/wikilink-resolve.js';
 import { getCachedBacklinks } from '../lib/backlink-cache.js';
 import { getVaultSnapshot } from '../lib/vault-snapshot.js';
-import {
-  DEFAULT_GRAPH_BACKLINK_LIMIT,
-  MAX_GRAPH_BACKLINK_LIMIT,
-} from '../lib/limits.js';
+import { DEFAULT_GRAPH_BACKLINK_LIMIT, MAX_GRAPH_BACKLINK_LIMIT } from '../lib/limits.js';
 import { paginateByPath, resolveCursorMarker, scanMetadataFromSkipped } from '../lib/pagination.js';
 import { ok, mapToolError } from '../types/index.js';
 
@@ -29,7 +26,10 @@ export function getNoteNeighborhoodHandler(config: Config) {
 
       const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);
       const scan = scanMetadataFromSkipped(snapshot.skipped);
-      const effectiveLimit = Math.min(limit ?? DEFAULT_GRAPH_BACKLINK_LIMIT, MAX_GRAPH_BACKLINK_LIMIT);
+      const effectiveLimit = Math.min(
+        limit ?? DEFAULT_GRAPH_BACKLINK_LIMIT,
+        MAX_GRAPH_BACKLINK_LIMIT,
+      );
       const marker = resolveCursorMarker(cursor, snapshot.signature, {
         vaultPath: config.vaultPath,
       });

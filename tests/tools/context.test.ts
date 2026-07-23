@@ -32,7 +32,10 @@ afterAll(async () => {
 
 describe('context (assemble)', () => {
   it('assembles a bundle for a query with a default token budget', async () => {
-    const result = await callTool(ctx.client, 'context', { action: 'assemble', query: 'UniqueContextToolMarker' });
+    const result = await callTool(ctx.client, 'context', {
+      action: 'assemble',
+      query: 'UniqueContextToolMarker',
+    });
     expect(result.isError).toBeFalsy();
     const data = parseResult(result) as ContextBundle;
     expect(data.query).toBe('UniqueContextToolMarker');
@@ -121,7 +124,10 @@ describe('context (expand)', () => {
     );
 
     const first = parseResult(
-      await callTool(ctx.client, 'context', { action: 'assemble', query: 'UniqueExpandToolMarker' }),
+      await callTool(ctx.client, 'context', {
+        action: 'assemble',
+        query: 'UniqueExpandToolMarker',
+      }),
     ) as ContextBundle;
     expect(first.nextCursor).toBeTruthy();
 
@@ -146,7 +152,10 @@ describe('context (expand)', () => {
   });
 
   it('returns a structured invalid_args error for a forged cursor', async () => {
-    const result = await callTool(ctx.client, 'context', { action: 'expand', cursor: 'not-a-real-cursor' });
+    const result = await callTool(ctx.client, 'context', {
+      action: 'expand',
+      cursor: 'not-a-real-cursor',
+    });
     expect(result.isError).toBe(true);
     const data = parseResult(result) as { error: string; retryable?: boolean };
     expect(data.error).toBe('invalid_args');
@@ -170,7 +179,10 @@ describe('context (telemetry)', () => {
   it('writes a local JSONL entry with query shape (not raw text) when enabled', async () => {
     process.env.OBSIDIAN_CONTEXT_TELEMETRY = 'true';
     try {
-      await callTool(ctx.client, 'context', { action: 'assemble', query: 'UniqueContextToolMarker' });
+      await callTool(ctx.client, 'context', {
+        action: 'assemble',
+        query: 'UniqueContextToolMarker',
+      });
       const raw = await fsp.readFile(telemetryFile(), 'utf-8');
       const lines = raw.trim().split('\n');
       const lastEntry = JSON.parse(lines[lines.length - 1]!) as {
@@ -185,7 +197,10 @@ describe('context (telemetry)', () => {
         latencyMs: number;
       };
       expect(lastEntry.action).toBe('assemble');
-      expect(lastEntry.queryShape).toEqual({ length: 'UniqueContextToolMarker'.length, wordCount: 1 });
+      expect(lastEntry.queryShape).toEqual({
+        length: 'UniqueContextToolMarker'.length,
+        wordCount: 1,
+      });
       expect(JSON.stringify(lastEntry)).not.toContain('UniqueContextToolMarker');
       expect(typeof lastEntry.tokenBudget).toBe('number');
       expect(typeof lastEntry.latencyMs).toBe('number');
@@ -261,7 +276,10 @@ describe('context (feedback)', () => {
     expect(data.changed).toBe(true);
     expect(data.recorded).toBe(true);
 
-    const raw = await fsp.readFile(path.join(ctx.vault, '.cursidian', 'context-feedback.jsonl'), 'utf-8');
+    const raw = await fsp.readFile(
+      path.join(ctx.vault, '.cursidian', 'context-feedback.jsonl'),
+      'utf-8',
+    );
     const lines = raw.trim().split('\n');
     const lastEntry = JSON.parse(lines[lines.length - 1]!) as { query: string; verdict: string };
     expect(lastEntry.query).toBe('UniqueContextToolMarker');
@@ -269,16 +287,23 @@ describe('context (feedback)', () => {
   });
 
   it('rejects feedback without required fields', async () => {
-    const result = await callTool(ctx.client, 'context', { action: 'feedback', feedbackQuery: 'x' });
+    const result = await callTool(ctx.client, 'context', {
+      action: 'feedback',
+      feedbackQuery: 'x',
+    });
     expect(result.isError).toBe(true);
     const data = parseResult(result) as { error: string; details?: { missing?: string[] } };
     expect(data.details?.missing).toContain('feedbackVerdict');
   });
 
   it('rejects feedback when the vault is read-only', async () => {
-    const readOnlyCtx = await createTestContextAt(ctx.vault, { readOnly: true }, (server, config) => {
-      registerContext(server, config);
-    });
+    const readOnlyCtx = await createTestContextAt(
+      ctx.vault,
+      { readOnly: true },
+      (server, config) => {
+        registerContext(server, config);
+      },
+    );
     const result = await callTool(readOnlyCtx.client, 'context', {
       action: 'feedback',
       feedbackQuery: 'x',

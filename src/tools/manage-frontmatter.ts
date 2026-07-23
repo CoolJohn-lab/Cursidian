@@ -1,11 +1,13 @@
 import { type Config } from '../config.js';
 import { toRelativePath } from '../lib/vault.js';
-import {
-  assertNotReadOnly,
-  readFileBounded,
-} from '../lib/security.js';
+import { assertNotReadOnly, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter, mergeFrontmatter } from '../lib/frontmatter.js';
-import { computeContentHash, computeRevisionHash, checkRevisionConcurrency, hashMismatchDetails } from '../lib/content-hash.js';
+import {
+  computeContentHash,
+  computeRevisionHash,
+  checkRevisionConcurrency,
+  hashMismatchDetails,
+} from '../lib/content-hash.js';
 import { withUpdatedTimestampUnlessProvided } from '../lib/timestamps.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { withPathLock, atomicReplaceLocked } from '../lib/vault-io.js';
@@ -164,21 +166,24 @@ export function manageFrontmatterHandler(config: Config) {
 
           const warnings = mergeOperationWarnings(revisionCheck.warnings, op);
 
-          return ok({
-            path: relative,
-            operation,
-            frontmatter: updated,
-            contentHash: computeContentHash(content),
-            revisionHash: computeRevisionHash(newContent),
-            ...(warnings ? { warnings } : {}),
-          }, {
-            action: 'frontmatter',
-            changed: true,
-            paths: [relative],
-            warnings,
-            operationId: op.operationId,
-            undoAvailable: op.undoAvailable,
-          });
+          return ok(
+            {
+              path: relative,
+              operation,
+              frontmatter: updated,
+              contentHash: computeContentHash(content),
+              revisionHash: computeRevisionHash(newContent),
+              ...(warnings ? { warnings } : {}),
+            },
+            {
+              action: 'frontmatter',
+              changed: true,
+              paths: [relative],
+              warnings,
+              operationId: op.operationId,
+              undoAvailable: op.undoAvailable,
+            },
+          );
         } catch (e) {
           await journal.abort();
           throw e;

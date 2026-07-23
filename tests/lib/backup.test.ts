@@ -22,7 +22,10 @@ afterAll(async () => {
 describe('backupNote', () => {
   it('creates a backup file in the trash directory', async () => {
     const backupPath = await backupNote(vault, noteFile);
-    const exists = await fsp.access(backupPath).then(() => true).catch(() => false);
+    const exists = await fsp
+      .access(backupPath)
+      .then(() => true)
+      .catch(() => false);
     expect(exists).toBe(true);
   });
 
@@ -55,7 +58,10 @@ describe('backupNote', () => {
     expect(legacyStillExists).toBe(false);
 
     const migrated = path.join(isolated, TRASH_DIR_NAME, '_legacy-migrated', 'old.md');
-    const migratedExists = await fsp.access(migrated).then(() => true).catch(() => false);
+    const migratedExists = await fsp
+      .access(migrated)
+      .then(() => true)
+      .catch(() => false);
     expect(migratedExists).toBe(true);
 
     await fsp.rm(isolated, { recursive: true, force: true });

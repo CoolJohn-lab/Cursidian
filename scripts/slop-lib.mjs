@@ -27,13 +27,7 @@ export const REPO_EXCLUDES = [
   'tests/fixtures',
 ];
 
-export const WIKI_EXCLUDES = [
-  '.obsidian',
-  '.trash',
-  '.cursidian-trash',
-  '.git',
-  'node_modules',
-];
+export const WIKI_EXCLUDES = ['.obsidian', '.trash', '.cursidian-trash', '.git', 'node_modules'];
 
 const PROSE_EXTENSIONS = new Map([
   ['.md', 'markdown'],

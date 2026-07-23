@@ -62,7 +62,10 @@ async function migrateLegacyTrash(vaultPath: string): Promise<void> {
 /**
  * Prunes oldest backup session folders beyond retention.
  */
-async function pruneOldBackups(vaultPath: string, retention = DEFAULT_BACKUP_RETENTION): Promise<void> {
+async function pruneOldBackups(
+  vaultPath: string,
+  retention = DEFAULT_BACKUP_RETENTION,
+): Promise<void> {
   const trashRoot = path.join(vaultPath, TRASH_DIR_NAME);
   if (!(await pathExists(trashRoot))) {
     return;
@@ -120,7 +123,10 @@ export async function backupNote(vaultPath: string, notePath: string): Promise<s
 /**
  * Backs up an existing note when present; no-op when the file does not exist.
  */
-export async function backupNoteIfExists(vaultPath: string, notePath: string): Promise<string | undefined> {
+export async function backupNoteIfExists(
+  vaultPath: string,
+  notePath: string,
+): Promise<string | undefined> {
   if (!(await pathExists(notePath))) {
     return undefined;
   }

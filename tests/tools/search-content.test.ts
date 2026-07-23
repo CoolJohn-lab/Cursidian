@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { registerSearch } from '../../src/tools/search.js';
-import { createTestVault, seedVault, cleanupVault, callTool, parseResult, writeNote } from './helpers.js';
+import {
+  createTestVault,
+  seedVault,
+  cleanupVault,
+  callTool,
+  parseResult,
+  writeNote,
+} from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;
@@ -25,7 +32,9 @@ describe('search (content)', () => {
 
   it('returns snippets with line numbers', async () => {
     const result = await callTool(ctx.client, 'search', { action: 'content', query: 'Project A' });
-    const data = parseResult(result) as { results: Array<{ snippets: Array<{ lineNumber: number }> }> };
+    const data = parseResult(result) as {
+      results: Array<{ snippets: Array<{ lineNumber: number }> }>;
+    };
     expect(data.results.length).toBeGreaterThan(0);
     expect(data.results[0].snippets[0].lineNumber).toBeGreaterThan(0);
   });
@@ -39,13 +48,20 @@ describe('search (content)', () => {
   });
 
   it('returns empty results for unknown query', async () => {
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'xyzzy-nonexistent-12345' });
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'xyzzy-nonexistent-12345',
+    });
     const data = parseResult(result) as { results: unknown[] };
     expect(data.results).toHaveLength(0);
   });
 
   it('returns relevanceScore and matchReasons when verbose', async () => {
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'Project A', verbose: true });
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'Project A',
+      verbose: true,
+    });
     const data = parseResult(result) as {
       results: Array<{ relevanceScore: number; matchReasons: string[] }>;
     };
@@ -81,26 +97,40 @@ describe('search (content)', () => {
   });
 
   it('includes match on snippets when verbose', async () => {
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'Project A', verbose: true });
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'Project A',
+      verbose: true,
+    });
     const data = parseResult(result) as { results: Array<{ snippets: Array<{ match?: string }> }> };
     expect(data.results[0].snippets[0].match).toBeDefined();
   });
 
   it('excludes operational files by default', async () => {
-    await writeNote(ctx.vault, 'index.md', '---\ntitle: Wiki Index\n---\n\nUniqueOperationalToken123\n');
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'UniqueOperationalToken123' });
+    await writeNote(
+      ctx.vault,
+      'index.md',
+      '---\ntitle: Wiki Index\n---\n\nUniqueOperationalToken123\n',
+    );
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'UniqueOperationalToken123',
+    });
     const data = parseResult(result) as { results: Array<{ path: string }> };
     expect(data.results.some((r) => r.path.replace(/\\/g, '/').endsWith('index.md'))).toBe(false);
   });
 
   it('includes operational files when includeOperational is true', async () => {
     await writeNote(ctx.vault, '_raw/op-log.md', '---\ntitle: Op Log\n---\n\nUniqueLogToken456\n');
-    const result = await callTool(ctx.client, 'search', { action: 'content',
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
       query: 'UniqueLogToken456',
       includeOperational: true,
     });
     const data = parseResult(result) as { results: Array<{ path: string }> };
-    expect(data.results.some((r) => r.path.replace(/\\/g, '/').endsWith('_raw/op-log.md'))).toBe(true);
+    expect(data.results.some((r) => r.path.replace(/\\/g, '/').endsWith('_raw/op-log.md'))).toBe(
+      true,
+    );
   });
 
   it('does not include frontmatter lines in snippets', async () => {
@@ -125,7 +155,8 @@ describe('search (content)', () => {
       'compact-hit.md',
       '---\ntitle: Compact Hit\ntags: [x]\nsummary: Compact summary.\n---\n\nCompactBodyToken.\n',
     );
-    const result = await callTool(ctx.client, 'search', { action: 'content',
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
       query: 'CompactBodyToken',
       format: 'compact',
     });
@@ -156,15 +187,24 @@ describe('search (content)', () => {
       'entities/gpu-server.md',
       '---\ntitle: GPU Server\naliases: [compute box, gpu server]\nsummary: Lab GPU server.\n---\n\nHardware notes.\n',
     );
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'compute box' });
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'compute box',
+    });
     const data = parseResult(result) as { results: Array<{ path: string }> };
     expect(data.results.some((r) => r.path.replace(/\\/g, '/').includes('gpu-server'))).toBe(true);
   });
 
   it('OR-fallbacks when AND finds fewer than 3 hits', async () => {
     await writeNote(ctx.vault, 'three-token-or.md', '# Three\n\nalpha beta together in one note.');
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'alpha beta gamma' });
-    const data = parseResult(result) as { fallbackMode: 'or' | null; results: Array<{ path: string }> };
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'alpha beta gamma',
+    });
+    const data = parseResult(result) as {
+      fallbackMode: 'or' | null;
+      results: Array<{ path: string }>;
+    };
     expect(data.fallbackMode).toBe('or');
     expect(data.results.some((r) => r.path.includes('three-token-or'))).toBe(true);
   });
@@ -175,7 +215,10 @@ describe('search (content)', () => {
       'widget-flash.md',
       '---\ntitle: Widget Flash\ntags: [widget, flash]\nsummary: Device flash guide.\n---\n\nUniqueWidgetFlashMarker steps here.\n',
     );
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'widgit flahs UniqueWidgetFlashMarker' });
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'widgit flahs UniqueWidgetFlashMarker',
+    });
     const data = parseResult(result) as {
       correctedTokens?: string[];
       results: Array<{ path: string }>;
@@ -193,7 +236,8 @@ describe('search (content)', () => {
       'tunnel-setup.md',
       '---\ntitle: Proxy Tunnel\naliases: [proxie]\ntags: [tunnel]\nsummary: Tunnel setup.\n---\n\nUniqueTunnelTypoMarker here.\n',
     );
-    const result = await callTool(ctx.client, 'search', { action: 'content',
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
       query: 'proxt UniqueTunnelTypoMarker',
     });
     const data = parseResult(result) as {
@@ -211,7 +255,10 @@ describe('search (content)', () => {
       '---\ntitle: Meta Hit\ntags: [alpha, beta]\nsummary: Indexed preview for search hits.\n---\n\n# Meta Hit\n\nUniqueTokenForMetaHit in body.\n',
     );
 
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'UniqueTokenForMetaHit' });
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'UniqueTokenForMetaHit',
+    });
     const data = parseResult(result) as {
       results: Array<{ path: string; title?: string; summary?: string; tags?: string[] }>;
     };
@@ -228,7 +275,10 @@ describe('search (content)', () => {
     await writeNote(ctx.vault, 'token-and-both.md', '# Both\n\nalpha and beta together');
 
     const result = await callTool(ctx.client, 'search', { action: 'content', query: 'alpha beta' });
-    const data = parseResult(result) as { results: Array<{ path: string }>; fallbackMode: string | null };
+    const data = parseResult(result) as {
+      results: Array<{ path: string }>;
+      fallbackMode: string | null;
+    };
     const paths = data.results.map((r) => r.path);
     expect(paths).toContain('token-and-both.md');
     expect(paths).not.toContain('token-and-a.md');
@@ -243,8 +293,10 @@ describe('search (content)', () => {
       '---\ntitle: Tunnel Ports\ntags: [networking]\nsummary: No WAN port forwards; outbound tunnel only.\n---\n\n# Tunnel Ports\n\nOutbound tunnels only. Router port forwards are disabled. UniqueStopwordOrFallbackMarker.\n',
     );
 
-    const result = await callTool(ctx.client, 'search', { action: 'content',
-      query: 'how do I expose the database without opening ports on my router UniqueStopwordOrFallbackMarker',
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query:
+        'how do I expose the database without opening ports on my router UniqueStopwordOrFallbackMarker',
     });
     const data = parseResult(result) as {
       strippedStopwords: boolean;
@@ -257,7 +309,9 @@ describe('search (content)', () => {
     expect(data.contentTokens).toContain('ports');
     expect(data.contentTokens).not.toContain('how');
     expect(data.fallbackMode).toBe('or');
-    expect(data.results.some((r) => r.path.replace(/\\/g, '/').includes('tunnel-ports'))).toBe(true);
+    expect(data.results.some((r) => r.path.replace(/\\/g, '/').includes('tunnel-ports'))).toBe(
+      true,
+    );
   });
 
   it('rejects stopword-only queries with invalid_query', async () => {
@@ -278,7 +332,8 @@ describe('search (content)', () => {
       '# Orchestration and ADF\n\nMain Orchestrator pipeline deployment notes.',
     );
 
-    const result = await callTool(ctx.client, 'search', { action: 'content',
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
       query: 'orchestrator deploy',
     });
     const data = parseResult(result) as { results: Array<{ path: string }> };
@@ -322,7 +377,10 @@ describe('search (content)', () => {
       'entities/workflow-note.md',
       '---\ntitle: Workflow Note\ntags: [workflow]\nsummary: Workflow automation note.\n---\n\nTemporary probe note for typo regression.\n',
     );
-    const result = await callTool(ctx.client, 'search', { action: 'content', query: 'Temporary probe note' });
+    const result = await callTool(ctx.client, 'search', {
+      action: 'content',
+      query: 'Temporary probe note',
+    });
     const data = parseResult(result) as {
       correctedTokens?: string[];
       results: Array<{ path: string }>;

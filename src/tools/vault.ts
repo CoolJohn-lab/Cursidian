@@ -37,11 +37,17 @@ export function registerVault(server: McpServer, config: Config): void {
           .enum(['read', 'upsert_source', 'upsert_project', 'remove'])
           .optional()
           .describe('Used by manifest action only'),
-        sourceKey: z.string().optional().describe('Used by manifest upsert_source and remove (source)'),
+        sourceKey: z
+          .string()
+          .optional()
+          .describe('Used by manifest upsert_source and remove (source)'),
         sourceIngested: z.string().optional().describe('Used by manifest upsert_source only'),
         sourceMtime: z.string().optional().describe('Used by manifest upsert_source only'),
         sourcePages: z.array(z.string()).optional().describe('Used by manifest upsert_source only'),
-        projectName: z.string().optional().describe('Used by manifest upsert_project and remove (project)'),
+        projectName: z
+          .string()
+          .optional()
+          .describe('Used by manifest upsert_project and remove (project)'),
         projectCwd: z.string().optional().describe('Used by manifest upsert_project only'),
         projectLastCommit: z.string().optional().describe('Used by manifest upsert_project only'),
         projectSynced: z.string().optional().describe('Used by manifest upsert_project only'),
@@ -61,13 +67,11 @@ export function registerVault(server: McpServer, config: Config): void {
           .describe('Used by vocabulary upsert only - 2+ interchangeable words/phrases'),
         pairingKey: z.string().optional().describe('Used by vocabulary upsert only'),
         pairingValues: z.array(z.string()).optional().describe('Used by vocabulary upsert only'),
-        path: z.string().optional().describe('Used by create_folder, list_folders, and delete_folder actions'),
-        staleDays: z
-          .number()
-          .int()
-          .min(1)
+        path: z
+          .string()
           .optional()
-          .describe('Used by health action only'),
+          .describe('Used by create_folder, list_folders, and delete_folder actions'),
+        staleDays: z.number().int().min(1).optional().describe('Used by health action only'),
         dryRun: z.boolean().optional().describe('Used by sync_index and deslop actions'),
         confirm: z
           .boolean()
@@ -75,13 +79,7 @@ export function registerVault(server: McpServer, config: Config): void {
           .describe('Used by delete_folder, undo, and deslop actions; must be true'),
         operationId: z.string().optional().describe('Used by undo action only'),
         force: z.boolean().optional().describe('Used by undo action only'),
-        limit: z
-          .number()
-          .int()
-          .min(1)
-          .max(200)
-          .optional()
-          .describe('Used by history action only'),
+        limit: z.number().int().min(1).max(200).optional().describe('Used by history action only'),
       },
     },
     async (args) => {
@@ -276,7 +274,11 @@ export function registerVault(server: McpServer, config: Config): void {
               arguments: { action: 'delete_folder', path, confirm: true },
             });
           }
-          return manageFoldersHandler(config)({ operation: 'delete', path: path as string, confirm: true });
+          return manageFoldersHandler(config)({
+            operation: 'delete',
+            path: path as string,
+            confirm: true,
+          });
         case 'history':
           return operationHistoryHandler(config)({ limit });
         case 'undo':
@@ -297,7 +299,8 @@ export function registerVault(server: McpServer, config: Config): void {
           });
         case 'manifest':
           return manageManifestHandler(config)({
-            manifestOperation: manifestOperation as 'read' | 'upsert_source' | 'upsert_project' | 'remove',
+            manifestOperation: manifestOperation as
+              'read' | 'upsert_source' | 'upsert_project' | 'remove',
             expectedRevision,
             sourceKey,
             sourceIngested,

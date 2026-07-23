@@ -18,25 +18,29 @@ export async function runCorpusRegressionSuite(ctx) {
   const results = [...corpusResults];
 
   results.push(
-    await ctx.runCase('corpus replay: newWorseThanPatched is empty', async () => {
-      let raw;
-      try {
-        raw = await fs.readFile(SEARCH_RESULTS_PATH, 'utf-8');
-      } catch {
-        throw new Error(
-          `missing ${SEARCH_RESULTS_PATH}; run docs/validation/scripts/replay-transcript-calls.mjs first`,
-        );
-      }
-      const payload = JSON.parse(raw);
-      const regressions = payload.summary?.newWorseThanPatched ?? [];
-      if (regressions.length > 0) {
-        const summary = regressions
-          .slice(0, 5)
-          .map((r) => `${r.query} (patched ${r.patchedRank}, new ${r.newRank ?? '—'})`)
-          .join('; ');
-        throw new Error(`${regressions.length} regressions: ${summary}`);
-      }
-    }, ctx),
+    await ctx.runCase(
+      'corpus replay: newWorseThanPatched is empty',
+      async () => {
+        let raw;
+        try {
+          raw = await fs.readFile(SEARCH_RESULTS_PATH, 'utf-8');
+        } catch {
+          throw new Error(
+            `missing ${SEARCH_RESULTS_PATH}; run docs/validation/scripts/replay-transcript-calls.mjs first`,
+          );
+        }
+        const payload = JSON.parse(raw);
+        const regressions = payload.summary?.newWorseThanPatched ?? [];
+        if (regressions.length > 0) {
+          const summary = regressions
+            .slice(0, 5)
+            .map((r) => `${r.query} (patched ${r.patchedRank}, new ${r.newRank ?? '—'})`)
+            .join('; ');
+          throw new Error(`${regressions.length} regressions: ${summary}`);
+        }
+      },
+      ctx,
+    ),
   );
 
   return results;

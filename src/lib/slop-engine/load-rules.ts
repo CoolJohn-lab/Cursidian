@@ -179,9 +179,7 @@ export function loadRules(opts: LoadRulesOptions): LoadedRules {
   }
 
   const packs =
-    opts.enabledPacks && opts.enabledPacks.length > 0
-      ? opts.enabledPacks
-      : [...DEFAULT_PACKS];
+    opts.enabledPacks && opts.enabledPacks.length > 0 ? opts.enabledPacks : [...DEFAULT_PACKS];
 
   for (const pack of packs) {
     const packPath = path.join(rulesDir, 'packs', `${pack}.json`);

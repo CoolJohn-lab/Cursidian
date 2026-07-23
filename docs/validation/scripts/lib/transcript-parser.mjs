@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const TIMESTAMP_RE =
-  /<timestamp>([^<]+)<\/timestamp>|"timestamp":"([^"]+)"/;
+const TIMESTAMP_RE = /<timestamp>([^<]+)<\/timestamp>|"timestamp":"([^"]+)"/;
 
 const MONTHS = {
   january: 0,
@@ -27,9 +26,7 @@ export function parseTranscriptTimestamp(text) {
   const raw = match?.[1] ?? match?.[2];
   if (!raw) return null;
 
-  const human = raw.match(
-    /(\w+),\s+(\w+)\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s*(AM|PM)/i,
-  );
+  const human = raw.match(/(\w+),\s+(\w+)\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s*(AM|PM)/i);
   if (human) {
     const [, , monthName, day, year, hour12, minute, ampm] = human;
     const month = MONTHS[monthName.toLowerCase()];

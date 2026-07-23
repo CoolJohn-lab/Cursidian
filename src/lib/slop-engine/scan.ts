@@ -21,10 +21,7 @@ export function charDiagnosticMessage(def: CharDef): string {
   return `${parts.join(' - ')} [${def.source}]`;
 }
 
-export function offsetToLineCol(
-  text: string,
-  offset: number,
-): { line: number; col: number } {
+export function offsetToLineCol(text: string, offset: number): { line: number; col: number } {
   let line = 1;
   let col = 1;
   const end = Math.min(Math.max(0, offset), text.length);
@@ -114,11 +111,7 @@ function computeMarkdownExclusions(text: string): Range[] {
       }
     } else {
       const closer = new RegExp(
-        '^ {0,3}' +
-          (fenceChar === '`' ? '`' : '~') +
-          '{' +
-          fenceLen +
-          ',}\\s*$',
+        '^ {0,3}' + (fenceChar === '`' ? '`' : '~') + '{' + fenceLen + ',}\\s*$',
       );
       if (closer.test(line)) {
         ranges.push([fenceStart, nextLineStart]);
@@ -184,11 +177,7 @@ function computeExcludedRanges(text: string, language: string): Range[] | null {
   return invertRanges(comments, text.length);
 }
 
-export function scanText(
-  text: string,
-  rules: LoadedRules,
-  language: string,
-): ScanFinding[] {
+export function scanText(text: string, rules: LoadedRules, language: string): ScanFinding[] {
   const findings: ScanFinding[] = [];
   const excluded = computeExcludedRanges(text, language);
   if (excluded === null) return findings;

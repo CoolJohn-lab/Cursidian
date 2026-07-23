@@ -2,12 +2,7 @@
   "name": "cursidian",
   "version": "2.0.0",
   "description": "Cursidian first-party slop rules: local typography + phrases. Packs live under rules/slop/packs. Decorative emoji gated by EMOJI_RE in code, not char list.",
-  "packs": [
-    "claudeisms",
-    "structural",
-    "puffery",
-    "security"
-  ],
+  "packs": ["claudeisms", "structural", "puffery", "security"],
   "chars": [
     {
       "char": "→",

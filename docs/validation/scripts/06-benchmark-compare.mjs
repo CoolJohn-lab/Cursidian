@@ -18,14 +18,25 @@ const RUNS = 5;
 const BENCHMARK_CASES = [
   { label: 'list_notes.root', type: 'list', folder: '' },
   { label: 'search_content.adf_pipeline', type: 'search', query: 'ADF pipeline', limit: 20 },
-  { label: 'search_content.factpublicholiday', type: 'search', query: 'FactPublicHoliday', limit: 10 },
+  {
+    label: 'search_content.factpublicholiday',
+    type: 'search',
+    query: 'FactPublicHoliday',
+    limit: 10,
+  },
   { label: 'read_note.index', type: 'read', path: 'index' },
   {
     label: 'get_backlinks.project_hub',
     type: 'backlinks',
     path: 'projects/data-platform-dlz/data-platform-dlz',
   },
-  { label: 'search_content.cached_repeat', type: 'search', query: 'ADF pipeline', limit: 20, cached: true },
+  {
+    label: 'search_content.cached_repeat',
+    type: 'search',
+    query: 'ADF pipeline',
+    limit: 20,
+    cached: true,
+  },
 ];
 
 /**

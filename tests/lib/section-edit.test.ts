@@ -29,7 +29,17 @@ describe('applyPatch', () => {
 });
 
 describe('replaceSection', () => {
-  const body = ['# Title', '', 'intro', '', '## Section A', 'old line', '', '## Section B', 'keep me'].join('\n');
+  const body = [
+    '# Title',
+    '',
+    'intro',
+    '',
+    '## Section A',
+    'old line',
+    '',
+    '## Section B',
+    'keep me',
+  ].join('\n');
 
   it('replaces content under a heading until the next peer heading', () => {
     const result = replaceSection(body, 'Section A', 'new line');

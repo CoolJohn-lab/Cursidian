@@ -2,12 +2,12 @@
 
 ## Golden standard (rule -> skill -> wiki)
 
-| Layer | Where | Role |
-|-------|-------|------|
-| Rule | `~/.cursor/plugins/local/my-agents/rules/` only | Thin when + "read skill X" - **no** project `.cursor/rules/*.mdc` |
-| Skill | Package `skills/wiki/` -> `~/.cursor/skills/` | Workflow + MCP protocol (`vault`) |
-| Wiki | WorkStuff via `user-cursidian` | Durable Cursidian SoT under `projects/cursidian/` |
-| Config | `~/.cursor/config/` | Local JSON / workspaces |
+| Layer  | Where                                           | Role                                                              |
+| ------ | ----------------------------------------------- | ----------------------------------------------------------------- |
+| Rule   | `~/.cursor/plugins/local/my-agents/rules/` only | Thin when + "read skill X" - **no** project `.cursor/rules/*.mdc` |
+| Skill  | Package `skills/wiki/` -> `~/.cursor/skills/`   | Workflow + MCP protocol (`vault`)                                 |
+| Wiki   | WorkStuff via `user-cursidian`                  | Durable Cursidian SoT under `projects/cursidian/`                 |
+| Config | `~/.cursor/config/`                             | Local JSON / workspaces                                           |
 
 Protocol skill = **`vault`** (was `llm-wiki`). Product facts: `projects/cursidian/cursidian` + `projects/cursidian/concepts/mcp-tool-surface`. Layer contract: `concepts/cursor-rule-skill-wiki-stack`.
 
@@ -15,15 +15,15 @@ Protocol skill = **`vault`** (was `llm-wiki`). Product facts: `projects/cursidia
 
 `npm run build` runs **`prebuild` -> `slop:check`**. The MCP will not compile while LLM-slop findings or decorative emoji remain in the **repo**.
 
-| Command / tool | Purpose |
-|----------------|---------|
-| `npm run slop:check` | Scan this repo; exits non-zero if dirty |
-| `npm run slop:fix` | Auto-fix characters/emoji in this repo |
-| `vault` `slop_check` | Read-only vault slop report (body + frontmatter) via MCP |
-| `vault` `deslop` | Journaled vault char/emoji fix (`dryRun` / `confirm: true`) |
-| `npm run slop:check:wiki` | Human/CI CLI vault scan (agents prefer MCP) |
-| `npm run slop:fix:wiki` | Human/CI CLI vault fix (agents must use MCP `deslop`) |
-| `npm run build` | Repo slop check, then `tsc` |
+| Command / tool            | Purpose                                                     |
+| ------------------------- | ----------------------------------------------------------- |
+| `npm run slop:check`      | Scan this repo; exits non-zero if dirty                     |
+| `npm run slop:fix`        | Auto-fix characters/emoji in this repo                      |
+| `vault` `slop_check`      | Read-only vault slop report (body + frontmatter) via MCP    |
+| `vault` `deslop`          | Journaled vault char/emoji fix (`dryRun` / `confirm: true`) |
+| `npm run slop:check:wiki` | Human/CI CLI vault scan (agents prefer MCP)                 |
+| `npm run slop:fix:wiki`   | Human/CI CLI vault fix (agents must use MCP `deslop`)       |
+| `npm run build`           | Repo slop check, then `tsc`                                 |
 
 Vault deslop is MCP-only for agents (skill `wiki-slop`; covers frontmatter `summary` so index drift stays clear). On-disk deslop for other repos / `~/.cursor` uses skill `slop` (shipped under `skills/wiki/slop/` with `scripts/deslop.mjs`; deployed by `skills:install`). Wiki scans do **not** gate `build` (vault lives outside the package). Keep `npm run slop:*` as this package's **build gate** only.
 
@@ -77,13 +77,13 @@ npm run bump
 
 That defaults to a **patch** bump (`1.0.0` -> `1.0.1`), updates `package.json`, `package-lock.json`, and promotes `CHANGELOG.md` `[Unreleased]` to a dated section. **`npm run bump` fails if `[Unreleased]` is empty** unless you pass `--allow-empty-changelog` (README-only typo bumps).
 
-| User intent | Command |
-|-------------|---------|
-| Default / unspecified | `npm run bump` |
-| Patch | `npm run bump -- patch` |
-| Minor (new features) | `npm run bump -- minor` |
-| Major (breaking) | `npm run bump -- major` |
-| Preview only | `npm run bump -- --dry-run` |
+| User intent              | Command                                   |
+| ------------------------ | ----------------------------------------- |
+| Default / unspecified    | `npm run bump`                            |
+| Patch                    | `npm run bump -- patch`                   |
+| Minor (new features)     | `npm run bump -- minor`                   |
+| Major (breaking)         | `npm run bump -- major`                   |
+| Preview only             | `npm run bump -- --dry-run`               |
 | Empty changelog override | `npm run bump -- --allow-empty-changelog` |
 
 Do **not** create a git commit, tag, or publish unless the user explicitly asks. Tagging/publishing is human-gated (see `docs/PUBLISH.md`).

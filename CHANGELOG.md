@@ -235,7 +235,6 @@ All notable changes to this project will be documented in this file.
 - `wiki-lint` report-only mode performs zero writes (LINT log line only after consolidate confirmation)
 - Safe-write docs and skills standardize on `revisionHash` / `expectedRevision`
 
-
 ## [2.9.0] - 2026-07-12
 
 ### Added
@@ -487,6 +486,7 @@ All notable changes to this project will be documented in this file.
 - Config simplified: the vault path lives only in `mcp.json`; removed the `.env` walk-up / `~/.cursidian/config` resolution protocol
 - `wiki-query` is now fully read-only (no longer appends to `log.md`)
 - Write skills prefer `touch_wiki_meta` for log/hot bookkeeping; `wiki-query` documents a depth-≤3 BFS multi-hop walk
+
 ### Removed
 
 - QMD integration, PageIndex preprocessing, URL affinity scoring (`misc/` promotion), staged writes (`_staging/`), confidence formulas, lifecycle state machine, importance tiering, typed-relationship spec, visibility tags, and the Claude Code Stop hook from the wiki skills

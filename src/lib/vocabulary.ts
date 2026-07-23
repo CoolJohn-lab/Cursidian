@@ -262,7 +262,11 @@ export function removeSynonymContaining(vocab: VaultVocabulary, term: string): V
 /**
  * Adds or replaces a pairing (key -> values).
  */
-export function upsertPairing(vocab: VaultVocabulary, key: string, values: string[]): VaultVocabulary {
+export function upsertPairing(
+  vocab: VaultVocabulary,
+  key: string,
+  values: string[],
+): VaultVocabulary {
   const normalisedKey = key.trim().toLowerCase();
   const normalisedValues = [...new Set(values.map((v) => v.trim().toLowerCase()).filter(Boolean))];
   if (!normalisedKey) {

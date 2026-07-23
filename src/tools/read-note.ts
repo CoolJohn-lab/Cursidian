@@ -20,18 +20,21 @@ export function readNoteHandler(config: Config) {
       const outgoingLinks = resolveOutgoingLinks(content, index);
 
       const relative = toRelativePath(config.vaultPath, resolved);
-      return ok({
-        path: relative,
-        frontmatter: data,
-        content,
-        contentHash: computeContentHash(content),
-        revisionHash: computeRevisionHash(raw),
-        outgoingLinks,
-        metadata: {
-          size: stat.size,
-          mtime: stat.mtime.toISOString(),
+      return ok(
+        {
+          path: relative,
+          frontmatter: data,
+          content,
+          contentHash: computeContentHash(content),
+          revisionHash: computeRevisionHash(raw),
+          outgoingLinks,
+          metadata: {
+            size: stat.size,
+            mtime: stat.mtime.toISOString(),
+          },
         },
-      }, { action: 'read', changed: false, paths: [relative] });
+        { action: 'read', changed: false, paths: [relative] },
+      );
     } catch (e) {
       return mapToolError(e, {
         tool: 'note',

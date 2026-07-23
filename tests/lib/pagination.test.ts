@@ -9,12 +9,7 @@ import {
   StaleCursorError,
 } from '../../src/lib/pagination.js';
 
-function sigLine(
-  absolute: string,
-  mtimeMs: number,
-  size: number,
-  contentHash: string,
-): string {
+function sigLine(absolute: string, mtimeMs: number, size: number, contentHash: string): string {
   return `${absolute}\0${mtimeMs}\0${size}\0${contentHash}`;
 }
 
@@ -48,10 +43,9 @@ describe('pagination', () => {
     const absA = path.join(vaultPath, 'entities', 'a.md');
     const absB = path.join(vaultPath, 'entities', 'b.md');
     const cursorSig = sigLine(absA, 1, 10, 'hash-a-old');
-    const currentSig = [
-      sigLine(absA, 2, 20, 'hash-a-new'),
-      sigLine(absB, 3, 30, 'hash-b'),
-    ].join('\n');
+    const currentSig = [sigLine(absA, 2, 20, 'hash-a-new'), sigLine(absB, 3, 30, 'hash-b')].join(
+      '\n',
+    );
     const cursor = encodeSignatureCursor(cursorSig, 'entities/a.md');
 
     let caught: StaleCursorError | undefined;

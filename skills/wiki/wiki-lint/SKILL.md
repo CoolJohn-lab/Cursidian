@@ -1,11 +1,11 @@
 ---
 name: wiki-lint
 description: >
- Audit and maintain the health of the Obsidian wiki. Use when the user wants a health check, or
- says "clean up the wiki", "audit my notes", "find orphans", "fix broken links", "link my pages",
- "connect my wiki", or after a large ingest to weave new pages into the graph. Default is
- report-only; add --consolidate (or "clean up") for act-and-report mode, which applies fixes
- after a dry-run preview and explicit user confirmation.
+  Audit and maintain the health of the Obsidian wiki. Use when the user wants a health check, or
+  says "clean up the wiki", "audit my notes", "find orphans", "fix broken links", "link my pages",
+  "connect my wiki", or after a large ingest to weave new pages into the graph. Default is
+  report-only; add --consolidate (or "clean up") for act-and-report mode, which applies fixes
+  after a dry-run preview and explicit user confirmation.
 ---
 
 # Wiki Lint - Health Audit
@@ -36,15 +36,19 @@ There is **no** Contradictions count on `vault` health. Do not invent one in the
 ## Wiki Health Report
 
 ### Orphans (N)
+
 - [[concepts/foo]] - no incoming links
 
 ### Broken links (N)
+
 - [[entities/bar]] -> [[nonexistent-page]]
 
 ### Missing frontmatter (N) / Summary warnings (N) / Index drift (N) / Ambiguous keys (N) / Stale (N)
+
 ...
 
 ### Incomplete scan
+
 - skipped: N (list path + reason) or "none"
 ```
 

@@ -9,7 +9,7 @@ description: >
 
 # Wiki Capture - Conversation to Wiki Note
 
-Extract the *substance* of this conversation - the knowledge itself, not a summary of what was said. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Keep `operationStack` for mutating modes; if an MCP call fails after writes, undo reverse-order; never write vault files directly.
+Extract the _substance_ of this conversation - the knowledge itself, not a summary of what was said. **All vault access is via the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Keep `operationStack` for mutating modes; if an MCP call fails after writes, undo reverse-order; never write vault files directly.
 
 ## Quick mode (`--quick`)
 
@@ -24,7 +24,7 @@ Fast staging to `_raw/`, no index updates - promotion via `wiki-ingest` handles 
 
 ### Preflight
 
-1. **Filter.** Worth keeping: decisions and their *why*, technical findings, frameworks or mental models developed, hard-won explanations. Skip logistics, dead-end exploration, and anything already in the wiki.
+1. **Filter.** Worth keeping: decisions and their _why_, technical findings, frameworks or mental models developed, hard-won explanations. Skip logistics, dead-end exploration, and anything already in the wiki.
 2. **Duplicate search.** Before creating, run `search` action `content` with `format: "compact"` and 2-3 topic keywords. Follow `nextCursor` while `truncated`. If a page already covers the topic, plan a **merge** (`note` `update` with `expectedRevision`) instead of a new create.
 3. **Classify** the target folder: a definition or mental model -> `concepts/`; a summary of an external source -> `references/` (use `*-synthesis.md` for distilled external reading); reasoning/decision for a project -> `projects/<name>/concepts/`; a multi-topic session record -> `journal/`. Do not create a root `synthesis/` folder.
 4. **Rewrite as declarative knowledge.** Not "we discussed X and decided..." but "X works by..." / "Y is preferred over Z because...". Present tense, no chat narration. Mark inferences `^[inferred]` and contested points `^[ambiguous]`.

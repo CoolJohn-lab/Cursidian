@@ -39,9 +39,7 @@ export function defaultContextLogdumpDir(): string {
  * - `OBSIDIAN_CONTEXT_LOGDUMP_DIR` -> override path
  * - else -> ~/.cursor/logdump/ContextSearches
  */
-export function resolveContextLogdumpDir(
-  env: NodeJS.ProcessEnv = process.env,
-): string | null {
+export function resolveContextLogdumpDir(env: NodeJS.ProcessEnv = process.env): string | null {
   const flag = env[LOGDUMP_ENV]?.trim().toLowerCase();
   if (flag === 'false' || flag === '0' || flag === 'off' || flag === 'no') {
     return null;

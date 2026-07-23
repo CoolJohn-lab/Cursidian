@@ -25,13 +25,7 @@ async function pathExists(target: string): Promise<boolean> {
 }
 
 export function undoOperationHandler(config: Config) {
-  return async ({
-    operationId,
-    force,
-  }: {
-    operationId: string;
-    force?: boolean;
-  }) => {
+  return async ({ operationId, force }: { operationId: string; force?: boolean }) => {
     try {
       assertNotReadOnly(config.readOnly);
 
@@ -102,9 +96,7 @@ export function undoOperationHandler(config: Config) {
       const removed: string[] = [];
 
       try {
-        const lockPaths = manifest.entries.map((entry) =>
-          path.join(config.vaultPath, entry.path),
-        );
+        const lockPaths = manifest.entries.map((entry) => path.join(config.vaultPath, entry.path));
 
         await withPathLocks(lockPaths.length > 0 ? lockPaths : [config.vaultPath], async () => {
           for (const entry of manifest.entries) {

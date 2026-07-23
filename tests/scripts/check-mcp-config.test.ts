@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import { checkMcpConfig, checkToolSurface, isAbsolutePath } from '../../scripts/check-mcp-config.mjs';
+import {
+  checkMcpConfig,
+  checkToolSurface,
+  isAbsolutePath,
+} from '../../scripts/check-mcp-config.mjs';
 
 describe('isAbsolutePath', () => {
   it('accepts POSIX and Windows absolute paths', () => {
@@ -56,7 +60,7 @@ describe('checkToolSurface', () => {
     const distPath = path.join(dir, 'index.js');
     await fsp.writeFile(
       distPath,
-      "registerNote(server, config);\nregisterSearch(server, config);\nregisterGraph(server, config);\nregisterVault(server, config);\nregisterContext(server, config);\n",
+      'registerNote(server, config);\nregisterSearch(server, config);\nregisterGraph(server, config);\nregisterVault(server, config);\nregisterContext(server, config);\n',
       'utf8',
     );
     const result = checkToolSurface({ distPath, srcPath: path.join(dir, 'missing.ts') });

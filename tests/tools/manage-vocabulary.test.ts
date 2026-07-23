@@ -1,13 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { registerSearch } from '../../src/tools/search.js';
 import { registerVault } from '../../src/tools/vault.js';
-import {
-  createTestVault,
-  cleanupVault,
-  writeNote,
-  callTool,
-  parseResult,
-} from './helpers.js';
+import { createTestVault, cleanupVault, writeNote, callTool, parseResult } from './helpers.js';
 import type { TestContext } from './helpers.js';
 import { VOCABULARY_RELATIVE_PATH } from '../../src/lib/vocabulary.js';
 

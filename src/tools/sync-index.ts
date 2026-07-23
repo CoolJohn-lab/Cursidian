@@ -32,7 +32,9 @@ export function syncIndexHandler(config: Config) {
         let wouldWrite = true;
         try {
           const existingRaw = await readFileBounded(resolved, config.maxFileSize);
-          const existingBody = parseFrontmatter(existingRaw).content.replace(/\r\n/g, '\n').trimEnd();
+          const existingBody = parseFrontmatter(existingRaw)
+            .content.replace(/\r\n/g, '\n')
+            .trimEnd();
           const nextBody = markdown.replace(/\r\n/g, '\n').trimEnd();
           wouldWrite = existingBody !== nextBody;
         } catch {

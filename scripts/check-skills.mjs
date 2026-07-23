@@ -94,9 +94,7 @@ function checkLlmWikiCallHygiene(text, problems) {
   const hasToolName =
     /toolName/.test(text) && (/user-cursidian/.test(text) || /CallMcpTool|GetMcpTools/.test(text));
   if (!hasToolName) {
-    problems.push(
-      'vault: missing CallMcpTool hygiene (server user-cursidian + toolName)',
-    );
+    problems.push('vault: missing CallMcpTool hygiene (server user-cursidian + toolName)');
   }
   if (
     !/one note at a time|serialize per path|same-path|read immediately before each write/i.test(
@@ -185,7 +183,11 @@ function main() {
     }
 
     // Disk-only `slop` and vault-only `wiki-slop` have specialised contracts.
-    if (name !== 'wiki-slop' && name !== 'slop' && !/user-cursidian|MCP Contract|MCP-only/i.test(text)) {
+    if (
+      name !== 'wiki-slop' &&
+      name !== 'slop' &&
+      !/user-cursidian|MCP Contract|MCP-only/i.test(text)
+    ) {
       problems.push(`${rel(file)}: missing MCP contract / user-cursidian reference`);
     }
     if (name === 'wiki-slop') {
@@ -221,7 +223,14 @@ function main() {
   const { text: llmWiki } = readSkill('vault');
   if (llmWiki) {
     checkLlmWikiCallHygiene(llmWiki, problems);
-    for (const token of ['history', 'undo', 'manifest', 'revisionHash', 'expectedRevision', 'operationStack']) {
+    for (const token of [
+      'history',
+      'undo',
+      'manifest',
+      'revisionHash',
+      'expectedRevision',
+      'operationStack',
+    ]) {
       if (!llmWiki.includes(token) && token !== 'operationStack') {
         // operationStack may be written as "operation-ID stack"
         if (token === 'operationStack' && /operation-ID stack|operation stack/i.test(llmWiki)) {

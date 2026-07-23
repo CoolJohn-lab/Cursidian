@@ -5,7 +5,11 @@ import { resolvePath, toRelativePath } from '../lib/vault.js';
 import { assertSafePathAsync, assertNotReadOnly, readFileBounded } from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { checkRevisionConcurrency } from '../lib/content-hash.js';
-import { getVaultIndex, clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
+import {
+  getVaultIndex,
+  clearAllSearchCaches,
+  resolveExistingNotePath,
+} from '../lib/vault-index.js';
 import { findBacklinks } from '../lib/backlinks.js';
 import { rewriteWikilinksForRename } from '../lib/wikilinks.js';
 import { atomicReplaceLocked } from '../lib/vault-io.js';
@@ -207,10 +211,12 @@ export function renameNoteHandler(config: Config) {
                 : expectedRevision
                   ? 'revision'
                   : 'content_hash',
-            ...('currentRevision' in e && typeof (e as { currentRevision: unknown }).currentRevision === 'string'
+            ...('currentRevision' in e &&
+            typeof (e as { currentRevision: unknown }).currentRevision === 'string'
               ? { currentRevision: (e as { currentRevision: string }).currentRevision }
               : {}),
-            ...('currentHash' in e && typeof (e as { currentHash: unknown }).currentHash === 'string'
+            ...('currentHash' in e &&
+            typeof (e as { currentHash: unknown }).currentHash === 'string'
               ? { currentHash: (e as { currentHash: string }).currentHash }
               : {}),
           },

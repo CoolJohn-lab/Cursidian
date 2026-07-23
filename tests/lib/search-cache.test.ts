@@ -32,8 +32,26 @@ describe('search-cache', () => {
   });
 
   it('buildSearchCacheKey is stable for tag order', () => {
-    const keyA = buildSearchCacheKey('/vault', SIG, 'query', false, ['dlz', 'cdf'], false, 'full', false);
-    const keyB = buildSearchCacheKey('/vault', SIG, 'query', false, ['cdf', 'dlz'], false, 'full', false);
+    const keyA = buildSearchCacheKey(
+      '/vault',
+      SIG,
+      'query',
+      false,
+      ['dlz', 'cdf'],
+      false,
+      'full',
+      false,
+    );
+    const keyB = buildSearchCacheKey(
+      '/vault',
+      SIG,
+      'query',
+      false,
+      ['cdf', 'dlz'],
+      false,
+      'full',
+      false,
+    );
     expect(keyA).toBe(keyB);
   });
 
@@ -41,7 +59,16 @@ describe('search-cache', () => {
     const base = buildSearchCacheKey('/vault', SIG, 'query', false);
     const verbose = buildSearchCacheKey('/vault', SIG, 'query', false, undefined, true);
     const compact = buildSearchCacheKey('/vault', SIG, 'query', false, undefined, false, 'compact');
-    const operational = buildSearchCacheKey('/vault', SIG, 'query', false, undefined, false, 'full', true);
+    const operational = buildSearchCacheKey(
+      '/vault',
+      SIG,
+      'query',
+      false,
+      undefined,
+      false,
+      'full',
+      true,
+    );
     expect(base).not.toBe(verbose);
     expect(base).not.toBe(compact);
     expect(base).not.toBe(operational);

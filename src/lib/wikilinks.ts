@@ -84,9 +84,5 @@ export function wikilinkMatchesNote(link: string, notePath: string): boolean {
   const noteName = path.basename(notePath, '.md');
   const notePathNormalized = notePath.replace(/\.md$/, '');
   const normalized = link.trim();
-  return (
-    normalized === noteName ||
-    normalized === notePathNormalized ||
-    normalized === notePath
-  );
+  return normalized === noteName || normalized === notePathNormalized || normalized === notePath;
 }

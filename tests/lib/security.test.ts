@@ -111,7 +111,9 @@ describe('assertSafePathAsync symlink containment', () => {
     }
     const target = path.join(vault, 'escape', 'new.md');
     await expect(assertSafePathAsync(vault, target)).rejects.toThrow(SecurityError);
-    await expect(assertSafePathAsync(vault, target)).rejects.toThrow(/Symlink-based path traversal/);
+    await expect(assertSafePathAsync(vault, target)).rejects.toThrow(
+      /Symlink-based path traversal/,
+    );
   });
 
   it('allows a new note under a normal directory inside the vault', async (ctx) => {

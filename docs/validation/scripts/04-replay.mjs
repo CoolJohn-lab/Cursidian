@@ -3,12 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normaliseNotePath } from './lib/transcript-parser.mjs';
-import {
-  searchUpstream,
-  searchPatched,
-  searchNew,
-  top1Path,
-} from './lib/search-baselines.mjs';
+import { searchUpstream, searchPatched, searchNew, top1Path } from './lib/search-baselines.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../../..');

@@ -88,7 +88,10 @@ describe('operation-journal', () => {
     await journal.abort();
 
     const opDir = path.join(vault, TRASH_DIR_NAME, operationId);
-    const exists = await fsp.access(opDir).then(() => true).catch(() => false);
+    const exists = await fsp
+      .access(opDir)
+      .then(() => true)
+      .catch(() => false);
     expect(exists).toBe(false);
   });
 
@@ -138,7 +141,11 @@ describe('operation-journal', () => {
     const manifest = await readOperationManifest(vault, op.operationId);
     expect(manifest).toBeTruthy();
 
-    const conflicts = await collectUndoConflicts(vault, manifest as NonNullable<typeof manifest>, 1024);
+    const conflicts = await collectUndoConflicts(
+      vault,
+      manifest as NonNullable<typeof manifest>,
+      1024,
+    );
     expect(conflicts).toHaveLength(1);
     expect(conflicts[0].path).toBe('conflict.md');
   });

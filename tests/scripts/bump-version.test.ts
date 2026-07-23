@@ -29,7 +29,16 @@ describe('parseArgs', () => {
   });
 
   it('accepts level and flags', () => {
-    expect(parseArgs(['node', 'bump', 'minor', '--dry-run', '--no-changelog', '--allow-empty-changelog'])).toEqual({
+    expect(
+      parseArgs([
+        'node',
+        'bump',
+        'minor',
+        '--dry-run',
+        '--no-changelog',
+        '--allow-empty-changelog',
+      ]),
+    ).toEqual({
       level: 'minor',
       dryRun: true,
       noChangelog: true,
@@ -145,7 +154,12 @@ describe('bumpVersion changelog guard', () => {
       fs.writeFileSync(path.join(tmpDir, 'CHANGELOG.md'), emptyUnreleased);
 
       expect(() =>
-        bumpVersion(tmpDir, { level: 'patch', dryRun: true, noChangelog: false, allowEmptyChangelog: false }),
+        bumpVersion(tmpDir, {
+          level: 'patch',
+          dryRun: true,
+          noChangelog: false,
+          allowEmptyChangelog: false,
+        }),
       ).toThrow(/Add notes under \[Unreleased\]/);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -154,11 +168,21 @@ describe('bumpVersion changelog guard', () => {
     const repoChangelog = fs.readFileSync(path.join(repoRoot, 'CHANGELOG.md'), 'utf8');
     if (isChangelogBodyEmpty(extractUnreleasedBody(repoChangelog))) {
       expect(() =>
-        bumpVersion(repoRoot, { level: 'patch', dryRun: true, noChangelog: false, allowEmptyChangelog: false }),
+        bumpVersion(repoRoot, {
+          level: 'patch',
+          dryRun: true,
+          noChangelog: false,
+          allowEmptyChangelog: false,
+        }),
       ).toThrow(/Add notes under \[Unreleased\]/);
     } else {
       expect(() =>
-        bumpVersion(repoRoot, { level: 'patch', dryRun: true, noChangelog: false, allowEmptyChangelog: false }),
+        bumpVersion(repoRoot, {
+          level: 'patch',
+          dryRun: true,
+          noChangelog: false,
+          allowEmptyChangelog: false,
+        }),
       ).not.toThrow();
     }
   });
@@ -185,7 +209,12 @@ describe('bumpVersion changelog guard', () => {
       );
 
       expect(() =>
-        bumpVersion(tmpDir, { level: 'patch', dryRun: true, noChangelog: false, allowEmptyChangelog: false }),
+        bumpVersion(tmpDir, {
+          level: 'patch',
+          dryRun: true,
+          noChangelog: false,
+          allowEmptyChangelog: false,
+        }),
       ).toThrow(/Add notes under \[Unreleased\]/);
 
       const result = bumpVersion(tmpDir, {

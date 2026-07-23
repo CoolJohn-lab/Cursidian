@@ -8,7 +8,7 @@ description: >
 
 # Wiki Update - Sync a Project into the Wiki
 
-Distill the current project's knowledge into the vault. Reading the *project* (code, docs, git log) with normal tools is fine - it lives outside the vault. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Keep `operationStack`; on failure after writes, undo reverse-order; never write vault files directly.
+Distill the current project's knowledge into the vault. Reading the _project_ (code, docs, git log) with normal tools is fine - it lives outside the vault. **All vault reads and writes go through the `user-cursidian` MCP server** (MCP Contract and Failure handling in `vault/SKILL.md`). Keep `operationStack`; on failure after writes, undo reverse-order; never write vault files directly.
 
 ## Preflight
 
@@ -20,7 +20,7 @@ Distill the current project's knowledge into the vault. Reading the *project* (c
 
 Karpathy's question: **what would you want to know coming back in 3 months with zero context?**
 
-Worth it: architecture decisions and *why*; patterns you'd otherwise re-Google; how tools/services are wired together; trade-offs evaluated and what won; lessons that aren't visible in the code. Not worth it: file listings, boilerplate, dependency versions, individual bug fixes with no broader lesson, anything the code says clearly itself.
+Worth it: architecture decisions and _why_; patterns you'd otherwise re-Google; how tools/services are wired together; trade-offs evaluated and what won; lessons that aren't visible in the code. Not worth it: file listings, boilerplate, dependency versions, individual bug fixes with no broader lesson, anything the code says clearly itself.
 
 The heuristic: if reading the codebase answers the question, don't wiki it. If you'd have to re-derive the reasoning across 20 commits of git blame, wiki it.
 

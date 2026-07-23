@@ -76,11 +76,15 @@ export async function runBenchmarkSuite(ctx) {
 
   for (const testCase of cases) {
     results.push(
-      await runCase(`benchmark ${testCase.label}`, async () => {
-        const timed = await timeCall(testCase.label, testCase.run);
-        timings.push(timed);
-        console.log(`      ${timed.label}: ${timed.ms}ms`);
-      }, ctx),
+      await runCase(
+        `benchmark ${testCase.label}`,
+        async () => {
+          const timed = await timeCall(testCase.label, testCase.run);
+          timings.push(timed);
+          console.log(`      ${timed.label}: ${timed.ms}ms`);
+        },
+        ctx,
+      ),
     );
   }
 
@@ -89,16 +93,20 @@ export async function runBenchmarkSuite(ctx) {
   // True cache hits (see case order) should be far below cold search latency.
   const cachedColdRatioMax = 0.1;
   results.push(
-    await runCase('benchmark cached faster than cold', async () => {
-      if (!coldSearch || !cachedSearch) {
-        throw new Error('missing cold or cached benchmark timings');
-      }
-      if (cachedSearch.ms >= coldSearch.ms * cachedColdRatioMax) {
-        throw new Error(
-          `cached ${cachedSearch.ms}ms should be < ${cachedColdRatioMax * 100}% of cold ${coldSearch.ms}ms`,
-        );
-      }
-    }, ctx),
+    await runCase(
+      'benchmark cached faster than cold',
+      async () => {
+        if (!coldSearch || !cachedSearch) {
+          throw new Error('missing cold or cached benchmark timings');
+        }
+        if (cachedSearch.ms >= coldSearch.ms * cachedColdRatioMax) {
+          throw new Error(
+            `cached ${cachedSearch.ms}ms should be < ${cachedColdRatioMax * 100}% of cold ${coldSearch.ms}ms`,
+          );
+        }
+      },
+      ctx,
+    ),
   );
 
   const payload = {
@@ -124,7 +132,9 @@ export async function runBenchmarkSuite(ctx) {
         }
         const delta = Math.round((current.ms - previous.ms) * 100) / 100;
         const pct = previous.ms > 0 ? Math.round((delta / previous.ms) * 100) : 0;
-        console.log(`  ${current.label}: ${current.ms}ms (${delta >= 0 ? '+' : ''}${delta}ms, ${pct}%)`);
+        console.log(
+          `  ${current.label}: ${current.ms}ms (${delta >= 0 ? '+' : ''}${delta}ms, ${pct}%)`,
+        );
       }
     } catch {
       console.log(`\nNo baseline at ${BASELINE_PATH}. Run with --save-baseline to create one.`);

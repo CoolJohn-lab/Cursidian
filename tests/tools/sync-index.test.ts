@@ -26,7 +26,12 @@ describe('vault (sync_index)', () => {
     );
 
     const result = await callTool(ctx.client, 'vault', { action: 'sync_index', dryRun: true });
-    const data = parseResult(result) as { wouldWrite: boolean; markdown: string; noteCount: number; categories: string[] };
+    const data = parseResult(result) as {
+      wouldWrite: boolean;
+      markdown: string;
+      noteCount: number;
+      categories: string[];
+    };
 
     expect(data.wouldWrite).toBe(true);
     expect(data.markdown).toContain('## Concepts');

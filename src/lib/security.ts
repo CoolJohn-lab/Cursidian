@@ -140,10 +140,7 @@ export async function assertFileSize(filePath: string, maxBytes: number): Promis
 /**
  * Reads a UTF-8 file when within maxBytes; throws FileTooLargeError otherwise.
  */
-export async function readFileBounded(
-  filePath: string,
-  maxBytes: number,
-): Promise<string> {
+export async function readFileBounded(filePath: string, maxBytes: number): Promise<string> {
   await assertFileSize(filePath, maxBytes);
   return fs.readFile(filePath, 'utf-8');
 }

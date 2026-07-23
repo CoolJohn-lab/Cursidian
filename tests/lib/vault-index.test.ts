@@ -82,7 +82,11 @@ describe('vault-index', () => {
 
   it('resolves a hyphenated basename via space-to-hyphen slug fallback', async () => {
     const ctx = await createTestVault();
-    await writeNote(ctx.vault, 'entities/dev-server-alpha.md', '# Dev Server Alpha\n\nNo frontmatter title.');
+    await writeNote(
+      ctx.vault,
+      'entities/dev-server-alpha.md',
+      '# Dev Server Alpha\n\nNo frontmatter title.',
+    );
 
     const index = await buildVaultIndex(ctx.vault);
     expect(resolveWikilinkTarget('Dev Server Alpha', index)).toBe('entities/dev-server-alpha.md');

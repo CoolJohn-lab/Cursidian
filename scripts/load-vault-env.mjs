@@ -34,7 +34,9 @@ function ensureVaultPath() {
     return fromExample;
   }
   console.error('[FATAL] OBSIDIAN_VAULT_PATH is not set.');
-  console.error('Set the environment variable, or add it to examples/cursor-mcp.json under mcpServers.cursidian.env.');
+  console.error(
+    'Set the environment variable, or add it to examples/cursor-mcp.json under mcpServers.cursidian.env.',
+  );
   console.error('Example: OBSIDIAN_VAULT_PATH=/path/to/vault npm run mcp:test -- suite smoke');
   process.exit(1);
 }

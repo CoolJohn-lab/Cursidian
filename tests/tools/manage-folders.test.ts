@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { registerVault } from '../../src/tools/vault.js';
-import { createTestVault, createTestClient, cleanupVault, callTool, parseResult } from './helpers.js';
+import {
+  createTestVault,
+  createTestClient,
+  cleanupVault,
+  callTool,
+  parseResult,
+} from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;

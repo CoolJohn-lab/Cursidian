@@ -7,7 +7,12 @@ import { listNotesHandler } from './list-notes.js';
 import { listRecentHandler } from './list-recent.js';
 import { listTagsHandler } from './list-tags.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
-import { DEFAULT_LIST_LIMIT, MAX_LIST_LIMIT, MAX_QUERY_LENGTH, MAX_RECENT_LIMIT } from '../lib/limits.js';
+import {
+  DEFAULT_LIST_LIMIT,
+  MAX_LIST_LIMIT,
+  MAX_QUERY_LENGTH,
+  MAX_RECENT_LIMIT,
+} from '../lib/limits.js';
 
 export function registerSearch(server: McpServer, config: Config): void {
   server.registerTool(
@@ -22,10 +27,7 @@ export function registerSearch(server: McpServer, config: Config): void {
           .default('content')
           .describe('Selects content, by_tags, list, recent, or tags action; defaults to content'),
         query: z.string().max(MAX_QUERY_LENGTH).optional().describe('Used by content action only'),
-        tags: z
-          .array(z.string().min(1))
-          .optional()
-          .describe('Used by by_tags and content actions'),
+        tags: z.array(z.string().min(1)).optional().describe('Used by by_tags and content actions'),
         folder: z.string().max(500).optional().describe('Used by list and recent actions'),
         recursive: z.boolean().optional().describe('Used by list action only'),
         limit: z
@@ -34,21 +36,22 @@ export function registerSearch(server: McpServer, config: Config): void {
           .min(1)
           .max(MAX_LIST_LIMIT)
           .optional()
-          .describe('Used by content, by_tags, list, and recent actions. Not valid for action=tags'),
+          .describe(
+            'Used by content, by_tags, list, and recent actions. Not valid for action=tags',
+          ),
         cursor: z
           .string()
           .optional()
-          .describe('Used by content, by_tags, list, and recent actions. Not valid for action=tags'),
+          .describe(
+            'Used by content, by_tags, list, and recent actions. Not valid for action=tags',
+          ),
         caseSensitive: z.boolean().optional().describe('Used by content action only'),
         verbose: z.boolean().optional().describe('Used by content action only'),
         includeOperational: z
           .boolean()
           .optional()
           .describe('Used by content, list, and recent actions'),
-        format: z
-          .enum(['full', 'compact'])
-          .optional()
-          .describe('Used by content action only'),
+        format: z.enum(['full', 'compact']).optional().describe('Used by content action only'),
       },
     },
     async (args) => {

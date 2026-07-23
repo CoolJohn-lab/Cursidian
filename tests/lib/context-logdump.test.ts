@@ -48,7 +48,17 @@ describe('context-logdump', () => {
         intent: 'lookup',
         tokenBudget: 3000,
         tokensUsed: 100,
-        items: [{ path: 'a.md', title: 'A', kind: 'summary', text: 'x', score: 1, reasons: [], tokens: 100 }],
+        items: [
+          {
+            path: 'a.md',
+            title: 'A',
+            kind: 'summary',
+            text: 'x',
+            score: 1,
+            reasons: [],
+            tokens: 100,
+          },
+        ],
         coverage: { includedPaths: ['a.md'], consideredPaths: ['a'], droppedForBudget: [] },
         warnings: [],
         citations: [],
@@ -59,7 +69,9 @@ describe('context-logdump', () => {
       ranking: {
         searchHits: [{ path: 'a.md', score: 10, reasons: ['basename'] }],
         candidatesAfterRerank: [{ path: 'a.md', score: 10, reasons: ['basename'] }],
-        itemsCompact: [{ path: 'a.md', title: 'A', kind: 'summary', score: 1, tokens: 100, reasons: [] }],
+        itemsCompact: [
+          { path: 'a.md', title: 'A', kind: 'summary', score: 1, tokens: 100, reasons: [] },
+        ],
         droppedCompact: [],
       },
       env: { OBSIDIAN_CONTEXT_LOGDUMP_DIR: tempDir },

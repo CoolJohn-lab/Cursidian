@@ -73,7 +73,9 @@ async function main() {
 
     const blocked = wouldSizeGuardBlock(existingBody, newContent, force);
     const ratio =
-      existingBody.length > 0 ? Math.round((newContent.length / existingBody.length) * 1000) / 1000 : null;
+      existingBody.length > 0
+        ? Math.round((newContent.length / existingBody.length) * 1000) / 1000
+        : null;
 
     if (blocked) wouldBlock += 1;
     else wouldPass += 1;
@@ -90,9 +92,10 @@ async function main() {
     });
   }
 
-  const blockRate = calls.length - missingFile > 0
-    ? Math.round((wouldBlock / (calls.length - missingFile)) * 1000) / 10
-    : 0;
+  const blockRate =
+    calls.length - missingFile > 0
+      ? Math.round((wouldBlock / (calls.length - missingFile)) * 1000) / 10
+      : 0;
 
   const output = {
     generatedAt: new Date().toISOString(),
@@ -108,7 +111,9 @@ async function main() {
   await fs.writeFile(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
 
   console.log(`Dry-run writes: ${calls.length} replace calls`);
-  console.log(`Would block: ${wouldBlock} (${blockRate}%), pass: ${wouldPass}, missing: ${missingFile}`);
+  console.log(
+    `Would block: ${wouldBlock} (${blockRate}%), pass: ${wouldPass}, missing: ${missingFile}`,
+  );
   console.log(`→ ${outPath}`);
 }
 

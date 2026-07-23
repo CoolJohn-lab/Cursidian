@@ -4,21 +4,29 @@ export async function runWikiQuerySuite(ctx) {
   const results = [];
 
   results.push(
-    await runCase('bootstrap index.md', async () => {
-      const data = parseResult(await callTool(server, 'note', { action: 'read', path: 'index' }));
-      if (!data.outgoingLinks?.length) throw new Error('index should expose outgoing links');
-    }, ctx),
+    await runCase(
+      'bootstrap index.md',
+      async () => {
+        const data = parseResult(await callTool(server, 'note', { action: 'read', path: 'index' }));
+        if (!data.outgoingLinks?.length) throw new Error('index should expose outgoing links');
+      },
+      ctx,
+    ),
   );
 
   results.push(
-    await runCase('bootstrap project hub', async () => {
-      parseResult(
-        await callTool(server, 'note', {
-          action: 'read',
-          path: 'projects/data-platform-dlz/data-platform-dlz',
-        }),
-      );
-    }, ctx),
+    await runCase(
+      'bootstrap project hub',
+      async () => {
+        parseResult(
+          await callTool(server, 'note', {
+            action: 'read',
+            path: 'projects/data-platform-dlz/data-platform-dlz',
+          }),
+        );
+      },
+      ctx,
+    ),
   );
 
   // Intent pages only - never the project hub (hub is bootstrap, not ranking golden).
@@ -51,46 +59,58 @@ export async function runWikiQuerySuite(ctx) {
 
   for (const { query, expectTopPath } of queries) {
     results.push(
-      await runCase(`wiki-query search: ${query}`, async () => {
-        const data = parseResult(
-          await callTool(server, 'search', { action: 'content', query, limit: 5 }),
-        );
-        if (data.results.length === 0) throw new Error('no results');
-        const topPath = data.results[0].path.replace(/\.md$/i, '').toLowerCase();
-        const expected = expectTopPath.toLowerCase();
-        if (!topPath.includes(expected)) {
-          throw new Error(`top hit ${data.results[0].path} expected ${expectTopPath}`);
-        }
-        if ((data.results[0].relevanceScore ?? 0) <= 0) {
-          throw new Error('top result has zero relevance');
-        }
-      }, ctx),
+      await runCase(
+        `wiki-query search: ${query}`,
+        async () => {
+          const data = parseResult(
+            await callTool(server, 'search', { action: 'content', query, limit: 5 }),
+          );
+          if (data.results.length === 0) throw new Error('no results');
+          const topPath = data.results[0].path.replace(/\.md$/i, '').toLowerCase();
+          const expected = expectTopPath.toLowerCase();
+          if (!topPath.includes(expected)) {
+            throw new Error(`top hit ${data.results[0].path} expected ${expectTopPath}`);
+          }
+          if ((data.results[0].relevanceScore ?? 0) <= 0) {
+            throw new Error('top result has zero relevance');
+          }
+        },
+        ctx,
+      ),
     );
   }
 
   results.push(
-    await runCase('relationship query via graph backlinks', async () => {
-      const data = parseResult(
-        await callTool(server, 'graph', {
-          path: 'projects/data-platform-dlz/concepts/orchestration-and-adf',
-        }),
-      );
-      if ((data.backlinkCount ?? data.backlinks?.length ?? 0) < 1) {
-        throw new Error('expected backlinks to orchestration page');
-      }
-    }, ctx),
+    await runCase(
+      'relationship query via graph backlinks',
+      async () => {
+        const data = parseResult(
+          await callTool(server, 'graph', {
+            path: 'projects/data-platform-dlz/concepts/orchestration-and-adf',
+          }),
+        );
+        if ((data.backlinkCount ?? data.backlinks?.length ?? 0) < 1) {
+          throw new Error('expected backlinks to orchestration page');
+        }
+      },
+      ctx,
+    ),
   );
 
   results.push(
-    await runCase('tier-2 search list project folder', async () => {
-      const data = parseResult(
-        await callTool(server, 'search', {
-          action: 'list',
-          folder: 'projects/data-platform-dlz/concepts',
-        }),
-      );
-      if (data.notes.length < 5) throw new Error('expected multiple concept pages');
-    }, ctx),
+    await runCase(
+      'tier-2 search list project folder',
+      async () => {
+        const data = parseResult(
+          await callTool(server, 'search', {
+            action: 'list',
+            folder: 'projects/data-platform-dlz/concepts',
+          }),
+        );
+        if (data.notes.length < 5) throw new Error('expected multiple concept pages');
+      },
+      ctx,
+    ),
   );
 
   return results;

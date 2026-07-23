@@ -4,7 +4,7 @@ tags: [concept, beta]
 summary: Second concept page
 relationships:
   related:
-    - "[[concepts/alpha]]"
+    - '[[concepts/alpha]]'
 ---
 
 # Beta

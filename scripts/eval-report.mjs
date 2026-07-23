@@ -23,7 +23,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const evalScript = path.join(repoRoot, 'tests', 'eval', 'eval.mjs');
 const snapshotPath = path.join(repoRoot, 'tests', 'eval', 'snapshots', 'baseline.json');
-const bundleSnapshotPath = path.join(repoRoot, 'tests', 'eval', 'snapshots', 'bundle-baseline.json');
+const bundleSnapshotPath = path.join(
+  repoRoot,
+  'tests',
+  'eval',
+  'snapshots',
+  'bundle-baseline.json',
+);
 const scorecardPath = path.join(repoRoot, 'tests', 'eval', 'snapshots', 'scorecard.md');
 
 function parseArgs(argv) {
@@ -42,7 +48,9 @@ function renderScorecard(snapshot, bundleSnapshot) {
     `Generated ${snapshot.generatedAt} from \`tests/eval/golden-vault\` (top-${snapshot.topK}, n=${snapshot.overall.n} queries).`,
   );
   lines.push('');
-  lines.push('Regenerate with `npm run eval:report` (after `npm run build`). This file is committed so score trend is visible across commits - diff it like any other file.');
+  lines.push(
+    'Regenerate with `npm run eval:report` (after `npm run build`). This file is committed so score trend is visible across commits - diff it like any other file.',
+  );
   lines.push('');
   lines.push('## Overall');
   lines.push('');
@@ -57,7 +65,9 @@ function renderScorecard(snapshot, bundleSnapshot) {
   lines.push('| Intent | n | nDCG@10 | Recall@10 | MRR |');
   lines.push('|---|---|---|---|---|');
   for (const [intent, stats] of Object.entries(snapshot.byIntent ?? {})) {
-    lines.push(`| ${intent} | ${stats.n} | ${formatScore(stats.ndcg)} | ${formatScore(stats.recall)} | ${formatScore(stats.mrr)} |`);
+    lines.push(
+      `| ${intent} | ${stats.n} | ${formatScore(stats.ndcg)} | ${formatScore(stats.recall)} | ${formatScore(stats.mrr)} |`,
+    );
   }
   lines.push('');
 
@@ -70,13 +80,19 @@ function renderScorecard(snapshot, bundleSnapshot) {
     lines.push('');
     lines.push('| Metric | Score |');
     lines.push('|---|---|');
-    lines.push(`| Token efficiency (relevant tokens / tokensUsed) | ${formatScore(bundleSnapshot.overall.avgTokenEfficiency)} |`);
-    lines.push(`| Budget adherence (tokensUsed <= budget) | ${formatScore(bundleSnapshot.overall.budgetAdherenceRate)} |`);
+    lines.push(
+      `| Token efficiency (relevant tokens / tokensUsed) | ${formatScore(bundleSnapshot.overall.avgTokenEfficiency)} |`,
+    );
+    lines.push(
+      `| Budget adherence (tokensUsed <= budget) | ${formatScore(bundleSnapshot.overall.budgetAdherenceRate)} |`,
+    );
     lines.push('');
     lines.push('| Intent | n | Token efficiency | Budget adherence |');
     lines.push('|---|---|---|---|');
     for (const [intent, stats] of Object.entries(bundleSnapshot.byIntent ?? {})) {
-      lines.push(`| ${intent} | ${stats.n} | ${formatScore(stats.avgTokenEfficiency)} | ${formatScore(stats.budgetAdherenceRate)} |`);
+      lines.push(
+        `| ${intent} | ${stats.n} | ${formatScore(stats.avgTokenEfficiency)} | ${formatScore(stats.budgetAdherenceRate)} |`,
+      );
     }
     lines.push('');
   }
@@ -98,9 +114,13 @@ async function main() {
   const { reportOnly } = parseArgs(process.argv.slice(2));
 
   console.log('> eval-report: running npm run eval to refresh the snapshot');
-  const result = spawnSync(process.execPath, [evalScript, ...(reportOnly ? ['--report-only'] : [])], {
-    stdio: 'inherit',
-  });
+  const result = spawnSync(
+    process.execPath,
+    [evalScript, ...(reportOnly ? ['--report-only'] : [])],
+    {
+      stdio: 'inherit',
+    },
+  );
 
   if (result.status !== 0) {
     if (reportOnly) {

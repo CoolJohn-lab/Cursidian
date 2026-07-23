@@ -82,9 +82,7 @@ export function hashMismatchDetails(
   return {
     conflictKind: 'revision' as const,
     check: revisionCheck.check,
-    ...(revisionCheck.currentRevision
-      ? { currentRevision: revisionCheck.currentRevision }
-      : {}),
+    ...(revisionCheck.currentRevision ? { currentRevision: revisionCheck.currentRevision } : {}),
     ...(revisionCheck.currentHash ? { currentHash: revisionCheck.currentHash } : {}),
   };
 }

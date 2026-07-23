@@ -14,11 +14,11 @@ Traditional RAG rediscovers knowledge on every query - it searches raw sources, 
 
 ## Key Operations
 
-| Operation | What it does | When to use |
-|---|---|---|
-| **Ingest** | Read new sources, extract key information, update 10-15 wiki pages, maintain consistency | When new documents arrive |
-| **Query** | Answer questions against compiled wiki with citations | When the user asks something |
-| **Lint** | Identify contradictions, orphaned pages, stale claims, missing cross-references | Periodic maintenance |
+| Operation  | What it does                                                                             | When to use                  |
+| ---------- | ---------------------------------------------------------------------------------------- | ---------------------------- |
+| **Ingest** | Read new sources, extract key information, update 10-15 wiki pages, maintain consistency | When new documents arrive    |
+| **Query**  | Answer questions against compiled wiki with citations                                    | When the user asks something |
+| **Lint**   | Identify contradictions, orphaned pages, stale claims, missing cross-references          | Periodic maintenance         |
 
 ## Recommended Tools
 

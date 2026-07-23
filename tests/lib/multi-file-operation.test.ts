@@ -72,13 +72,15 @@ describe('multi-file-operation', () => {
 
     const original = vaultIo.atomicReplaceLocked;
     let calls = 0;
-    vi.spyOn(vaultIo, 'atomicReplaceLocked').mockImplementation(async (vaultPath, targetPath, body, maxBytes) => {
-      calls += 1;
-      if (calls >= 2) {
-        throw new Error('restore failed');
-      }
-      return original(vaultPath, targetPath, body, maxBytes);
-    });
+    vi.spyOn(vaultIo, 'atomicReplaceLocked').mockImplementation(
+      async (vaultPath, targetPath, body, maxBytes) => {
+        calls += 1;
+        if (calls >= 2) {
+          throw new Error('restore failed');
+        }
+        return original(vaultPath, targetPath, body, maxBytes);
+      },
+    );
 
     await expect(
       runJournaledMultiFileOperation(

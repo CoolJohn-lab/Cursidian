@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { nowIso, withCreateTimestamps, withUpdatedTimestamp, withUpdatedTimestampUnlessProvided } from '../../src/lib/timestamps.js';
+import {
+  nowIso,
+  withCreateTimestamps,
+  withUpdatedTimestamp,
+  withUpdatedTimestampUnlessProvided,
+} from '../../src/lib/timestamps.js';
 
 describe('timestamps', () => {
   it('nowIso returns ISO string', () => {

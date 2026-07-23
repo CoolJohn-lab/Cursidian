@@ -28,7 +28,11 @@ function sampleBundle(overrides: Partial<ContextBundle> = {}): ContextBundle {
         tokens: 400,
       },
     ],
-    coverage: { includedPaths: ['concepts/a.md'], consideredPaths: ['concepts/a', 'concepts/b'], droppedForBudget: [] },
+    coverage: {
+      includedPaths: ['concepts/a.md'],
+      consideredPaths: ['concepts/a', 'concepts/b'],
+      droppedForBudget: [],
+    },
     warnings: [],
     citations: ['[[concepts/a]]'],
     bundleConfidence: 0.95,

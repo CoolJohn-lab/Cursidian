@@ -4,13 +4,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { registerVault } from '../../src/tools/vault.js';
 import { clearSlopRulesCache } from '../../src/lib/slop.js';
-import {
-  createTestContextAt,
-  cleanupVault,
-  callTool,
-  parseResult,
-  writeNote,
-} from './helpers.js';
+import { createTestContextAt, cleanupVault, callTool, parseResult, writeNote } from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 let ctx: TestContext;
@@ -51,9 +45,9 @@ describe('vault slop_check / deslop', () => {
     expect(data.summariesWouldChange).toBe(true);
     expect(data.findings.some((f) => f.region === 'body' && f.code === 'char')).toBe(true);
     expect(data.findings.some((f) => f.region === 'frontmatter' && f.code === 'char')).toBe(true);
-    expect(data.filesToChange.some((f) => f.path === 'concepts/sloppy.md' && f.summaryChanged)).toBe(
-      true,
-    );
+    expect(
+      data.filesToChange.some((f) => f.path === 'concepts/sloppy.md' && f.summaryChanged),
+    ).toBe(true);
 
     const after = await fs.readFile(path.join(ctx.vault, 'concepts/sloppy.md'), 'utf8');
     expect(after).toBe(before);
@@ -97,9 +91,10 @@ describe('vault slop_check / deslop', () => {
     indexRaw = indexRaw.replace('First note — clean me.', 'First note - clean me.');
     await fs.writeFile(indexPath, indexRaw, 'utf8');
 
-    const healthBefore = parseResult(
-      await callTool(ctx.client, 'vault', { action: 'health' }),
-    ) as { counts: { indexDrift: number }; indexDrift: { summaryMismatches: unknown[] } };
+    const healthBefore = parseResult(await callTool(ctx.client, 'vault', { action: 'health' })) as {
+      counts: { indexDrift: number };
+      indexDrift: { summaryMismatches: unknown[] };
+    };
     expect(healthBefore.counts.indexDrift).toBeGreaterThan(0);
 
     const deslopResult = await callTool(ctx.client, 'vault', { action: 'deslop', confirm: true });
@@ -123,9 +118,10 @@ describe('vault slop_check / deslop', () => {
     expect(alpha).toContain('First note - clean me.');
     expect(alpha).toContain('Hello - world.');
 
-    const healthAfter = parseResult(
-      await callTool(ctx.client, 'vault', { action: 'health' }),
-    ) as { counts: { indexDrift: number }; indexDrift: { summaryMismatches: unknown[] } };
+    const healthAfter = parseResult(await callTool(ctx.client, 'vault', { action: 'health' })) as {
+      counts: { indexDrift: number };
+      indexDrift: { summaryMismatches: unknown[] };
+    };
     expect(healthAfter.counts.indexDrift).toBe(0);
     expect(healthAfter.indexDrift.summaryMismatches).toEqual([]);
 

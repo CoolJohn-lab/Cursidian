@@ -99,10 +99,10 @@ export const REGRESSION_SEARCH_CASES = [
  * Additional intent golden paths for replay queries not in the curated/regression sets.
  */
 const EXTRA_INTENT_GOLDEN_PATHS = {
-  'data contract deploy metadata': 'projects/data-platform-dlz/concepts/data-contracts-and-metadata',
+  'data contract deploy metadata':
+    'projects/data-platform-dlz/concepts/data-contracts-and-metadata',
   'person calendar': 'projects/data-platform-dlz/entities/factpersoncalendar',
-  'metadata transformation unity catalog':
-    'projects/data-platform-dlz/skills/deployment-and-ci-cd',
+  'metadata transformation unity catalog': 'projects/data-platform-dlz/skills/deployment-and-ci-cd',
 };
 
 /**
@@ -165,9 +165,7 @@ export function assertTopSearchPath(results, expectTopPathOrPaths) {
     ? expectTopPathOrPaths
     : [expectTopPathOrPaths];
   if (!pathMatchesAnyExpected(results[0].path, expectTopPaths)) {
-    throw new Error(
-      `top hit ${results[0].path} expected one of ${expectTopPaths.join(' | ')}`,
-    );
+    throw new Error(`top hit ${results[0].path} expected one of ${expectTopPaths.join(' | ')}`);
   }
 }
 
@@ -178,17 +176,21 @@ export async function runCorpusSearchSuite(ctx) {
 
   for (const testCase of [...CURATED_SEARCH_CASES, ...REGRESSION_SEARCH_CASES]) {
     results.push(
-      await runCase(`corpus-search: ${testCase.query}`, async () => {
-        resetCaches();
-        const data = parseResult(
-          await callTool(server, 'search_content', { query: testCase.query, limit: 20 }),
-        );
-        // Accept any listed golden when a query has more than one reasonable top hit.
-        assertTopSearchPath(data.results, resolveExpectTopPaths(testCase));
-        if ((data.results[0].relevanceScore ?? 0) <= 0) {
-          throw new Error('top result has zero relevance');
-        }
-      }, ctx),
+      await runCase(
+        `corpus-search: ${testCase.query}`,
+        async () => {
+          resetCaches();
+          const data = parseResult(
+            await callTool(server, 'search_content', { query: testCase.query, limit: 20 }),
+          );
+          // Accept any listed golden when a query has more than one reasonable top hit.
+          assertTopSearchPath(data.results, resolveExpectTopPaths(testCase));
+          if ((data.results[0].relevanceScore ?? 0) <= 0) {
+            throw new Error('top result has zero relevance');
+          }
+        },
+        ctx,
+      ),
     );
   }
 

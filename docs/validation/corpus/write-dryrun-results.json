@@ -20,9 +20,7 @@
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": [
-          "full_replace"
-        ]
+        "friction_tags": ["full_replace"]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -34,10 +32,7 @@
         "old_upstream_would_truncate": true,
         "new_guard": "blocked",
         "could_use_patch_or_section": true,
-        "friction_tags": [
-          "full_replace",
-          "suspected_fragment_replace"
-        ]
+        "friction_tags": ["full_replace", "suspected_fragment_replace"]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -49,10 +44,7 @@
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": [
-          "full_replace",
-          "truncation_recovery"
-        ]
+        "friction_tags": ["full_replace", "truncation_recovery"]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -64,11 +56,7 @@
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": [
-          "full_replace",
-          "full_replace",
-          "full_replace"
-        ]
+        "friction_tags": ["full_replace", "full_replace", "full_replace"]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -104,10 +92,7 @@
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": [
-          "full_replace",
-          "full_replace"
-        ]
+        "friction_tags": ["full_replace", "full_replace"]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -131,9 +116,7 @@
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": [
-          "full_replace"
-        ]
+        "friction_tags": ["full_replace"]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -145,9 +128,7 @@
         "old_upstream_would_truncate": true,
         "new_guard": "blocked",
         "could_use_patch_or_section": true,
-        "friction_tags": [
-          "full_replace"
-        ]
+        "friction_tags": ["full_replace"]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -189,11 +170,7 @@
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": [
-          "full_replace",
-          "full_replace",
-          "suspected_fragment_replace"
-        ]
+        "friction_tags": ["full_replace", "full_replace", "suspected_fragment_replace"]
       },
       {
         "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -247,9 +224,7 @@
         "old_upstream_would_truncate": false,
         "new_guard": "allowed",
         "could_use_patch_or_section": false,
-        "friction_tags": [
-          "full_replace"
-        ]
+        "friction_tags": ["full_replace"]
       }
     ]
   },
@@ -288,9 +263,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "53abd6fb-5c3b-4f72-969d-a8b7d23177b9",
@@ -314,9 +287,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
@@ -340,9 +311,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "60edd405-8836-4c14-8e3b-34419eb4b594",
@@ -354,9 +323,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
@@ -368,10 +335,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace",
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace", "full_replace"]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
@@ -395,9 +359,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
@@ -409,9 +371,7 @@
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
@@ -423,11 +383,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace",
-        "truncation_recovery",
-        "truncation_recovery"
-      ]
+      "friction_tags": ["full_replace", "truncation_recovery", "truncation_recovery"]
     },
     {
       "transcript_id": "6aaf05bf-26d4-46ca-9eed-bbc4e4d64bb7",
@@ -439,9 +395,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "b01b889f-4a09-4a25-a9d2-3e66fe27c400",
@@ -453,10 +407,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace",
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace", "full_replace"]
     },
     {
       "transcript_id": "b01b889f-4a09-4a25-a9d2-3e66fe27c400",
@@ -480,9 +431,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
@@ -494,9 +443,7 @@
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
@@ -508,11 +455,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace",
-        "truncation_recovery",
-        "truncation_recovery"
-      ]
+      "friction_tags": ["full_replace", "truncation_recovery", "truncation_recovery"]
     },
     {
       "transcript_id": "f05dd98a-2a87-4999-9183-66134c47a684",
@@ -524,9 +467,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -538,9 +479,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -552,10 +491,7 @@
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
-      "friction_tags": [
-        "full_replace",
-        "suspected_fragment_replace"
-      ]
+      "friction_tags": ["full_replace", "suspected_fragment_replace"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -567,10 +503,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace",
-        "truncation_recovery"
-      ]
+      "friction_tags": ["full_replace", "truncation_recovery"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -582,11 +515,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace",
-        "full_replace",
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace", "full_replace", "full_replace"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -622,10 +551,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace",
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace", "full_replace"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -649,9 +575,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -663,9 +587,7 @@
       "old_upstream_would_truncate": true,
       "new_guard": "blocked",
       "could_use_patch_or_section": true,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -707,11 +629,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace",
-        "full_replace",
-        "suspected_fragment_replace"
-      ]
+      "friction_tags": ["full_replace", "full_replace", "suspected_fragment_replace"]
     },
     {
       "transcript_id": "f681a293-0729-4f69-93e9-cd5da9b4572a",
@@ -765,9 +683,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
@@ -779,9 +695,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
@@ -793,9 +707,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     },
     {
       "transcript_id": "fec9aef1-4c09-49db-8534-3ac8c1e28cf1",
@@ -819,9 +731,7 @@
       "old_upstream_would_truncate": false,
       "new_guard": "allowed",
       "could_use_patch_or_section": false,
-      "friction_tags": [
-        "full_replace"
-      ]
+      "friction_tags": ["full_replace"]
     }
   ]
 }

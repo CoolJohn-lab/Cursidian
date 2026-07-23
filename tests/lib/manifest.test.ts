@@ -57,7 +57,9 @@ describe('manifest library', () => {
     });
     expect(parsed.preserve.bodyAfterProjects).toContain('## Custom Notes');
     expect(parsed.preserve.bodyAfterProjects).toContain('Keep this section intact.');
-    expect(parsed.preserve.sourcesUnknownLines.some((line) => line.includes('source comment'))).toBe(true);
+    expect(
+      parsed.preserve.sourcesUnknownLines.some((line) => line.includes('source comment')),
+    ).toBe(true);
   });
 
   it('serializes deterministically with sorted entries', () => {

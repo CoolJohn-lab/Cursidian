@@ -30,10 +30,7 @@ const configSchema = z.object({
     .string()
     .optional()
     .transform((v) => v !== 'false'),
-  OBSIDIAN_LOG_LEVEL: z
-    .enum(['debug', 'info', 'warn', 'error'])
-    .optional()
-    .default('info'),
+  OBSIDIAN_LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).optional().default('info'),
 });
 
 export interface Config {
@@ -54,7 +51,10 @@ export function resolveVaultPath(raw: string): string {
   }
 
   if (process.platform === 'win32' && /^%USERPROFILE%/i.test(expanded)) {
-    expanded = path.join(os.homedir(), expanded.replace(/^%USERPROFILE%/i, '').replace(/^[/\\]/, ''));
+    expanded = path.join(
+      os.homedir(),
+      expanded.replace(/^%USERPROFILE%/i, '').replace(/^[/\\]/, ''),
+    );
   }
 
   if (!path.isAbsolute(expanded)) {
@@ -84,7 +84,9 @@ export function loadConfig(): Config {
   try {
     vaultPath = resolveVaultPath(env.OBSIDIAN_VAULT_PATH);
   } catch {
-    console.error('[FATAL] OBSIDIAN_VAULT_PATH must be an absolute path (relative paths are not allowed).');
+    console.error(
+      '[FATAL] OBSIDIAN_VAULT_PATH must be an absolute path (relative paths are not allowed).',
+    );
     printVaultPathExamples();
     process.exit(1);
   }

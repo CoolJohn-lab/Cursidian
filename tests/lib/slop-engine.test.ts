@@ -2,11 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  loadRules,
-  scanText,
-  charDiagnosticMessage,
-} from '../../src/lib/slop-engine/index.js';
+import { loadRules, scanText, charDiagnosticMessage } from '../../src/lib/slop-engine/index.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -44,7 +40,13 @@ describe('slop-engine', () => {
     );
     const expected = JSON.parse(
       fs.readFileSync(path.join(root, 'tests/fixtures/slop-parity-expected.json'), 'utf8'),
-    ) as Array<{ offset: number; length: number; matchText: string; code: string; message: string }>;
+    ) as Array<{
+      offset: number;
+      length: number;
+      matchText: string;
+      code: string;
+      message: string;
+    }>;
 
     const actual = scanText(corpus, rules, 'plaintext').map((f) => ({
       offset: f.offset,

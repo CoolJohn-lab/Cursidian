@@ -1,16 +1,17 @@
 import fs from 'node:fs/promises';
 import { type Config } from '../config.js';
 import { resolvePath, toRelativePath } from '../lib/vault.js';
-import { assertSafePathAsync, assertNotReadOnly, assertContentSize, readFileBounded } from '../lib/security.js';
+import {
+  assertSafePathAsync,
+  assertNotReadOnly,
+  assertContentSize,
+  readFileBounded,
+} from '../lib/security.js';
 import { parseFrontmatter, stringifyFrontmatter } from '../lib/frontmatter.js';
 import { checkRevisionConcurrency, computeRevisionHash } from '../lib/content-hash.js';
 import { withCreateTimestamps } from '../lib/timestamps.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
-import {
-  atomicWrite,
-  AlreadyExistsError,
-  atomicWriteLocked,
-} from '../lib/vault-io.js';
+import { atomicWrite, AlreadyExistsError, atomicWriteLocked } from '../lib/vault-io.js';
 import { OperationJournal, mergeOperationWarnings } from '../lib/operation-journal.js';
 import {
   mergeJournaledWarnings,
@@ -44,7 +45,9 @@ export function createNoteHandler(config: Config) {
       await assertSafePathAsync(config.vaultPath, resolved);
 
       const doOverwrite = overwrite ?? false;
-      const fm = frontmatter ? withCreateTimestamps(frontmatter as Record<string, unknown>) : undefined;
+      const fm = frontmatter
+        ? withCreateTimestamps(frontmatter as Record<string, unknown>)
+        : undefined;
       const body = fm ? stringifyFrontmatter(fm, content) : content;
       const relative = toRelativePath(config.vaultPath, resolved);
 
@@ -200,10 +203,12 @@ export function createNoteHandler(config: Config) {
                 : expectedRevision
                   ? 'revision'
                   : 'content_hash',
-            ...('currentRevision' in e && typeof (e as { currentRevision: unknown }).currentRevision === 'string'
+            ...('currentRevision' in e &&
+            typeof (e as { currentRevision: unknown }).currentRevision === 'string'
               ? { currentRevision: (e as { currentRevision: string }).currentRevision }
               : {}),
-            ...('currentHash' in e && typeof (e as { currentHash: unknown }).currentHash === 'string'
+            ...('currentHash' in e &&
+            typeof (e as { currentHash: unknown }).currentHash === 'string'
               ? { currentHash: (e as { currentHash: string }).currentHash }
               : {}),
           },

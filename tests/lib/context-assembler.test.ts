@@ -69,7 +69,11 @@ describe('assembleContext', () => {
   });
 
   it('returns an empty bundle with a warning when nothing matches', async () => {
-    await writeNote(config.vaultPath, 'unrelated.md', '---\ntitle: Unrelated\nsummary: Nothing relevant.\n---\n\nBody.');
+    await writeNote(
+      config.vaultPath,
+      'unrelated.md',
+      '---\ntitle: Unrelated\nsummary: Nothing relevant.\n---\n\nBody.',
+    );
     const bundle = await assembleContext(config, { query: 'zzz-nonexistent-topic-marker' });
     expect(bundle.items).toEqual([]);
     expect(bundle.warnings.some((w) => w.includes('No relevant pages'))).toBe(true);
@@ -110,7 +114,10 @@ describe('assembleContext', () => {
       'promote-me.md',
       '---\ntitle: Promote Me\nsummary: UniquePromoteMarker short summary.\n---\n\n# Promote Me\n\nUniquePromoteMarker full body text that is considerably longer than the short frontmatter summary above it.\n',
     );
-    const bundle = await assembleContext(config, { query: 'UniquePromoteMarker', tokenBudget: 4000 });
+    const bundle = await assembleContext(config, {
+      query: 'UniquePromoteMarker',
+      tokenBudget: 4000,
+    });
     const item = bundle.items.find((i) => i.path.includes('promote-me'));
     expect(item).toBeDefined();
     expect(item!.kind).toBe('body');
@@ -124,7 +131,10 @@ describe('assembleContext', () => {
       'plain-body.md',
       '---\ntitle: Plain Body\n---\n\nUniquePlainBodyMarker with no headings at all in this note body.\n',
     );
-    const bundle = await assembleContext(config, { query: 'UniquePlainBodyMarker', tokenBudget: 4000 });
+    const bundle = await assembleContext(config, {
+      query: 'UniquePlainBodyMarker',
+      tokenBudget: 4000,
+    });
     const item = bundle.items.find((i) => i.path.includes('plain-body'));
     expect(item).toBeDefined();
     expect(item!.kind).toBe('body');
@@ -175,7 +185,10 @@ describe('assembleContext', () => {
       'marked-body.md',
       '---\ntitle: Marked Body\n---\n\n## UniqueMarkedSection\n\nUniqueMarkedSection fact ^[inferred] and another ^[ambiguous] claim.\n',
     );
-    const bundle = await assembleContext(config, { query: 'UniqueMarkedSection', tokenBudget: 4000 });
+    const bundle = await assembleContext(config, {
+      query: 'UniqueMarkedSection',
+      tokenBudget: 4000,
+    });
     const item = bundle.items.find((i) => i.path.includes('marked-body'));
     expect(item).toBeDefined();
     expect(item!.text).toContain('^[inferred]');
@@ -193,7 +206,10 @@ describe('assembleContext', () => {
       'claim-b.md',
       '---\ntitle: Claim B\nsummary: The opposing claim B summary.\n---\n\nBody of claim B.',
     );
-    const bundle = await assembleContext(config, { query: 'UniqueContradictMarker', tokenBudget: 4000 });
+    const bundle = await assembleContext(config, {
+      query: 'UniqueContradictMarker',
+      tokenBudget: 4000,
+    });
     expect(bundle.coverage.consideredPaths.some((p) => p.includes('claim-b'))).toBe(true);
     expect(bundle.warnings.some((w) => w.includes('Contradiction callout'))).toBe(true);
   });
@@ -234,7 +250,9 @@ describe('assembleContext', () => {
     );
     const bundle = await assembleContext(config, { query: 'UniqueDedupMarker', tokenBudget: 4000 });
     const paths = bundle.items.map((i) => i.path);
-    const dupCount = paths.filter((p) => p.includes('dup-primary') || p.includes('dup-secondary')).length;
+    const dupCount = paths.filter(
+      (p) => p.includes('dup-primary') || p.includes('dup-secondary'),
+    ).length;
     expect(dupCount).toBe(1);
   });
 
@@ -273,7 +291,9 @@ describe('assembleContext', () => {
   });
 
   it('rejects a malformed expand cursor', async () => {
-    await expect(expandContext(config, 'not-a-real-cursor', 4000)).rejects.toThrow(InvalidContextCursorError);
+    await expect(expandContext(config, 'not-a-real-cursor', 4000)).rejects.toThrow(
+      InvalidContextCursorError,
+    );
   });
 
   it('boosts manifest-touched pages for the ingest-prep intent', async () => {
@@ -377,7 +397,11 @@ describe('assembleContext', () => {
       'uniqueneighfilter-hub.md',
       '---\ntitle: UniqueNeighFilter Hub\nsummary: Hub for UniqueNeighFilter.\n---\n\nSee [[index]] [[_meta/manifest]] [[uniqueneighfilter-a]] [[uniqueneighfilter-b]] [[uniqueneighfilter-c]] [[uniqueneighfilter-d]] [[uniqueneighfilter-e]].',
     );
-    await writeNote(config.vaultPath, 'index.md', '---\ntitle: Index\nsummary: Operational index.\n---\n\nIndex body.');
+    await writeNote(
+      config.vaultPath,
+      'index.md',
+      '---\ntitle: Index\nsummary: Operational index.\n---\n\nIndex body.',
+    );
     await writeNote(
       config.vaultPath,
       '_meta/manifest.md',
@@ -492,7 +516,10 @@ describe('assembleContext', () => {
     }
     const snapshotSpy = vi.spyOn(vaultSnapshot, 'getVaultSnapshot');
     const startedAt = Date.now();
-    const bundle = await assembleContext(config, { query: 'UniqueLatencyMarker', tokenBudget: 4000 });
+    const bundle = await assembleContext(config, {
+      query: 'UniqueLatencyMarker',
+      tokenBudget: 4000,
+    });
     const elapsedMs = Date.now() - startedAt;
     // Generous guardrail: catches a regression that makes assembly pathologically slow
     // (e.g. re-scanning the vault per candidate) without being flaky on slower CI machines.
@@ -514,7 +541,10 @@ describe('assembleContext', () => {
       '---\ntitle: Incomplete Marker\nsummary: UniqueIncompleteMarker summary.\n---\n\nBody.',
     );
     const tinyConfig: Config = { ...config, maxFileSize: 1 };
-    const bundle = await assembleContext(tinyConfig, { query: 'UniqueIncompleteMarker', tokenBudget: 4000 });
+    const bundle = await assembleContext(tinyConfig, {
+      query: 'UniqueIncompleteMarker',
+      tokenBudget: 4000,
+    });
     expect(bundle.warnings.some((w) => w.includes('incomplete'))).toBe(true);
   });
 });

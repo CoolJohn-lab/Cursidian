@@ -73,7 +73,9 @@ export async function getVaultSnapshot(
   }
 
   const { files, skipped } = await loadBoundedFiles(vaultPath, paths, maxFileSize);
-  const readablePaths = files.map((f) => path.join(vaultPath, f.relativePath.split('/').join(path.sep)));
+  const readablePaths = files.map((f) =>
+    path.join(vaultPath, f.relativePath.split('/').join(path.sep)),
+  );
   const { index, collisions } = await buildVaultIndexFromPaths(vaultPath, readablePaths);
 
   const snapshot: VaultSnapshot = {

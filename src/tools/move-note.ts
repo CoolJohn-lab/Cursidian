@@ -17,9 +17,21 @@ export function registerMoveNote(server: McpServer, config: Config): void {
       description:
         'Move or rename a note within the vault. Optionally updates all wikilinks in other notes that reference the moved note. Use this to reorganize your vault structure while maintaining link integrity.',
       inputSchema: {
-        fromPath: z.string().min(1).describe('Current path of the note to move (relative to vault root)'),
-        toPath: z.string().min(1).describe('New destination path for the note (relative to vault root)'),
-        updateBacklinks: z.boolean().optional().default(true).describe('If true, update [[wikilinks]] in all other notes that reference this note. Defaults to true.'),
+        fromPath: z
+          .string()
+          .min(1)
+          .describe('Current path of the note to move (relative to vault root)'),
+        toPath: z
+          .string()
+          .min(1)
+          .describe('New destination path for the note (relative to vault root)'),
+        updateBacklinks: z
+          .boolean()
+          .optional()
+          .default(true)
+          .describe(
+            'If true, update [[wikilinks]] in all other notes that reference this note. Defaults to true.',
+          ),
       },
     },
     async ({ fromPath, toPath, updateBacklinks }) => {

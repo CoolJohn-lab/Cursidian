@@ -2,7 +2,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createTestServer, callTool, parseResult, resetCaches } from '../../../scripts/test-lib.mjs';
+import {
+  createTestServer,
+  callTool,
+  parseResult,
+  resetCaches,
+} from '../../../scripts/test-lib.mjs';
 import { buildIntentGoldenMap } from '../../../scripts/suites/corpus-search.mjs';
 import { assertReplaceSizeGuard } from '../../../dist/lib/section-edit.js';
 import { normaliseNotePath } from './lib/parse-transcripts.mjs';
@@ -22,12 +27,36 @@ const VAULT_PATH =
   '/Users/jeddowes/Library/CloudStorage/OneDrive-Freshfields/Obsidian/WorkStuff';
 
 const SUPPLEMENT_QUERIES = [
-  { query: 'bighand FactPublicHoliday public holidays', goldenPath: 'projects/data-platform-dlz/entities/factpublicholiday', source: 'f681a293' },
-  { query: 'bighand', goldenPath: 'projects/data-platform-dlz/concepts/bighand-data-product', source: 'f681a293-retry' },
-  { query: 'ADF pipeline orchestrator', goldenPath: 'projects/data-platform-dlz/concepts/orchestration-and-adf', source: 'wiki-query-suite' },
-  { query: 'FactPublicHoliday', goldenPath: 'projects/data-platform-dlz/entities/factpublicholiday', source: 'wiki-query-suite' },
-  { query: 'deployment CI CD', goldenPath: 'projects/data-platform-dlz/skills/deployment-and-ci-cd', source: 'wiki-query-suite' },
-  { query: 'Unity Catalog metastore', goldenPath: 'projects/data-platform-dlz/concepts/metastore-schema-evolution', source: 'wiki-query-suite' },
+  {
+    query: 'bighand FactPublicHoliday public holidays',
+    goldenPath: 'projects/data-platform-dlz/entities/factpublicholiday',
+    source: 'f681a293',
+  },
+  {
+    query: 'bighand',
+    goldenPath: 'projects/data-platform-dlz/concepts/bighand-data-product',
+    source: 'f681a293-retry',
+  },
+  {
+    query: 'ADF pipeline orchestrator',
+    goldenPath: 'projects/data-platform-dlz/concepts/orchestration-and-adf',
+    source: 'wiki-query-suite',
+  },
+  {
+    query: 'FactPublicHoliday',
+    goldenPath: 'projects/data-platform-dlz/entities/factpublicholiday',
+    source: 'wiki-query-suite',
+  },
+  {
+    query: 'deployment CI CD',
+    goldenPath: 'projects/data-platform-dlz/skills/deployment-and-ci-cd',
+    source: 'wiki-query-suite',
+  },
+  {
+    query: 'Unity Catalog metastore',
+    goldenPath: 'projects/data-platform-dlz/concepts/metastore-schema-evolution',
+    source: 'wiki-query-suite',
+  },
 ];
 
 /**
@@ -417,7 +446,9 @@ async function dryRunWrites(corpus) {
     });
   }
 
-  const f681Cases = results.filter((r) => r.transcript_id === 'f681a293-0729-4f69-93e9-cd5da9b4572a');
+  const f681Cases = results.filter(
+    (r) => r.transcript_id === 'f681a293-0729-4f69-93e9-cd5da9b4572a',
+  );
   const blocked = results.filter((r) => r.new_guard === 'blocked').length;
   const truncating = results.filter((r) => r.old_upstream_would_truncate).length;
 
@@ -452,14 +483,18 @@ async function runBenchmarks(searchCases) {
       label: 'search_content.adf_pipeline',
       run: async () => {
         resetCaches();
-        return parseResult(await callTool(server, 'search_content', { query: 'ADF pipeline', limit: 20 }));
+        return parseResult(
+          await callTool(server, 'search_content', { query: 'ADF pipeline', limit: 20 }),
+        );
       },
     },
     {
       label: 'search_content.factpublicholiday',
       run: async () => {
         resetCaches();
-        return parseResult(await callTool(server, 'search_content', { query: 'FactPublicHoliday', limit: 10 }));
+        return parseResult(
+          await callTool(server, 'search_content', { query: 'FactPublicHoliday', limit: 10 }),
+        );
       },
     },
     {
@@ -470,12 +505,15 @@ async function runBenchmarks(searchCases) {
       label: 'get_backlinks.project_hub',
       run: async () =>
         parseResult(
-          await callTool(server, 'get_backlinks', { path: 'projects/data-platform-dlz/data-platform-dlz' }),
+          await callTool(server, 'get_backlinks', {
+            path: 'projects/data-platform-dlz/data-platform-dlz',
+          }),
         ),
     },
     {
       label: 'search_content.cached_repeat',
-      run: async () => parseResult(await callTool(server, 'search_content', { query: 'ADF pipeline', limit: 20 })),
+      run: async () =>
+        parseResult(await callTool(server, 'search_content', { query: 'ADF pipeline', limit: 20 })),
     },
   ];
 
@@ -484,7 +522,10 @@ async function runBenchmarks(searchCases) {
     resetCaches();
     const started = performance.now();
     await testCase.run();
-    newTimings.push({ label: testCase.label, ms: Math.round((performance.now() - started) * 100) / 100 });
+    newTimings.push({
+      label: testCase.label,
+      ms: Math.round((performance.now() - started) * 100) / 100,
+    });
   }
 
   const topQueries = searchCases.slice(0, 10);
@@ -495,8 +536,12 @@ async function runBenchmarks(searchCases) {
       const newStarted = performance.now();
       await searchNew(server, testCase.query, 20);
       corpusWeighted.new.push(performance.now() - newStarted);
-      corpusWeighted.old_upstream.push((await searchOldUpstream(VAULT_PATH, testCase.query, 20)).latencyMs);
-      corpusWeighted.old_patched.push((await searchOldPatched(VAULT_PATH, testCase.query, 20)).latencyMs);
+      corpusWeighted.old_upstream.push(
+        (await searchOldUpstream(VAULT_PATH, testCase.query, 20)).latencyMs,
+      );
+      corpusWeighted.old_patched.push(
+        (await searchOldPatched(VAULT_PATH, testCase.query, 20)).latencyMs,
+      );
     }
   }
 
@@ -557,7 +602,9 @@ async function main() {
   console.log('\n=== Search replay ===');
   const searchResults = await replaySearch(searchCases);
   await fs.writeFile(SEARCH_OUTPUT, `${JSON.stringify(searchResults, null, 2)}\n`, 'utf-8');
-  console.log(`Top-1 accuracy — upstream: ${searchResults.summary.top1Accuracy.old_upstream}% patched: ${searchResults.summary.top1Accuracy.old_patched}% new: ${searchResults.summary.top1Accuracy.new}%`);
+  console.log(
+    `Top-1 accuracy — upstream: ${searchResults.summary.top1Accuracy.old_upstream}% patched: ${searchResults.summary.top1Accuracy.old_patched}% new: ${searchResults.summary.top1Accuracy.new}%`,
+  );
 
   console.log('\n=== Read / backlink replay ===');
   const readResults = await replayReads(corpus);
@@ -566,7 +613,9 @@ async function main() {
   console.log('\n=== Write dry-run ===');
   const writeResults = await dryRunWrites(corpus);
   await fs.writeFile(WRITE_OUTPUT, `${JSON.stringify(writeResults, null, 2)}\n`, 'utf-8');
-  console.log(`Replace calls: ${writeResults.totalReplaceCalls}, blocked: ${writeResults.blockedBySizeGuard}`);
+  console.log(
+    `Replace calls: ${writeResults.totalReplaceCalls}, blocked: ${writeResults.blockedBySizeGuard}`,
+  );
 
   console.log('\n=== Benchmarks ===');
   const benchmarkResults = await runBenchmarks(searchCases);
@@ -587,6 +636,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.stack ?? error.message : String(error));
+  console.error(error instanceof Error ? (error.stack ?? error.message) : String(error));
   process.exit(1);
 });

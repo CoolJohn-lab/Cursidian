@@ -5,12 +5,7 @@ import os from 'node:os';
 import * as vaultIo from '../../src/lib/vault-io.js';
 import { registerNote } from '../../src/tools/note.js';
 import { registerVault } from '../../src/tools/vault.js';
-import {
-  createTestContextAt,
-  cleanupVault,
-  callTool,
-  writeNote,
-} from './helpers.js';
+import { createTestContextAt, cleanupVault, callTool, writeNote } from './helpers.js';
 import type { TestContext } from './helpers.js';
 
 async function readVaultFiles(vault: string): Promise<Map<string, string>> {

@@ -18,10 +18,7 @@ import type {
   ContextItem,
   SearchResult,
 } from '../types/index.js';
-import {
-  compactContextItems,
-  type ContextAssembleDiagnostics,
-} from './context-quality.js';
+import { compactContextItems, type ContextAssembleDiagnostics } from './context-quality.js';
 
 const DEFAULT_TOKEN_BUDGET = 4000;
 const DEFAULT_STALE_DAYS = 90;
@@ -97,7 +94,9 @@ export function encodeContextCursor(payload: Omit<ContextCursorPayload, 'v'>): s
  */
 export function decodeContextCursor(cursor: string): ContextCursorPayload {
   try {
-    const parsed = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8')) as ContextCursorPayload;
+    const parsed = JSON.parse(
+      Buffer.from(cursor, 'base64url').toString('utf8'),
+    ) as ContextCursorPayload;
     if (
       parsed.v !== 1 ||
       typeof parsed.query !== 'string' ||
@@ -194,7 +193,12 @@ function neighborCapForIntent(intent: ContextIntent): number {
   return intent === 'onboarding' ? NEIGHBOR_CAP_ONBOARDING : NEIGHBOR_CAP_CONNECTION;
 }
 
-function emptyBundle(query: string, intent: ContextIntent, tokenBudget: number, warnings: string[]): ContextBundle {
+function emptyBundle(
+  query: string,
+  intent: ContextIntent,
+  tokenBudget: number,
+  warnings: string[],
+): ContextBundle {
   const guidance: ContextGuidance = {
     nextStep: 'refine_query',
     reason: warnings[0] ?? 'No pages matched; refine the query or try different keywords.',
@@ -229,7 +233,10 @@ function emptyResult(
   tokenBudget: number,
   warnings: string[],
 ): ContextAssembleResult {
-  return { bundle: emptyBundle(query, intent, tokenBudget, warnings), diagnostics: emptyDiagnostics() };
+  return {
+    bundle: emptyBundle(query, intent, tokenBudget, warnings),
+    diagnostics: emptyDiagnostics(),
+  };
 }
 
 function boostSkillsPages(candidates: Map<string, Candidate>): void {
@@ -241,7 +248,10 @@ function boostSkillsPages(candidates: Map<string, Candidate>): void {
   }
 }
 
-async function boostManifestTouchedPages(config: Config, candidates: Map<string, Candidate>): Promise<void> {
+async function boostManifestTouchedPages(
+  config: Config,
+  candidates: Map<string, Candidate>,
+): Promise<void> {
   try {
     const resolved = resolvePath(config.vaultPath, MANIFEST_RELATIVE_PATH);
     const raw = await readFileBounded(resolved, config.maxFileSize);
@@ -344,7 +354,9 @@ function demoteJournalAndTicketCandidates(
   for (const candidate of candidates.values()) {
     const key = normaliseKey(candidate.path);
     const file = fileByPath.get(key);
-    const { data } = file ? parseFrontmatter(file.content) : { data: {} as Record<string, unknown> };
+    const { data } = file
+      ? parseFrontmatter(file.content)
+      : { data: {} as Record<string, unknown> };
     const title = typeof data.title === 'string' ? data.title : basenameWithoutExt(candidate.path);
     const category = typeof data.category === 'string' ? data.category.toLowerCase() : '';
     const tags = Array.isArray(data.tags)
@@ -498,7 +510,8 @@ function buildItems(
       continue;
     }
     const { data, content: body } = parseFrontmatter(file.content);
-    const title = typeof data.title === 'string' ? data.title : candidate.path.replace(/\.md$/i, '');
+    const title =
+      typeof data.title === 'string' ? data.title : candidate.path.replace(/\.md$/i, '');
     items.push(buildItemForCandidate(candidate, title, data, body, tokens));
   }
   return items;
@@ -583,8 +596,12 @@ function compareItemsForSelection(a: ContextItem, b: ContextItem): number {
   if (aNeighbor !== bNeighbor) {
     return aNeighbor - bNeighbor;
   }
-  const aDemoted = a.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion') ? 1 : 0;
-  const bDemoted = b.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion') ? 1 : 0;
+  const aDemoted = a.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion')
+    ? 1
+    : 0;
+  const bDemoted = b.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion')
+    ? 1
+    : 0;
   if (aDemoted !== bDemoted) {
     return aDemoted - bDemoted;
   }
@@ -743,21 +760,27 @@ function appendFreshnessWarnings(items: ContextItem[], warnings: string[]): void
   }
 }
 
-function computeBundleConfidence(items: ContextItem[], consideredCount: number, warningCount: number): number {
+function computeBundleConfidence(
+  items: ContextItem[],
+  consideredCount: number,
+  warningCount: number,
+): number {
   if (items.length === 0) {
     return 0;
   }
-  const coverage = consideredCount === 0 ? 0 : Math.min(1, items.length / Math.min(consideredCount, 5));
+  const coverage =
+    consideredCount === 0 ? 0 : Math.min(1, items.length / Math.min(consideredCount, 5));
   const freshnessScore =
-    items.reduce((sum, i) => sum + ((i.staleDays ?? 0) > DEFAULT_STALE_DAYS ? 0 : 1), 0) / items.length;
+    items.reduce((sum, i) => sum + ((i.staleDays ?? 0) > DEFAULT_STALE_DAYS ? 0 : 1), 0) /
+    items.length;
   const provenanceScore =
     items.reduce((sum, i) => sum + (i.provenance ? extractedRatio(i) : 1), 0) / items.length;
   const warningPenalty = Math.min(0.3, warningCount * 0.05);
 
   const neighborFraction = items.filter((i) => i.kind === 'neighbor-note').length / items.length;
   const demotedFraction =
-    items.filter((i) => i.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion')).length /
-    items.length;
+    items.filter((i) => i.reasons.some((r) => r === 'journal-demotion' || r === 'ticket-demotion'))
+      .length / items.length;
   const noisePenalty = Math.min(0.35, neighborFraction * 0.4 + demotedFraction * 0.35);
 
   const confidence =
@@ -824,7 +847,8 @@ function buildGuidance(
   if (focus.length === 0 || neighborFraction > 0.5) {
     return {
       nextStep: 'refine_query',
-      reason: 'Bundle is neighbour-heavy or lacks a clear focus path; narrow the query toward the SoT page or skill.',
+      reason:
+        'Bundle is neighbour-heavy or lacks a clear focus path; narrow the query toward the SoT page or skill.',
     };
   }
 
@@ -862,7 +886,10 @@ function buildGuidance(
  * Prefer `assembleContextDetailed` when the caller also needs ranking diagnostics
  * (ContextSearches logdump). This wrapper returns the bundle only.
  */
-export async function assembleContext(config: Config, options: AssembleContextOptions): Promise<ContextBundle> {
+export async function assembleContext(
+  config: Config,
+  options: AssembleContextOptions,
+): Promise<ContextBundle> {
   const { bundle } = await assembleContextDetailed(config, options);
   return bundle;
 }
@@ -940,7 +967,12 @@ export async function assembleContextDetailed(
 
   demoteJournalAndTicketCandidates(candidates, fileByPath, query);
 
-  const contradictionPairs = collectContradictionCandidates(candidates, fileByPath, snapshot.index, excludePaths);
+  const contradictionPairs = collectContradictionCandidates(
+    candidates,
+    fileByPath,
+    snapshot.index,
+    excludePaths,
+  );
 
   const tokens = prepareSearchTokens(query).contentTokens;
   let items = buildItems([...candidates.values()], fileByPath, tokens);
@@ -948,7 +980,13 @@ export async function assembleContextDetailed(
   items.sort(compareItemsForSelection);
 
   const filled = greedyFill(items, tokenBudget);
-  const promoted = promoteTopItem(filled.included, fileByPath, tokenBudget, filled.tokensUsed, intent);
+  const promoted = promoteTopItem(
+    filled.included,
+    fileByPath,
+    tokenBudget,
+    filled.tokensUsed,
+    intent,
+  );
 
   const finalItems = promoted.items;
   const consideredPaths = [...candidates.keys()];
@@ -965,7 +1003,11 @@ export async function assembleContextDetailed(
 
   const citations = finalItems.map((item) => `[[${item.path.replace(/\.md$/i, '')}]]`);
   const focus = buildFocus(finalItems);
-  let bundleConfidence = computeBundleConfidence(finalItems, consideredPaths.length, warnings.length);
+  let bundleConfidence = computeBundleConfidence(
+    finalItems,
+    consideredPaths.length,
+    warnings.length,
+  );
   if (focus.length === 0 && finalItems.length > 0) {
     bundleConfidence = Math.min(bundleConfidence, 0.55);
   }
@@ -1033,7 +1075,11 @@ export async function assembleContextDetailed(
  * Continues a prior bundle: decodes the cursor and re-assembles, excluding
  * already-considered paths, within a (possibly fresh) token budget.
  */
-export async function expandContext(config: Config, cursor: string, tokenBudget?: number): Promise<ContextBundle> {
+export async function expandContext(
+  config: Config,
+  cursor: string,
+  tokenBudget?: number,
+): Promise<ContextBundle> {
   const decoded = decodeContextCursor(cursor);
   const { bundle } = await assembleContextDetailed(config, {
     query: decoded.query,

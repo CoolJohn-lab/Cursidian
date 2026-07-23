@@ -1,11 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
-import {
-  buildVaultIndex,
-  clearVaultIndexCache,
-  getVaultIndex,
-} from '../../src/lib/vault-index.js';
+import { buildVaultIndex, clearVaultIndexCache, getVaultIndex } from '../../src/lib/vault-index.js';
 import { createTestVault, cleanupVault, writeNote } from '../tools/helpers.js';
 
 describe('vault-index signature invalidation', () => {
@@ -15,21 +11,13 @@ describe('vault-index signature invalidation', () => {
 
   it('rebuilds the index when a note changes on disk within the TTL window', async () => {
     const ctx = await createTestVault();
-    await writeNote(
-      ctx.vault,
-      'note.md',
-      '---\ntitle: Original\ntags: [alpha]\n---\n\n# Original',
-    );
+    await writeNote(ctx.vault, 'note.md', '---\ntitle: Original\ntags: [alpha]\n---\n\n# Original');
 
     const first = await getVaultIndex(ctx.vault);
     expect([...first.values()][0]?.tags).toContain('alpha');
 
     // In-place edit without clearAllSearchCaches - signature must bust the TTL cache.
-    await writeNote(
-      ctx.vault,
-      'note.md',
-      '---\ntitle: Updated\ntags: [beta]\n---\n\n# Updated',
-    );
+    await writeNote(ctx.vault, 'note.md', '---\ntitle: Updated\ntags: [beta]\n---\n\n# Updated');
     // Ensure mtime advances on filesystems with coarse timestamps.
     const full = path.join(ctx.vault, 'note.md');
     const now = new Date(Date.now() + 2000);

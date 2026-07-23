@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  clearSlopRulesCache,
-  loadSlopRules,
-  planFileDeslop,
-} from '../../src/lib/slop.js';
+import { clearSlopRulesCache, loadSlopRules, planFileDeslop } from '../../src/lib/slop.js';
 
 const CLEAN_NOTE = `---
 title: Clean

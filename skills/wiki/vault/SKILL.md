@@ -15,11 +15,11 @@ You maintain a **compiled** wiki: distill once, keep current, query the artifact
 
 Before inventing product facts or tool behaviour, `note` `read` via **`user-cursidian`**:
 
-| Path | Holds |
-|------|-------|
-| `projects/cursidian/cursidian` | Product overview, agent usage, project pages |
+| Path                                           | Holds                                            |
+| ---------------------------------------------- | ------------------------------------------------ |
+| `projects/cursidian/cursidian`                 | Product overview, agent usage, project pages     |
 | `projects/cursidian/concepts/mcp-tool-surface` | Full tool/action map, concurrency, retired names |
-| `concepts/cursor-rule-skill-wiki-stack` | Rule -> skill -> wiki layer contract |
+| `concepts/cursor-rule-skill-wiki-stack`        | Rule -> skill -> wiki layer contract             |
 
 This skill is the **protocol** layer (hard rules agents must not violate). Wiki pages are the **durable SoT** when facts change.
 
@@ -39,12 +39,12 @@ Outside MCP: source docs **outside** the vault (ingest). On-disk deslop (repos /
 
 ### Tool map (essentials)
 
-| Tool | Actions (summary) |
-|---|---|
-| `search` | `content` (default limit 10; `format: "compact"`; paginate `nextCursor`), `by_tags`, `list`, `recent`, `tags`. Operational paths excluded unless `includeOperational: true`. |
-| `note` | `read` (+ `revisionHash`), `create`/`update`/`delete`/`rename`/`frontmatter`. Mutations return `operationId`. `delete` needs `confirm: true`. |
-| `graph` | One-hop neighborhood; skip null `resolvedPath`; paginate backlinks. |
-| `vault` | `health`, `sync_index` (flat rebuild vs hub preserve - check `indexMode`), `slop_check`/`deslop`, folders, `history`/`undo`, `manifest`, `vocabulary`. |
+| Tool      | Actions (summary)                                                                                                                                                                                                     |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `search`  | `content` (default limit 10; `format: "compact"`; paginate `nextCursor`), `by_tags`, `list`, `recent`, `tags`. Operational paths excluded unless `includeOperational: true`.                                          |
+| `note`    | `read` (+ `revisionHash`), `create`/`update`/`delete`/`rename`/`frontmatter`. Mutations return `operationId`. `delete` needs `confirm: true`.                                                                         |
+| `graph`   | One-hop neighborhood; skip null `resolvedPath`; paginate backlinks.                                                                                                                                                   |
+| `vault`   | `health`, `sync_index` (flat rebuild vs hub preserve - check `indexMode`), `slop_check`/`deslop`, folders, `history`/`undo`, `manifest`, `vocabulary`.                                                                |
 | `context` | Prefer over hand-rolled search->read loops (session-first). `assemble`/`for_task` (+ `tokenBudget`, optional `intent`); returns `focus` + `guidance.nextStep`; `expand` via `nextCursor`; `feedback` for bad bundles. |
 
 Full action tables, retired names, and edge cases: wiki `projects/cursidian/concepts/mcp-tool-surface`.
@@ -56,17 +56,17 @@ Full action tables, retired names, and edge cases: wiki `projects/cursidian/conc
 
 ### Failure handling and rollback
 
-| Situation | Action |
-|---|---|
-| `hash_mismatch` | Prefer `details.currentRevision` for FM-only / full `replace`. For `patch`/`replace_section`, re-read, re-derive strings, retry **once**. |
-| Same path twice | Chain response `revisionHash`; never reuse a pre-batch read. |
-| Parallel same-path | Forbidden - one note at a time. |
-| Smart Mode block | Re-call same mutation with `requestSmartModeApproval: true` + exact `smartModeBlockReason`. |
-| Correctable `invalid_args` / `already_exists` / `not_found` | Follow `recovery` **once**. |
-| Error after successful writes | `vault` `undo` each stacked `operationId` reverse-order, then stop. |
-| `sideEffects: "partial"` | Stop; report; do not invent repairs. |
-| Undo conflict | Stop; no `force: true` unless user authorizes. |
-| `undoAvailable: false` | Warn; stop on failure (no undo). |
+| Situation                                                   | Action                                                                                                                                    |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `hash_mismatch`                                             | Prefer `details.currentRevision` for FM-only / full `replace`. For `patch`/`replace_section`, re-read, re-derive strings, retry **once**. |
+| Same path twice                                             | Chain response `revisionHash`; never reuse a pre-batch read.                                                                              |
+| Parallel same-path                                          | Forbidden - one note at a time.                                                                                                           |
+| Smart Mode block                                            | Re-call same mutation with `requestSmartModeApproval: true` + exact `smartModeBlockReason`.                                               |
+| Correctable `invalid_args` / `already_exists` / `not_found` | Follow `recovery` **once**.                                                                                                               |
+| Error after successful writes                               | `vault` `undo` each stacked `operationId` reverse-order, then stop.                                                                       |
+| `sideEffects: "partial"`                                    | Stop; report; do not invent repairs.                                                                                                      |
+| Undo conflict                                               | Stop; no `force: true` unless user authorizes.                                                                                            |
+| `undoAvailable: false`                                      | Warn; stop on failure (no undo).                                                                                                          |
 
 ### Mutating skill workflow shape
 
@@ -78,12 +78,12 @@ Cheapest first: `search` `list`/`tags` -> compact `content` summaries -> `by_tag
 
 ## Schema pointers (detail in wiki / template below)
 
-| Topic | Where |
-|-------|-------|
-| Categories / projects layout | Wiki + table below |
+| Topic                             | Where                                                      |
+| --------------------------------- | ---------------------------------------------------------- |
+| Categories / projects layout      | Wiki + table below                                         |
 | Special files (`index` / `_meta`) | Brief below; hub vs flat from `vault` `health` `indexMode` |
-| Page frontmatter + body shape | Page Template |
-| Provenance markers | `^[inferred]` / `^[ambiguous]` |
+| Page frontmatter + body shape     | Page Template                                              |
+| Provenance markers                | `^[inferred]` / `^[ambiguous]`                             |
 
 ### Vault layout (summary)
 
@@ -91,11 +91,11 @@ Categories: `concepts/` `entities/` `skills/` `references/` `journal/` (plus pro
 
 ### Special files (summary)
 
-| File | Role |
-|------|------|
-| `index.md` | Flat: full leaf catalog via `sync_index`. Hub (`indexMode: hub`): curated router; `sync_index` preserves body; leaves catalogued if on index **or** within 2 hops of a listed page. |
-| `_meta/manifest.md` | Ingest ledger - **only** via `vault` `manifest`. |
-| `_meta/vocabulary.md` | Synonyms/pairings - **only** via `vault` `vocabulary`. |
+| File                  | Role                                                                                                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.md`            | Flat: full leaf catalog via `sync_index`. Hub (`indexMode: hub`): curated router; `sync_index` preserves body; leaves catalogued if on index **or** within 2 hops of a listed page. |
+| `_meta/manifest.md`   | Ingest ledger - **only** via `vault` `manifest`.                                                                                                                                    |
+| `_meta/vocabulary.md` | Synonyms/pairings - **only** via `vault` `vocabulary`.                                                                                                                              |
 
 ## Page Template
 
@@ -130,14 +130,14 @@ Every page needs that frontmatter, a `summary`, and at least 2 wikilinks. Tolera
 
 ## Critical avoid
 
-| Do not | Do instead |
-|--------|------------|
-| Filesystem / shell on vault paths | `user-cursidian` only |
+| Do not                               | Do instead                                 |
+| ------------------------------------ | ------------------------------------------ |
+| Filesystem / shell on vault paths    | `user-cursidian` only                      |
 | Call retired Obsidian-MCP tool names | 5-tool surface (see wiki mcp-tool-surface) |
-| Parallel same-path writes | Serialize + chain `revisionHash` |
-| Clear `operationStack` before verify | Undo reverse-order on failure |
-| Treat hub sparsity as index drift | Read `indexMode` from `health` |
-| Re-copy wiki tables into rules | Thin rule -> this skill -> wiki SoT |
+| Parallel same-path writes            | Serialize + chain `revisionHash`           |
+| Clear `operationStack` before verify | Undo reverse-order on failure              |
+| Treat hub sparsity as index drift    | Read `indexMode` from `health`             |
+| Re-copy wiki tables into rules       | Thin rule -> this skill -> wiki SoT        |
 
 ## Core principles
 

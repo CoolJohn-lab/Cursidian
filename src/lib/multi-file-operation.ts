@@ -3,11 +3,7 @@ import path from 'node:path';
 import { toRelativePath } from './vault.js';
 import { readFileBounded } from './security.js';
 import { computeRevisionHash } from './content-hash.js';
-import {
-  atomicReplaceLocked,
-  PartialUpdateError,
-  withPathLocks,
-} from './vault-io.js';
+import { atomicReplaceLocked, PartialUpdateError, withPathLocks } from './vault-io.js';
 import { OperationJournal, mergeOperationWarnings } from './operation-journal.js';
 import type { ToolName } from '../types/index.js';
 
@@ -25,8 +21,7 @@ export interface PathSnapshot {
 }
 
 export type OperationStep =
-  | { type: 'write'; relative: string }
-  | { type: 'rename'; from: string; to: string };
+  { type: 'write'; relative: string } | { type: 'rename'; from: string; to: string };
 
 export class MultiFileOperationTracker {
   private readonly steps: OperationStep[] = [];

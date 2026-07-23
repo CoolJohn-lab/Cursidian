@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { extractWikilinks, extractTags, replaceWikilink, wikilinkMatchesNote, rewriteWikilinksForRename } from '../../src/lib/wikilinks.js';
+import {
+  extractWikilinks,
+  extractTags,
+  replaceWikilink,
+  wikilinkMatchesNote,
+  rewriteWikilinksForRename,
+} from '../../src/lib/wikilinks.js';
 
 describe('extractWikilinks', () => {
   it('extracts simple wikilinks', () => {

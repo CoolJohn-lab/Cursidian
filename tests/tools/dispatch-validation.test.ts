@@ -33,11 +33,14 @@ type ErrorPayload = {
   recovery?: { tool: string; arguments: Record<string, unknown> };
 };
 
-function expectInvalidArgs(result: { isError?: boolean }, expected: {
-  missing?: string[];
-  rejected?: string[];
-  recoveryTool?: string;
-}) {
+function expectInvalidArgs(
+  result: { isError?: boolean },
+  expected: {
+    missing?: string[];
+    rejected?: string[];
+    recoveryTool?: string;
+  },
+) {
   expect(result.isError).toBe(true);
   const data = parseResult(result) as ErrorPayload;
   expect(data.error).toBe('invalid_args');
@@ -61,7 +64,11 @@ describe('dispatch validation', () => {
     const result = await callTool(ctx.client, 'note', { action: 'create', path: 'x' });
     expectInvalidArgs(result, { missing: ['content'], recoveryTool: 'note' });
     const data = parseResult(result) as ErrorPayload;
-    expect(data.recovery?.arguments).toMatchObject({ action: 'create', path: 'x', content: '<content>' });
+    expect(data.recovery?.arguments).toMatchObject({
+      action: 'create',
+      path: 'x',
+      content: '<content>',
+    });
   });
 
   it('note delete without confirm returns invalid_args', async () => {
@@ -110,7 +117,6 @@ describe('dispatch validation', () => {
     });
     expectInvalidArgs(result, { rejected: ['query'], recoveryTool: 'search' });
   });
-
 
   it('vault delete_folder without confirm returns invalid_args', async () => {
     const result = await callTool(ctx.client, 'vault', {

@@ -69,7 +69,9 @@ export function manageVocabularyHandler(config: Config) {
           action: 'vocabulary',
           vocabularyOperation,
           ...Object.fromEntries(
-            required.filter((name) => name !== 'vocabularyOperation').map((name) => [name, `<${name}>`]),
+            required
+              .filter((name) => name !== 'vocabularyOperation')
+              .map((name) => [name, `<${name}>`]),
           ),
         },
       });
@@ -97,7 +99,9 @@ export function manageVocabularyHandler(config: Config) {
       assertNotReadOnly(config.readOnly);
 
       const exists = await pathExists(resolved);
-      const priorRaw = exists ? await readFileBounded(resolved, config.maxFileSize) : defaultVocabularyContent();
+      const priorRaw = exists
+        ? await readFileBounded(resolved, config.maxFileSize)
+        : defaultVocabularyContent();
       let vocabulary: VaultVocabulary = parseVocabularyMarkdown(priorRaw);
 
       if (vocabularyOperation === 'upsert') {

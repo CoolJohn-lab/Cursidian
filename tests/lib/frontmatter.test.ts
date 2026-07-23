@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { parseFrontmatter, stringifyFrontmatter, mergeFrontmatter } from '../../src/lib/frontmatter.js';
+import {
+  parseFrontmatter,
+  stringifyFrontmatter,
+  mergeFrontmatter,
+} from '../../src/lib/frontmatter.js';
 
 describe('parseFrontmatter', () => {
   it('parses frontmatter and content separately', () => {

@@ -6,15 +6,7 @@ import { paginateByPath, resolveCursorMarker, scanMetadataFromSkipped } from '..
 import { ok, mapToolError } from '../types/index.js';
 
 export function searchByTagsHandler(config: Config) {
-  return async ({
-    tags,
-    limit,
-    cursor,
-  }: {
-    tags: string[];
-    limit?: number;
-    cursor?: string;
-  }) => {
+  return async ({ tags, limit, cursor }: { tags: string[]; limit?: number; cursor?: string }) => {
     try {
       const effectiveLimit = limit ?? 50;
       const snapshot = await getVaultSnapshot(config.vaultPath, config.maxFileSize);

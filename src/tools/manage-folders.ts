@@ -44,9 +44,7 @@ export function manageFoldersHandler(config: Config) {
           cwd: resolved,
           onlyDirectories: true,
         });
-        const subfolders = entries.map((e) =>
-          joinVaultFolder(folderPath, path.basename(e)),
-        );
+        const subfolders = entries.map((e) => joinVaultFolder(folderPath, path.basename(e)));
         return ok({ folder: folderPath.replace(/\\/g, '/'), subfolders });
       }
 

@@ -327,10 +327,7 @@ export function serializeManifest(parsed: ParsedManifest): string {
   return stringifyFrontmatter(frontmatter, sourcesSection);
 }
 
-export function upsertSource(
-  record: ParsedManifest,
-  source: ManifestSource,
-): ParsedManifest {
+export function upsertSource(record: ParsedManifest, source: ManifestSource): ParsedManifest {
   const key = normalizeSourceKey(source.key);
   const normalized = { ...source, key };
   const existingIndex = record.sources.findIndex((entry) => sourceKeysEqual(entry.key, key));
@@ -348,10 +345,7 @@ export function upsertSource(
   return { ...record, sources, sourceDirs };
 }
 
-export function upsertProject(
-  record: ParsedManifest,
-  project: ManifestProject,
-): ParsedManifest {
+export function upsertProject(record: ParsedManifest, project: ManifestProject): ParsedManifest {
   const name = project.name.trim();
   const normalized = { ...project, name, cwd: normalizeSourceKey(project.cwd) };
   const existingIndex = record.projects.findIndex((entry) => projectNamesEqual(entry.name, name));

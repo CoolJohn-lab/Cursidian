@@ -65,7 +65,6 @@ describe('MCP skill contracts', () => {
     expect(read.isError).toBeFalsy();
     const body = parseResult(read) as { revisionHash?: string };
     expect(body.revisionHash).toBeTruthy();
-
   });
 
   it('structured recovery on invalid_args and hash_mismatch', async () => {

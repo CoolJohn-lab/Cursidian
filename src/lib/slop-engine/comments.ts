@@ -23,9 +23,7 @@ const C_STYLE_LANGS = new Set([
 const PYTHON_LANGS = new Set(['python']);
 const HASH_LANGS = new Set(['ruby', 'shellscript', 'perl', 'r', 'yaml']);
 
-export function getCommentScanner(
-  language: string,
-): ((text: string) => Range[]) | null {
+export function getCommentScanner(language: string): ((text: string) => Range[]) | null {
   if (C_STYLE_LANGS.has(language)) return scanCStyleComments;
   if (PYTHON_LANGS.has(language)) return scanPythonComments;
   if (HASH_LANGS.has(language)) return scanHashComments;

@@ -115,7 +115,9 @@ function collectCandidates(
     if (tagFilter.length > 0) {
       const { data } = parseFrontmatter(content);
       const noteTags = Array.isArray(data.tags)
-        ? data.tags.filter((tag): tag is string => typeof tag === 'string').map((tag) => normaliseKey(tag))
+        ? data.tags
+            .filter((tag): tag is string => typeof tag === 'string')
+            .map((tag) => normaliseKey(tag))
         : [];
       if (!tagFilter.every((tag) => noteTags.includes(tag))) {
         continue;
@@ -145,7 +147,9 @@ function collectCandidates(
         if (!match) continue;
         matchText = match[0];
       } else {
-        const matchingTokens = tokens.filter((token) => tokenMatchesInText(token, line, caseSensitive));
+        const matchingTokens = tokens.filter((token) =>
+          tokenMatchesInText(token, line, caseSensitive),
+        );
         if (matchingTokens.length === 0) continue;
         matchText = matchingTokens.join(' ');
       }

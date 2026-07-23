@@ -21,11 +21,11 @@ Vault path is whatever the MCP server already uses (`OBSIDIAN_VAULT_PATH`).
 
 ## Commands / tools
 
-| Intent | How |
-|--------|-----|
-| Check the wiki vault | `vault` `action: "slop_check"` on `user-cursidian` |
-| Auto-fix the wiki vault | `vault` `action: "deslop"` with `dryRun: true` first, then `confirm: true` |
-| Local repo / cursor-global | skill **`slop`** (not this skill) |
+| Intent                       | How                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| Check the wiki vault         | `vault` `action: "slop_check"` on `user-cursidian`                                   |
+| Auto-fix the wiki vault      | `vault` `action: "deslop"` with `dryRun: true` first, then `confirm: true`           |
+| Local repo / cursor-global   | skill **`slop`** (not this skill)                                                    |
 | Cursidian package build gate | In that repo: `npm run slop:check` / `slop:fix` (or skill `slop --preset cursidian`) |
 
 CLI `npm run slop:check:wiki` / `slop:fix:wiki` remain for humans/CI but **agents

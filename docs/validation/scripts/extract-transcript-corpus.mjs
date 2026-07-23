@@ -14,7 +14,10 @@ const DEFAULT_TRANSCRIPTS_DIR =
   '/Users/jeddowes/.cursor/projects/Users-jeddowes-Library-CloudStorage-OneDrive-Freshfields-Desktop-local-DataPlatform-DataLandingZone/agent-transcripts';
 const SINCE_DATE = new Date('2026-06-08T00:00:00Z');
 const OUTPUT_PATH = path.join(REPO_ROOT, 'docs/validation/corpus/mcp-calls-30d.jsonl');
-const CLASSIFICATION_PATH = path.join(REPO_ROOT, 'docs/validation/corpus/corpus-classification.json');
+const CLASSIFICATION_PATH = path.join(
+  REPO_ROOT,
+  'docs/validation/corpus/corpus-classification.json',
+);
 
 const PLAN_BASELINE = {
   read_note: 209,
@@ -75,7 +78,10 @@ function classifyCorpus(records) {
           .slice(Math.max(0, i - 3), i)
           .filter((r) => r.toolName === 'search_content');
         for (const prev of prevSearches) {
-          const overlap = queryTokenOverlap(prev.arguments?.query ?? '', record.arguments?.query ?? '');
+          const overlap = queryTokenOverlap(
+            prev.arguments?.query ?? '',
+            record.arguments?.query ?? '',
+          );
           if (overlap >= 0.5) {
             taggedRecord.friction_tags.push('search_retry');
             break;
@@ -100,7 +106,9 @@ function classifyCorpus(records) {
     (r) => r.toolName === 'update_note' && (r.arguments?.mode ?? 'replace') === 'replace',
   ).length;
   const searchRetries = tagged.filter((r) => r.friction_tags.includes('search_retry')).length;
-  const truncationCases = tagged.filter((r) => r.friction_tags.includes('truncation_recovery')).length;
+  const truncationCases = tagged.filter((r) =>
+    r.friction_tags.includes('truncation_recovery'),
+  ).length;
 
   const topSessions = [...byTranscript.entries()]
     .map(([id, recs]) => ({ transcript_id: id, mcp_calls: recs.length }))

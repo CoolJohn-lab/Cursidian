@@ -1,8 +1,14 @@
 import path from 'node:path';
+import fs from 'node:fs/promises';
 import { parse as parseYaml } from 'yaml';
-import { parseFrontmatter, stringifyFrontmatter } from './frontmatter.js';
+import {
+  FORBIDDEN_MERGE_KEYS,
+  parseFrontmatter,
+  sanitizeMergeSource,
+  stringifyFrontmatter,
+} from './frontmatter.js';
 import { readFileBounded } from './security.js';
-import { MAX_CONTENT_BYTES } from './limits.js';
+import { assertParseableSize, MAX_CONTENT_BYTES } from './limits.js';
 
 export const VOCABULARY_RELATIVE_PATH = '_meta/vocabulary.md';
 
@@ -60,10 +66,14 @@ function normalisePairings(raw: unknown): Record<string, string[]> {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     return {};
   }
+  const safe = sanitizeMergeSource(raw) as Record<string, unknown>;
   const result: Record<string, string[]> = {};
-  for (const [rawKey, rawValue] of Object.entries(raw as Record<string, unknown>)) {
+  for (const [rawKey, rawValue] of Object.entries(safe)) {
+    if (FORBIDDEN_MERGE_KEYS.has(rawKey)) {
+      continue;
+    }
     const key = normaliseWord(rawKey);
-    if (!key || !Array.isArray(rawValue)) {
+    if (!key || FORBIDDEN_MERGE_KEYS.has(key) || !Array.isArray(rawValue)) {
       continue;
     }
     const values = [...new Set(rawValue.map(normaliseWord).filter((w): w is string => w !== null))];
@@ -114,6 +124,7 @@ export function parseVocabularyMarkdown(raw: string): VaultVocabulary {
   if (!raw || !raw.trim()) {
     return emptyVocabulary();
   }
+  assertParseableSize(raw, 'Vocabulary source');
 
   let result = emptyVocabulary();
 
@@ -131,7 +142,7 @@ export function parseVocabularyMarkdown(raw: string): VaultVocabulary {
       try {
         const parsed = parseYaml(fencedMatch[1] ?? '', { prettyErrors: false });
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          const p = parsed as Record<string, unknown>;
+          const p = sanitizeMergeSource(parsed) as Record<string, unknown>;
           result = mergeVocabularies(result, {
             synonyms: normaliseSynonymGroups(p.synonyms),
             pairings: normalisePairings(p.pairings),
@@ -154,15 +165,47 @@ export function parseVocabularyMarkdown(raw: string): VaultVocabulary {
  * resolves to an empty vocabulary - never throws, so search degrades gracefully
  * when no vocabulary has been curated yet.
  */
+interface VocabCacheEntry {
+  mtimeMs: number;
+  size: number;
+  loadedAt: number;
+  vocab: VaultVocabulary;
+}
+
+const VOCAB_CACHE_TTL_MS = 30_000;
+const vocabCache = new Map<string, VocabCacheEntry>();
+
+export function clearVocabularyCache(): void {
+  vocabCache.clear();
+}
+
 export async function loadVocabulary(
   vaultPath: string,
   maxFileSize: number = MAX_CONTENT_BYTES,
 ): Promise<VaultVocabulary> {
   const resolved = path.resolve(vaultPath, VOCABULARY_RELATIVE_PATH);
   try {
+    const st = await fs.stat(resolved);
+    const cached = vocabCache.get(vaultPath);
+    if (
+      cached &&
+      cached.mtimeMs === st.mtimeMs &&
+      cached.size === st.size &&
+      Date.now() - cached.loadedAt < VOCAB_CACHE_TTL_MS
+    ) {
+      return cached.vocab;
+    }
     const raw = await readFileBounded(resolved, maxFileSize);
-    return parseVocabularyMarkdown(raw);
+    const vocab = parseVocabularyMarkdown(raw);
+    vocabCache.set(vaultPath, {
+      mtimeMs: st.mtimeMs,
+      size: st.size,
+      loadedAt: Date.now(),
+      vocab,
+    });
+    return vocab;
   } catch {
+    vocabCache.delete(vaultPath);
     return emptyVocabulary();
   }
 }
@@ -272,10 +315,14 @@ export function upsertPairing(
   if (!normalisedKey) {
     throw new Error('Pairing requires a non-empty key.');
   }
+  if (FORBIDDEN_MERGE_KEYS.has(normalisedKey) || FORBIDDEN_MERGE_KEYS.has(key.trim())) {
+    throw new Error('Pairing key is not allowed.');
+  }
   if (normalisedValues.length === 0) {
     throw new Error('Pairing requires at least one value.');
   }
-  return { ...vocab, pairings: { ...vocab.pairings, [normalisedKey]: normalisedValues } };
+  const safePairings = sanitizeMergeSource(vocab.pairings) as Record<string, string[]>;
+  return { ...vocab, pairings: { ...safePairings, [normalisedKey]: normalisedValues } };
 }
 
 /**

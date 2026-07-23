@@ -14,6 +14,10 @@ describe('resolveVaultPath', () => {
     expect(path.isAbsolute(resolved)).toBe(true);
   });
 
+  it('rejects home-relative paths that escape the home directory', () => {
+    expect(() => resolveVaultPath('~/../../etc')).toThrow(/escapes the home directory/i);
+  });
+
   it('accepts absolute paths', () => {
     const absolute = path.join(os.tmpdir(), 'cursidian-abs-vault');
     const resolved = resolveVaultPath(absolute);

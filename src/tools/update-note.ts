@@ -8,7 +8,7 @@ import {
   checkRevisionConcurrency,
   hashMismatchDetails,
 } from '../lib/content-hash.js';
-import { applyPatch, assertReplaceSizeGuard, replaceSection } from '../lib/section-edit.js';
+import { applyPatch, assertBodySizeGuard, replaceSection } from '../lib/section-edit.js';
 import { withUpdatedTimestamp, withUpdatedTimestampUnlessProvided } from '../lib/timestamps.js';
 import { clearAllSearchCaches, resolveExistingNotePath } from '../lib/vault-index.js';
 import { withPathLock, atomicReplaceLocked } from '../lib/vault-io.js';
@@ -190,7 +190,6 @@ export function updateNoteHandler(config: Config) {
                   ['content'],
                 );
               }
-              assertReplaceSizeGuard(existingContent, content, force ?? false);
               updatedBody = content;
             } else if (effectiveMode === 'append') {
               if (content === undefined) {
@@ -213,6 +212,11 @@ export function updateNoteHandler(config: Config) {
               }
               updatedBody = `${content}\n${existingContent}`;
             }
+
+            assertBodySizeGuard(updatedBody, existingContent, {
+              force: force ?? false,
+              maxFileSize: config.maxFileSize,
+            });
           } else if (frontmatter === undefined) {
             await journal.abort();
             return invalidUpdate(

@@ -1,6 +1,6 @@
 export async function runEdgeCaseSuite(ctx) {
   const { createTestServer, callTool, parseResult, runCase } = ctx;
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const results = [];
 
   results.push(

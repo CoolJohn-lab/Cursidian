@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-07-23
+
+### Changed
+
+- Decompose `scoreSearchCandidate` (`search-ranking.ts`) into named, unit-testable sub-scorers (`scoreExactIdentity`, `scoreAliasSignals`, `scoreTitleAndPathTokens`, `scoreCompoundBasename`, `scoreStemAffinity`, `scoreTitleSpecificity`, `scoreSurfaceCoverage`, `scoreWeakBasenamePenalty`, `scoreTagAndSummary`, `scoreBodyAndProximity`, `scoreOperationalPenalty`) and `assembleContextDetailed` (`context-assembler.ts`) into three named stages (`resolveCandidatePool`, `selectPassages`, `finalizeBundle`); both are now thin orchestrators. No ranking weights, order, or behaviour changed - verified by a new golden-regression fixture (`tests/fixtures/ranking-golden.json`, `tests/lib/search-ranking-golden.test.ts`)
+
+### Security
+
+- Strip `__proto__` / `constructor` / `prototype` keys from YAML frontmatter and object merges (`sanitizeMergeSource`) so note content cannot pollute `Object.prototype`
+- Cap parser input size and regex match iterations for wikilinks, tags, manifest, and vocabulary
+- Bound vault/note tool string and array arguments at the zod schema edge (`schema-primitives`)
+
+### Fixed
+
+- Graceful MCP shutdown: drain in-flight path-locked writes on SIGINT/SIGTERM/stdin close; reap orphan `.cursidian-*.tmp` files on startup
+- Distinguish ENOENT from access errors via `probePath`; fail distinctly when journal manifest persist fails after a successful write (`ManifestPersistError`)
+- Scrub control characters from log lines; validate `OBSIDIAN_LOG_FILE`; use non-blocking append stream instead of `appendFileSync`
+- Apply body size guard to all update modes (not only replace); cap typo-correction tokens/matrix size; coalesce concurrent backlink builds; cache vocabulary by mtime
+- Sign pagination cursors with HMAC; reject unknown markers instead of resetting to page 1
+- Confine `~`-expanded vault paths to the home directory; async `realpath` vault check; consistent boolean env parsing; enforce journal snapshot maxFileSize; sanitize readdir path segments
+
 ## [3.0.5] - 2026-07-23
 
 ### Changed

@@ -55,7 +55,7 @@ async function timeOperation(baseline, testCase, repoRoot) {
         path.join(repoRoot, 'scripts/test-lib.mjs')
       );
       if (!testCase.cached) resetCaches();
-      const { server } = createTestServer();
+      const { server } = await createTestServer();
       await parseResult(
         await callTool(server, 'search_content', { query: testCase.query, limit: testCase.limit }),
       );
@@ -65,7 +65,7 @@ async function timeOperation(baseline, testCase, repoRoot) {
       path.join(repoRoot, 'scripts/test-lib.mjs')
     );
     if (!testCase.cached) resetCaches();
-    const { server } = createTestServer();
+    const { server } = await createTestServer();
     if (testCase.type === 'list') {
       await parseResult(await callTool(server, 'list_notes', { folder: testCase.folder }));
     } else if (testCase.type === 'read') {

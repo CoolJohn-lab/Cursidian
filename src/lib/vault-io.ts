@@ -1,9 +1,46 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { assertSafePathAsync } from './security.js';
-import { assertContentSize } from './security.js';
+import { assertSafePathAsync, assertContentSize, probePath } from './security.js';
+import { logger } from './logger.js';
 
 const pathLocks = new Map<string, Promise<void>>();
+
+let inFlight = 0;
+const idleWaiters: Array<() => void> = [];
+
+export function beginInFlight(): void {
+  inFlight++;
+}
+
+export function endInFlight(): void {
+  inFlight = Math.max(0, inFlight - 1);
+  if (inFlight === 0) {
+    while (idleWaiters.length) {
+      idleWaiters.shift()!();
+    }
+  }
+}
+
+/**
+ * Resolves true when no locked mutations remain, or false if timeout elapses first.
+ */
+export function drainInFlight(timeoutMs: number): Promise<boolean> {
+  if (inFlight === 0) {
+    return Promise.resolve(true);
+  }
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), timeoutMs);
+    idleWaiters.push(() => {
+      clearTimeout(timer);
+      resolve(true);
+    });
+  });
+}
+
+/** Exposed for tests. */
+export function getInFlightCount(): number {
+  return inFlight;
+}
 
 function resolveLockPath(absolutePath: string): string {
   return path.resolve(absolutePath);
@@ -37,9 +74,11 @@ export async function withPathLock<T>(absolutePath: string, fn: () => Promise<T>
   const queued = prior.then(() => gate);
   pathLocks.set(normalized, queued);
   await prior;
+  beginInFlight();
   try {
     return await fn();
   } finally {
+    endInFlight();
     release();
     if (pathLocks.get(normalized) === queued) {
       pathLocks.delete(normalized);
@@ -73,6 +112,59 @@ export function clearPathLocks(): void {
  */
 export function getPathLockCount(): number {
   return pathLocks.size;
+}
+
+const TMP_REAP_MAX_AGE_MS = 5 * 60 * 1000;
+
+/**
+ * Removes orphaned `.cursidian-*.tmp` files older than a few minutes (best-effort).
+ */
+export async function reapOrphanTempFiles(vaultPath: string): Promise<number> {
+  let removed = 0;
+  const cutoff = Date.now() - TMP_REAP_MAX_AGE_MS;
+
+  async function walk(dir: string): Promise<void> {
+    let entries;
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === 'node_modules' || entry.name === '.git') {
+          continue;
+        }
+        await walk(full);
+        continue;
+      }
+      if (!entry.isFile()) {
+        continue;
+      }
+      if (!entry.name.startsWith('.cursidian-') || !entry.name.endsWith('.tmp')) {
+        continue;
+      }
+      try {
+        const st = await fs.stat(full);
+        if (st.mtimeMs <= cutoff) {
+          await fs.rm(full, { force: true });
+          removed++;
+        }
+      } catch {
+        // best-effort
+      }
+    }
+  }
+
+  try {
+    await walk(vaultPath);
+  } catch (err) {
+    logger.warn('orphan temp reap failed', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+  return removed;
 }
 
 export class AlreadyExistsError extends Error {
@@ -177,13 +269,13 @@ export async function atomicWriteLocked(
     return;
   }
 
-  let exists = false;
-  try {
-    await fs.access(targetPath);
-    exists = true;
-  } catch {
-    exists = false;
+  const probe = await probePath(targetPath);
+  if (probe.kind === 'inaccessible') {
+    throw probe.cause instanceof Error
+      ? probe.cause
+      : new Error(`Path inaccessible: ${targetPath}`);
   }
+  const exists = probe.kind === 'exists';
 
   if (!exists) {
     try {

@@ -423,38 +423,45 @@ function scoreFreshness(data: Record<string, unknown>): { score: number; reasons
   return { score, reasons };
 }
 
-/**
- * Scores a search candidate using structural signals: title, basename, aliases, tags,
- * summary, proximity, hub dilution, and the operational special-file penalty.
- */
-export function scoreSearchCandidate(
-  candidate: SearchCandidate,
-  context: RankContext,
-): RankedSearchHit {
-  const { data, content } = parseFrontmatter(candidate.content);
-  const basename = path.basename(candidate.path, '.md');
-  const title = typeof data.title === 'string' ? data.title : basename;
-  const summary = typeof data.summary === 'string' ? data.summary : '';
-  const tags = Array.isArray(data.tags)
-    ? data.tags.filter((tag): tag is string => typeof tag === 'string')
-    : [];
-  const aliases = parseAliases(data);
+/** Score contribution shared by every sub-scorer below. */
+interface ScoreResult {
+  score: number;
+  reasons: string[];
+}
 
+/**
+ * Exact-identity signal: literal query equals the title, basename, or trailing path
+ * segment. The strongest possible structural match.
+ */
+function scoreExactIdentity(
+  queryNorm: string,
+  titleNorm: string,
+  basenameNorm: string,
+  pathNorm: string,
+): ScoreResult {
   const reasons: string[] = [];
   let score = 0;
-  const queryNorm = normaliseKey(context.query);
-  const titleNorm = normaliseKey(title);
-  const basenameNorm = normaliseKey(basename);
-  const pathNorm = normaliseKey(candidate.path);
 
   if (titleNorm === queryNorm || basenameNorm === queryNorm || pathNorm.endsWith(`/${queryNorm}`)) {
     score += RANK_WEIGHTS.titleExact;
     reasons.push('title-exact');
   }
 
-  const semanticTokens = uniqueSemanticTokens(context.tokens);
+  return { score, reasons };
+}
 
+/**
+ * Alias frontmatter signals: exact query-to-alias match, plus per-token alias hits.
+ */
+function scoreAliasSignals(
+  aliases: string[],
+  queryNorm: string,
+  semanticTokens: string[],
+): ScoreResult {
+  const reasons: string[] = [];
+  let score = 0;
   const aliasesNorm = aliases.map((a) => normaliseKey(a));
+
   if (aliasesNorm.includes(queryNorm)) {
     score += RANK_WEIGHTS.aliasExact;
     reasons.push('alias-exact');
@@ -471,6 +478,29 @@ export function scoreSearchCandidate(
     score += aliasTokenHits * RANK_WEIGHTS.aliasTokenPerHit;
     reasons.push(`alias-tokens:${aliasTokenHits}`);
   }
+
+  return { score, reasons };
+}
+
+interface TitleAndPathTokenResult extends ScoreResult {
+  titleTokenHits: number;
+  pathTokenHits: number;
+}
+
+/**
+ * Title and path token coverage: rewards full-title/full-path matches above partial
+ * per-token hits.
+ */
+function scoreTitleAndPathTokens(
+  title: string,
+  basename: string,
+  pathNorm: string,
+  titleNorm: string,
+  basenameNorm: string,
+  semanticTokens: string[],
+): TitleAndPathTokenResult {
+  const reasons: string[] = [];
+  let score = 0;
 
   let titleTokenHits = 0;
   let pathTokenHits = 0;
@@ -515,8 +545,34 @@ export function scoreSearchCandidate(
     reasons.push(`path-tokens:${pathTokenHits}`);
   }
 
+  return { score, reasons, titleTokenHits, pathTokenHits };
+}
+
+interface CompoundBasenameResult extends ScoreResult {
+  compoundHits: number;
+}
+
+/**
+ * Compound-basename coverage (hyphenated basename segments covering distinct query
+ * tokens) plus the single strongest basename-token hit, with a reduced, no-primary-bonus
+ * path for generic troubleshoot tokens (see `GENERIC_BASENAME_TOKENS`) that aren't backed
+ * by any other surface signal.
+ */
+function scoreCompoundBasename(
+  basename: string,
+  basenameNorm: string,
+  title: string,
+  titleNorm: string,
+  summary: string,
+  tags: string[],
+  queryTokens: string[],
+  semanticTokens: string[],
+): CompoundBasenameResult {
+  const reasons: string[] = [];
+  let score = 0;
+
   // Compound basename: reward pages whose hyphenated name covers distinct query tokens.
-  const compoundHits = compoundBasenameCoverage(basename, context.tokens);
+  const compoundHits = compoundBasenameCoverage(basename, queryTokens);
   if (compoundHits > 0) {
     score += compoundHits * RANK_WEIGHTS.compoundBasenamePerHit;
     if (compoundHits === semanticTokens.length && semanticTokens.length >= 2) {
@@ -584,7 +640,17 @@ export function scoreSearchCandidate(
     break;
   }
 
-  // Stem affinity: query stem differs from surface form but matches title/basename morphology.
+  return { score, reasons, compoundHits };
+}
+
+/**
+ * Stem affinity: query stem differs from surface form but matches title/basename
+ * morphology (e.g. "orchestrator" query vs. "Orchestration" title).
+ */
+function scoreStemAffinity(title: string, basename: string, semanticTokens: string[]): ScoreResult {
+  const reasons: string[] = [];
+  let score = 0;
+
   let stemHits = 0;
   for (const token of semanticTokens) {
     const primary = normaliseKey(token);
@@ -606,7 +672,20 @@ export function scoreSearchCandidate(
     reasons.push(`stem-affinity:${stemHits}`);
   }
 
-  // Title specificity: high matched-token density favours focused titles over broad hubs.
+  return { score, reasons };
+}
+
+interface TitleSpecificityResult extends ScoreResult {
+  titleDensity: number;
+}
+
+/**
+ * Title specificity: high matched-token density favours focused titles over broad hubs.
+ */
+function scoreTitleSpecificity(title: string, semanticTokens: string[]): TitleSpecificityResult {
+  const reasons: string[] = [];
+  let score = 0;
+
   const { density: titleDensity, wordCount: titleWordCount } = titleTokenDensity(
     title,
     semanticTokens,
@@ -617,7 +696,30 @@ export function scoreSearchCandidate(
     reasons.push(`title-specificity:${titleDensity.toFixed(2)}`);
   }
 
-  // Surface coverage: how many distinct semantic tokens appear in title+basename+summary+tags+aliases.
+  return { score, reasons, titleDensity };
+}
+
+interface SurfaceCoverageResult extends ScoreResult {
+  surfaceHits: number;
+  surfaceText: string;
+}
+
+/**
+ * Surface coverage: how many distinct semantic tokens appear anywhere across
+ * title+basename+summary+tags+aliases. Also returns the combined `surfaceText`, reused by
+ * `scoreExpandedTokens` for vocabulary-expansion hits.
+ */
+function scoreSurfaceCoverage(
+  title: string,
+  basename: string,
+  summary: string,
+  tags: string[],
+  aliases: string[],
+  semanticTokens: string[],
+): SurfaceCoverageResult {
+  const reasons: string[] = [];
+  let score = 0;
+
   const surfaceText = [title, basename, summary, tags.join(' '), aliases.join(' ')].join(' ');
   let surfaceHits = 0;
   for (const token of semanticTokens) {
@@ -635,20 +737,47 @@ export function scoreSearchCandidate(
     }
   }
 
-  // Generic basename-only hits without real surface focus are distractors (e.g. ticket
-  // pages named "failed-...") - apply a mild penalty so multi-signal pages win.
+  return { score, reasons, surfaceHits, surfaceText };
+}
+
+/**
+ * Generic basename-only hits without real surface focus are distractors (e.g. ticket
+ * pages named "failed-..."). Reads the accumulated `reasons` so far (from the exact
+ * identity through surface-coverage sub-scorers) to detect that case and apply a mild
+ * penalty so multi-signal pages win.
+ */
+function scoreWeakBasenamePenalty(
+  reasonsSoFar: string[],
+  titleDensity: number,
+  surfaceHits: number,
+): ScoreResult {
   if (
-    reasons.some((r) => r.startsWith('basename-generic:')) &&
-    !reasons.includes('basename-primary') &&
+    reasonsSoFar.some((r) => r.startsWith('basename-generic:')) &&
+    !reasonsSoFar.includes('basename-primary') &&
     titleDensity < 0.15 &&
     surfaceHits <= 1
   ) {
-    score -= RANK_WEIGHTS.weakBasenamePenalty;
-    reasons.push('weak-basename');
+    return { score: -RANK_WEIGHTS.weakBasenamePenalty, reasons: ['weak-basename'] };
   }
+  return { score: 0, reasons: [] };
+}
+
+/**
+ * Tag and summary signals: matched frontmatter tags, plus summary-match tiers (all
+ * tokens / per-token hits), with an all-tokens-in-tags fallback when there is no summary.
+ */
+function scoreTagAndSummary(
+  tags: string[],
+  queryTokens: string[],
+  semanticTokens: string[],
+  summary: string,
+  caseSensitive: boolean,
+): ScoreResult {
+  const reasons: string[] = [];
+  let score = 0;
 
   const matchedTags = tags.filter((tag) =>
-    context.tokens.some((token) => {
+    queryTokens.some((token) => {
       const tagParts = normaliseKey(tag).split(/[-_/]/);
       return (
         tokensMorphologicallyMatch(token, tag) ||
@@ -661,7 +790,7 @@ export function scoreSearchCandidate(
     reasons.push(`tags:${matchedTags.slice(0, 3).join(',')}`);
   }
 
-  if (summary && allTokensPresent(summary, context.tokens, context.caseSensitive)) {
+  if (summary && allTokensPresent(summary, queryTokens, caseSensitive)) {
     score += RANK_WEIGHTS.summaryMatchAll;
     reasons.push('summary-match');
   } else if (summary) {
@@ -675,13 +804,31 @@ export function scoreSearchCandidate(
       score += summaryHits * RANK_WEIGHTS.summaryTokenPerHit;
       reasons.push(`summary-tokens:${summaryHits}`);
     }
-  } else if (
-    tags.length > 0 &&
-    allTokensPresent(tags.join(' '), context.tokens, context.caseSensitive)
-  ) {
+  } else if (tags.length > 0 && allTokensPresent(tags.join(' '), queryTokens, caseSensitive)) {
     score += RANK_WEIGHTS.tagsAllTokensNoSummary;
     reasons.push('tags-all-tokens');
   }
+
+  return { score, reasons };
+}
+
+/**
+ * Body and proximity signals: heading matches, the snippet-density and hub-dilution
+ * dilution penalties (skipped once the page is already a focused match), the vault-index
+ * summary match, phrase proximity, and the capped body-snippet contribution.
+ */
+function scoreBodyAndProximity(
+  candidate: SearchCandidate,
+  context: RankContext,
+  content: string,
+  pathNorm: string,
+  basenameNorm: string,
+  compoundHits: number,
+  titleDensity: number,
+  titleTokenHits: number,
+): ScoreResult {
+  const reasons: string[] = [];
+  let score = 0;
 
   const headingLines = content.split('\n').filter((line) => /^#{1,6}\s/.test(line));
   const headingHits = headingLines.filter((line) =>
@@ -748,31 +895,124 @@ export function scoreSearchCandidate(
     reasons.push('body-snippets');
   }
 
-  const expandedResult = scoreExpandedTokens(
-    context.expandedTokens,
-    context.tokens,
-    surfaceText,
-    content,
-    context.caseSensitive,
-  );
-  score += expandedResult.score;
-  reasons.push(...expandedResult.reasons);
+  return { score, reasons };
+}
 
-  const freshnessResult = scoreFreshness(data);
-  score += freshnessResult.score;
-  reasons.push(...freshnessResult.reasons);
-
-  if (OPERATIONAL_BASENAMES.has(basenameNorm) && !reasons.includes('title-exact')) {
-    score -= RANK_WEIGHTS.operationalPenalty;
-    reasons.push('operational-penalty');
+/**
+ * Operational special-file penalty: demotes hub/index-style pages (see
+ * `OPERATIONAL_BASENAMES`) unless the query was an exact title/basename/path match.
+ */
+function scoreOperationalPenalty(basenameNorm: string, reasonsSoFar: string[]): ScoreResult {
+  if (OPERATIONAL_BASENAMES.has(basenameNorm) && !reasonsSoFar.includes('title-exact')) {
+    return { score: -RANK_WEIGHTS.operationalPenalty, reasons: ['operational-penalty'] };
   }
+  return { score: 0, reasons: [] };
+}
+
+/**
+ * Scores a search candidate using structural signals: title, basename, aliases, tags,
+ * summary, proximity, hub dilution, and the operational special-file penalty.
+ *
+ * Thin orchestrator: parses frontmatter/derived fields once, then sums the named
+ * sub-scorers above in the same order the monolithic scorer used to compute them, so
+ * scores and `matchReasons` ordering are unchanged (see `tests/lib/search-ranking-golden.test.ts`).
+ */
+export function scoreSearchCandidate(
+  candidate: SearchCandidate,
+  context: RankContext,
+): RankedSearchHit {
+  const { data, content } = parseFrontmatter(candidate.content);
+  const basename = path.basename(candidate.path, '.md');
+  const title = typeof data.title === 'string' ? data.title : basename;
+  const summary = typeof data.summary === 'string' ? data.summary : '';
+  const tags = Array.isArray(data.tags)
+    ? data.tags.filter((tag): tag is string => typeof tag === 'string')
+    : [];
+  const aliases = parseAliases(data);
+
+  const reasons: string[] = [];
+  let score = 0;
+  const queryNorm = normaliseKey(context.query);
+  const titleNorm = normaliseKey(title);
+  const basenameNorm = normaliseKey(basename);
+  const pathNorm = normaliseKey(candidate.path);
+  const semanticTokens = uniqueSemanticTokens(context.tokens);
+
+  const apply = (result: ScoreResult): void => {
+    score += result.score;
+    reasons.push(...result.reasons);
+  };
+
+  apply(scoreExactIdentity(queryNorm, titleNorm, basenameNorm, pathNorm));
+  apply(scoreAliasSignals(aliases, queryNorm, semanticTokens));
+
+  const titleAndPath = scoreTitleAndPathTokens(
+    title,
+    basename,
+    pathNorm,
+    titleNorm,
+    basenameNorm,
+    semanticTokens,
+  );
+  apply(titleAndPath);
+
+  const compound = scoreCompoundBasename(
+    basename,
+    basenameNorm,
+    title,
+    titleNorm,
+    summary,
+    tags,
+    context.tokens,
+    semanticTokens,
+  );
+  apply(compound);
+
+  apply(scoreStemAffinity(title, basename, semanticTokens));
+
+  const specificity = scoreTitleSpecificity(title, semanticTokens);
+  apply(specificity);
+
+  const surface = scoreSurfaceCoverage(title, basename, summary, tags, aliases, semanticTokens);
+  apply(surface);
+
+  apply(scoreWeakBasenamePenalty(reasons, specificity.titleDensity, surface.surfaceHits));
+
+  apply(scoreTagAndSummary(tags, context.tokens, semanticTokens, summary, context.caseSensitive));
+
+  apply(
+    scoreBodyAndProximity(
+      candidate,
+      context,
+      content,
+      pathNorm,
+      basenameNorm,
+      compound.compoundHits,
+      specificity.titleDensity,
+      titleAndPath.titleTokenHits,
+    ),
+  );
+
+  apply(
+    scoreExpandedTokens(
+      context.expandedTokens,
+      context.tokens,
+      surface.surfaceText,
+      content,
+      context.caseSensitive,
+    ),
+  );
+
+  apply(scoreFreshness(data));
+
+  apply(scoreOperationalPenalty(basenameNorm, reasons));
 
   return {
     ...candidate,
     relevanceScore: Math.max(score, 0),
     matchReasons: reasons,
-    compoundCoverage: compoundHits,
-    titleDensity,
+    compoundCoverage: compound.compoundHits,
+    titleDensity: specificity.titleDensity,
   };
 }
 

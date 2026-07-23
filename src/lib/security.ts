@@ -35,6 +35,18 @@ export function assertSafePath(vaultPath: string, resolvedPath: string): void {
   }
 }
 
+/**
+ * Rejects empty, dotted, or path-separator-containing readdir/join segments.
+ */
+export function assertSafeRelativeSegment(root: string, segment: string): void {
+  if (!segment || segment === '.' || segment === '..') {
+    throw new SecurityError(`Unsafe path segment under ${root}: "${segment}"`);
+  }
+  if (segment.includes('/') || segment.includes('\\') || segment.includes('\0')) {
+    throw new SecurityError(`Unsafe path segment under ${root}: "${segment}"`);
+  }
+}
+
 function assertRealPathInsideVault(realVault: string, realPath: string, displayPath: string): void {
   const relative = path.relative(realVault, realPath);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
@@ -51,6 +63,46 @@ function isEnoent(err: unknown): boolean {
     'code' in err &&
     (err as NodeJS.ErrnoException).code === 'ENOENT'
   );
+}
+
+export type PathProbeResult =
+  | { kind: 'exists' }
+  | { kind: 'missing' }
+  | { kind: 'inaccessible'; code?: string; cause: unknown };
+
+/**
+ * Distinguishes missing paths from permission/IO failures (unlike a boolean pathExists).
+ */
+export async function probePath(target: string): Promise<PathProbeResult> {
+  try {
+    await fs.access(target);
+    return { kind: 'exists' };
+  } catch (err) {
+    if (isEnoent(err)) {
+      return { kind: 'missing' };
+    }
+    const code =
+      typeof err === 'object' && err !== null && 'code' in err
+        ? String((err as NodeJS.ErrnoException).code)
+        : undefined;
+    return { kind: 'inaccessible', code, cause: err };
+  }
+}
+
+/**
+ * True only when the path exists and is accessible. Throws on inaccessible (non-ENOENT) errors.
+ */
+export async function pathExistsOrThrow(target: string): Promise<boolean> {
+  const result = await probePath(target);
+  if (result.kind === 'exists') {
+    return true;
+  }
+  if (result.kind === 'missing') {
+    return false;
+  }
+  throw result.cause instanceof Error
+    ? result.cause
+    : new Error(`Path inaccessible: ${target}${result.code ? ` (${result.code})` : ''}`);
 }
 
 function assertPositiveMaxBytes(maxBytes: number): void {

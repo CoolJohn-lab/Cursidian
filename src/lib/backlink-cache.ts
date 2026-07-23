@@ -11,9 +11,28 @@ interface BacklinkCacheEntry {
 }
 
 const backlinkCache = new Map<string, BacklinkCacheEntry>();
+const inFlightBuilds = new Map<string, Promise<Map<string, BacklinkResult[]>>>();
 
 export function clearBacklinkCache(): void {
   backlinkCache.clear();
+  inFlightBuilds.clear();
+}
+
+async function buildOnce(
+  vaultPath: string,
+  signature: string,
+  build: () => Promise<Map<string, BacklinkResult[]>>,
+): Promise<Map<string, BacklinkResult[]>> {
+  const key = `${vaultPath}\0${signature}`;
+  const existing = inFlightBuilds.get(key);
+  if (existing) {
+    return existing;
+  }
+  const p = build().finally(() => {
+    inFlightBuilds.delete(key);
+  });
+  inFlightBuilds.set(key, p);
+  return p;
 }
 
 async function buildBacklinkMap(
@@ -78,7 +97,9 @@ export async function getCachedBacklinks(
 ): Promise<BacklinkResult[]> {
   let entry = backlinkCache.get(vaultPath);
   if (!entry || entry.signature !== signature) {
-    const byTarget = await buildBacklinkMap(vaultPath, index, maxFileSize);
+    const byTarget = await buildOnce(vaultPath, signature, () =>
+      buildBacklinkMap(vaultPath, index, maxFileSize),
+    );
     entry = { signature, byTarget };
     backlinkCache.set(vaultPath, entry);
   }

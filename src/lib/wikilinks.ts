@@ -1,23 +1,35 @@
 import path from 'node:path';
+import { assertParseableSize, MAX_MATCH_ITERATIONS } from './limits.js';
 
-const WIKILINK_RE = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
+/** Single-line Obsidian wikilinks; excludes CR/LF/`[` to limit backtracking. */
+const WIKILINK_RE = /\[\[([^\]|\[\r\n]+)(?:\|[^\]\[\r\n]+)?\]\]/g;
 const INLINE_TAG_RE = /#([\w/\-]+)/g;
 
 export function extractWikilinks(content: string): string[] {
+  assertParseableSize(content, 'Wikilink source');
   const links: string[] = [];
   let match: RegExpExecArray | null;
+  let iterations = 0;
   WIKILINK_RE.lastIndex = 0;
   while ((match = WIKILINK_RE.exec(content)) !== null) {
+    if (++iterations > MAX_MATCH_ITERATIONS) {
+      break;
+    }
     links.push(match[1].trim());
   }
   return [...new Set(links)];
 }
 
 export function extractTags(content: string): string[] {
+  assertParseableSize(content, 'Tag source');
   const tags: string[] = [];
   let match: RegExpExecArray | null;
+  let iterations = 0;
   INLINE_TAG_RE.lastIndex = 0;
   while ((match = INLINE_TAG_RE.exec(content)) !== null) {
+    if (++iterations > MAX_MATCH_ITERATIONS) {
+      break;
+    }
     tags.push(match[1].toLowerCase());
   }
   return [...new Set(tags)];
@@ -65,7 +77,7 @@ export function rewriteWikilinksForRename(
   oldRelativePath: string,
   newRelativePath: string,
 ): string {
-  return content.replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, (full, link, alias) => {
+  return content.replace(/\[\[([^\]|\[\r\n]+)(\|[^\]\[\r\n]+)?\]\]/g, (full, link, alias) => {
     const linkTarget = String(link).trim();
     if (!linkTargetsOldPath(linkTarget, oldRelativePath)) {
       return full;

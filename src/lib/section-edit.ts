@@ -148,3 +148,42 @@ export function assertReplaceSizeGuard(
     );
   }
 }
+
+const GROWTH_FORCE_THRESHOLD = 2;
+/** Soft growth check only applies once the note is large enough that 2x growth is meaningful. */
+const GROWTH_GUARD_MIN_EXISTING_CHARS = 1_024;
+
+/**
+ * Enforces body size rules for every update mode:
+ * (a) hard maxFileSize ceiling (not force-overridable);
+ * (b) soft growth threshold requiring force when a non-trivial note more than doubles.
+ * Also retains the shrink guard from assertReplaceSizeGuard when shrinking.
+ */
+export function assertBodySizeGuard(
+  newBody: string,
+  existingBody: string,
+  options: { force: boolean; maxFileSize: number },
+): void {
+  const bytes = Buffer.byteLength(newBody, 'utf8');
+  if (bytes > options.maxFileSize) {
+    throw new SectionEditError(
+      'invalid_args',
+      `Updated note would be ${bytes} bytes, exceeding maxFileSize ${options.maxFileSize}.`,
+    );
+  }
+
+  if (
+    existingBody.length >= GROWTH_GUARD_MIN_EXISTING_CHARS &&
+    newBody.length > existingBody.length * GROWTH_FORCE_THRESHOLD
+  ) {
+    if (!options.force) {
+      throw new SectionEditError(
+        'invalid_args',
+        `Update would grow note body by more than ${GROWTH_FORCE_THRESHOLD}x. ` +
+          'Pass force: true if this growth is intentional.',
+      );
+    }
+  }
+
+  assertReplaceSizeGuard(existingBody, newBody, options.force);
+}

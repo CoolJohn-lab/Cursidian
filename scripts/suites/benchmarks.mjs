@@ -12,7 +12,7 @@ async function timeCall(label, fn) {
 
 export async function runBenchmarkSuite(ctx) {
   const { createTestServer, callTool, parseResult, runCase, resetCaches, options } = ctx;
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const results = [];
   const timings = [];
 

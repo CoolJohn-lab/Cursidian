@@ -1,5 +1,5 @@
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
-import { MAX_FRONTMATTER_BYTES } from './limits.js';
+import { assertParseableSize, MAX_FRONTMATTER_BYTES } from './limits.js';
 
 export interface ParsedNote {
   data: Record<string, unknown>;
@@ -7,6 +7,31 @@ export interface ParsedNote {
 }
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n([\s\S]*))?$/;
+
+/** Keys that must never be copied from untrusted YAML/object merges. */
+export const FORBIDDEN_MERGE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+/**
+ * Returns a NEW object; never mutates `existing`. Recursively strips dangerous
+ * keys from `incoming` at every depth. Non-plain values (arrays, primitives,
+ * Dates from YAML) are copied by reference - only plain-object nesting recurses.
+ */
+export function sanitizeMergeSource(value: unknown, depth = 0): unknown {
+  if (depth > 32) {
+    throw new Error('Frontmatter nesting too deep (possible malicious input).');
+  }
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return value;
+  }
+  const out: Record<string, unknown> = Object.create(null);
+  for (const key of Object.keys(value as Record<string, unknown>)) {
+    if (FORBIDDEN_MERGE_KEYS.has(key)) {
+      continue;
+    }
+    out[key] = sanitizeMergeSource((value as Record<string, unknown>)[key], depth + 1);
+  }
+  return out;
+}
 
 function parseYamlFrontmatter(raw: string): Record<string, unknown> {
   if (!raw.trim()) {
@@ -24,10 +49,11 @@ function parseYamlFrontmatter(raw: string): Record<string, unknown> {
   if (typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw new Error('Frontmatter must be a YAML mapping (key: value), not a list or scalar.');
   }
-  return parsed as Record<string, unknown>;
+  return { ...(sanitizeMergeSource(parsed) as Record<string, unknown>) };
 }
 
 export function parseFrontmatter(raw: string): ParsedNote {
+  assertParseableSize(raw, 'Note source');
   if (!raw.startsWith('---')) {
     return { data: {}, content: raw };
   }
@@ -58,7 +84,8 @@ export function mergeFrontmatter(
   existing: Record<string, unknown>,
   incoming: Record<string, unknown>,
 ): Record<string, unknown> {
-  return { ...existing, ...incoming };
+  const safeIncoming = sanitizeMergeSource(incoming) as Record<string, unknown>;
+  return { ...existing, ...safeIncoming };
 }
 
 /**

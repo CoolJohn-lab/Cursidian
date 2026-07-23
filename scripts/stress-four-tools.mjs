@@ -52,7 +52,7 @@ function expectErr(name, result, substr) {
 
 async function main() {
   resetCaches();
-  const { server, config } = createTestServer();
+  const { server, config } = await createTestServer();
   console.log(`Vault: ${config.vaultPath}`);
   console.log(`Probe prefix: ${probePrefix}`);
 

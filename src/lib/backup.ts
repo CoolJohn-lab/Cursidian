@@ -2,7 +2,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { logger } from './logger.js';
 import { LEGACY_TRASH_DIR_NAME, TRASH_DIR_NAME } from './trash.js';
-import { assertWritablePathAsync } from './security.js';
+import {
+  assertWritablePathAsync,
+  assertSafeRelativeSegment,
+  pathExistsOrThrow,
+} from './security.js';
 import { DEFAULT_BACKUP_RETENTION } from './limits.js';
 
 export { TRASH_DIR_NAME, LEGACY_TRASH_DIR_NAME };
@@ -16,15 +20,6 @@ export function resetLegacyMigrationCache(): void {
   legacyMigrationDone = new Set();
 }
 
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await fs.access(target);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Moves legacy trash entries into the active trash directory once per vault.
  */
@@ -35,7 +30,7 @@ async function migrateLegacyTrash(vaultPath: string): Promise<void> {
   legacyMigrationDone.add(vaultPath);
 
   const legacy = path.join(vaultPath, LEGACY_TRASH_DIR_NAME);
-  if (!(await pathExists(legacy))) {
+  if (!(await pathExistsOrThrow(legacy))) {
     return;
   }
 
@@ -46,9 +41,10 @@ async function migrateLegacyTrash(vaultPath: string): Promise<void> {
 
   const entries = await fs.readdir(legacy, { withFileTypes: true });
   for (const entry of entries) {
+    assertSafeRelativeSegment(legacy, entry.name);
     const from = path.join(legacy, entry.name);
     const to = path.join(migrated, entry.name);
-    if (!(await pathExists(to))) {
+    if (!(await pathExistsOrThrow(to))) {
       await fs.rename(from, to);
     }
   }
@@ -67,7 +63,7 @@ async function pruneOldBackups(
   retention = DEFAULT_BACKUP_RETENTION,
 ): Promise<void> {
   const trashRoot = path.join(vaultPath, TRASH_DIR_NAME);
-  if (!(await pathExists(trashRoot))) {
+  if (!(await pathExistsOrThrow(trashRoot))) {
     return;
   }
 
@@ -127,7 +123,7 @@ export async function backupNoteIfExists(
   vaultPath: string,
   notePath: string,
 ): Promise<string | undefined> {
-  if (!(await pathExists(notePath))) {
+  if (!(await pathExistsOrThrow(notePath))) {
     return undefined;
   }
   return backupNote(vaultPath, notePath);

@@ -83,4 +83,12 @@ describe('edit-distance', () => {
     expect(result.didCorrect).toBe(true);
     expect(result.corrected).toEqual(['cursidian']);
   });
+
+  it('does not attempt correction on pathologically long token lists', () => {
+    const tokens = Array.from({ length: 5000 }, (_, i) => `tok${i}`);
+    const smallVocab = new Map([['hello', 1]]);
+    const t0 = performance.now();
+    correctTokensAgainstVocabulary(tokens, smallVocab);
+    expect(performance.now() - t0).toBeLessThan(50);
+  });
 });

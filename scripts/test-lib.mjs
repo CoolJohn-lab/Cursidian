@@ -6,8 +6,8 @@ import { clearAllSearchCaches } from '../dist/lib/vault-index.js';
 /**
  * Creates an MCP server with all tools registered for script-based testing.
  */
-export function createTestServer() {
-  const config = loadConfig();
+export async function createTestServer() {
+  const config = await loadConfig();
   const server = new McpServer({ name: 'mcp-test', version: '0.0.0' });
   registerAllTools(server, config);
   return { server, config };

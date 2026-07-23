@@ -45,7 +45,7 @@ export async function runSmokeSuite(ctx) {
   process.env.OBSIDIAN_LOG_LEVEL = 'error';
 
   resetCaches();
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const parseResult = (result) => {
     if (result.isError) throw new Error(result.content[0].text);
     return JSON.parse(result.content[0].text);

@@ -2,7 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { type Config } from '../config.js';
 import { resolvePath } from '../lib/vault.js';
-import { assertNotReadOnly, assertSafePathAsync, readFileBounded } from '../lib/security.js';
+import {
+  assertNotReadOnly,
+  assertSafePathAsync,
+  pathExistsOrThrow,
+  readFileBounded,
+} from '../lib/security.js';
 import { computeRevisionHash, checkRevisionConcurrency } from '../lib/content-hash.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
@@ -27,15 +32,6 @@ import { logger } from '../lib/logger.js';
 import { ok, invalidArgsError, toolError, mapToolError } from '../types/index.js';
 
 export type ManifestOperation = 'read' | 'upsert_source' | 'upsert_project' | 'remove';
-
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await fs.access(target);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export function manageManifestHandler(config: Config) {
   return async ({
@@ -95,7 +91,7 @@ export function manageManifestHandler(config: Config) {
       await assertSafePathAsync(config.vaultPath, resolved);
 
       if (manifestOperation === 'read') {
-        const exists = await pathExists(resolved);
+        const exists = await pathExistsOrThrow(resolved);
         if (!exists) {
           return ok(
             {
@@ -122,7 +118,7 @@ export function manageManifestHandler(config: Config) {
 
       assertNotReadOnly(config.readOnly);
 
-      const exists = await pathExists(resolved);
+      const exists = await pathExistsOrThrow(resolved);
       let parsed = exists
         ? parseManifest(await readFileBounded(resolved, config.maxFileSize))
         : parseManifest(defaultManifestContent());

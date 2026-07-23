@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { type Config } from '../config.js';
-import { assertNotReadOnly } from '../lib/security.js';
+import { assertNotReadOnly, pathExistsOrThrow } from '../lib/security.js';
 import { computeRevisionHash } from '../lib/content-hash.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
 import { withPathLocks, atomicReplaceLocked } from '../lib/vault-io.js';
@@ -14,15 +14,6 @@ import {
 } from '../lib/operation-journal.js';
 import { ok, toolError, mapToolError } from '../types/index.js';
 import { logger } from '../lib/logger.js';
-
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await fs.access(target);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export function undoOperationHandler(config: Config) {
   return async ({ operationId, force }: { operationId: string; force?: boolean }) => {
@@ -123,7 +114,7 @@ export function undoOperationHandler(config: Config) {
               restored.push(entry.path);
               const revision = computeRevisionHash(snapshotContent);
               await journal.recordAfter(entry.path, revision);
-            } else if (await pathExists(absolute)) {
+            } else if (await pathExistsOrThrow(absolute)) {
               await fs.unlink(absolute);
               removed.push(entry.path);
               await journal.recordAfter(entry.path, null);

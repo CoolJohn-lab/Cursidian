@@ -7,6 +7,7 @@ import { buildVaultMarkdownSignature } from './vault-signature.js';
 import { clearVaultSearchStateCache } from './vault-search-state.js';
 import { clearVaultSnapshotCache } from './vault-snapshot.js';
 import { clearBacklinkCache } from './backlink-cache.js';
+import { clearVocabularyCache } from './vocabulary.js';
 import { resolvePath } from './vault.js';
 import { assertSafePathAsync } from './security.js';
 
@@ -63,6 +64,7 @@ export function clearAllSearchCaches(): void {
   clearVaultSnapshotCache();
   clearSearchResultCache();
   clearBacklinkCache();
+  clearVocabularyCache();
 }
 
 export function getIndexKeyCollisions(index: VaultIndex): VaultIndexCollisions {

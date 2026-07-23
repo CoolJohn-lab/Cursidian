@@ -1,4 +1,5 @@
-import { parseFrontmatter, stringifyFrontmatter } from './frontmatter.js';
+import { parseFrontmatter, sanitizeMergeSource, stringifyFrontmatter } from './frontmatter.js';
+import { assertParseableSize } from './limits.js';
 
 export const MANIFEST_RELATIVE_PATH = '_meta/manifest.md';
 
@@ -224,6 +225,7 @@ function extractTrailingSuffix(projectsBody: string): {
 }
 
 export function parseManifest(raw: string): ParsedManifest {
+  assertParseableSize(raw, 'Manifest source');
   const { data, content } = parseFrontmatter(raw);
   const sourceDirs = parseSourceDirs(data);
 
@@ -301,7 +303,7 @@ function joinSectionLines(parsedLines: string[], unknownLines: string[]): string
 
 export function serializeManifest(parsed: ParsedManifest): string {
   const frontmatter = {
-    ...parsed.frontmatter,
+    ...(sanitizeMergeSource(parsed.frontmatter) as Record<string, unknown>),
     title: parsed.frontmatter.title ?? 'Wiki Manifest',
     source_dirs: parsed.sourceDirs,
   };

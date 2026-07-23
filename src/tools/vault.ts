@@ -10,6 +10,7 @@ import { manageManifestHandler } from './manage-manifest.js';
 import { manageVocabularyHandler } from './manage-vocabulary.js';
 import { vaultDeslopHandler, vaultSlopCheckHandler } from './vault-slop.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
+import { boundedKey, boundedRevision, boundedStringArray } from './schema-primitives.js';
 
 export function registerVault(server: McpServer, config: Config): void {
   server.registerTool(
@@ -37,47 +38,73 @@ export function registerVault(server: McpServer, config: Config): void {
           .enum(['read', 'upsert_source', 'upsert_project', 'remove'])
           .optional()
           .describe('Used by manifest action only'),
-        sourceKey: z
-          .string()
+        sourceKey: boundedKey
           .optional()
           .describe('Used by manifest upsert_source and remove (source)'),
-        sourceIngested: z.string().optional().describe('Used by manifest upsert_source only'),
-        sourceMtime: z.string().optional().describe('Used by manifest upsert_source only'),
-        sourcePages: z.array(z.string()).optional().describe('Used by manifest upsert_source only'),
-        projectName: z
+        sourceIngested: z
           .string()
+          .max(64)
+          .optional()
+          .describe('Used by manifest upsert_source only'),
+        sourceMtime: z.string().max(64).optional().describe('Used by manifest upsert_source only'),
+        sourcePages: boundedStringArray(1000)
+          .optional()
+          .describe('Used by manifest upsert_source only'),
+        projectName: boundedKey
           .optional()
           .describe('Used by manifest upsert_project and remove (project)'),
-        projectCwd: z.string().optional().describe('Used by manifest upsert_project only'),
-        projectLastCommit: z.string().optional().describe('Used by manifest upsert_project only'),
-        projectSynced: z.string().optional().describe('Used by manifest upsert_project only'),
+        projectCwd: z
+          .string()
+          .min(1)
+          .max(1000)
+          .optional()
+          .describe('Used by manifest upsert_project only'),
+        projectLastCommit: z
+          .string()
+          .max(128)
+          .optional()
+          .describe('Used by manifest upsert_project only'),
+        projectSynced: z
+          .string()
+          .max(64)
+          .optional()
+          .describe('Used by manifest upsert_project only'),
         removeKind: z
           .enum(['source', 'project', 'synonym', 'pairing'])
           .optional()
           .describe('Used by manifest remove and vocabulary remove'),
-        removeKey: z.string().optional().describe('Used by manifest remove and vocabulary remove'),
-        expectedRevision: z.string().optional().describe('Used by manifest mutations only'),
+        removeKey: boundedKey.optional().describe('Used by manifest remove and vocabulary remove'),
+        expectedRevision: boundedRevision.optional().describe('Used by manifest mutations only'),
         vocabularyOperation: z
           .enum(['read', 'upsert', 'remove'])
           .optional()
           .describe('Used by vocabulary action only'),
-        synonymGroup: z
-          .array(z.string())
+        synonymGroup: boundedStringArray(100)
+          .min(2)
           .optional()
           .describe('Used by vocabulary upsert only - 2+ interchangeable words/phrases'),
-        pairingKey: z.string().optional().describe('Used by vocabulary upsert only'),
-        pairingValues: z.array(z.string()).optional().describe('Used by vocabulary upsert only'),
+        pairingKey: boundedKey.optional().describe('Used by vocabulary upsert only'),
+        pairingValues: boundedStringArray(1000)
+          .optional()
+          .describe('Used by vocabulary upsert only'),
         path: z
           .string()
+          .max(500)
           .optional()
           .describe('Used by create_folder, list_folders, and delete_folder actions'),
-        staleDays: z.number().int().min(1).optional().describe('Used by health action only'),
+        staleDays: z
+          .number()
+          .int()
+          .min(1)
+          .max(3650)
+          .optional()
+          .describe('Used by health action only'),
         dryRun: z.boolean().optional().describe('Used by sync_index and deslop actions'),
         confirm: z
           .boolean()
           .optional()
           .describe('Used by delete_folder, undo, and deslop actions; must be true'),
-        operationId: z.string().optional().describe('Used by undo action only'),
+        operationId: boundedKey.optional().describe('Used by undo action only'),
         force: z.boolean().optional().describe('Used by undo action only'),
         limit: z.number().int().min(1).max(200).optional().describe('Used by history action only'),
       },

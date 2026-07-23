@@ -1,4 +1,5 @@
-import { MAX_TYPO_VOCAB_SIZE } from './limits.js';
+import { MAX_CORRECTION_TOKENS, MAX_TOKEN_LEN, MAX_TYPO_VOCAB_SIZE } from './limits.js';
+
 export function levenshtein(a: string, b: string): number {
   const m = a.length;
   const n = b.length;
@@ -22,8 +23,15 @@ export function levenshtein(a: string, b: string): number {
 /**
  * Optimal string alignment (restricted Damerau-Levenshtein):
  * insert / delete / substitute cost 1; adjacent transposition cost 1.
+ * Returns maxDistance+1 early when length delta or token length exceeds the budget.
  */
-export function damerauLevenshtein(a: string, b: string): number {
+export function damerauLevenshtein(a: string, b: string, maxDistance = Infinity): number {
+  if (Math.abs(a.length - b.length) > maxDistance) {
+    return maxDistance + 1;
+  }
+  if (a.length > MAX_TOKEN_LEN || b.length > MAX_TOKEN_LEN) {
+    return maxDistance + 1;
+  }
   const m = a.length;
   const n = b.length;
   if (m === 0) return n;
@@ -95,9 +103,10 @@ export function correctTokensAgainstVocabulary(
   if (freqMap.size > MAX_TYPO_VOCAB_SIZE) {
     return { corrected: tokens, didCorrect: false, corrections: {} };
   }
+  const capped = tokens.slice(0, MAX_CORRECTION_TOKENS);
   const corrections: Record<string, string> = {};
-  const corrected = tokens.map((token) => {
-    if (token.length < 4) {
+  const correctedHead = capped.map((token) => {
+    if (token.length < 4 || token.length > MAX_TOKEN_LEN) {
       return token;
     }
     const lower = token.toLowerCase();
@@ -108,7 +117,7 @@ export function correctTokensAgainstVocabulary(
     let tied = false;
 
     for (const [word, freq] of freqMap) {
-      const dist = damerauLevenshtein(lower, word);
+      const dist = damerauLevenshtein(lower, word, tokenMaxDistance);
       if (dist > tokenMaxDistance) {
         continue;
       }
@@ -129,6 +138,7 @@ export function correctTokensAgainstVocabulary(
     return token;
   });
 
+  const corrected = [...correctedHead, ...tokens.slice(MAX_CORRECTION_TOKENS)];
   const didCorrect = Object.keys(corrections).length > 0;
   return { corrected, didCorrect, corrections };
 }

@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { toRelativePath } from './vault.js';
-import { assertWritablePathAsync, readFileBounded } from './security.js';
+import { assertWritablePathAsync, pathExistsOrThrow, readFileBounded } from './security.js';
 import { computeRevisionHash } from './content-hash.js';
 import { ensureTrashReady, pruneOperationJournals } from './backup.js';
 import { TRASH_DIR_NAME } from './trash.js';
@@ -14,6 +14,15 @@ export const SNAPSHOTS_DIR = 'snapshots';
 
 export const BACKUP_DISABLED_WARNING =
   'OBSIDIAN_BACKUP_ENABLED is false; this operation cannot be undone.';
+
+export class ManifestPersistError extends Error {
+  readonly code = 'manifest_persist_failed';
+
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(message, options);
+    this.name = 'ManifestPersistError';
+  }
+}
 
 export interface JournalEntryRecord {
   path: string;
@@ -53,15 +62,6 @@ function generateOperationId(): string {
   return `${timestamp}-${randomBytes(4).toString('hex')}`;
 }
 
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await fs.access(target);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 function operationDir(vaultPath: string, operationId: string): string {
   return path.join(vaultPath, TRASH_DIR_NAME, operationId);
 }
@@ -71,6 +71,7 @@ export class OperationJournal {
   private readonly opDir: string | null;
   private readonly entries: JournalEntryRecord[] = [];
   private finalized = false;
+  private snapshotsComplete = true;
 
   private constructor(
     private readonly vaultPath: string,
@@ -107,9 +108,9 @@ export class OperationJournal {
     return new OperationJournal(vaultPath, true, options.tool, options.action, operationId, opDir);
   }
 
-  async recordBefore(absolutePath: string, _maxFileSize: number): Promise<void> {
+  async recordBefore(absolutePath: string, maxFileSize: number): Promise<void> {
     const relative = toRelativePath(this.vaultPath, absolutePath).replace(/\\/g, '/');
-    if (!(await pathExists(absolutePath))) {
+    if (!(await pathExistsOrThrow(absolutePath))) {
       this.entries.push({
         path: relative,
         existedBefore: false,
@@ -121,11 +122,16 @@ export class OperationJournal {
 
     let snapshotFile: string | null = null;
     if (this.opDir) {
-      const snapshotRel = path.posix.join(SNAPSHOTS_DIR, encodeSnapshotName(relative));
-      const snapshotAbs = path.join(this.opDir, snapshotRel);
-      await assertWritablePathAsync(this.vaultPath, snapshotAbs);
-      await fs.copyFile(absolutePath, snapshotAbs);
-      snapshotFile = snapshotRel;
+      const st = await fs.stat(absolutePath);
+      if (st.size > maxFileSize) {
+        this.snapshotsComplete = false;
+      } else {
+        const snapshotRel = path.posix.join(SNAPSHOTS_DIR, encodeSnapshotName(relative));
+        const snapshotAbs = path.join(this.opDir, snapshotRel);
+        await assertWritablePathAsync(this.vaultPath, snapshotAbs);
+        await fs.copyFile(absolutePath, snapshotAbs);
+        snapshotFile = snapshotRel;
+      }
     }
 
     this.entries.push({
@@ -159,9 +165,9 @@ export class OperationJournal {
     if (this.finalized) {
       throw new Error('Operation journal already finalized');
     }
-    this.finalized = true;
 
     if (!this.backupEnabled || !this.opDir) {
+      this.finalized = true;
       return {
         operationId: this.operationId,
         undoAvailable: false,
@@ -169,27 +175,38 @@ export class OperationJournal {
       };
     }
 
+    const undoAvailable = this.snapshotsComplete;
     const manifest: OperationManifest = {
       operationId: this.operationId,
       tool: this.tool,
       action: this.action,
       timestamp: new Date().toISOString(),
-      undoAvailable: true,
+      undoAvailable,
       complete: true,
       entries: this.entries,
     };
 
-    await fs.writeFile(
-      path.join(this.opDir, JOURNAL_MANIFEST),
-      JSON.stringify(manifest, null, 2),
-      'utf-8',
-    );
-    await pruneOperationJournals(this.vaultPath, DEFAULT_BACKUP_RETENTION);
+    try {
+      await fs.writeFile(
+        path.join(this.opDir, JOURNAL_MANIFEST),
+        JSON.stringify(manifest, null, 2),
+        'utf-8',
+      );
+      await pruneOperationJournals(this.vaultPath, DEFAULT_BACKUP_RETENTION);
+    } catch (err) {
+      throw new ManifestPersistError(
+        `Write succeeded but undo record failed to persist for operation ${this.operationId}`,
+        { cause: err },
+      );
+    }
 
+    this.finalized = true;
     return {
       operationId: this.operationId,
-      undoAvailable: true,
-      warnings: [],
+      undoAvailable,
+      warnings: undoAvailable
+        ? []
+        : ['One or more files exceeded maxFileSize; undo snapshot was skipped.'],
     };
   }
 
@@ -206,7 +223,7 @@ export async function readOperationManifest(
   operationId: string,
 ): Promise<OperationManifest | null> {
   const manifestPath = path.join(operationDir(vaultPath, operationId), JOURNAL_MANIFEST);
-  if (!(await pathExists(manifestPath))) {
+  if (!(await pathExistsOrThrow(manifestPath))) {
     return null;
   }
   const raw = await fs.readFile(manifestPath, 'utf-8');
@@ -218,7 +235,7 @@ export async function listOperationHistory(
   limit = 50,
 ): Promise<OperationManifest[]> {
   const trashRoot = path.join(vaultPath, TRASH_DIR_NAME);
-  if (!(await pathExists(trashRoot))) {
+  if (!(await pathExistsOrThrow(trashRoot))) {
     return [];
   }
 
@@ -244,7 +261,7 @@ async function readCurrentRevision(
   maxFileSize: number,
 ): Promise<string | null> {
   const absolute = path.join(vaultPath, relativePath);
-  if (!(await pathExists(absolute))) {
+  if (!(await pathExistsOrThrow(absolute))) {
     return null;
   }
   const raw = await readFileBounded(absolute, maxFileSize);

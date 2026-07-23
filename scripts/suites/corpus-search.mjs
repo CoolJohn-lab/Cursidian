@@ -171,7 +171,7 @@ export function assertTopSearchPath(results, expectTopPathOrPaths) {
 
 export async function runCorpusSearchSuite(ctx) {
   const { createTestServer, callTool, parseResult, runCase, resetCaches } = ctx;
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const results = [];
 
   for (const testCase of [...CURATED_SEARCH_CASES, ...REGRESSION_SEARCH_CASES]) {

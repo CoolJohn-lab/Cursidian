@@ -23,6 +23,13 @@ describe('extractWikilinks', () => {
   it('returns empty array when no links', () => {
     expect(extractWikilinks('No links here')).toEqual([]);
   });
+
+  it('completes quickly on adversarial unclosed brackets', () => {
+    const adversarial = '['.repeat(100_000);
+    const t0 = performance.now();
+    expect(extractWikilinks(adversarial)).toEqual([]);
+    expect(performance.now() - t0).toBeLessThan(50);
+  });
 });
 
 describe('extractTags', () => {

@@ -25,8 +25,27 @@ export const MAX_GRAPH_BACKLINK_LIMIT = 200;
 /** Vocabulary size above which typo correction is skipped. */
 export const MAX_TYPO_VOCAB_SIZE = 5_000;
 
+/** Typo-correct only the first N query tokens. */
+export const MAX_CORRECTION_TOKENS = 24;
+
+/** Never build an edit-distance matrix wider/taller than this. */
+export const MAX_TOKEN_LEN = 64;
+
 /** Maximum YAML frontmatter block size (bytes). */
 export const MAX_FRONTMATTER_BYTES = 65_536;
 
+/** Maximum input size for shared parsers (wikilinks, tags, manifest, vocabulary). */
+export const MAX_PARSE_INPUT_BYTES = 5 * 1024 * 1024;
+
+/** Cap on regex exec() iterations in shared parsers. */
+export const MAX_MATCH_ITERATIONS = 50_000;
+
 /** Default backup retention: keep at most this many backup sessions. */
 export const DEFAULT_BACKUP_RETENTION = 50;
+
+/** Throws when content exceeds the shared parse-size budget. */
+export function assertParseableSize(content: string, what: string): void {
+  if (Buffer.byteLength(content, 'utf8') > MAX_PARSE_INPUT_BYTES) {
+    throw new Error(`${what} exceeds ${MAX_PARSE_INPUT_BYTES} bytes; refusing to parse.`);
+  }
+}

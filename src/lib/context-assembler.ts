@@ -877,42 +877,38 @@ function buildGuidance(
   };
 }
 
-/**
- * Assembles a token-budgeted, deduplicated, provenance-tagged context bundle for a
- * query. Composes the existing search/graph lib layer (one shared vault snapshot,
- * inherited caching/security) rather than adding a new I/O primitive - the context
- * engine is read-only by construction.
- *
- * Prefer `assembleContextDetailed` when the caller also needs ranking diagnostics
- * (ContextSearches logdump). This wrapper returns the bundle only.
- */
-export async function assembleContext(
-  config: Config,
-  options: AssembleContextOptions,
-): Promise<ContextBundle> {
-  const { bundle } = await assembleContextDetailed(config, options);
-  return bundle;
+interface CandidatePoolOk {
+  status: 'ok';
+  candidates: Map<string, Candidate>;
+  searchHits: SearchResult[];
+  fileByPath: Map<string, VaultMarkdownFile>;
+  contradictionPairs: ContradictionPair[];
+  warnings: string[];
 }
 
+interface CandidatePoolError {
+  status: 'error';
+  message: string;
+}
+
+type CandidatePoolResult = CandidatePoolOk | CandidatePoolError;
+
 /**
- * Same assembly as `assembleContext`, plus logdump-only ranking diagnostics
- * (search hits, post-rerank candidates, compact selected/dropped items).
+ * Stage 1: resolves the candidate pool for a query - runs the seed search, builds the
+ * initial candidate map, applies intent-specific enrichment (neighbour expansion, skills
+ * boost, manifest-touched boost), then demotes journal/ticket pages and gathers
+ * contradiction counterparts. Returns a discriminated result so the caller can short
+ * circuit to an empty bundle on search failure without duplicating that error shape here.
  */
-export async function assembleContextDetailed(
+async function resolveCandidatePool(
   config: Config,
-  options: AssembleContextOptions,
-): Promise<ContextAssembleResult> {
-  const query = options.query.trim();
-  const intent = options.intent ?? inferIntent(query);
-  const tokenBudget = Math.max(1, Math.floor(options.tokenBudget ?? DEFAULT_TOKEN_BUDGET));
-  const excludePaths = new Set((options.excludePaths ?? []).map((p) => normaliseKey(p)));
+  query: string,
+  intent: ContextIntent,
+  excludePaths: Set<string>,
+  seedLimit: number,
+): Promise<CandidatePoolResult> {
   const warnings: string[] = [];
 
-  if (!query) {
-    return emptyResult(query, intent, tokenBudget, ['Empty query: no context could be assembled.']);
-  }
-
-  const seedLimit = seedLimitForIntent(intent);
   const searchResult = await searchContentHandler(config)({
     query,
     limit: seedLimit,
@@ -928,9 +924,10 @@ export async function assembleContextDetailed(
   }
 
   if (searchResult.isError) {
-    return emptyResult(query, intent, tokenBudget, [
-      `Candidate search failed: ${searchPayload.message ?? 'unknown error'}`,
-    ]);
+    return {
+      status: 'error',
+      message: `Candidate search failed: ${searchPayload.message ?? 'unknown error'}`,
+    };
   }
 
   if (searchPayload.incomplete) {
@@ -974,6 +971,28 @@ export async function assembleContextDetailed(
     excludePaths,
   );
 
+  return { status: 'ok', candidates, searchHits, fileByPath, contradictionPairs, warnings };
+}
+
+interface PassageSelection {
+  finalItems: ContextItem[];
+  droppedItems: ContextItem[];
+  tokensUsed: number;
+}
+
+/**
+ * Stage 2: turns the candidate pool into the final, budget-packed passage set - builds
+ * `ContextItem`s (summary/section/body), dedupes overlapping items, orders them for
+ * budget fill, greedily packs the token budget, then promotes the single best seed to
+ * full body if leftover budget allows.
+ */
+function selectPassages(
+  candidates: Map<string, Candidate>,
+  fileByPath: Map<string, VaultMarkdownFile>,
+  query: string,
+  tokenBudget: number,
+  intent: ContextIntent,
+): PassageSelection {
   const tokens = prepareSearchTokens(query).contentTokens;
   let items = buildItems([...candidates.values()], fileByPath, tokens);
   items = dedupeItems(items);
@@ -988,10 +1007,34 @@ export async function assembleContextDetailed(
     intent,
   );
 
-  const finalItems = promoted.items;
+  return {
+    finalItems: promoted.items,
+    droppedItems: filled.dropped,
+    tokensUsed: promoted.tokensUsed,
+  };
+}
+
+/**
+ * Stage 3: turns the selected passages into the wire-shaped bundle - freshness/
+ * contradiction warnings, citations, focus paths, bundle confidence, agent guidance, the
+ * expand cursor, and the logdump-only ranking diagnostics.
+ */
+function finalizeBundle(
+  query: string,
+  intent: ContextIntent,
+  tokenBudget: number,
+  finalItems: ContextItem[],
+  droppedItems: ContextItem[],
+  tokensUsed: number,
+  candidates: Map<string, Candidate>,
+  searchHits: SearchResult[],
+  contradictionPairs: ContradictionPair[],
+  warnings: string[],
+  excludePaths: Set<string>,
+): ContextAssembleResult {
   const consideredPaths = [...candidates.keys()];
   const includedPaths = finalItems.map((i) => i.path);
-  const droppedForBudget = filled.dropped.map((i) => i.path);
+  const droppedForBudget = droppedItems.map((i) => i.path);
 
   appendFreshnessWarnings(finalItems, warnings);
 
@@ -1015,7 +1058,7 @@ export async function assembleContextDetailed(
     finalItems,
     focus,
     droppedForBudget,
-    filled.dropped,
+    droppedItems,
     bundleConfidence,
     tokenBudget,
   );
@@ -1044,7 +1087,7 @@ export async function assembleContextDetailed(
     })),
     candidatesAfterRerank,
     itemsCompact: compactContextItems(finalItems),
-    droppedCompact: filled.dropped.map((item) => ({
+    droppedCompact: droppedItems.map((item) => ({
       path: item.path,
       score: item.score,
       tokens: item.tokens,
@@ -1057,7 +1100,7 @@ export async function assembleContextDetailed(
       query,
       intent,
       tokenBudget,
-      tokensUsed: promoted.tokensUsed,
+      tokensUsed,
       items: finalItems,
       coverage: { includedPaths, consideredPaths, droppedForBudget },
       warnings,
@@ -1069,6 +1112,69 @@ export async function assembleContextDetailed(
     },
     diagnostics,
   };
+}
+
+/**
+ * Assembles a token-budgeted, deduplicated, provenance-tagged context bundle for a
+ * query. Composes the existing search/graph lib layer (one shared vault snapshot,
+ * inherited caching/security) rather than adding a new I/O primitive - the context
+ * engine is read-only by construction.
+ *
+ * Prefer `assembleContextDetailed` when the caller also needs ranking diagnostics
+ * (ContextSearches logdump). This wrapper returns the bundle only.
+ */
+export async function assembleContext(
+  config: Config,
+  options: AssembleContextOptions,
+): Promise<ContextBundle> {
+  const { bundle } = await assembleContextDetailed(config, options);
+  return bundle;
+}
+
+/**
+ * Same assembly as `assembleContext`, plus logdump-only ranking diagnostics
+ * (search hits, post-rerank candidates, compact selected/dropped items).
+ *
+ * Thin orchestrator over three stages - `resolveCandidatePool` (search + enrichment +
+ * demotion + contradictions), `selectPassages` (build/dedupe/pack/promote), and
+ * `finalizeBundle` (warnings/citations/focus/confidence/guidance/cursor/diagnostics) -
+ * run in the same order and with the same field-by-field logic the monolithic function
+ * used to use, so bundle/diagnostics output is unchanged.
+ */
+export async function assembleContextDetailed(
+  config: Config,
+  options: AssembleContextOptions,
+): Promise<ContextAssembleResult> {
+  const query = options.query.trim();
+  const intent = options.intent ?? inferIntent(query);
+  const tokenBudget = Math.max(1, Math.floor(options.tokenBudget ?? DEFAULT_TOKEN_BUDGET));
+  const excludePaths = new Set((options.excludePaths ?? []).map((p) => normaliseKey(p)));
+
+  if (!query) {
+    return emptyResult(query, intent, tokenBudget, ['Empty query: no context could be assembled.']);
+  }
+
+  const seedLimit = seedLimitForIntent(intent);
+  const pool = await resolveCandidatePool(config, query, intent, excludePaths, seedLimit);
+  if (pool.status === 'error') {
+    return emptyResult(query, intent, tokenBudget, [pool.message]);
+  }
+
+  const selection = selectPassages(pool.candidates, pool.fileByPath, query, tokenBudget, intent);
+
+  return finalizeBundle(
+    query,
+    intent,
+    tokenBudget,
+    selection.finalItems,
+    selection.droppedItems,
+    selection.tokensUsed,
+    pool.candidates,
+    pool.searchHits,
+    pool.contradictionPairs,
+    pool.warnings,
+    excludePaths,
+  );
 }
 
 /**

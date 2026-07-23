@@ -183,7 +183,7 @@ async function searchNew(server, query, limit) {
  * Replays the search matrix across old-upstream, old-patched, and new baselines.
  */
 async function replaySearch(cases) {
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const results = [];
 
   for (const testCase of cases) {
@@ -320,7 +320,7 @@ function rate(results, predicate) {
  * Replays top read_note paths and measures outgoingLinks resolution on new MCP.
  */
 async function replayReads(corpus) {
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const pathCounts = new Map();
   for (const record of corpus) {
     if (record.toolName !== 'read_note') continue;
@@ -380,7 +380,7 @@ async function replayReads(corpus) {
  * Simulates historical replace-mode update_note calls against current vault state.
  */
 async function dryRunWrites(corpus) {
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const replaceCalls = corpus.filter((record) => {
     if (record.toolName !== 'update_note') return false;
     const mode = record.arguments?.mode ?? 'replace';
@@ -473,7 +473,7 @@ async function dryRunWrites(corpus) {
  * Runs standard and corpus-weighted latency benchmarks across baselines.
  */
 async function runBenchmarks(searchCases) {
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const baselineLabels = [
     {
       label: 'list_notes.root',

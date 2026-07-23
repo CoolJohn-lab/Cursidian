@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { toRelativePath } from './vault.js';
-import { readFileBounded } from './security.js';
+import { assertSafeRelativeSegment, readFileBounded } from './security.js';
 import { computeRevisionHash } from './content-hash.js';
 import { atomicReplaceLocked, PartialUpdateError, withPathLocks } from './vault-io.js';
 import { OperationJournal, mergeOperationWarnings } from './operation-journal.js';
@@ -118,6 +118,12 @@ export async function rollbackOperationSteps(
 
     const fromAbs = path.join(vaultPath, step.from);
     const toAbs = path.join(vaultPath, step.to);
+    for (const segment of step.from.split('/')) {
+      assertSafeRelativeSegment(vaultPath, segment);
+    }
+    for (const segment of step.to.split('/')) {
+      assertSafeRelativeSegment(vaultPath, segment);
+    }
     try {
       await fs.rename(toAbs, fromAbs);
       restored.push(step.to);

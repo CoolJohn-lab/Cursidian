@@ -9,6 +9,7 @@ import { renameNoteHandler } from './rename-note.js';
 import { manageFrontmatterHandler } from './manage-frontmatter.js';
 import { invalidArgsError, validateActionArguments } from '../types/index.js';
 import { MAX_CONTENT_BYTES, MAX_FRONTMATTER_KEYS } from '../lib/limits.js';
+import { boundedPath, boundedRevision, refineFrontmatterValueSizes } from './schema-primitives.js';
 
 const boundedContent = z.string().max(MAX_CONTENT_BYTES);
 const boundedPatch = z.string().max(50_000);
@@ -23,18 +24,17 @@ export function registerNote(server: McpServer, config: Config): void {
         action: z
           .enum(['read', 'create', 'update', 'delete', 'rename', 'frontmatter'])
           .describe('Operation: read, create, update, delete, rename, or frontmatter'),
-        path: z
-          .string()
-          .min(1)
-          .max(500)
-          .describe(
-            'Note path, title, or frontmatter alias (rename source when action=rename; create uses literal path)',
-          ),
+        path: boundedPath.describe(
+          'Note path, title, or frontmatter alias (rename source when action=rename; create uses literal path)',
+        ),
         content: boundedContent.optional().describe('Used by create and update actions'),
         frontmatter: z
           .record(z.unknown())
           .refine((obj) => Object.keys(obj).length <= MAX_FRONTMATTER_KEYS, {
             message: `frontmatter exceeds ${MAX_FRONTMATTER_KEYS} keys`,
+          })
+          .refine(refineFrontmatterValueSizes, {
+            message: 'frontmatter string value exceeds size limit',
           })
           .optional()
           .describe(
@@ -54,21 +54,19 @@ export function registerNote(server: McpServer, config: Config): void {
           .max(500)
           .optional()
           .describe('Used by update action replace_section mode only'),
-        expectedRevision: z
-          .string()
+        expectedRevision: boundedRevision
           .optional()
           .describe(
             'revisionHash from read; used by update, frontmatter, delete, rename, and create with overwrite:true',
           ),
-        expectedHash: z
-          .string()
+        expectedHash: boundedRevision
           .optional()
           .describe(
             'Deprecated alias of contentHash from read; used by update, frontmatter, delete, rename, and create with overwrite:true',
           ),
         force: z.boolean().optional().describe('Used by update action replace mode only'),
         confirm: z.boolean().optional().describe('Used by delete action only; must be true'),
-        newPath: z.string().max(500).optional().describe('Used by rename action only'),
+        newPath: boundedPath.optional().describe('Used by rename action only'),
         updateBacklinks: z.boolean().optional().describe('Used by rename action only'),
         updateIndex: z.boolean().optional().describe('Used by rename action only'),
         fmOperation: z
@@ -80,7 +78,7 @@ export function registerNote(server: McpServer, config: Config): void {
           .optional()
           .describe('Used by frontmatter action set operation only'),
         keys: z
-          .array(z.string())
+          .array(z.string().min(1).max(200))
           .max(MAX_FRONTMATTER_KEYS)
           .optional()
           .describe('Used by frontmatter action delete operation only'),

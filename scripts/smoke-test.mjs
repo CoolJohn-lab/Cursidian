@@ -10,7 +10,7 @@ import { registerAllTools } from '../dist/tools/index.js';
 import { clearAllSearchCaches } from '../dist/lib/vault-index.js';
 
 const server = new McpServer({ name: 'smoke', version: '0.0.0' });
-const config = loadConfig();
+const config = await loadConfig();
 registerAllTools(server, config);
 
 async function callTool(name, args) {

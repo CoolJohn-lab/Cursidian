@@ -1,5 +1,6 @@
-import { createHash } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import path from 'node:path';
+import { MAX_LIST_LIMIT } from './limits.js';
 
 export interface SkippedFile {
   path: string;
@@ -48,6 +49,7 @@ export interface StaleCursorDetails {
 }
 
 const CHANGED_PATHS_CAP = 25;
+const MAX_CURSOR_BYTES = 8 * 1024;
 
 export class StaleCursorError extends Error {
   details?: StaleCursorDetails;
@@ -59,25 +61,49 @@ export class StaleCursorError extends Error {
   }
 }
 
+function cursorKey(signature: string): Buffer {
+  return createHash('sha256').update(`cursor-mac-v1\0${signature}`).digest();
+}
+
 export function encodeSignatureCursor(signature: string, marker: string): string {
-  const payload: SignatureCursorPayload = { v: 1, signature, marker };
-  return Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
+  const body = JSON.stringify({ v: 1, signature, marker } satisfies SignatureCursorPayload);
+  const mac = createHmac('sha256', cursorKey(signature)).update(body).digest('base64url');
+  return Buffer.from(JSON.stringify({ b: body, m: mac }), 'utf8').toString('base64url');
 }
 
 export function decodeSignatureCursor(cursor: string): SignatureCursorPayload {
+  if (Buffer.byteLength(cursor, 'utf8') > MAX_CURSOR_BYTES) {
+    throw new StaleCursorError('Cursor too large; rerun from the first page without a cursor.');
+  }
   try {
-    const parsed = JSON.parse(
-      Buffer.from(cursor, 'base64url').toString('utf8'),
-    ) as SignatureCursorPayload;
+    const outer = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8')) as {
+      b: string;
+      m: string;
+    };
+    if (typeof outer.b !== 'string' || typeof outer.m !== 'string') {
+      throw new Error('shape');
+    }
+    const parsed = JSON.parse(outer.b) as SignatureCursorPayload;
     if (
       parsed.v !== 1 ||
       typeof parsed.signature !== 'string' ||
       typeof parsed.marker !== 'string'
     ) {
-      throw new Error('invalid cursor');
+      throw new Error('shape');
+    }
+    const expected = createHmac('sha256', cursorKey(parsed.signature))
+      .update(outer.b)
+      .digest('base64url');
+    const got = Buffer.from(outer.m, 'base64url');
+    const exp = Buffer.from(expected, 'base64url');
+    if (got.length !== exp.length || !timingSafeEqual(got, exp)) {
+      throw new Error('mac');
     }
     return parsed;
-  } catch {
+  } catch (err) {
+    if (err instanceof StaleCursorError) {
+      throw err;
+    }
     throw new StaleCursorError(
       'Invalid or stale cursor. Rerun from the first page without a cursor.',
     );
@@ -194,8 +220,20 @@ export function paginateByPath<T extends { path: string }>(
   nextCursor?: string;
   totalMatches: number;
 } {
-  const startIndex =
-    marker !== null ? Math.max(0, items.findIndex((item) => item.path === marker) + 1) : 0;
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > MAX_LIST_LIMIT) {
+    throw new Error(`pageSize must be an integer between 1 and ${MAX_LIST_LIMIT}`);
+  }
+
+  let startIndex = 0;
+  if (marker !== null) {
+    const found = items.findIndex((item) => item.path === marker);
+    if (found === -1) {
+      throw new StaleCursorError(
+        'Cursor marker no longer present in the result set (vault changed). Rerun from the first page.',
+      );
+    }
+    startIndex = found + 1;
+  }
   const page = items.slice(startIndex, startIndex + pageSize);
   const truncated = startIndex + pageSize < items.length;
   const nextCursor =

@@ -26,7 +26,7 @@ Examples:
 }
 
 async function runIsolatedTool(toolName, args) {
-  const { server } = createTestServer();
+  const { server } = await createTestServer();
   const result = await callTool(server, toolName, args);
   if (result.isError) {
     console.error(result.content[0].text);

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import {
+  decodeSignatureCursor,
   diffVaultSignatures,
   encodeSignatureCursor,
   paginateByPath,
@@ -37,6 +38,27 @@ describe('pagination', () => {
   it('rejects stale cursor when signature changed', () => {
     const cursor = encodeSignatureCursor('old-signature', 'b.md');
     expect(() => resolveCursorMarker(cursor, signature, { vaultPath })).toThrow(StaleCursorError);
+  });
+
+  it('rejects a cursor whose marker was tampered with', () => {
+    const good = encodeSignatureCursor('sig-abc', 'notes/a.md');
+    const decoded = JSON.parse(Buffer.from(good, 'base64url').toString('utf8')) as {
+      b: string;
+      m: string;
+    };
+    const forged = JSON.parse(decoded.b) as { v: number; signature: string; marker: string };
+    forged.marker = 'secret/other.md';
+    const tampered = Buffer.from(
+      JSON.stringify({ b: JSON.stringify(forged), m: decoded.m }),
+      'utf8',
+    ).toString('base64url');
+    expect(() => decodeSignatureCursor(tampered)).toThrow(StaleCursorError);
+  });
+
+  it('throws on an unknown marker instead of silently returning page 1', () => {
+    expect(() => paginateByPath([{ path: 'a' }], 10, 'does-not-exist', 'sig')).toThrow(
+      StaleCursorError,
+    );
   });
 
   it('attaches changedPaths details on stale cursor', () => {

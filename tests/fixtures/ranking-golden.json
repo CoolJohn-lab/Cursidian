@@ -1,0 +1,287 @@
+[
+  {
+    "name": "title-exact-vs-body-mention",
+    "query": "Widget Catalog",
+    "results": [
+      {
+        "path": "projects/demo/entities/widget-catalog.md",
+        "relevanceScore": 647,
+        "matchReasons": [
+          "title-exact",
+          "title-all-tokens",
+          "path-all-tokens",
+          "compound-basename-all",
+          "basename:widget",
+          "basename-primary",
+          "title-specificity:1.00",
+          "surface-all-tokens",
+          "heading-match",
+          "phrase-proximity",
+          "body-snippets"
+        ]
+      },
+      {
+        "path": "projects/demo/concepts/other.md",
+        "relevanceScore": 41,
+        "matchReasons": [
+          "phrase-proximity",
+          "body-snippets"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "alias-and-stem-affinity",
+    "query": "pipeline orchestrator",
+    "results": [
+      {
+        "path": "projects/demo/concepts/orchestration-and-pipelines.md",
+        "relevanceScore": 804,
+        "matchReasons": [
+          "alias-exact",
+          "alias-tokens:2",
+          "title-all-tokens",
+          "path-all-tokens",
+          "compound-basename-all",
+          "basename:pipelines",
+          "basename-primary",
+          "stem-affinity:2",
+          "title-specificity:0.67",
+          "surface-all-tokens",
+          "tags:pipelines,orchestration",
+          "summary-match",
+          "index-summary",
+          "phrase-proximity",
+          "body-snippets"
+        ]
+      },
+      {
+        "path": "projects/demo/concepts/pipeline-inventory.md",
+        "relevanceScore": 273,
+        "matchReasons": [
+          "title-tokens:1",
+          "path-tokens:1",
+          "compound-basename:1",
+          "basename:pipeline",
+          "basename-primary",
+          "stem-affinity:1",
+          "title-specificity:0.50",
+          "surface-tokens:1",
+          "tags:pipelines",
+          "body-snippets"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "compound-basename-vs-tag-only",
+    "query": "Unity Catalog metastore",
+    "results": [
+      {
+        "path": "projects/demo/concepts/metastore-schema-evolution.md",
+        "relevanceScore": 388,
+        "matchReasons": [
+          "title-tokens:1",
+          "path-tokens:1",
+          "compound-basename:1",
+          "basename:metastore",
+          "basename-primary",
+          "stem-affinity:1",
+          "title-specificity:0.20",
+          "surface-all-tokens",
+          "summary-match",
+          "snippet-density-penalty",
+          "phrase-proximity",
+          "body-snippets"
+        ]
+      },
+      {
+        "path": "projects/demo/concepts/naming.md",
+        "relevanceScore": 68,
+        "matchReasons": [
+          "surface-tokens:2",
+          "tags:unity-catalog",
+          "body-snippets"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "operational-penalty-vs-focused-page",
+    "query": "acme",
+    "results": [
+      {
+        "path": "projects/demo/concepts/acme-data-product.md",
+        "relevanceScore": 273,
+        "matchReasons": [
+          "title-all-tokens",
+          "path-all-tokens",
+          "compound-basename:1",
+          "stem-affinity:1",
+          "title-specificity:0.33",
+          "heading-match",
+          "body-snippets"
+        ]
+      },
+      {
+        "path": "index.md",
+        "relevanceScore": 0,
+        "matchReasons": [
+          "body-snippets",
+          "operational-penalty"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "generic-basename-penalty-vs-multi-signal",
+    "query": "Main Orchestrator debug run failed for BigHand",
+    "results": [
+      {
+        "path": "skills/troubleshooting-failed-loads.md",
+        "relevanceScore": 441,
+        "matchReasons": [
+          "title-tokens:1",
+          "path-tokens:1",
+          "compound-basename:1",
+          "basename:failed",
+          "basename-primary",
+          "stem-affinity:1",
+          "title-specificity:0.33",
+          "surface-tokens:5",
+          "tags:bighand",
+          "summary-tokens:5",
+          "body-snippets"
+        ]
+      },
+      {
+        "path": "journal/failed-office-cutover.md",
+        "relevanceScore": 179,
+        "matchReasons": [
+          "title-tokens:1",
+          "path-tokens:1",
+          "compound-basename:1",
+          "basename-generic:failed",
+          "stem-affinity:1",
+          "title-specificity:0.33",
+          "surface-tokens:1",
+          "body-snippets"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vocab-expansion-ranks-below-literal",
+    "query": "integration",
+    "results": [
+      {
+        "path": "projects/demo/concepts/integration-guide.md",
+        "relevanceScore": 350,
+        "matchReasons": [
+          "title-all-tokens",
+          "path-all-tokens",
+          "compound-basename:1",
+          "basename:integration",
+          "basename-primary",
+          "stem-affinity:1",
+          "title-specificity:0.50",
+          "heading-match",
+          "body-snippets"
+        ]
+      },
+      {
+        "path": "projects/demo/concepts/ingestion-overview.md",
+        "relevanceScore": 16,
+        "matchReasons": [
+          "body-snippets",
+          "vocab-expand:ingestion"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "heading-and-proximity",
+    "query": "deploy pipeline",
+    "results": [
+      {
+        "path": "projects/demo/concepts/deploy-notes.md",
+        "relevanceScore": 238,
+        "matchReasons": [
+          "path-tokens:1",
+          "compound-basename:1",
+          "basename:deploy",
+          "basename-primary",
+          "stem-affinity:1",
+          "surface-tokens:1",
+          "heading-match",
+          "phrase-proximity",
+          "body-snippets"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hub-dilution-and-snippet-density",
+    "query": "contract schema drift review",
+    "results": [
+      {
+        "path": "index.md",
+        "relevanceScore": 0,
+        "matchReasons": [
+          "snippet-density-penalty",
+          "hub-dilution",
+          "phrase-proximity",
+          "body-snippets",
+          "operational-penalty"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "freshness-verified-and-stale",
+    "query": "widget",
+    "results": [
+      {
+        "path": "projects/demo/concepts/widget-verified.md",
+        "relevanceScore": 312,
+        "matchReasons": [
+          "title-all-tokens",
+          "path-all-tokens",
+          "compound-basename:1",
+          "basename:widget",
+          "basename-primary",
+          "title-specificity:0.50",
+          "body-snippets",
+          "freshness-verified"
+        ]
+      },
+      {
+        "path": "projects/demo/concepts/widget-bare.md",
+        "relevanceScore": 304,
+        "matchReasons": [
+          "title-all-tokens",
+          "path-all-tokens",
+          "compound-basename:1",
+          "basename:widget",
+          "basename-primary",
+          "title-specificity:0.50",
+          "body-snippets"
+        ]
+      },
+      {
+        "path": "projects/demo/concepts/widget-old.md",
+        "relevanceScore": 298,
+        "matchReasons": [
+          "title-all-tokens",
+          "path-all-tokens",
+          "compound-basename:1",
+          "basename:widget",
+          "basename-primary",
+          "title-specificity:0.50",
+          "body-snippets",
+          "freshness-stale"
+        ]
+      }
+    ]
+  }
+]

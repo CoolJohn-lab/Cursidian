@@ -204,7 +204,7 @@ async function withEvalServer(fn) {
     process.env.OBSIDIAN_LOG_LEVEL = 'error';
     clearAllSearchCaches();
 
-    const config = loadConfig();
+    const config = await loadConfig();
     const server = new McpServer({ name: 'cursidian-eval', version: '0.0.0' });
     registerAllTools(server, config);
 

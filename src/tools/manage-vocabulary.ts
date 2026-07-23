@@ -2,7 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { type Config } from '../config.js';
 import { resolvePath } from '../lib/vault.js';
-import { assertNotReadOnly, assertSafePathAsync, readFileBounded } from '../lib/security.js';
+import {
+  assertNotReadOnly,
+  assertSafePathAsync,
+  pathExistsOrThrow,
+  readFileBounded,
+} from '../lib/security.js';
 import { atomicWriteLocked } from '../lib/vault-io.js';
 import { clearAllSearchCaches } from '../lib/vault-index.js';
 import {
@@ -25,15 +30,6 @@ import { logger } from '../lib/logger.js';
 import { ok, invalidArgsError, mapToolError } from '../types/index.js';
 
 export type VocabularyOperation = 'read' | 'upsert' | 'remove';
-
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await fs.access(target);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export function manageVocabularyHandler(config: Config) {
   return async ({
@@ -81,7 +77,7 @@ export function manageVocabularyHandler(config: Config) {
       await assertSafePathAsync(config.vaultPath, resolved);
 
       if (vocabularyOperation === 'read') {
-        const exists = await pathExists(resolved);
+        const exists = await pathExistsOrThrow(resolved);
         if (!exists) {
           return ok(
             { path: VOCABULARY_RELATIVE_PATH, exists: false, vocabulary: emptyVocabulary() },
@@ -98,7 +94,7 @@ export function manageVocabularyHandler(config: Config) {
 
       assertNotReadOnly(config.readOnly);
 
-      const exists = await pathExists(resolved);
+      const exists = await pathExistsOrThrow(resolved);
       const priorRaw = exists
         ? await readFileBounded(resolved, config.maxFileSize)
         : defaultVocabularyContent();

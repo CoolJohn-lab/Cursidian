@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   applyPatch,
+  assertBodySizeGuard,
   assertReplaceSizeGuard,
   replaceSection,
   SectionEditError,
@@ -106,5 +107,39 @@ describe('assertReplaceSizeGuard', () => {
 
   it('allows small replacements with force', () => {
     expect(() => assertReplaceSizeGuard('1234567890', '12', true)).not.toThrow();
+  });
+});
+
+describe('assertBodySizeGuard', () => {
+  it('rejects growth over 2x without force on large notes', () => {
+    const existing = 'x'.repeat(2_000);
+    expect(() =>
+      assertBodySizeGuard(existing + existing + existing, existing, {
+        force: false,
+        maxFileSize: 1_000_000,
+      }),
+    ).toThrow(SectionEditError);
+  });
+
+  it('allows 2x growth on small notes without force', () => {
+    expect(() =>
+      assertBodySizeGuard('x'.repeat(100), 'small', { force: false, maxFileSize: 1_000_000 }),
+    ).not.toThrow();
+  });
+
+  it('rejects hard maxFileSize even with force', () => {
+    expect(() =>
+      assertBodySizeGuard('huge'.repeat(100), 'x', { force: true, maxFileSize: 10 }),
+    ).toThrow(/maxFileSize/i);
+  });
+
+  it('allows intentional growth with force under maxFileSize', () => {
+    const existing = 'x'.repeat(2_000);
+    expect(() =>
+      assertBodySizeGuard(existing + existing + existing, existing, {
+        force: true,
+        maxFileSize: 1_000_000,
+      }),
+    ).not.toThrow();
   });
 });

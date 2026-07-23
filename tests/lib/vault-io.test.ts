@@ -6,8 +6,11 @@ import {
   AlreadyExistsError,
   atomicReplace,
   atomicReplaceLocked,
+  beginInFlight,
   clearPathLocks,
   createExclusive,
+  drainInFlight,
+  endInFlight,
   getPathLockCount,
   withPathLock,
   withPathLocks,
@@ -120,5 +123,18 @@ describe('vault-io', () => {
     const content = await fsp.readFile(locked, 'utf-8');
     expect(content).toBe('after');
     expect(getPathLockCount()).toBe(0);
+  });
+
+  it('drainInFlight resolves once in-flight operations end', async () => {
+    beginInFlight();
+    const p = drainInFlight(1000);
+    setTimeout(endInFlight, 10);
+    await expect(p).resolves.toBe(true);
+  });
+
+  it('drainInFlight times out and reports false if operations never end', async () => {
+    beginInFlight();
+    await expect(drainInFlight(20)).resolves.toBe(false);
+    endInFlight();
   });
 });

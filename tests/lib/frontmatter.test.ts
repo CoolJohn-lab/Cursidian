@@ -43,4 +43,19 @@ describe('mergeFrontmatter', () => {
     const result = mergeFrontmatter({ key: 'old' }, { key: 'new' });
     expect(result.key).toBe('new');
   });
+
+  it('mergeFrontmatter does not pollute Object.prototype via __proto__ key', () => {
+    const malicious = JSON.parse('{"__proto__":{"polluted":"yes"}}') as Record<string, unknown>;
+    mergeFrontmatter({ title: 'x' }, malicious);
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+});
+
+describe('parseFrontmatter security', () => {
+  it('parseFrontmatter strips forbidden keys at read time', () => {
+    const raw = '---\ntitle: A\nconstructor: evil\n---\nbody';
+    const { data } = parseFrontmatter(raw);
+    expect(data.title).toBe('A');
+    expect(Object.prototype.hasOwnProperty.call(data, 'constructor')).toBe(false);
+  });
 });

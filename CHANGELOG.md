@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.5] - 2026-07-23
+
+### Changed
+
+- Apply machine-local Prettier formatting across the repo (style-only)
+- Refresh retrieval/context eval snapshots after verify (nDCG within gate epsilon)
+
 ## [3.0.4] - 2026-07-23
 
 ### Fixed

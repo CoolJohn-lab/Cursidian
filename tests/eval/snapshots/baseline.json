@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-23T13:27:03.036Z",
+  "generatedAt": "2026-07-23T15:02:10.163Z",
   "topK": 10,
   "overall": {
     "n": 49,
@@ -38,7 +38,9 @@
       "query": "medallion layers",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/medallion-layers.md"],
+      "relevantPaths": [
+        "concepts/medallion-layers.md"
+      ],
       "rankedTopK": [
         "concepts/medallion-layers.md",
         "projects/cdf-platform.md",
@@ -56,7 +58,9 @@
       "query": "bronze silver gold layers",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/medallion-layers.md"],
+      "relevantPaths": [
+        "concepts/medallion-layers.md"
+      ],
       "rankedTopK": [
         "concepts/medallion-layers.md",
         "concepts/orchestration-and-scheduling.md",
@@ -72,7 +76,9 @@
       "query": "worker data mart",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/worker-data-mart.md"],
+      "relevantPaths": [
+        "concepts/worker-data-mart.md"
+      ],
       "rankedTopK": [
         "concepts/worker-data-mart.md",
         "entities/worker-dimension.md",
@@ -92,7 +98,9 @@
       "query": "WDM",
       "intent": "lookup",
       "budget": 2000,
-      "relevantPaths": ["concepts/worker-data-mart.md"],
+      "relevantPaths": [
+        "concepts/worker-data-mart.md"
+      ],
       "rankedTopK": [
         "concepts/worker-data-mart.md",
         "projects/cdf-platform.md",
@@ -108,7 +116,9 @@
       "query": "contract generation",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/contract-generation.md"],
+      "relevantPaths": [
+        "concepts/contract-generation.md"
+      ],
       "rankedTopK": [
         "concepts/contract-generation.md",
         "skills/contract-schema-review.md",
@@ -128,7 +138,9 @@
       "query": "schema contracts",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/contract-generation.md"],
+      "relevantPaths": [
+        "concepts/contract-generation.md"
+      ],
       "rankedTopK": [
         "skills/contract-schema-review.md",
         "concepts/contract-generation.md",
@@ -146,7 +158,9 @@
       "query": "ingestion vs egress",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/ingestion-vs-egress.md"],
+      "relevantPaths": [
+        "concepts/ingestion-vs-egress.md"
+      ],
       "rankedTopK": [
         "concepts/ingestion-vs-egress.md",
         "skills/ingestion-pipeline-authoring.md",
@@ -167,7 +181,9 @@
       "query": "egress pipelines",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/ingestion-vs-egress.md"],
+      "relevantPaths": [
+        "concepts/ingestion-vs-egress.md"
+      ],
       "rankedTopK": [
         "concepts/ingestion-vs-egress.md",
         "skills/ingestion-pipeline-authoring.md",
@@ -185,7 +201,9 @@
       "query": "BigHand",
       "intent": "lookup",
       "budget": 2000,
-      "relevantPaths": ["entities/bighand.md"],
+      "relevantPaths": [
+        "entities/bighand.md"
+      ],
       "rankedTopK": [
         "entities/bighand.md",
         "journal/bighand-onboarding-notes.md",
@@ -206,7 +224,9 @@
       "query": "BigHand source system",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["entities/bighand.md"],
+      "relevantPaths": [
+        "entities/bighand.md"
+      ],
       "rankedTopK": [
         "entities/bighand.md",
         "concepts/ingestion-vs-egress.md",
@@ -221,8 +241,12 @@
       "query": "FactPersonForecastHistory",
       "intent": "lookup",
       "budget": 2000,
-      "relevantPaths": ["entities/fact-person-forecast-history.md"],
-      "rankedTopK": ["entities/fact-person-forecast-history.md"],
+      "relevantPaths": [
+        "entities/fact-person-forecast-history.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-person-forecast-history.md"
+      ],
       "ndcg": 1,
       "recall": 1,
       "mrr": 1
@@ -231,7 +255,9 @@
       "query": "person forecast history table",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["entities/fact-person-forecast-history.md"],
+      "relevantPaths": [
+        "entities/fact-person-forecast-history.md"
+      ],
       "rankedTopK": [
         "entities/fact-person-forecast-history.md",
         "entities/fact-public-holiday.md",
@@ -248,7 +274,9 @@
       "query": "worker dimension",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["entities/worker-dimension.md"],
+      "relevantPaths": [
+        "entities/worker-dimension.md"
+      ],
       "rankedTopK": [
         "entities/worker-dimension.md",
         "concepts/worker-data-mart.md",
@@ -262,8 +290,12 @@
       "query": "FactPublicHoliday",
       "intent": "lookup",
       "budget": 2000,
-      "relevantPaths": ["entities/fact-public-holiday.md"],
-      "rankedTopK": ["entities/fact-public-holiday.md"],
+      "relevantPaths": [
+        "entities/fact-public-holiday.md"
+      ],
+      "rankedTopK": [
+        "entities/fact-public-holiday.md"
+      ],
       "ndcg": 1,
       "recall": 1,
       "mrr": 1
@@ -272,7 +304,9 @@
       "query": "public holiday calendar table",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["entities/fact-public-holiday.md"],
+      "relevantPaths": [
+        "entities/fact-public-holiday.md"
+      ],
       "rankedTopK": [
         "entities/fact-public-holiday.md",
         "entities/fact-person-forecast-history.md",
@@ -287,7 +321,9 @@
       "query": "schema drift detection",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/schema-drift-and-versioning.md"],
+      "relevantPaths": [
+        "concepts/schema-drift-and-versioning.md"
+      ],
       "rankedTopK": [
         "concepts/schema-drift-and-versioning.md",
         "skills/contract-schema-review.md",
@@ -301,7 +337,9 @@
       "query": "orchestration and scheduling",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/orchestration-and-scheduling.md"],
+      "relevantPaths": [
+        "concepts/orchestration-and-scheduling.md"
+      ],
       "rankedTopK": [
         "concepts/orchestration-and-scheduling.md",
         "skills/troubleshooting-failed-loads.md",
@@ -316,8 +354,12 @@
       "query": "main orchestrator",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/orchestration-and-scheduling.md"],
-      "rankedTopK": ["concepts/orchestration-and-scheduling.md"],
+      "relevantPaths": [
+        "concepts/orchestration-and-scheduling.md"
+      ],
+      "rankedTopK": [
+        "concepts/orchestration-and-scheduling.md"
+      ],
       "ndcg": 1,
       "recall": 1,
       "mrr": 1
@@ -326,7 +368,9 @@
       "query": "CDF platform overview",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["projects/cdf-platform.md"],
+      "relevantPaths": [
+        "projects/cdf-platform.md"
+      ],
       "rankedTopK": [
         "projects/cdf-platform.md",
         "concepts/platform-wiki-bridge.md",
@@ -345,8 +389,12 @@
       "query": "taxonomy tags",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["_meta/taxonomy.md"],
-      "rankedTopK": ["_meta/taxonomy.md"],
+      "relevantPaths": [
+        "_meta/taxonomy.md"
+      ],
+      "rankedTopK": [
+        "_meta/taxonomy.md"
+      ],
       "ndcg": 1,
       "recall": 1,
       "mrr": 1
@@ -355,7 +403,10 @@
       "query": "how does BigHand relate to FactPersonForecastHistory",
       "intent": "connection",
       "budget": 4000,
-      "relevantPaths": ["entities/bighand.md", "entities/fact-person-forecast-history.md"],
+      "relevantPaths": [
+        "entities/bighand.md",
+        "entities/fact-person-forecast-history.md"
+      ],
       "rankedTopK": [
         "entities/bighand.md",
         "journal/bighand-onboarding-notes.md",
@@ -376,7 +427,10 @@
       "query": "relationship between worker dimension and forecast fact table",
       "intent": "connection",
       "budget": 4000,
-      "relevantPaths": ["entities/worker-dimension.md", "entities/fact-person-forecast-history.md"],
+      "relevantPaths": [
+        "entities/worker-dimension.md",
+        "entities/fact-person-forecast-history.md"
+      ],
       "rankedTopK": [
         "entities/fact-person-forecast-history.md",
         "entities/worker-dimension.md",
@@ -415,7 +469,10 @@
       "query": "medallion layers and worker data mart connection",
       "intent": "connection",
       "budget": 4000,
-      "relevantPaths": ["concepts/medallion-layers.md", "concepts/worker-data-mart.md"],
+      "relevantPaths": [
+        "concepts/medallion-layers.md",
+        "concepts/worker-data-mart.md"
+      ],
       "rankedTopK": [
         "concepts/worker-data-mart.md",
         "concepts/medallion-layers.md",
@@ -464,7 +521,10 @@
         "entities/fact-public-holiday.md",
         "entities/fact-person-forecast-history.md"
       ],
-      "rankedTopK": ["entities/fact-public-holiday.md", "concepts/worker-data-mart.md"],
+      "rankedTopK": [
+        "entities/fact-public-holiday.md",
+        "concepts/worker-data-mart.md"
+      ],
       "ndcg": 0.6131471927654584,
       "recall": 0.5,
       "mrr": 1
@@ -473,7 +533,10 @@
       "query": "BigHand and schema drift",
       "intent": "connection",
       "budget": 4000,
-      "relevantPaths": ["entities/bighand.md", "concepts/schema-drift-and-versioning.md"],
+      "relevantPaths": [
+        "entities/bighand.md",
+        "concepts/schema-drift-and-versioning.md"
+      ],
       "rankedTopK": [
         "concepts/schema-drift-and-versioning.md",
         "entities/bighand.md",
@@ -489,7 +552,10 @@
       "query": "CDF platform and worker data mart",
       "intent": "connection",
       "budget": 4000,
-      "relevantPaths": ["projects/cdf-platform.md", "concepts/worker-data-mart.md"],
+      "relevantPaths": [
+        "projects/cdf-platform.md",
+        "concepts/worker-data-mart.md"
+      ],
       "rankedTopK": [
         "projects/cdf-platform.md",
         "concepts/platform-wiki-bridge.md",
@@ -526,7 +592,10 @@
       "query": "contract generation and ingestion pipelines",
       "intent": "connection",
       "budget": 4000,
-      "relevantPaths": ["concepts/contract-generation.md", "concepts/ingestion-vs-egress.md"],
+      "relevantPaths": [
+        "concepts/contract-generation.md",
+        "concepts/ingestion-vs-egress.md"
+      ],
       "rankedTopK": [
         "skills/ingestion-pipeline-authoring.md",
         "concepts/contract-generation.md",
@@ -547,7 +616,9 @@
       "query": "how to author a new ingestion pipeline",
       "intent": "onboarding",
       "budget": 4000,
-      "relevantPaths": ["skills/ingestion-pipeline-authoring.md"],
+      "relevantPaths": [
+        "skills/ingestion-pipeline-authoring.md"
+      ],
       "rankedTopK": [
         "skills/ingestion-pipeline-authoring.md",
         "concepts/ingestion-vs-egress.md",
@@ -568,7 +639,9 @@
       "query": "onboarding a new source feed",
       "intent": "onboarding",
       "budget": 4000,
-      "relevantPaths": ["skills/ingestion-pipeline-authoring.md"],
+      "relevantPaths": [
+        "skills/ingestion-pipeline-authoring.md"
+      ],
       "rankedTopK": [
         "entities/bighand.md",
         "skills/ingestion-pipeline-authoring.md",
@@ -589,7 +662,9 @@
       "query": "how to review a schema contract",
       "intent": "onboarding",
       "budget": 4000,
-      "relevantPaths": ["skills/contract-schema-review.md"],
+      "relevantPaths": [
+        "skills/contract-schema-review.md"
+      ],
       "rankedTopK": [
         "skills/contract-schema-review.md",
         "concepts/contract-generation.md",
@@ -620,7 +695,9 @@
       "query": "getting started with the CDF platform",
       "intent": "onboarding",
       "budget": 4000,
-      "relevantPaths": ["projects/cdf-platform.md"],
+      "relevantPaths": [
+        "projects/cdf-platform.md"
+      ],
       "rankedTopK": [
         "projects/cdf-platform.md",
         "concepts/platform-wiki-bridge.md",
@@ -639,7 +716,10 @@
       "query": "where do new pipelines land data first",
       "intent": "onboarding",
       "budget": 4000,
-      "relevantPaths": ["concepts/medallion-layers.md", "skills/ingestion-pipeline-authoring.md"],
+      "relevantPaths": [
+        "concepts/medallion-layers.md",
+        "skills/ingestion-pipeline-authoring.md"
+      ],
       "rankedTopK": [
         "skills/ingestion-pipeline-authoring.md",
         "projects/cdf-platform.md",
@@ -654,7 +734,9 @@
       "query": "contract review before promotion to silver",
       "intent": "onboarding",
       "budget": 4000,
-      "relevantPaths": ["skills/contract-schema-review.md"],
+      "relevantPaths": [
+        "skills/contract-schema-review.md"
+      ],
       "rankedTopK": [
         "skills/contract-schema-review.md",
         "concepts/contract-generation.md",
@@ -672,7 +754,9 @@
       "query": "troubleshooting failed loads",
       "intent": "troubleshoot",
       "budget": 4000,
-      "relevantPaths": ["skills/troubleshooting-failed-loads.md"],
+      "relevantPaths": [
+        "skills/troubleshooting-failed-loads.md"
+      ],
       "rankedTopK": [
         "skills/troubleshooting-failed-loads.md",
         "concepts/orchestration-and-scheduling.md",
@@ -689,7 +773,10 @@
       "query": "BigHand feed failure",
       "intent": "troubleshoot",
       "budget": 4000,
-      "relevantPaths": ["entities/bighand.md", "skills/troubleshooting-failed-loads.md"],
+      "relevantPaths": [
+        "entities/bighand.md",
+        "skills/troubleshooting-failed-loads.md"
+      ],
       "rankedTopK": [
         "entities/bighand.md",
         "skills/troubleshooting-failed-loads.md",
@@ -744,7 +831,9 @@
         "entities/fact-public-holiday.md",
         "skills/troubleshooting-failed-loads.md"
       ],
-      "rankedTopK": ["entities/fact-public-holiday.md"],
+      "rankedTopK": [
+        "entities/fact-public-holiday.md"
+      ],
       "ndcg": 0.6131471927654584,
       "recall": 0.5,
       "mrr": 1
@@ -816,7 +905,9 @@
       "query": "integration",
       "intent": "lookup",
       "budget": 4000,
-      "relevantPaths": ["concepts/ingestion-vs-egress.md"],
+      "relevantPaths": [
+        "concepts/ingestion-vs-egress.md"
+      ],
       "rankedTopK": [
         "concepts/ingestion-vs-egress.md",
         "concepts/orchestration-and-scheduling.md",
@@ -837,7 +928,10 @@
       "query": "how is platform wiki bridge related to worker data mart",
       "intent": "connection",
       "budget": 3500,
-      "relevantPaths": ["concepts/platform-wiki-bridge.md", "concepts/worker-data-mart.md"],
+      "relevantPaths": [
+        "concepts/platform-wiki-bridge.md",
+        "concepts/worker-data-mart.md"
+      ],
       "rankedTopK": [
         "concepts/platform-wiki-bridge.md",
         "concepts/worker-data-mart.md",
@@ -858,7 +952,10 @@
       "query": "Main Orchestrator debug run failed for BigHand offices",
       "intent": "troubleshoot",
       "budget": 2500,
-      "relevantPaths": ["skills/troubleshooting-failed-loads.md", "entities/bighand.md"],
+      "relevantPaths": [
+        "skills/troubleshooting-failed-loads.md",
+        "entities/bighand.md"
+      ],
       "rankedTopK": [
         "skills/troubleshooting-failed-loads.md",
         "concepts/orchestration-and-scheduling.md"
@@ -871,7 +968,10 @@
       "query": "getting started onboarding a BigHand ingestion pipeline",
       "intent": "onboarding",
       "budget": 4000,
-      "relevantPaths": ["skills/ingestion-pipeline-authoring.md", "entities/bighand.md"],
+      "relevantPaths": [
+        "skills/ingestion-pipeline-authoring.md",
+        "entities/bighand.md"
+      ],
       "rankedTopK": [
         "skills/ingestion-pipeline-authoring.md",
         "journal/bighand-onboarding-notes.md",

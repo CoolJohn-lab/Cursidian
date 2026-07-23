@@ -56,10 +56,8 @@ if (findings.length === 0 && emojiHits.length === 0) {
 if (findings.length) {
   console.error(`\n${label} - ${findings.length} llm-slop finding(s):\n`);
   for (const f of findings) {
-    const abs = resolveFindingPath(f.path);
-    const rel = wiki
-      ? path.relative(target, abs).replace(/\\/g, "/")
-      : path.relative(root, abs).replace(/\\/g, "/");
+    const abs = resolveFindingPath(f.path, target);
+    const rel = path.relative(target, abs).replace(/\\/g, "/");
     console.error(`  ${rel}:${f.line}:${f.col}  ${f.message}`);
   }
 }

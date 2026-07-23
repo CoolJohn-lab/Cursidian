@@ -1,0 +1,285 @@
+{
+  "name": "cursidian",
+  "version": "2.0.0",
+  "description": "Cursidian first-party slop rules: local typography + phrases. Packs live under rules/slop/packs. Decorative emoji gated by EMOJI_RE in code, not char list.",
+  "packs": [
+    "claudeisms",
+    "structural",
+    "puffery",
+    "security"
+  ],
+  "chars": [
+    {
+      "char": "→",
+      "name": "RIGHTWARDS ARROW",
+      "severity": "information",
+      "replacement": "->"
+    },
+    {
+      "char": "←",
+      "name": "LEFTWARDS ARROW",
+      "severity": "information",
+      "replacement": "<-"
+    },
+    {
+      "char": "⇒",
+      "name": "RIGHTWARDS DOUBLE ARROW",
+      "severity": "information",
+      "replacement": "=>"
+    },
+    {
+      "char": "⇐",
+      "name": "LEFTWARDS DOUBLE ARROW",
+      "severity": "information",
+      "replacement": "<="
+    },
+    {
+      "char": "⟶",
+      "name": "LONG RIGHTWARDS ARROW",
+      "severity": "information",
+      "replacement": "->"
+    },
+    {
+      "char": "⟵",
+      "name": "LONG LEFTWARDS ARROW",
+      "severity": "information",
+      "replacement": "<-"
+    },
+    {
+      "char": "⟹",
+      "name": "LONG RIGHTWARDS DOUBLE ARROW",
+      "severity": "information",
+      "replacement": "=>"
+    },
+    {
+      "char": "⟸",
+      "name": "LONG LEFTWARDS DOUBLE ARROW",
+      "severity": "information",
+      "replacement": "<="
+    },
+    {
+      "char": "•",
+      "name": "BULLET",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "‣",
+      "name": "TRIANGULAR BULLET",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "▸",
+      "name": "BLACK RIGHT-POINTING SMALL TRIANGLE",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "►",
+      "name": "BLACK RIGHT-POINTING POINTER",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "●",
+      "name": "BLACK CIRCLE",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "○",
+      "name": "WHITE CIRCLE",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "※",
+      "name": "REFERENCE MARK",
+      "severity": "information",
+      "replacement": "*"
+    },
+    {
+      "char": "★",
+      "name": "BLACK STAR",
+      "severity": "information",
+      "replacement": "*"
+    },
+    {
+      "char": "☆",
+      "name": "WHITE STAR",
+      "severity": "information",
+      "replacement": "*"
+    },
+    {
+      "char": "−",
+      "name": "MINUS SIGN",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "‑",
+      "name": "NON-BREAKING HYPHEN",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "―",
+      "name": "HORIZONTAL BAR",
+      "severity": "information",
+      "replacement": "-"
+    },
+    {
+      "char": "‒",
+      "name": "FIGURE DASH",
+      "severity": "information",
+      "replacement": "-"
+    }
+  ],
+  "phrases": [
+    {
+      "pattern": "\\bit'?s worth mentioning\\b",
+      "reason": "LLM hedge (Vollmer / DeGPT signposting cluster)"
+    },
+    {
+      "pattern": "\\bit goes without saying\\b",
+      "reason": "LLM filler"
+    },
+    {
+      "pattern": "\\bneedless to say\\b",
+      "reason": "LLM filler"
+    },
+    {
+      "pattern": "\\bsuffice it to say\\b",
+      "reason": "LLM filler"
+    },
+    {
+      "pattern": "\\brest assured\\b",
+      "reason": "LLM reassurance tic"
+    },
+    {
+      "pattern": "\\bin today'?s digital\\b",
+      "reason": "SEO/LLM opener cliche (slopless seo-filler family)"
+    },
+    {
+      "pattern": "\\bever[- ]evolving\\b",
+      "reason": "LLM cliche adjective"
+    },
+    {
+      "pattern": "\\brapidly (evolving|changing)\\b",
+      "reason": "LLM cliche"
+    },
+    {
+      "pattern": "\\bdeep dive\\b",
+      "reason": "LLM framing cliche"
+    },
+    {
+      "pattern": "\\bcarefully crafted\\b",
+      "reason": "LLM puffery"
+    },
+    {
+      "pattern": "\\bin the realm of\\b",
+      "reason": "LLM metaphor (Juzek/Kobak realm cluster)"
+    },
+    {
+      "pattern": "\\ba nuanced (take|understanding|approach|view)\\b",
+      "reason": "LLM hedge"
+    },
+    {
+      "pattern": "\\bdelve into the intricac",
+      "reason": "Canonical LLM stack (Kobak example abstract)"
+    },
+    {
+      "pattern": "\\bas we navigate\\b",
+      "reason": "LLM journey framing"
+    },
+    {
+      "pattern": "\\bmoving forward,?\\b",
+      "reason": "Corporate/LLM filler transition"
+    },
+    {
+      "pattern": "\\bthe (AI|tech|digital|cybersecurity|modern|competitive|business) landscape\\b",
+      "reason": "Metaphorical landscape (narrow; avoids literal geography)"
+    },
+    {
+      "pattern": "\\bembark(s|ed|ing)? on (a|an|this)\\b",
+      "reason": "LLM journey metaphor"
+    },
+    {
+      "pattern": "\\bintricate\\b",
+      "reason": "Juzek focal / Kobak excess style word"
+    },
+    {
+      "pattern": "\\bcommendable\\b",
+      "reason": "Juzek focal word"
+    },
+    {
+      "pattern": "\\bunwavering\\b",
+      "reason": "Juzek focal word"
+    },
+    {
+      "pattern": "\\bshowcas(e|es|ed|ing)\\b",
+      "reason": "Kobak excess verb (r≈10.7 in abstracts)"
+    },
+    {
+      "pattern": "\\bresonate(s|d|ing)? with\\b",
+      "reason": "LLM metaphor (requires 'with' to cut FPs)"
+    },
+    {
+      "pattern": "\\bgame[- ]chang(er|ing)\\b",
+      "reason": "Buzzword (also in core; reinforced)"
+    },
+    {
+      "pattern": "\\bparadigm shift\\b",
+      "reason": "Buzzword"
+    },
+    {
+      "pattern": "\\bunpack(s|ed|ing)? (this|the|how|what|why)\\b",
+      "reason": "LLM framing verb"
+    },
+    {
+      "pattern": "\\blet'?s unpack\\b",
+      "reason": "LLM framing opener"
+    },
+    {
+      "pattern": "\\bin an ever[- ]evolving\\b",
+      "reason": "LLM landscape opener"
+    },
+    {
+      "pattern": "\\bnavigating the complexit",
+      "reason": "LLM cliche (prefix match)"
+    },
+    {
+      "pattern": "\\ba (deeper|better) understanding of\\b",
+      "reason": "LLM signposting"
+    },
+    {
+      "pattern": "\\bat the end of the day\\b",
+      "reason": "Vacuous closer (slopless / structural)"
+    },
+    {
+      "pattern": "\\bthe journey doesn'?t end here\\b",
+      "reason": "Preachy LLM closer"
+    },
+    {
+      "pattern": "\\bas previously mentioned\\b",
+      "reason": "LLM back-reference filler"
+    },
+    {
+      "pattern": "\\bas mentioned (earlier|above|previously)\\b",
+      "reason": "LLM back-reference filler"
+    },
+    {
+      "pattern": "\\bit'?s (also )?worth (noting|mentioning|remembering) that\\b",
+      "reason": "LLM hedge expansion"
+    },
+    {
+      "pattern": "\\bplease note that\\b",
+      "reason": "LLM/docbot hedge"
+    },
+    {
+      "pattern": "\\bimportant to (note|remember|understand) that\\b",
+      "reason": "LLM hedge (catches variants without leading it')"
+    }
+  ]
+}

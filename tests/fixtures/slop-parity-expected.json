@@ -1,0 +1,51 @@
+[
+  {
+    "offset": 8,
+    "length": 1,
+    "matchText": "—",
+    "code": "char",
+    "message": "EM DASH (U+2014) - fix: \"-\" [built-in]"
+  },
+  {
+    "offset": 22,
+    "length": 1,
+    "matchText": "“",
+    "code": "char",
+    "message": "LEFT DOUBLE QUOTATION MARK (U+201C) - fix: \"\\\"\" [built-in]"
+  },
+  {
+    "offset": 29,
+    "length": 1,
+    "matchText": "”",
+    "code": "char",
+    "message": "RIGHT DOUBLE QUOTATION MARK (U+201D) - fix: \"\\\"\" [built-in]"
+  },
+  {
+    "offset": 43,
+    "length": 1,
+    "matchText": "…",
+    "code": "char",
+    "message": "HORIZONTAL ELLIPSIS (U+2026) - fix: \"...\" [built-in]"
+  },
+  {
+    "offset": 49,
+    "length": 1,
+    "matchText": "​",
+    "code": "char",
+    "message": "ZERO WIDTH SPACE (U+200B) - fix: delete [built-in]"
+  },
+  {
+    "offset": 77,
+    "length": 9,
+    "matchText": "dive into",
+    "code": "phrase",
+    "message": "LLM-style phrase: \"dive into\" [built-in]"
+  },
+  {
+    "offset": 72,
+    "length": 9,
+    "matchText": "deep dive",
+    "code": "phrase",
+    "message": "LLM-style phrase: \"deep dive\" - LLM framing cliche [cursidian]"
+  }
+]

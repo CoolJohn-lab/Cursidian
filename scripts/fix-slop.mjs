@@ -71,7 +71,7 @@ function offsetAt(text, line, col) {
 
 const byFile = new Map();
 for (const f of charFindings) {
-  const abs = resolveFindingPath(f.path);
+  const abs = resolveFindingPath(f.path, target);
   if (!byFile.has(abs)) byFile.set(abs, []);
   byFile.get(abs).push(f);
 }
@@ -124,7 +124,7 @@ if (phraseFindings.length) {
 let emojiFiles = 0;
 let emojiRemovals = 0;
 for (const file of walkTextFiles(target)) {
-  if (path.basename(file) === ".llmsloprc.json") continue;
+  if (path.basename(file) === ".cursidian-slop.json" || path.basename(file) === ".llmsloprc.json") continue;
   const before = fs.readFileSync(file, "utf8");
   let n = 0;
   const after = before.replace(new RegExp(EMOJI_RE.source, EMOJI_RE.flags), () => {

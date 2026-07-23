@@ -27,9 +27,26 @@ body = body.replace(
 fs.writeFileSync(dest, body, 'utf8');
 console.error(`copied CLI: ${dest}`);
 
-const slopRcSrc = path.join(repoRoot, '.llmsloprc.json');
-const slopRcDest = path.join(repoRoot, 'dist', '.llmsloprc.json');
+const slopRcSrc = path.join(repoRoot, '.cursidian-slop.json');
+const slopRcDest = path.join(repoRoot, 'dist', '.cursidian-slop.json');
 if (fs.existsSync(slopRcSrc)) {
   fs.copyFileSync(slopRcSrc, slopRcDest);
   console.error(`copied slop config: ${slopRcDest}`);
+}
+
+function copyDir(srcDir, destDirPath) {
+  fs.mkdirSync(destDirPath, { recursive: true });
+  for (const ent of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    const from = path.join(srcDir, ent.name);
+    const to = path.join(destDirPath, ent.name);
+    if (ent.isDirectory()) copyDir(from, to);
+    else fs.copyFileSync(from, to);
+  }
+}
+
+const rulesSrc = path.join(repoRoot, 'rules', 'slop');
+const rulesDest = path.join(repoRoot, 'dist', 'rules', 'slop');
+if (fs.existsSync(rulesSrc)) {
+  copyDir(rulesSrc, rulesDest);
+  console.error(`copied slop rules: ${rulesDest}`);
 }

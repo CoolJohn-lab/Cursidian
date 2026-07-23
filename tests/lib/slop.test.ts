@@ -60,4 +60,29 @@ Body with an em dash — here.
     expect(plan.cleaned).toContain('---\n\n# Dirty\n');
     expect(plan.cleaned).not.toContain('—');
   });
+
+  it('fixes frontmatter summary and strips emoji', () => {
+    const rules = loadSlopRules();
+    const rocket = String.fromCodePoint(0x1f680);
+    const raw = `---
+title: Dirty
+category: concepts
+tags: [wiki]
+summary: A deep dive — with emoji ${rocket} here.
+updated: 2026-01-01T00:00:00.000Z
+---
+
+# Dirty
+
+Clean body.
+`;
+    const plan = planFileDeslop('/vault/fm.md', '/vault', raw, rules);
+    expect(plan.changed).toBe(true);
+    expect(plan.summaryChanged).toBe(true);
+    expect(plan.frontmatterCharFixes).toBeGreaterThan(0);
+    expect(plan.emojiRemovals).toBeGreaterThan(0);
+    expect(plan.cleaned).not.toContain('—');
+    expect(plan.cleaned).not.toContain(rocket);
+    expect(plan.phraseFindings.some((f) => /deep dive/i.test(f.matchText))).toBe(true);
+  });
 });

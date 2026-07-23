@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.2] - 2026-07-23
+
+### Added
+
+- First-party slop engine (`src/lib/slop-engine/`) with vendored rules under `rules/slop/` and slim [`.cursidian-slop.json`](.cursidian-slop.json)
+
+### Changed
+
+- `npm run slop:*` and vault `slop_check` / `deslop` use the in-repo engine (via `tsx` before `tsc`); decorative emoji remains `EMOJI_RE`-only (no emoji codepoint flood in config)
+
+### Removed
+
+- Runtime dependency on `llm-slop-detector` (MIT packs snapshotted once into `rules/slop/`)
+
+### Migration
+
+- Rename any custom `.llmsloprc.json` edits into `.cursidian-slop.json` (a stub remains that points at the new name). Optional IDE highlighter extension is unrelated to the package gate.
+
 ## [3.0.1] - 2026-07-22
 
 ### Added

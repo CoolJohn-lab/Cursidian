@@ -1,0 +1,5 @@
+Em dash — here.
+Curly “quotes” and ellipsis…
+ZWSP​ between.
+Please do a deep dive into the architecture.
+Normal ASCII - fine.

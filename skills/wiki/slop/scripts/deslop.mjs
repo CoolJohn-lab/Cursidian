@@ -17,7 +17,7 @@ const DETECTOR_TIMEOUT_MS = 60_000;
 const DETECTOR_MAX_BUFFER = 16 * 1024 * 1024;
 const PROSE_EXTS = new Set([".md", ".mdc", ".mdx", ".markdown", ".mdown", ".mkd", ".txt", ".rst"]);
 const CODE_EXTS = new Set([".py", ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".go", ".rs", ".java", ".kt", ".c", ".h", ".cpp", ".hpp", ".cs", ".rb", ".php", ".swift", ".scala", ".sql", ".yml", ".yaml", ".json", ".jsonc", ".toml", ".sh", ".bash", ".zsh", ".ps1", ".html", ".css"]);
-const DEFAULT_EXCLUDES = ["node_modules", ".git", ".hg", ".svn", "__pycache__", ".venv", "venv", "dist", "build", "out", "coverage", ".terraform", ".next", ".turbo", ".cache", "vendor", "framework", "package-lock.json", "pnpm-lock.yaml", "yarn.lock", ".llmsloprc.json"];
+const DEFAULT_EXCLUDES = ["node_modules", ".git", ".hg", ".svn", "__pycache__", ".venv", "venv", "dist", "build", "out", "coverage", ".terraform", ".next", ".turbo", ".cache", "vendor", "framework", "package-lock.json", "pnpm-lock.yaml", "yarn.lock", ".llmsloprc.json", ".cursidian-slop.json", "rules/slop"];
 const CURSOR_EXCLUDES = ["skills-cursor", "plugins/cache", "projects", "agent-transcripts", "ai-tracking", "browser-logs", "extensions", "CachedProfilesData", "CachedExtensionVSIXs", "User/globalStorage", "User/workspaceStorage", "User/History", "logs", "terminals"];
 
 const SAFE_MAP = new Map([
@@ -36,7 +36,7 @@ const PROTECTED_PICTOGRAPHS = new Set(["\u00A9", "\u00AE", "\u2122"]);
 const EMOJI_RE = /(?:\p{Regional_Indicator}{2}|[#*0-9]\uFE0F?\u20E3|\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?)*(?:[\u{E0020}-\u{E007E}]+\u{E007F})?)/gu;
 
 function usage() {
-  console.log(`deslop ${VERSION}\nUsage: node deslop.mjs <check|fix> [paths...] [options]\n\nOptions:\n  --preset cursor-global|cursidian\n  --engine auto|builtin|detector\n  --cursidian PATH\n  --strip-emoji\n  --aggressive\n  --include-code\n  --scan-comments       Deprecated alias for --include-code\n  --exclude NAME        Repeatable basename or relative POSIX path\n  --dry-run\n  --diff                Implies --dry-run\n  --backup\n  --json\n  --pack LIST\n  -h, --help\n  --version\n\nExit: 0 clean, 1 findings remain, 2 usage/operational failure.`);
+  console.log(`deslop ${VERSION}\nUsage: node deslop.mjs <check|fix> [paths...] [options]\n\nOptions:\n  --preset cursor-global|cursidian\n  --engine auto|builtin|cursidian\n  --cursidian PATH\n  --strip-emoji\n  --aggressive\n  --include-code\n  --scan-comments       Deprecated alias for --include-code\n  --exclude NAME        Repeatable basename or relative POSIX path\n  --dry-run\n  --diff                Implies --dry-run\n  --backup\n  --json\n  --pack LIST\n  -h, --help\n  --version\n\nExit: 0 clean, 1 findings remain, 2 usage/operational failure.\n\nNote: --engine cursidian uses Cursidian's first-party slop engine (not llm-slop-detector).`);
 }
 function fail(message, json = false, errors = []) {
   if (json) console.log(JSON.stringify({ schema: SCHEMA, version: VERSION, status: "incomplete", exitCode: 2, summary: null, findings: [], errors: [...errors, { code: "fatal", message }] }, null, 2));
@@ -171,38 +171,44 @@ function simpleDiff(file, before, after) {
   return rows.join("\n");
 }
 
-function resolveDetector(rootArg, required) {
+function resolveCursidian(rootArg, required) {
   const raw = rootArg || process.env.CURSIDIAN_ROOT;
-  if (!raw) { if (required) throw new Error("detector requires --cursidian PATH or CURSIDIAN_ROOT"); return null; }
+  if (!raw) { if (required) throw new Error("cursidian engine requires --cursidian PATH or CURSIDIAN_ROOT"); return null; }
   const root = realExisting(raw);
-  const config = realExisting(path.join(root, ".llmsloprc.json"));
-  const cli = realExisting(path.join(root, "node_modules", "llm-slop-detector", "out", "cli.js"));
-  if (!isInside(config, root) || !isInside(cli, root)) throw new Error("detector config/CLI escapes trusted Cursidian root");
-  return { root, config, cli };
+  const configCandidates = [".cursidian-slop.json", ".llmsloprc.json"].map((n) => path.join(root, n));
+  const configPath = configCandidates.find((p) => fs.existsSync(p));
+  if (!configPath) throw new Error(`missing .cursidian-slop.json under ${root}`);
+  const config = realExisting(configPath);
+  const scanner = path.join(root, "scripts", "slop-scan-files.mjs");
+  const tsxCli = path.join(root, "node_modules", "tsx", "dist", "cli.mjs");
+  if (!fs.existsSync(scanner)) throw new Error(`missing ${scanner}`);
+  if (!fs.existsSync(tsxCli)) throw new Error(`missing tsx at ${tsxCli} (run npm install in Cursidian)`);
+  if (!isInside(config, root) || !isInside(scanner, root)) throw new Error("cursidian config/scanner escapes trusted Cursidian root");
+  return { root, config, scanner, tsxCli };
 }
-function validateDetectorFinding(f, allow) {
+function validateCursidianFinding(f, allow) {
   if (!f || typeof f !== "object" || typeof f.path !== "string" || typeof f.code !== "string" || typeof f.message !== "string") return null;
   let rp; try { rp = realExisting(f.path); } catch { return null; }
   if (!allow.has(rp)) return null;
   const line = Number.isInteger(f.line) && f.line > 0 ? f.line : null;
   const col = Number.isInteger(f.col) && f.col > 0 ? f.col : null;
-  return { path:rp, code:`detector:${f.code}`, line, col, message:f.message, reportOnly:true };
+  return { path:rp, code:`cursidian:${f.code}`, line, col, message:f.message, reportOnly:true };
 }
-function runDetector(detector, files, packs, includeCode) {
+function runCursidian(cursidian, files, packs, includeCode) {
   const findings=[], allow=new Set(files.map(realExisting));
   const batches=[]; let current=[], len=0;
   for (const f of files) { if (current.length && len+f.length>20_000) { batches.push(current); current=[]; len=0; } current.push(f); len+=f.length+1; } if(current.length) batches.push(current);
   for (const batch of batches) {
-    const args=[detector.cli, "--format", "json", "--config", detector.config, "--pack", packs, ...batch];
-    if(includeCode) args.splice(1,0,"--scan-comments");
-    const r=spawnSync(process.execPath,args,{encoding:"utf8",timeout:DETECTOR_TIMEOUT_MS,maxBuffer:DETECTOR_MAX_BUFFER});
-    if(r.error) throw new Error(`detector failed: ${r.error.message}`);
-    // llm-slop-detector exits 0 (clean) or 1 (findings); other statuses/signals are failures.
-    if(r.signal || (r.status!==0 && r.status!==1)) throw new Error(`detector exited ${r.status ?? r.signal}: ${(r.stderr||"").slice(0,1000)}`);
-    let data; try { data=JSON.parse(r.stdout||"[]"); } catch(e) { throw new Error(`invalid detector JSON: ${e.message}`); }
+    const args=[cursidian.tsxCli, cursidian.scanner, "--pack", packs, ...batch];
+    if(includeCode) args.splice(2,0,"--scan-comments");
+    const r=spawnSync(process.execPath,args,{encoding:"utf8",timeout:DETECTOR_TIMEOUT_MS,maxBuffer:DETECTOR_MAX_BUFFER,cwd:cursidian.root});
+    if(r.error) throw new Error(`cursidian slop scan failed: ${r.error.message}`);
+    // exits 0 (clean) or 1 (findings); other statuses/signals are failures.
+    if(r.signal || (r.status!==0 && r.status!==1)) throw new Error(`cursidian slop scan exited ${r.status ?? r.signal}: ${(r.stderr||"").slice(0,1000)}`);
+    let data; try { data=JSON.parse(r.stdout||"[]"); } catch(e) { throw new Error(`invalid cursidian slop JSON: ${e.message}`); }
     const rows=Array.isArray(data)?data:data?.findings;
-    if(!Array.isArray(rows)) throw new Error("detector JSON has no findings array");
-    for(const row of rows) { const v=validateDetectorFinding(row,allow); if(!v) throw new Error("detector returned an invalid or out-of-scope finding"); findings.push(v); }
+    if(!Array.isArray(rows)) throw new Error("cursidian slop JSON has no findings array");
+    for(const row of rows) { const v=validateCursidianFinding(row,allow); if(!v) throw new Error("cursidian returned an invalid or out-of-scope finding"); findings.push(v); }
   }
   return findings;
 }
@@ -227,7 +233,8 @@ function main() {
   const {values:v,positionals:p}=parsed;
   if(v.version){console.log(VERSION);return;} if(v.help){usage();return;}
   const cmd=p[0]; if(!["check","fix"].includes(cmd)) fail("first argument must be check or fix",v.json);
-  if(!["auto","builtin","detector"].includes(v.engine)) fail("--engine must be auto, builtin or detector",v.json);
+  const engine = v.engine === "detector" ? "cursidian" : v.engine;
+  if(!["auto","builtin","cursidian"].includes(engine)) fail("--engine must be auto, builtin or cursidian",v.json);
   if(v.backup && (cmd!=="fix" || v["dry-run"] || v.diff)) fail("--backup requires a writing fix and cannot be combined with --dry-run/--diff",v.json);
   const includeCode=v["include-code"]||v["scan-comments"]; const dryRun=cmd==="fix"&&(v["dry-run"]||v.diff);
   if(v["scan-comments"]&&!v.json) console.error("deslop: warning: --scan-comments is deprecated; it includes whole code files. Use --include-code.");
@@ -242,16 +249,16 @@ function main() {
     snapshots.set(file,snap); const edits=analyse(snap.text,options); for(const e of edits) builtin.push(displayFinding(file,e));
     if(cmd==="fix"&&edits.length){const next=applyEdits(snap.text,edits);proposed.push(file);if(v.diff)diffs.push(simpleDiff(file,snap.text,next));if(!dryRun){try{const bp=atomicWrite(file,next,snap.stat,v.backup);written.push(file);if(bp)backups.push(bp);}catch(e){errors.push({path:file,code:"write",message:e.message});}}}
   }
-  let detector=null,detectorFindings=[];
-  try { if(v.engine!=="builtin") detector=resolveDetector(v.cursidian,v.engine==="detector"); if(detector) detectorFindings=runDetector(detector,[...snapshots.keys()],v.pack,includeCode); }
+  let cursidian=null,cursidianFindings=[];
+  try { if(engine!=="builtin") cursidian=resolveCursidian(v.cursidian,engine==="cursidian"); if(cursidian) cursidianFindings=runCursidian(cursidian,[...snapshots.keys()],v.pack,includeCode); }
   catch(e){fail(e.message,v.json,errors);}
   let finalBuiltin=[];
   if(cmd==="fix"){
     for(const file of found.files){let text;if(dryRun&&snapshots.has(file)){const s=snapshots.get(file);text=applyEdits(s.text,analyse(s.text,options));}else{try{text=readSnapshot(file).text;}catch(e){errors.push({path:file,code:"rescan",message:e.message});continue;}}for(const e of analyse(text,options))finalBuiltin.push(displayFinding(file,e));}
   } else finalBuiltin=builtin;
-  const findings=[...finalBuiltin,...detectorFindings]; const incomplete=errors.length>0; const exitCode=incomplete?2:(findings.length?1:0); const status=incomplete?"incomplete":(findings.length?"findings":"clean");
-  const result={schema:SCHEMA,version:VERSION,status,exitCode,command:cmd,policy:{engine:v.engine,passes:["builtin",...(detector?["detector-report-only"]:[])],aggressive:v.aggressive,stripEmoji:v["strip-emoji"],includeCode,dryRun,backup:v.backup,detectorRoot:detector?.root||null,detectorConfig:detector?.config||null},summary:{roots:roots.map(r => path.resolve(r)),filesDiscovered:found.files.length,filesScanned:snapshots.size,proposedFiles:proposed.length,writtenFiles:written.length,remainingFindings:findings.length,detectorFindings:detectorFindings.length,errors:errors.length,prunedVaults:found.prunedVaults.length},findings,changes:{proposedFiles:proposed,writtenFiles:written,backups},errors,prunedVaults:found.prunedVaults};
-  if(v.json)console.log(JSON.stringify(result,null,2));else{console.log(`deslop ${VERSION}: ${status}`);console.log(`files: discovered=${result.summary.filesDiscovered} scanned=${result.summary.filesScanned} proposed=${proposed.length} written=${written.length}`);console.log(`findings: ${findings.length} (detector ${detectorFindings.length}); errors: ${errors.length}`);for(const f of findings)console.log(`${f.path}:${f.line??"?"}:${f.col??"?"} [${f.code}] ${f.message}`);for(const e of errors)console.error(`${e.path||"deslop"} [${e.code}] ${e.message}`);if(diffs.length)console.log(diffs.join("\n"));}
+  const findings=[...finalBuiltin,...cursidianFindings]; const incomplete=errors.length>0; const exitCode=incomplete?2:(findings.length?1:0); const status=incomplete?"incomplete":(findings.length?"findings":"clean");
+  const result={schema:SCHEMA,version:VERSION,status,exitCode,command:cmd,policy:{engine,passes:["builtin",...(cursidian?["cursidian-report-only"]:[])],aggressive:v.aggressive,stripEmoji:v["strip-emoji"],includeCode,dryRun,backup:v.backup,cursidianRoot:cursidian?.root||null,cursidianConfig:cursidian?.config||null},summary:{roots:roots.map(r => path.resolve(r)),filesDiscovered:found.files.length,filesScanned:snapshots.size,proposedFiles:proposed.length,writtenFiles:written.length,remainingFindings:findings.length,cursidianFindings:cursidianFindings.length,errors:errors.length,prunedVaults:found.prunedVaults.length},findings,changes:{proposedFiles:proposed,writtenFiles:written,backups},errors,prunedVaults:found.prunedVaults};
+  if(v.json)console.log(JSON.stringify(result,null,2));else{console.log(`deslop ${VERSION}: ${status}`);console.log(`files: discovered=${result.summary.filesDiscovered} scanned=${result.summary.filesScanned} proposed=${proposed.length} written=${written.length}`);console.log(`findings: ${findings.length} (cursidian ${cursidianFindings.length}); errors: ${errors.length}`);for(const f of findings)console.log(`${f.path}:${f.line??"?"}:${f.col??"?"} [${f.code}] ${f.message}`);for(const e of errors)console.error(`${e.path||"deslop"} [${e.code}] ${e.message}`);if(diffs.length)console.log(diffs.join("\n"));}
   process.exitCode=exitCode;
 }
 main();

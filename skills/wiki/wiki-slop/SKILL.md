@@ -45,13 +45,14 @@ must not** use them for vault writes.
 
 - Unicode typography: em/en dashes, curly quotes, ellipsis, arrows, bullets (note **body** and **frontmatter** string fields including `summary`)
 - Decorative emoji (`Extended_Pictographic`; keeps (c)(r)TM)
-- Phrase packs: `claudeisms`, `structural`, `puffery`, plus custom phrases in Cursidian `.llmsloprc.json` (report only)
+- Phrase packs: `claudeisms`, `structural`, `puffery`, `security`, plus custom phrases in Cursidian `.cursidian-slop.json` (report only)
 - Vault scan skips `.obsidian`, `.trash`, `.cursidian-trash`
 
 ## Config (Cursidian package -- reference)
 
-- `.llmsloprc.json` -- char/phrase rules (includes generated emoji ban list)
-- MCP: `src/lib/slop.ts` + `vault` `slop_check` / `deslop`
+- `.cursidian-slop.json` -- local typography/phrase extras; packs under `rules/slop/packs/`
+- First-party engine: `src/lib/slop-engine/` (used by MCP `src/lib/slop.ts` and `npm run slop:*`)
+- MCP: `vault` `slop_check` / `deslop`
 - Repo scripts exist for the **package** build gate; vault writes stay on MCP
 
 ## Report back

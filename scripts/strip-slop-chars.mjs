@@ -47,7 +47,7 @@ let replacements = 0;
 
 for (const file of walk(root)) {
   const base = path.basename(file);
-  if (base === ".llmsloprc.json" || base === "package-lock.json" || file.endsWith(".map")) {
+  if (base === ".cursidian-slop.json" || base === ".llmsloprc.json" || base === "package-lock.json" || file.endsWith(".map")) {
     continue;
   }
 

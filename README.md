@@ -4,8 +4,7 @@ Implementation of the Obsidian LLM-wiki (Karpathy) concept for Cursor, using an 
 
 Getting Started:
 - Download Obsidian, create an empty vault, make a note of its location.
-- Install the "LLM Slop Detector" plugin in your Cursor (thias-se.llm-slop-detector)
-- Install this MCP and the skills into your Cursor.
+- Install this MCP and the skills into your Cursor. (Optional: the third-party "LLM Slop Detector" Cursor extension is only an IDE highlighter - not required for `npm run slop:check` or vault deslop.)
 - Restart / Reload Cursor.
 - Enter this prompt: "I have just created an empty obsidian vault at *vault location*, please set up my wiki there"
 
@@ -160,7 +159,7 @@ Exception: none for vault writes. **wiki-slop** is vault/MCP-only (`vault` `slop
 
 ## Deslop (LLM-slop)
 
-Keeps AI typography (em/en dashes, curly quotes, ellipsis, arrows) and decorative emoji out of the package and, when you ask, the Obsidian vault. Uses [`llm-slop-detector`](https://www.npmjs.com/package/llm-slop-detector) with this repo's [`.llmsloprc.json`](.llmsloprc.json). Vault MCP deslop covers **bodies and frontmatter** (including `summary`) so index drift stays clear.
+Keeps AI typography (em/en dashes, curly quotes, ellipsis, arrows) and decorative emoji out of the package and, when you ask, the Obsidian vault. Uses Cursidian's first-party slop engine with [`.cursidian-slop.json`](.cursidian-slop.json) and vendored rules under [`rules/slop/`](rules/slop/). Vault MCP deslop covers **bodies and frontmatter** (including `summary`) so index drift stays clear.
 
 | Command / tool | Purpose |
 |----------------|---------|

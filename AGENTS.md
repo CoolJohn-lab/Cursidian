@@ -27,7 +27,7 @@ Protocol skill = **`vault`** (was `llm-wiki`). Product facts: `projects/cursidia
 
 Vault deslop is MCP-only for agents (skill `wiki-slop`; covers frontmatter `summary` so index drift stays clear). On-disk deslop for other repos / `~/.cursor` uses skill `slop` (shipped under `skills/wiki/slop/` with `scripts/deslop.mjs`; deployed by `skills:install`). Wiki scans do **not** gate `build` (vault lives outside the package). Keep `npm run slop:*` as this package's **build gate** only.
 
-Config: `.llmsloprc.json` + `.vscode/settings.json` (packs: `claudeisms`, `structural`, `puffery`, `security`).
+Config: `.cursidian-slop.json` + `rules/slop/` (packs: `claudeisms`, `structural`, `puffery`, `security`). Decorative emoji is gated by `EMOJI_RE` in code, not the char list.
 
 ## MCP server reload
 

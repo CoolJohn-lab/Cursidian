@@ -7,7 +7,7 @@ Do **not** tag or publish until a human confirms the gates below. Agents must no
 1. `npm run verify` is green locally (lint, typecheck, tests, build, MCP integration, skills checks).
 2. `[Unreleased]` in `CHANGELOG.md` has meaningful notes (or you intentionally pass `--allow-empty-changelog` to `npm run bump`).
 3. No private paths, tokens, or machine-specific vault paths in the diff.
-4. `npm pack --dry-run` lists `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, `skills/`, and `.llmsloprc.json`.
+4. `npm pack --dry-run` lists `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, `skills/`, `rules/`, and `.cursidian-slop.json`.
 5. GitHub Actions secret **`NPM_TOKEN`** is set on `CoolJohn-lab/Cursidian` (npm automation token with publish access).
 6. User explicitly asks to tag and publish.
 

@@ -1,16 +1,20 @@
-import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseFrontmatter, stringifyFrontmatter } from './frontmatter.js';
 import { readFileBounded } from './security.js';
+import {
+  loadRules as loadEngineRules,
+  resolveLocalConfigPath,
+  scanText,
+  type LoadedRules,
+  type ScanFinding,
+} from './slop-engine/index.js';
 import { toRelativePath } from './vault.js';
 import { listVaultMarkdownPaths, vaultGlob } from './vault-glob.js';
 import { TRASH_GLOB_IGNORE } from './trash.js';
 
-const require = createRequire(import.meta.url);
-
-/** Packs match .vscode/settings.json - skip cliches/academic (noisy in TS). */
+/** Packs match defaults - skip cliches/academic (noisy in TS). */
 export const SLOP_PACKS = ['claudeisms', 'structural', 'puffery', 'security'] as const;
 
 /** Keeps (c)(r)TM. Matches Extended_Pictographic (+ optional FE0F / ZWJ sequences). */
@@ -25,30 +29,7 @@ const WIKI_GLOB_IGNORES = [
   '**/node_modules/**',
 ];
 
-interface CharDef {
-  char: string;
-  name: string;
-  severity: string;
-  replacement?: string;
-  suggestion?: string;
-  source: string;
-}
-
-interface LoadedRules {
-  chars: Map<string, CharDef>;
-  phrases: unknown[];
-  charRegex: RegExp;
-}
-
-interface ScanFinding {
-  offset: number;
-  length: number;
-  matchText: string;
-  code: 'char' | 'phrase';
-  severity: string;
-  message: string;
-  source: string;
-}
+export type { LoadedRules, ScanFinding };
 
 export type SlopRegion = 'body' | 'frontmatter' | 'emoji';
 
@@ -99,8 +80,8 @@ export function resolvePackageRoot(): string {
   for (const candidate of candidates) {
     if (
       fs.existsSync(path.join(candidate, 'package.json')) &&
-      (fs.existsSync(path.join(candidate, '.llmsloprc.json')) ||
-        fs.existsSync(path.join(candidate, 'dist', '.llmsloprc.json')))
+      (resolveLocalConfigPath(candidate) ||
+        fs.existsSync(path.join(candidate, 'rules', 'slop', 'builtin-typography.json')))
     ) {
       return candidate;
     }
@@ -113,38 +94,18 @@ export function resolvePackageRoot(): string {
   return path.resolve(here, '..', '..');
 }
 
-function resolveSlopConfigPath(packageRoot: string): string {
-  const primary = path.join(packageRoot, '.llmsloprc.json');
-  if (fs.existsSync(primary)) return primary;
-  const nested = path.join(packageRoot, 'dist', '.llmsloprc.json');
-  if (fs.existsSync(nested)) return nested;
-  return primary;
-}
-
-function resolveDetectorRoot(): string {
-  const loaderPath = require.resolve('llm-slop-detector/out/node/ruleLoader.js');
-  return path.resolve(path.dirname(loaderPath), '..', '..');
-}
-
 export function loadSlopRules(): LoadedRules {
   const packageRoot = resolvePackageRoot();
-  const configPath = resolveSlopConfigPath(packageRoot);
-  const key = `${packageRoot}|${configPath}|${SLOP_PACKS.join(',')}`;
+  const configPath = resolveLocalConfigPath(packageRoot);
+  const key = `${packageRoot}|${configPath ?? ''}|${SLOP_PACKS.join(',')}`;
   if (cachedRules && cachedRulesKey === key) {
     return cachedRules;
   }
 
-  const { loadRules } = require('llm-slop-detector/out/node/ruleLoader.js') as {
-    loadRules: (opts: Record<string, unknown>) => LoadedRules;
-  };
-
-  cachedRules = loadRules({
-    extensionRoot: resolveDetectorRoot(),
+  cachedRules = loadEngineRules({
+    packageRoot,
     enabledPacks: [...SLOP_PACKS],
-    localRulePaths: fs.existsSync(configPath) ? [configPath] : [],
-    userPhrases: [],
-    charReplacements: {},
-    severityOverrides: {},
+    localRulePaths: configPath ? [configPath] : [],
     useBuiltin: true,
   });
   cachedRulesKey = key;
@@ -211,10 +172,6 @@ function deslopStringValue(
   relativePath: string,
   fieldPath: string,
 ): { value: string; charFixes: number; emojiRemovals: number; findings: SlopFinding[] } {
-  const { scanText } = require('llm-slop-detector/out/core/scan.js') as {
-    scanText: (text: string, rules: LoadedRules, language: string) => ScanFinding[];
-  };
-
   const findings = scanText(value, rules, 'plaintext');
   const applied = applyBodyCharFixes(value, findings, relativePath);
   const remappedFindings = applied.findings.map((f) => ({
@@ -333,9 +290,6 @@ export function planFileDeslop(
   rules: LoadedRules,
 ): FileSlopPlan {
   const relativePath = toRelativePath(vaultPath, absolutePath).replace(/\\/g, '/');
-  const { scanText } = require('llm-slop-detector/out/core/scan.js') as {
-    scanText: (text: string, rules: LoadedRules, language: string) => ScanFinding[];
-  };
 
   const parsed = parseFrontmatter(raw);
   const bodyScan = scanText(parsed.content, rules, 'markdown');

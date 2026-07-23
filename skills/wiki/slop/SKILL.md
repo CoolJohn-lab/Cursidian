@@ -32,8 +32,8 @@ node "$SCRIPT" <check|fix> [paths...] [options]
 Key options:
 
 - `--preset cursor-global|cursidian`: add a known scan scope.
-- `--engine auto|builtin|detector`: `builtin` uses only deterministic rules; `auto` adds detector findings only when an explicit trusted Cursidian root is configured; `detector` requires that integration. Detector findings are report-only.
-- `--cursidian PATH`: trusted Cursidian root for the preset or detector. `CURSIDIAN_ROOT` is the environment fallback (on this Mac usually `~/local-repos/cursidian`).
+- `--engine auto|builtin|cursidian`: `builtin` uses only deterministic rules; `auto` adds Cursidian first-party engine findings when an explicit trusted Cursidian root is configured; `cursidian` requires that integration. Engine phrase/char findings beyond the builtin map are report-only (`--engine detector` remains a deprecated alias).
+- `--cursidian PATH`: trusted Cursidian root for the preset or cursidian engine. `CURSIDIAN_ROOT` is the environment fallback (on this Mac usually `~/local-repos/cursidian`).
 - `--strip-emoji`: remove complete decorative emoji graphemes. This is opt-in because emoji can carry meaning.
 - `--aggressive`: also normalise arrows, bullets, mathematical symbols and exotic spaces. This is opt-in because those characters can be intentional.
 - `--include-code`: include source and structured-data extensions. Rules still apply to the entire file, not only comments; preview first.
@@ -43,7 +43,7 @@ Key options:
 - `--diff`: show a unified-style preview and imply `--dry-run`.
 - `--backup`: create a collision-free `<file>.deslop.bak[.N]` before each write; a backup failure prevents that write.
 - `--json`: emit the stable `deslop/v2` result envelope to stdout. Human diagnostics go to stderr.
-- `--pack LIST`: detector packs (default `claudeisms,structural,puffery,security`).
+- `--pack LIST`: cursidian phrase packs (default `claudeisms,structural,puffery,security`).
 
 Exit status is `0` when the requested operation completed and the simulated or actual result is clean, `1` when findings remain, and `2` for invalid usage, inaccessible/skipped targets, integration failure, or incomplete writes.
 
@@ -54,7 +54,7 @@ Exit status is `0` when the requested operation completed and the simulated or a
 3. Use the conservative defaults first. Add `--strip-emoji`, `--aggressive`, or `--include-code` only when the user asked for that broader policy and understands that symbols or file semantics may change.
 4. Run `fix` only after the scope and policy are settled. Add `--backup` for valuable or uncommitted files; version control is preferable for repositories.
 5. Re-run `check` with the same policy. The helper also evaluates the post-fix state, but a separate check makes the final command and exit status easy to report.
-6. Rewrite detector phrase findings manually only if the user asked for substantive prose cleanup. Never auto-apply text extracted from detector messages.
+6. Rewrite cursidian phrase findings manually only if the user asked for substantive prose cleanup. Never auto-apply text extracted from engine messages.
 
 ## Built-in policy
 
@@ -68,14 +68,14 @@ The default policy fixes common typography with exact-span edits: em/en/figure d
 
 The helper skips symlinks and non-regular files, accepts only valid UTF-8, enforces a 5 MiB per-file limit before reading, and uses same-directory temporary files plus atomic rename for writes. It protects all vault paths discovered from `OBSIDIAN_VAULT_PATH` and `~/.cursor/mcp.json`, including when a requested root is their parent, but undiscovered vaults remain the operator's responsibility.
 
-Treat any skipped, unreadable, changed-during-run or failed file as an incomplete run (exit `2`), not as a clean result. Detector output is schema-checked, path-allowlisted and report-only; `auto` never executes a detector merely because one appears in the scanned repository.
+Treat any skipped, unreadable, changed-during-run or failed file as an incomplete run (exit `2`), not as a clean result. Cursidian engine output is schema-checked, path-allowlisted and report-only; `auto` never executes that pass merely because a Cursidian checkout appears under the scanned tree.
 
 ## Report back
 
 State:
 
 - exact scope and command/policy;
-- engine passes used and detector/config path when applicable;
+- engine passes used and cursidian/config path when applicable;
 - files scanned, proposed or written;
 - skipped/error paths and reasons;
 - remaining typography, emoji and phrase findings; and

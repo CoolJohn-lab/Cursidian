@@ -1,6 +1,6 @@
 {
   "name": "cursidian",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "MCP server for Obsidian vaults, optimised for Cursor agents - safe writes, lean tool surface, direct filesystem access.",
   "type": "module",
   "bin": {
@@ -13,15 +13,16 @@
     "LICENSE",
     "CHANGELOG.md",
     "skills",
-    ".llmsloprc.json"
+    "rules",
+    ".cursidian-slop.json"
   ],
   "scripts": {
     "build": "tsc && node scripts/copy-cli-assets.mjs",
     "prebuild": "npm run slop:check",
-    "slop:check": "node scripts/slop-check.mjs",
-    "slop:fix": "node scripts/fix-slop.mjs",
-    "slop:check:wiki": "node scripts/slop-check.mjs --wiki",
-    "slop:fix:wiki": "node scripts/fix-slop.mjs --wiki",
+    "slop:check": "tsx scripts/slop-check.mjs",
+    "slop:fix": "tsx scripts/fix-slop.mjs",
+    "slop:check:wiki": "tsx scripts/slop-check.mjs --wiki",
+    "slop:fix:wiki": "tsx scripts/fix-slop.mjs --wiki",
     "smoke": "node scripts/smoke-test.mjs",
     "mcp:test": "node scripts/mcp-test.mjs",
     "mcp:check": "node scripts/check-mcp-config.mjs",
@@ -75,7 +76,6 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "fast-glob": "^3.3.3",
-    "llm-slop-detector": "^0.10.0",
     "stemmer": "^2.0.1",
     "yaml": "^2.9.0",
     "zod": "^4.3.6"
